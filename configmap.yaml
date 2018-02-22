@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    fabric8.io/target-platform: kubernetes
+  labels:
+    provider: stakater
+    project: ingress-monitor-controller
+    version: 1.0.0
+  name: ingress-monitor-controller
+data:
+  config.yml: |
+    providers: 
+        - name: UptimeRobot
+          apiKey: 657a68d9ashdyasjdklkskuasd
+          apiURL: http://uptimerobot.com/api/v1
+          alertContacts: "1_0_0-2_0_0"
+    enableMonitorDeletion: true
