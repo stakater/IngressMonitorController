@@ -29,6 +29,7 @@ func NewMonitorController(namespace string, clientset *kubernetes.Clientset, con
 	controller := &MonitorController{
 		clientset: clientset,
 		namespace: namespace,
+		config:    config,
 	}
 
 	if len(config.providers) < 1 {
@@ -116,6 +117,10 @@ func (c *MonitorController) handleMonitor(key string) error {
 	}
 
 	if !exists {
+		if c.config.enableMonitorDeletion {
+			// Delete the monitor if it exists
+			//monitorName := key + c.namespace
+		}
 		// Below we will warm up our cache with an Ingress, so that we will see a delete for one ingress
 		fmt.Printf("Ingress %s does not exist anymore\n", key)
 	} else {
