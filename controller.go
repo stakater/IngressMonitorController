@@ -16,18 +16,30 @@ import (
 
 // MonitorController which can be used for monitoring ingresses
 type MonitorController struct {
-	clientset *kubernetes.Clientset
-	namespace string
-	indexer   cache.Indexer
-	queue     workqueue.RateLimitingInterface
-	informer  cache.Controller
+	clientset       *kubernetes.Clientset
+	namespace       string
+	indexer         cache.Indexer
+	queue           workqueue.RateLimitingInterface
+	informer        cache.Controller
+	monitorServices []MonitorServiceProxy
+	config          Config
 }
 
-//
-func NewMonitorController(namespace string, clientset *kubernetes.Clientset) *MonitorController {
+func NewMonitorController(namespace string, clientset *kubernetes.Clientset, config Config) *MonitorController {
 	controller := &MonitorController{
 		clientset: clientset,
 		namespace: namespace,
+	}
+
+	if len(config.providers) < 1 {
+		panic("Cannot Instantiate controller with no providers")
+	}
+
+	for index := 0; index < len(config.providers); index++ {
+		provider := config.providers[index]
+		monitorService := (&MonitorServiceProxy{}).OfType(provider.name)
+		monitorService.Setup(provider.apiKey, provider.apiURL, provider.alertContacts)
+		controller.monitorServices = append(controller.monitorServices, monitorService)
 	}
 
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
@@ -87,7 +99,7 @@ func (c *MonitorController) processNextItem() bool {
 	defer c.queue.Done(key)
 
 	// Invoke the method containing the business logic
-	err := c.syncToStdout(key.(string))
+	err := c.handleMonitor(key.(string))
 	// Handle the error if something went wrong during the execution of the business logic
 	c.handleErr(err, key)
 	return true
@@ -96,7 +108,7 @@ func (c *MonitorController) processNextItem() bool {
 // syncToStdout is the business logic of the controller. In this controller it simply prints
 // information about the ingress to stdout. In case an error happened, it has to simply return the error.
 // The retry logic should not be part of the business logic.
-func (c *MonitorController) syncToStdout(key string) error {
+func (c *MonitorController) handleMonitor(key string) error {
 	obj, exists, err := c.indexer.GetByKey(key)
 	if err != nil {
 		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
@@ -108,6 +120,31 @@ func (c *MonitorController) syncToStdout(key string) error {
 		fmt.Printf("Ingress %s does not exist anymore\n", key)
 	} else {
 		ingress := obj.(*v1beta1.Ingress)
+
+		monitorName := ingress.GetName() + "-" + c.namespace
+		// Need to figure out another way of adding protocol
+		monitorURL := "https://" + ingress.Spec.Rules[0].Host
+
+		fmt.Println("Monitor: Name: " + monitorName)
+		fmt.Println("Monitor URL: " + monitorURL)
+
+		for index := 0; index < len(c.monitorServices); index++ {
+			monitorService := c.monitorServices[index]
+
+			m, _ := monitorService.GetByName(monitorName)
+
+			if m != nil { // Monitor Already Exists
+				fmt.Println("Monitor alread exists for ingress: " + monitorName)
+				if m.url != monitorURL { // Monitor does not have the same url
+					// update the monitor with the new url
+				}
+			} else {
+				// Create a new monitor for this ingress
+				m := Monitor{name: monitorName, url: monitorURL}
+				monitorService.Add(m)
+			}
+		}
+
 		fmt.Println(" Something Changed in ingress: " + ingress.GetName())
 		// Note that you also have to check the uid if you have a local controlled resource, which
 		// is dependent on the actual instance, to detect that an Ingress was recreated with the same name
