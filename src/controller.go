@@ -35,14 +35,14 @@ func NewMonitorController(namespace string, clientset *kubernetes.Clientset, con
 		config:    config,
 	}
 
-	if len(config.providers) < 1 {
+	if len(config.Providers) < 1 {
 		panic("Cannot Instantiate controller with no providers")
 	}
 
-	for index := 0; index < len(config.providers); index++ {
-		provider := config.providers[index]
-		monitorService := (&MonitorServiceProxy{}).OfType(provider.name)
-		monitorService.Setup(provider.apiKey, provider.apiURL, provider.alertContacts)
+	for index := 0; index < len(config.Providers); index++ {
+		provider := config.Providers[index]
+		monitorService := (&MonitorServiceProxy{}).OfType(provider.Name)
+		monitorService.Setup(provider.ApiKey, provider.ApiURL, provider.AlertContacts)
 		controller.monitorServices = append(controller.monitorServices, monitorService)
 	}
 
@@ -130,7 +130,7 @@ func (c *MonitorController) handleIngress(key string) error {
 }
 
 func (c *MonitorController) handleIngressOnDeletion(key string) {
-	if c.config.enableMonitorDeletion {
+	if c.config.EnableMonitorDeletion {
 		// Delete the monitor if it exists
 		// since key is in the format "namespace/ingressname"
 		splitted := strings.Split(key, "/")

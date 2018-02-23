@@ -20,3 +20,4 @@ import:
   - tools/clientcmd
   - tools/cache
   - util/workqueue
+- package: gopkg.in/yaml.v2
