@@ -1,6 +1,0 @@
-package: .
-import:
-- package: k8s.io/api
-  subpackages:
-  - apps/v1
-  - extensions/v1beta1
