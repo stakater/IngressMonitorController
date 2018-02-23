@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    configmap.fabric8.io/update-on-change: ingress-monitor-controller
+  labels:
+    app: ingress-monitor-controller
+    provider: stakater
+    version: 1.0.0
+  name: ingress-monitor-controller
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  template:
+    metadata:
+      annotations:
+        configmap.fabric8.io/update-on-change: ingress-monitor-controller
+      labels:
+        app: ingress-monitor-controller
+        provider: stakater
+        version: 1.0.0
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+# TODO: Update name
+        image: stakater/go-glide:1.9.3
+#       livenessProbe:
+#          exec:
+#            command:
+#            - cat
+#            - /tmp/restarteveryday
+#          initialDelaySeconds: 86164
+        name: ingress-monitor-controller
+        volumeMounts:
+        - mountPath: /go/ingress-monitor-controller/config.yaml
+          subpath: config.yaml
+          name: config-volume
+#      serviceAccountName: ingress-monitor-controller-svcaccount
+      volumes:
+      - configMap:
+          name: ingress-monitor-controller
+        name: config-volume
