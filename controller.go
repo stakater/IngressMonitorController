@@ -119,7 +119,17 @@ func (c *MonitorController) handleMonitor(key string) error {
 	if !exists {
 		if c.config.enableMonitorDeletion {
 			// Delete the monitor if it exists
-			//monitorName := key + c.namespace
+			monitorName := key + c.namespace
+			for index := 0; index < len(c.monitorServices); index++ {
+				monitorService := c.monitorServices[index]
+				m, _ := monitorService.GetByName(monitorName)
+				if m != nil {
+					monitorService.Remove(*m)
+				} else {
+					// Cannot find monitor for this ingress
+					fmt.Println("Cannot find monitor for this ingress")
+				}
+			}
 		}
 		// Below we will warm up our cache with an Ingress, so that we will see a delete for one ingress
 		fmt.Printf("Ingress %s does not exist anymore\n", key)

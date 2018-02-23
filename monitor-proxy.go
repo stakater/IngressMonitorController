@@ -35,3 +35,7 @@ func (mp *MonitorServiceProxy) Add(m Monitor) {
 func (mp *MonitorServiceProxy) Update(m Monitor) {
 	mp.monitor.Update(m)
 }
+
+func (mp *MonitorServiceProxy) Remove(m Monitor) {
+	mp.monitor.Remove(m)
+}

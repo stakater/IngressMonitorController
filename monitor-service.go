@@ -5,6 +5,6 @@ type MonitorService interface {
 	Add(m Monitor)
 	Update(m Monitor)
 	GetByName(name string) (*Monitor, error)
-	// Remove()
+	Remove(m Monitor)
 	Setup(apiKey string, url string, alertContacts string)
 }

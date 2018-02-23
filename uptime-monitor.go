@@ -127,7 +127,7 @@ func (monitor *UpTimeMonitorService) Update(m Monitor) {
 		defer res.Body.Close()
 		body, _ := ioutil.ReadAll(res.Body)
 
-		var f UptimeMonitorUpdateMonitorResponse
+		var f UptimeMonitorStatusMonitorResponse
 		json.Unmarshal(body, &f)
 
 		if f.Stat == "ok" {
@@ -138,5 +138,35 @@ func (monitor *UpTimeMonitorService) Update(m Monitor) {
 		}
 	} else {
 		glog.Errorln("UpdateMonitor Request failed")
+	}
+}
+
+func (monitor *UpTimeMonitorService) Remove(m Monitor) {
+	action := "deleteMonitor"
+
+	payload := strings.NewReader("api_key=" + monitor.apiKey + "&format=json&id=" + m.id)
+
+	req, _ := http.NewRequest("POST", monitor.url+action, payload)
+
+	req.Header.Add("cache-control", "no-cache")
+	req.Header.Add("content-type", "application/x-www-form-urlencoded")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	if res.StatusCode == 200 {
+		defer res.Body.Close()
+		body, _ := ioutil.ReadAll(res.Body)
+
+		var f UptimeMonitorStatusMonitorResponse
+		json.Unmarshal(body, &f)
+
+		if f.Stat == "ok" {
+			fmt.Println("Monitor Removed")
+		} else {
+			fmt.Println("Monitor couldn't be removed")
+			fmt.Println(string(body))
+		}
+	} else {
+		glog.Errorln("RemoveMonitor Request failed")
 	}
 }
