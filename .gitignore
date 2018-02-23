@@ -1,2 +1,2 @@
-vendor
-glide.lock
+src/vendor
+src/glide.lock
