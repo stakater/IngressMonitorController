@@ -9,10 +9,10 @@ metadata:
     version: 1.0.0
   name: ingress-monitor-controller
 data:
-  config.yml: |
+  config.yaml: |-
     providers: 
-        - name: UptimeRobot
-          apiKey: 657a68d9ashdyasjdklkskuasd
-          apiURL: http://uptimerobot.com/api/v1
-          alertContacts: "1_0_0-2_0_0"
+    - name: UptimeRobot
+      apiKey: u544483-b3647f3e973b66417071a555
+      apiURL: https://api.uptimerobot.com/v2/
+      alertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"
     enableMonitorDeletion: true
