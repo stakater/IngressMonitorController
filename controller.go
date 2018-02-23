@@ -147,7 +147,7 @@ func (c *MonitorController) getMonitorName(ingressName string, namespace string)
 
 func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
 	monitorName := c.getMonitorName(ingress.GetName(), c.namespace)
-	// Need to figure out another way of adding protocol
+	//TODO: Need to figure out another way of adding protocol
 	monitorURL := "https://" + ingress.Spec.Rules[0].Host
 
 	fmt.Println("Monitor: Name: " + monitorName)
@@ -165,6 +165,7 @@ func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.I
 		}
 
 	} else {
+		c.removeMonitorsIfExist(monitorName)
 		fmt.Println("Not doing anything with this ingress because no annotation exists with name: " + monitorEnabledAnnotation)
 	}
 }
