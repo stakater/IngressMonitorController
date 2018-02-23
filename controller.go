@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang/glog"
@@ -131,13 +132,21 @@ func (c *MonitorController) handleIngress(key string) error {
 func (c *MonitorController) handleIngressOnDeletion(key string) {
 	if c.config.enableMonitorDeletion {
 		// Delete the monitor if it exists
-		monitorName := key + c.namespace
+		// since key is in the format "namespace/ingressname"
+		splitted := strings.Split(key, "/")
+		monitorName := c.getMonitorName(splitted[1], c.namespace)
+
+		fmt.Println("Monitor name for deletion: " + monitorName)
 		c.removeMonitorsIfExist(monitorName)
 	}
 }
 
+func (c *MonitorController) getMonitorName(ingressName string, namespace string) string {
+	return ingressName + "-" + namespace
+}
+
 func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
-	monitorName := ingress.GetName() + "-" + c.namespace
+	monitorName := c.getMonitorName(ingress.GetName(), c.namespace)
 	// Need to figure out another way of adding protocol
 	monitorURL := "https://" + ingress.Spec.Rules[0].Host
 
@@ -245,7 +254,6 @@ func (c *MonitorController) onIngressDeleted(obj interface{}) {
 	// key function.
 	key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
 	if err == nil {
-		fmt.Println("There is no error in deletion")
 		c.queue.Add(key)
 	} else {
 		fmt.Println("Error: " + err.Error())
