@@ -36,9 +36,10 @@ spec:
 #          initialDelaySeconds: 86164
         name: ingress-monitor-controller
         volumeMounts:
-        - mountPath: /etc/ingress-monitor-controller
+        - mountPath: /go/ingress-monitor-controller/config.yaml
+          subpath: config.yaml
           name: config-volume
-      serviceAccountName: ingress-monitor-controller-svcaccount
+#      serviceAccountName: ingress-monitor-controller-svcaccount
       volumes:
       - configMap:
           name: ingress-monitor-controller
