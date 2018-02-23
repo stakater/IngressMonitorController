@@ -14,6 +14,8 @@ import (
 	"k8s.io/client-go/util/workqueue"
 )
 
+const monitorEnabledAnnotation = "monitor.stakater.com/enabled"
+
 // MonitorController which can be used for monitoring ingresses
 type MonitorController struct {
 	clientset       *kubernetes.Clientset
@@ -100,7 +102,7 @@ func (c *MonitorController) processNextItem() bool {
 	defer c.queue.Done(key)
 
 	// Invoke the method containing the business logic
-	err := c.handleMonitor(key.(string))
+	err := c.handleIngress(key.(string))
 	// Handle the error if something went wrong during the execution of the business logic
 	c.handleErr(err, key)
 	return true
@@ -109,7 +111,7 @@ func (c *MonitorController) processNextItem() bool {
 // syncToStdout is the business logic of the controller. In this controller it simply prints
 // information about the ingress to stdout. In case an error happened, it has to simply return the error.
 // The retry logic should not be part of the business logic.
-func (c *MonitorController) handleMonitor(key string) error {
+func (c *MonitorController) handleIngress(key string) error {
 	obj, exists, err := c.indexer.GetByKey(key)
 	if err != nil {
 		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
@@ -117,56 +119,85 @@ func (c *MonitorController) handleMonitor(key string) error {
 	}
 
 	if !exists {
-		if c.config.enableMonitorDeletion {
-			// Delete the monitor if it exists
-			monitorName := key + c.namespace
-			for index := 0; index < len(c.monitorServices); index++ {
-				monitorService := c.monitorServices[index]
-				m, _ := monitorService.GetByName(monitorName)
-				if m != nil {
-					monitorService.Remove(*m)
-				} else {
-					// Cannot find monitor for this ingress
-					fmt.Println("Cannot find monitor for this ingress")
-				}
-			}
-		}
-		// Below we will warm up our cache with an Ingress, so that we will see a delete for one ingress
-		fmt.Printf("Ingress %s does not exist anymore\n", key)
+		c.handleIngressOnDeletion(key)
+
 	} else {
 		ingress := obj.(*v1beta1.Ingress)
-
-		monitorName := ingress.GetName() + "-" + c.namespace
-		// Need to figure out another way of adding protocol
-		monitorURL := "https://" + ingress.Spec.Rules[0].Host
-
-		fmt.Println("Monitor: Name: " + monitorName)
-		fmt.Println("Monitor URL: " + monitorURL)
-
-		for index := 0; index < len(c.monitorServices); index++ {
-			monitorService := c.monitorServices[index]
-
-			m, _ := monitorService.GetByName(monitorName)
-
-			if m != nil { // Monitor Already Exists
-				fmt.Println("Monitor alread exists for ingress: " + monitorName)
-				if m.url != monitorURL { // Monitor does not have the same url
-					// update the monitor with the new url
-					m.url = monitorURL
-					monitorService.Update(*m)
-				}
-			} else {
-				// Create a new monitor for this ingress
-				m := Monitor{name: monitorName, url: monitorURL}
-				monitorService.Add(m)
-			}
-		}
-
-		fmt.Println(" Something Changed in ingress: " + ingress.GetName())
-		// Note that you also have to check the uid if you have a local controlled resource, which
-		// is dependent on the actual instance, to detect that an Ingress was recreated with the same name
+		c.handleIngressOnCreationOrUpdation(ingress)
 	}
 	return nil
+}
+
+func (c *MonitorController) handleIngressOnDeletion(key string) {
+	if c.config.enableMonitorDeletion {
+		// Delete the monitor if it exists
+		monitorName := key + c.namespace
+		c.removeMonitorsIfExist(monitorName)
+	}
+}
+
+func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
+	monitorName := ingress.GetName() + "-" + c.namespace
+	// Need to figure out another way of adding protocol
+	monitorURL := "https://" + ingress.Spec.Rules[0].Host
+
+	fmt.Println("Monitor: Name: " + monitorName)
+	fmt.Println("Monitor URL: " + monitorURL)
+
+	annotations := ingress.GetAnnotations()
+
+	if value, ok := annotations[monitorEnabledAnnotation]; ok {
+		if value == "true" {
+			// Annotation exists and is enabled
+			c.createOrUpdateMonitors(monitorName, monitorURL)
+		} else {
+			// Annotation exists but is disabled
+			c.removeMonitorsIfExist(monitorName)
+		}
+
+	} else {
+		fmt.Println("Not doing anything with this ingress because no annotation exists with name: " + monitorEnabledAnnotation)
+	}
+}
+
+func (c *MonitorController) removeMonitorsIfExist(monitorName string) {
+	for index := 0; index < len(c.monitorServices); index++ {
+		c.removeMonitorIfExists(c.monitorServices[index], monitorName)
+	}
+}
+
+func (c *MonitorController) removeMonitorIfExists(monitorService MonitorServiceProxy, monitorName string) {
+	m, _ := monitorService.GetByName(monitorName)
+
+	if m != nil { // Monitor Exists
+		monitorService.Remove(*m) // Remove the monitor
+	} else {
+		fmt.Println("Cannot find monitor for this ingress")
+	}
+}
+
+func (c *MonitorController) createOrUpdateMonitors(monitorName string, monitorURL string) {
+	for index := 0; index < len(c.monitorServices); index++ {
+		monitorService := c.monitorServices[index]
+		c.createOrUpdateMonitor(monitorService, monitorName, monitorURL)
+	}
+}
+
+func (c *MonitorController) createOrUpdateMonitor(monitorService MonitorServiceProxy, monitorName string, monitorURL string) {
+	m, _ := monitorService.GetByName(monitorName)
+
+	if m != nil { // Monitor Already Exists
+		fmt.Println("Monitor already exists for ingress: " + monitorName)
+		if m.url != monitorURL { // Monitor does not have the same url
+			// update the monitor with the new url
+			m.url = monitorURL
+			monitorService.Update(*m)
+		}
+	} else {
+		// Create a new monitor for this ingress
+		m := Monitor{name: monitorName, url: monitorURL}
+		monitorService.Add(m)
+	}
 }
 
 // handleErr checks if an error happened and makes sure we will retry later.

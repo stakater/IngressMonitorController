@@ -11,7 +11,7 @@ func main() {
 	// 	glog.Fatalf("Could not find the current namespace")
 	// }
 
-	currentNamespace := "tools"
+	currentNamespace := "test2"
 
 	// creates the in-cluster config
 	clusterConfig, err := rest.InClusterConfig()
