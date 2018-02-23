@@ -31,3 +31,7 @@ func (mp *MonitorServiceProxy) GetByName(name string) (*Monitor, error) {
 func (mp *MonitorServiceProxy) Add(m Monitor) {
 	mp.monitor.Add(m)
 }
+
+func (mp *MonitorServiceProxy) Update(m Monitor) {
+	mp.monitor.Update(m)
+}

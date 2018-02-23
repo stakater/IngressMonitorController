@@ -142,6 +142,8 @@ func (c *MonitorController) handleMonitor(key string) error {
 				fmt.Println("Monitor alread exists for ingress: " + monitorName)
 				if m.url != monitorURL { // Monitor does not have the same url
 					// update the monitor with the new url
+					m.url = monitorURL
+					monitorService.Update(*m)
 				}
 			} else {
 				// Create a new monitor for this ingress

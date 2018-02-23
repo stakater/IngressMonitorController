@@ -107,7 +107,36 @@ func (monitor *UpTimeMonitorService) Add(m Monitor) {
 			fmt.Println(string(body))
 		}
 	} else {
+		glog.Errorln("AddMonitor Request failed")
+	}
+}
+
+func (monitor *UpTimeMonitorService) Update(m Monitor) {
+	action := "editMonitor"
+
+	payload := strings.NewReader("api_key=" + monitor.apiKey + "&format=json&id=" + m.id + "&friendly_name=" + m.name + "&url=" + m.url)
+
+	req, _ := http.NewRequest("POST", monitor.url+action, payload)
+
+	req.Header.Add("cache-control", "no-cache")
+	req.Header.Add("content-type", "application/x-www-form-urlencoded")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	if res.StatusCode == 200 {
+		defer res.Body.Close()
 		body, _ := ioutil.ReadAll(res.Body)
-		fmt.Println(string(body))
+
+		var f UptimeMonitorUpdateMonitorResponse
+		json.Unmarshal(body, &f)
+
+		if f.Stat == "ok" {
+			fmt.Println("Monitor Updated")
+		} else {
+			fmt.Println("Monitor couldn't be updated")
+			fmt.Println(string(body))
+		}
+	} else {
+		glog.Errorln("UpdateMonitor Request failed")
 	}
 }

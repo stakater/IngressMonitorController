@@ -46,3 +46,10 @@ type UptimeMonitorMonitorStatus struct {
 	ID     int `json:"id"`
 	Status int `json:"status"`
 }
+
+type UptimeMonitorUpdateMonitorResponse struct {
+	Stat    string `json:"stat"`
+	Monitor struct {
+		ID int `json:"id"`
+	} `json:"monitor"`
+}

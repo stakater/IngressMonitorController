@@ -1,10 +1,15 @@
 package main
 
+import (
+	"strconv"
+)
+
 func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor) *Monitor {
 	var m Monitor
 
 	m.name = uptimeMonitor.FriendlyName
 	m.url = uptimeMonitor.URL
+	m.id = strconv.Itoa(uptimeMonitor.ID)
 
 	return &m
 }
