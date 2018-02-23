@@ -8,6 +8,7 @@ ADD ./src /go/${SRC_DIR}
 RUN cd ${SRC_DIR} && \
     glide update && \
     cp -r ./vendor/* /go/src/ && \
+    go test && \
     go build -o ./out/main
 
 CMD [ "/bin/sh", "-c", "${SRC_DIR}/out/main" ]
