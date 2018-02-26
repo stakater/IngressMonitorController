@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -35,16 +35,7 @@ func NewMonitorController(namespace string, clientset *kubernetes.Clientset, con
 		config:    config,
 	}
 
-	if len(config.Providers) < 1 {
-		panic("Cannot Instantiate controller with no providers")
-	}
-
-	for index := 0; index < len(config.Providers); index++ {
-		provider := config.Providers[index]
-		monitorService := (&MonitorServiceProxy{}).OfType(provider.Name)
-		monitorService.Setup(provider.ApiKey, provider.ApiURL, provider.AlertContacts)
-		controller.monitorServices = append(controller.monitorServices, monitorService)
-	}
+	controller.monitorServices = setupMonitorServicesForProviders(config.Providers)
 
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
 
@@ -63,12 +54,26 @@ func NewMonitorController(namespace string, clientset *kubernetes.Clientset, con
 	return controller
 }
 
+func setupMonitorServicesForProviders(providers []Provider) []MonitorServiceProxy {
+	if len(providers) < 1 {
+		log.Panic("Cannot Instantiate controller with no providers")
+	}
+
+	monitorServices := []MonitorServiceProxy{}
+
+	for index := 0; index < len(providers); index++ {
+		monitorServices = append(monitorServices, providers[index].createMonitorService())
+	}
+
+	return monitorServices
+}
+
 func (c *MonitorController) Run(threadiness int, stopCh chan struct{}) {
 	defer runtime.HandleCrash()
 
 	// Let the workers stop when we are done
 	defer c.queue.ShutDown()
-	glog.Info("Starting Ingress Monitor controller")
+	log.Println("Starting Ingress Monitor controller")
 
 	go c.informer.Run(stopCh)
 
@@ -83,7 +88,7 @@ func (c *MonitorController) Run(threadiness int, stopCh chan struct{}) {
 	}
 
 	<-stopCh
-	glog.Info("Stopping Ingress Monitor controller")
+	log.Println("Stopping Ingress Monitor controller")
 }
 
 func (c *MonitorController) runWorker() {
@@ -109,13 +114,11 @@ func (c *MonitorController) processNextItem() bool {
 	return true
 }
 
-// syncToStdout is the business logic of the controller. In this controller it simply prints
-// information about the ingress to stdout. In case an error happened, it has to simply return the error.
-// The retry logic should not be part of the business logic.
+// handleIngress handles sync between the provided monitors for each ingress
 func (c *MonitorController) handleIngress(key string) error {
 	obj, exists, err := c.indexer.GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		log.Printf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
@@ -132,11 +135,11 @@ func (c *MonitorController) handleIngress(key string) error {
 func (c *MonitorController) handleIngressOnDeletion(key string) {
 	if c.config.EnableMonitorDeletion {
 		// Delete the monitor if it exists
-		// since key is in the format "namespace/ingressname"
+		// key is in the format "namespace/ingressname"
 		splitted := strings.Split(key, "/")
 		monitorName := c.getMonitorName(splitted[1], c.namespace)
 
-		fmt.Println("Monitor name for deletion: " + monitorName)
+		log.Println("Monitor name for deletion: " + monitorName)
 		c.removeMonitorsIfExist(monitorName)
 	}
 }
@@ -149,8 +152,8 @@ func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.I
 	monitorName := c.getMonitorName(ingress.GetName(), c.namespace)
 	monitorURL := "http://" + ingress.Spec.Rules[0].Host
 
-	fmt.Println("Monitor: Name: " + monitorName)
-	fmt.Println("Monitor URL: " + monitorURL)
+	log.Println("Monitor: Name: " + monitorName)
+	log.Println("Monitor URL: " + monitorURL)
 
 	annotations := ingress.GetAnnotations()
 
@@ -165,7 +168,7 @@ func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.I
 
 	} else {
 		c.removeMonitorsIfExist(monitorName)
-		fmt.Println("Not doing anything with this ingress because no annotation exists with name: " + monitorEnabledAnnotation)
+		log.Println("Not doing anything with this ingress because no annotation exists with name: " + monitorEnabledAnnotation)
 	}
 }
 
@@ -181,7 +184,7 @@ func (c *MonitorController) removeMonitorIfExists(monitorService MonitorServiceP
 	if m != nil { // Monitor Exists
 		monitorService.Remove(*m) // Remove the monitor
 	} else {
-		fmt.Println("Cannot find monitor for this ingress")
+		log.Println("Cannot find monitor for this ingress")
 	}
 }
 
@@ -196,7 +199,7 @@ func (c *MonitorController) createOrUpdateMonitor(monitorService MonitorServiceP
 	m, _ := monitorService.GetByName(monitorName)
 
 	if m != nil { // Monitor Already Exists
-		fmt.Println("Monitor already exists for ingress: " + monitorName)
+		log.Println("Monitor already exists for ingress: " + monitorName)
 		if m.url != monitorURL { // Monitor does not have the same url
 			// update the monitor with the new url
 			m.url = monitorURL
@@ -221,7 +224,7 @@ func (c *MonitorController) handleErr(err error, key interface{}) {
 
 	// This controller retries 5 times if something goes wrong. After that, it stops trying.
 	if c.queue.NumRequeues(key) < 5 {
-		glog.Infof("Error syncing ingress %v: %v", key, err)
+		log.Printf("Error syncing ingress %v: %v", key, err)
 
 		// Re-enqueue the key rate limited. Based on the rate limiter on the
 		// queue and the re-enqueue history, the key will be processed later again.
@@ -232,7 +235,7 @@ func (c *MonitorController) handleErr(err error, key interface{}) {
 	c.queue.Forget(key)
 	// Report to an external entity that, even after several retries, we could not successfully process this key
 	runtime.HandleError(err)
-	glog.Infof("Dropping ingress %q out of the queue: %v", key, err)
+	log.Printf("Dropping ingress %q out of the queue: %v", key, err)
 }
 
 func (c *MonitorController) onIngressAdded(obj interface{}) {
@@ -256,6 +259,6 @@ func (c *MonitorController) onIngressDeleted(obj interface{}) {
 	if err == nil {
 		c.queue.Add(key)
 	} else {
-		fmt.Println("Error: " + err.Error())
+		log.Println("Error: " + err.Error())
 	}
 }

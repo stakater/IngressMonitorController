@@ -1,9 +1,9 @@
 package main
 
 import (
+	"log"
 	"os"
 
-	"github.com/golang/glog"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -11,17 +11,19 @@ import (
 func main() {
 	currentNamespace := os.Getenv("KUBERNETES_NAMESPACE")
 	if len(currentNamespace) == 0 {
-		glog.Fatalf("Could not find the current namespace")
+		log.Fatal("Could not find the current namespace")
 	}
 
-	// creates the in-cluster config
+	// create the in-cluster config
 	clusterConfig := createInClusterConfig()
 
-	// creates the clientset
+	// create the clientset
 	clientset := createKubernetesClient(clusterConfig)
 
+	// fetche and create controller config from file
 	config := getControllerConfig()
 
+	// create the monitoring controller
 	controller := NewMonitorController(currentNamespace, clientset, config)
 
 	// Now let's start the controller
@@ -36,7 +38,7 @@ func main() {
 func createInClusterConfig() *rest.Config {
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(err.Error())
+		log.Panic(err.Error())
 	}
 	return config
 }
@@ -44,7 +46,7 @@ func createInClusterConfig() *rest.Config {
 func createKubernetesClient(config *rest.Config) *kubernetes.Clientset {
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(err.Error())
+		log.Panic(err.Error())
 	}
 	return clientset
 }

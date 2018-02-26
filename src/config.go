@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"log"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -18,18 +19,24 @@ type Provider struct {
 	AlertContacts string `yaml:"alertContacts"`
 }
 
+func (p *Provider) createMonitorService() MonitorServiceProxy {
+	monitorService := (&MonitorServiceProxy{}).OfType(p.Name)
+	monitorService.Setup(p.ApiKey, p.ApiURL, p.AlertContacts)
+	return monitorService
+}
+
 func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML
 	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	// Unmarshall
 	err = yaml.Unmarshal(source, &config)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	return config

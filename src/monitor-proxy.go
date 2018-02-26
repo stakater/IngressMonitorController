@@ -1,5 +1,7 @@
 package main
 
+import "log"
+
 type MonitorServiceProxy struct {
 	monitorType string
 	monitor     MonitorService
@@ -11,7 +13,7 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	case "UptimeRobot":
 		mp.monitor = &UpTimeMonitorService{}
 	default:
-		panic("No such provider found")
+		log.Panic("No such provider found")
 	}
 	return *mp
 }
