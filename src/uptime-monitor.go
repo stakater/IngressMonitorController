@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/golang/glog"
 )
@@ -26,21 +23,17 @@ func (monitor *UpTimeMonitorService) Setup(apiKey string, url string, alertConta
 
 func (monitor *UpTimeMonitorService) GetByName(name string) (*Monitor, error) {
 	action := "getMonitors"
-	payload := strings.NewReader("api_key=" + monitor.apiKey + "&format=json&logs=1" + "&search=" + name)
 
-	req, _ := http.NewRequest("POST", monitor.url+action, payload)
+	client := createHttpClient(monitor.url + action)
 
-	req.Header.Add("content-type", "application/x-www-form-urlencoded")
-	req.Header.Add("cache-control", "no-cache")
+	body := "api_key=" + monitor.apiKey + "&format=json&logs=1" + "&search=" + name
 
-	res, _ := http.DefaultClient.Do(req)
+	response := client.postUrlEncodedFormBody(body)
 
-	if res.StatusCode == 200 {
-		defer res.Body.Close()
-		body, _ := ioutil.ReadAll(res.Body)
+	if response.statusCode == 200 {
 
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(body, &f)
+		json.Unmarshal(response.bytes, &f)
 
 		if f.Monitors != nil && len(f.Monitors) > 0 {
 			return UptimeMonitorMonitorToBaseMonitorMapper(f.Monitors[0]), nil
@@ -49,6 +42,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*Monitor, error) {
 	}
 
 	errorString := "GetByName Request failed"
+
 	glog.Errorln(errorString)
 	return nil, errors.New(errorString)
 }
@@ -56,21 +50,17 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*Monitor, error) {
 func (monitor *UpTimeMonitorService) GetAll() []Monitor {
 
 	action := "getMonitors"
-	payload := strings.NewReader("api_key=" + monitor.apiKey + "&format=json&logs=1")
 
-	req, _ := http.NewRequest("POST", monitor.url+action, payload)
+	client := createHttpClient(monitor.url + action)
 
-	req.Header.Add("content-type", "application/x-www-form-urlencoded")
-	req.Header.Add("cache-control", "no-cache")
+	body := "api_key=" + monitor.apiKey + "&format=json&logs=1"
 
-	res, _ := http.DefaultClient.Do(req)
+	response := client.postUrlEncodedFormBody(body)
 
-	if res.StatusCode == 200 {
-		defer res.Body.Close()
-		body, _ := ioutil.ReadAll(res.Body)
+	if response.statusCode == 200 {
 
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(body, &f)
+		json.Unmarshal(response.bytes, &f)
 
 		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
 
@@ -82,23 +72,17 @@ func (monitor *UpTimeMonitorService) GetAll() []Monitor {
 }
 
 func (monitor *UpTimeMonitorService) Add(m Monitor) {
-
 	action := "newMonitor"
-	payload := strings.NewReader("api_key=" + monitor.apiKey + "&format=json&type=1&url=" + url.QueryEscape(m.url) + "&friendly_name=" + url.QueryEscape(m.name) + "&alert_contacts=" + monitor.alertContacts)
 
-	req, _ := http.NewRequest("POST", monitor.url+action, payload)
+	client := createHttpClient(monitor.url + action)
 
-	req.Header.Add("cache-control", "no-cache")
-	req.Header.Add("content-type", "application/x-www-form-urlencoded")
+	body := "api_key=" + monitor.apiKey + "&format=json&type=1&url=" + url.QueryEscape(m.url) + "&friendly_name=" + url.QueryEscape(m.name) + "&alert_contacts=" + monitor.alertContacts
 
-	res, _ := http.DefaultClient.Do(req)
+	response := client.postUrlEncodedFormBody(body)
 
-	if res.StatusCode == 200 {
-		defer res.Body.Close()
-		body, _ := ioutil.ReadAll(res.Body)
-
+	if response.statusCode == 200 {
 		var f UptimeMonitorNewMonitorResponse
-		json.Unmarshal(body, &f)
+		json.Unmarshal(response.bytes, &f)
 
 		if f.Stat == "ok" {
 			fmt.Println("Monitor Added")
@@ -114,21 +98,15 @@ func (monitor *UpTimeMonitorService) Add(m Monitor) {
 func (monitor *UpTimeMonitorService) Update(m Monitor) {
 	action := "editMonitor"
 
-	payload := strings.NewReader("api_key=" + monitor.apiKey + "&format=json&id=" + m.id + "&friendly_name=" + m.name + "&url=" + m.url)
+	client := createHttpClient(monitor.url + action)
 
-	req, _ := http.NewRequest("POST", monitor.url+action, payload)
+	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.id + "&friendly_name=" + m.name + "&url=" + m.url
 
-	req.Header.Add("cache-control", "no-cache")
-	req.Header.Add("content-type", "application/x-www-form-urlencoded")
+	response := client.postUrlEncodedFormBody(body)
 
-	res, _ := http.DefaultClient.Do(req)
-
-	if res.StatusCode == 200 {
-		defer res.Body.Close()
-		body, _ := ioutil.ReadAll(res.Body)
-
+	if response.statusCode == 200 {
 		var f UptimeMonitorStatusMonitorResponse
-		json.Unmarshal(body, &f)
+		json.Unmarshal(response.bytes, &f)
 
 		if f.Stat == "ok" {
 			fmt.Println("Monitor Updated")
@@ -144,21 +122,15 @@ func (monitor *UpTimeMonitorService) Update(m Monitor) {
 func (monitor *UpTimeMonitorService) Remove(m Monitor) {
 	action := "deleteMonitor"
 
-	payload := strings.NewReader("api_key=" + monitor.apiKey + "&format=json&id=" + m.id)
+	client := createHttpClient(monitor.url + action)
 
-	req, _ := http.NewRequest("POST", monitor.url+action, payload)
+	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.id
 
-	req.Header.Add("cache-control", "no-cache")
-	req.Header.Add("content-type", "application/x-www-form-urlencoded")
+	response := client.postUrlEncodedFormBody(body)
 
-	res, _ := http.DefaultClient.Do(req)
-
-	if res.StatusCode == 200 {
-		defer res.Body.Close()
-		body, _ := ioutil.ReadAll(res.Body)
-
+	if response.statusCode == 200 {
 		var f UptimeMonitorStatusMonitorResponse
-		json.Unmarshal(body, &f)
+		json.Unmarshal(response.bytes, &f)
 
 		if f.Stat == "ok" {
 			fmt.Println("Monitor Removed")
