@@ -1,0 +1,23 @@
+package: .
+import:
+- package: k8s.io/api
+  subpackages:
+  - apps/v1
+  - extensions/v1beta1
+- package: k8s.io/apimachinery
+  version: 12d70001ef0c75fc5a26057ca73d3caf5e2cf682
+  subpackages:
+  - pkg/api/errors
+  - pkg/apis/meta/v1
+  - pkg/fields
+  - pkg/util/runtime
+  - pkg/util/wait
+- package: k8s.io/client-go
+  version: 45673e060eb921b510677b1123737ad1158e49fa
+  subpackages:
+  - kubernetes
+  - rest
+  - tools/clientcmd
+  - tools/cache
+  - util/workqueue
+- package: gopkg.in/yaml.v2

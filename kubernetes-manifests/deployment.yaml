@@ -26,8 +26,11 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        - name: CONFIG_FILE_PATH
+          value: /etc/ingress-monitor-controller/config.yaml
 # TODO: Update name
-        image: stakater/go-glide:1.9.3
+        image: stakater/ingress-monitor-controller:implementation
+        imagePullPolicy: Always
 #       livenessProbe:
 #          exec:
 #            command:
@@ -36,8 +39,7 @@ spec:
 #          initialDelaySeconds: 86164
         name: ingress-monitor-controller
         volumeMounts:
-        - mountPath: /go/ingress-monitor-controller/config.yaml
-          subpath: config.yaml
+        - mountPath: /etc/ingress-monitor-controller
           name: config-volume
 #      serviceAccountName: ingress-monitor-controller-svcaccount
       volumes:
