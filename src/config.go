@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"log"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -23,13 +24,13 @@ func ReadConfig(filePath string) Config {
 	// Read YML
 	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	// Unmarshall
 	err = yaml.Unmarshal(source, &config)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	return config

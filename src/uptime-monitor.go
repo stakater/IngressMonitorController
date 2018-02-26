@@ -3,10 +3,8 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
 	"net/url"
-
-	"github.com/golang/glog"
 )
 
 type UpTimeMonitorService struct {
@@ -43,7 +41,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*Monitor, error) {
 
 	errorString := "GetByName Request failed"
 
-	glog.Errorln(errorString)
+	log.Println(errorString)
 	return nil, errors.New(errorString)
 }
 
@@ -66,7 +64,7 @@ func (monitor *UpTimeMonitorService) GetAll() []Monitor {
 
 	}
 
-	glog.Errorln("GetAllMonitors Request failed")
+	log.Println("GetAllMonitors Request failed")
 	return nil
 
 }
@@ -85,13 +83,13 @@ func (monitor *UpTimeMonitorService) Add(m Monitor) {
 		json.Unmarshal(response.bytes, &f)
 
 		if f.Stat == "ok" {
-			fmt.Println("Monitor Added")
+			log.Println("Monitor Added")
 		} else {
-			fmt.Println("Monitor couldn't be added")
-			fmt.Println(string(body))
+			log.Println("Monitor couldn't be added")
+			log.Println(string(body))
 		}
 	} else {
-		glog.Errorln("AddMonitor Request failed")
+		log.Printf("AddMonitor Request failed")
 	}
 }
 
@@ -109,13 +107,13 @@ func (monitor *UpTimeMonitorService) Update(m Monitor) {
 		json.Unmarshal(response.bytes, &f)
 
 		if f.Stat == "ok" {
-			fmt.Println("Monitor Updated")
+			log.Println("Monitor Updated")
 		} else {
-			fmt.Println("Monitor couldn't be updated")
-			fmt.Println(string(body))
+			log.Println("Monitor couldn't be updated")
+			log.Println(string(body))
 		}
 	} else {
-		glog.Errorln("UpdateMonitor Request failed")
+		log.Println("UpdateMonitor Request failed")
 	}
 }
 
@@ -133,12 +131,12 @@ func (monitor *UpTimeMonitorService) Remove(m Monitor) {
 		json.Unmarshal(response.bytes, &f)
 
 		if f.Stat == "ok" {
-			fmt.Println("Monitor Removed")
+			log.Println("Monitor Removed")
 		} else {
-			fmt.Println("Monitor couldn't be removed")
-			fmt.Println(string(body))
+			log.Println("Monitor couldn't be removed")
+			log.Println(string(body))
 		}
 	} else {
-		glog.Errorln("RemoveMonitor Request failed")
+		log.Println("RemoveMonitor Request failed")
 	}
 }
