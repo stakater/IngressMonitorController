@@ -3,17 +3,16 @@ package main
 import (
 	"os"
 
+	"github.com/golang/glog"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
 
 func main() {
-	// currentNamespace := os.Getenv("KUBERNETES_NAMESPACE")
-	// if len(currentNamespace) == 0 {
-	// 	glog.Fatalf("Could not find the current namespace")
-	// }
-
-	currentNamespace := "test2"
+	currentNamespace := os.Getenv("KUBERNETES_NAMESPACE")
+	if len(currentNamespace) == 0 {
+		glog.Fatalf("Could not find the current namespace")
+	}
 
 	// creates the in-cluster config
 	clusterConfig := createInClusterConfig()
