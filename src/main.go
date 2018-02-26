@@ -21,12 +21,7 @@ func main() {
 	// creates the clientset
 	clientset := createKubernetesClient(clusterConfig)
 
-	configFilePath := os.Getenv("CONFIG_FILE_PATH")
-	if len(configFilePath) == 0 {
-		configFilePath = "config.yaml"
-	}
-
-	config := ReadConfig(configFilePath)
+	config := getControllerConfig()
 
 	// config := Config{Providers: []Provider{Provider{Name: "UptimeRobot", ApiKey: "u544483-b3647f3e973b66417071a555", ApiURL: "https://api.uptimerobot.com/v2/", AlertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"}}, EnableMonitorDeletion: true}
 
@@ -55,4 +50,15 @@ func createKubernetesClient(config *rest.Config) *kubernetes.Clientset {
 		panic(err.Error())
 	}
 	return clientset
+}
+
+func getControllerConfig() Config {
+	configFilePath := os.Getenv("CONFIG_FILE_PATH")
+	if len(configFilePath) == 0 {
+		configFilePath = "config.yaml"
+	}
+
+	config := ReadConfig(configFilePath)
+
+	return config
 }

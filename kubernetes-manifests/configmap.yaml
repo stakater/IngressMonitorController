@@ -12,7 +12,7 @@ data:
   config.yaml: |-
     providers: 
     - name: UptimeRobot
-      apiKey: u544483-b3647f3e973b66417071a555
+      apiKey: your-api-key
       apiURL: https://api.uptimerobot.com/v2/
       alertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"
     enableMonitorDeletion: true
