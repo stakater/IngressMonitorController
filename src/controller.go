@@ -147,8 +147,7 @@ func (c *MonitorController) getMonitorName(ingressName string, namespace string)
 
 func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
 	monitorName := c.getMonitorName(ingress.GetName(), c.namespace)
-	//TODO: Need to figure out another way of adding protocol
-	monitorURL := "https://" + ingress.Spec.Rules[0].Host
+	monitorURL := "http://" + ingress.Spec.Rules[0].Host
 
 	fmt.Println("Monitor: Name: " + monitorName)
 	fmt.Println("Monitor URL: " + monitorURL)
