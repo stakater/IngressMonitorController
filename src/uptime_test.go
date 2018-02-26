@@ -10,7 +10,8 @@ func TestAddRemoveMonitorWithCorrectValues(t *testing.T) {
 	service := UpTimeMonitorService{}
 	apiKey := config.Providers[0].ApiKey
 	alertContacts := config.Providers[0].AlertContacts
-	service.Setup(apiKey, "https://api.uptimerobot.com/v2/", alertContacts)
+	url := config.Providers[0].ApiURL
+	service.Setup(apiKey, url, alertContacts)
 
 	m := Monitor{name: "google-test", url: "https://google.com"}
 	service.Add(m)

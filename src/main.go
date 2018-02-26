@@ -14,14 +14,16 @@ func main() {
 		log.Fatal("Could not find the current namespace")
 	}
 
-	// creates the in-cluster config
+	// create the in-cluster config
 	clusterConfig := createInClusterConfig()
 
-	// creates the clientset
+	// create the clientset
 	clientset := createKubernetesClient(clusterConfig)
 
+	// fetche and create controller config from file
 	config := getControllerConfig()
 
+	// create the monitoring controller
 	controller := NewMonitorController(currentNamespace, clientset, config)
 
 	// Now let's start the controller

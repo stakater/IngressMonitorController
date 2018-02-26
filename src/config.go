@@ -19,6 +19,12 @@ type Provider struct {
 	AlertContacts string `yaml:"alertContacts"`
 }
 
+func (p *Provider) createMonitorService() MonitorServiceProxy {
+	monitorService := (&MonitorServiceProxy{}).OfType(p.Name)
+	monitorService.Setup(p.ApiKey, p.ApiURL, p.AlertContacts)
+	return monitorService
+}
+
 func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML

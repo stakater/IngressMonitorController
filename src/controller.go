@@ -62,10 +62,7 @@ func setupMonitorServicesForProviders(providers []Provider) []MonitorServiceProx
 	monitorServices := []MonitorServiceProxy{}
 
 	for index := 0; index < len(providers); index++ {
-		provider := providers[index]
-		monitorService := (&MonitorServiceProxy{}).OfType(provider.Name)
-		monitorService.Setup(provider.ApiKey, provider.ApiURL, provider.AlertContacts)
-		monitorServices = append(monitorServices, monitorService)
+		monitorServices = append(monitorServices, providers[index].createMonitorService())
 	}
 
 	return monitorServices
@@ -117,9 +114,7 @@ func (c *MonitorController) processNextItem() bool {
 	return true
 }
 
-// syncToStdout is the business logic of the controller. In this controller it simply prints
-// information about the ingress to stdout. In case an error happened, it has to simply return the error.
-// The retry logic should not be part of the business logic.
+// handleIngress handles sync between the provided monitors for each ingress
 func (c *MonitorController) handleIngress(key string) error {
 	obj, exists, err := c.indexer.GetByKey(key)
 	if err != nil {
@@ -140,7 +135,7 @@ func (c *MonitorController) handleIngress(key string) error {
 func (c *MonitorController) handleIngressOnDeletion(key string) {
 	if c.config.EnableMonitorDeletion {
 		// Delete the monitor if it exists
-		// since key is in the format "namespace/ingressname"
+		// key is in the format "namespace/ingressname"
 		splitted := strings.Split(key, "/")
 		monitorName := c.getMonitorName(splitted[1], c.namespace)
 
