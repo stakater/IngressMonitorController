@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"testing"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testIngress"
+	ingressName := "testingingress"
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -19,9 +20,16 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress := createIngress(ingressName, namespace, url, false)
+	time.Sleep(5 * time.Second)
 
-	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+	ingress := createIngressObject(ingressName, namespace, url, false)
+
+	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
 	time.Sleep(5 * time.Second)
 
@@ -33,10 +41,10 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 }
 
-func TestAddIngressWithAnnotationEnabledShouldCreateMonitor(t *testing.T) {
+func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testIngress"
+	ingressName := "testingingress"
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -44,9 +52,14 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitor(t *testing.T) {
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress := createIngress(ingressName, namespace, url, true)
+	ingress := createIngressObject(ingressName, namespace, url, true)
 
-	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
 	time.Sleep(5 * time.Second)
 
@@ -63,6 +76,60 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitor(t *testing.T) {
 	checkMonitorWithName(t, monitorName, false)
 }
 
+func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAndNotDelete(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+
+	controller := getControllerWithNamespace(namespace, false)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	ingress := createIngressObject(ingressName, namespace, url, true)
+
+	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(5 * time.Second)
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	// Delete the temporary monitor manually
+	deleteMonitorWithName(t, monitorName)
+}
+
+func deleteMonitorWithName(t *testing.T, monitorName string) {
+	service := getMonitorService()
+
+	monitor, err := service.GetByName(monitorName)
+
+	if err != nil {
+		t.Error("An error occured while getting monitor")
+	}
+
+	if monitor == nil {
+		t.Error("Monitor does not exist but should have existed")
+	} else {
+		service.Remove(*monitor)
+	}
+}
+
 func checkMonitorWithName(t *testing.T, monitorName string, shouldExist bool) {
 	service := getMonitorService()
 
@@ -77,9 +144,10 @@ func checkMonitorWithName(t *testing.T, monitorName string, shouldExist bool) {
 			t.Error("Monitor does not exist but should have existed")
 		}
 	} else {
-		t.Error("Monitor exists but shouldn't have existed")
+		if monitor != nil {
+			t.Error("Monitor exists but shouldn't have existed")
+		}
 	}
-
 }
 
 func getMonitorService() *UpTimeMonitorService {
@@ -94,7 +162,7 @@ func getMonitorService() *UpTimeMonitorService {
 	return &service
 }
 
-func createIngress(ingressName string, namespace string, url string, withAnnotation bool) *v1beta1.Ingress {
+func createIngressObject(ingressName string, namespace string, url string, withAnnotation bool) *v1beta1.Ingress {
 	ingress := &v1beta1.Ingress{
 		ObjectMeta: meta_v1.ObjectMeta{
 			Name:      ingressName,
