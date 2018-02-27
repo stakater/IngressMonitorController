@@ -6,8 +6,6 @@ ENV SRC_DIR=${SRC_DIR}
 
 ADD bootstrap.sh /bootstrap.sh
 
-RUN chmod +x /bootstrap.sh
-
 ADD ./src /go/${SRC_DIR}
 
 CMD [ "/bin/sh", "-c", "/bootstrap.sh" ]
