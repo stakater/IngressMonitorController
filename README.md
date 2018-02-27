@@ -89,3 +89,17 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 ```
 
 Note that the name you specify here for the case will be the key for your new monitor which you can add it in ConfigMap.
+
+Also in case of handling custom api objects for the monitor api, you can create mappers that map from the api objects to the generic `Monitor` objects. The way you have to create these is to create a file named `monitorname-mappers.go` and add mapping functions in that file. An example of a mapping function is found below:
+
+```go
+func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor) *Monitor {
+	var m Monitor
+
+	m.name = uptimeMonitor.FriendlyName
+	m.url = uptimeMonitor.URL
+	m.id = strconv.Itoa(uptimeMonitor.ID)
+
+	return &m
+}
+```
