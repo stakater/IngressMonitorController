@@ -30,17 +30,11 @@ spec:
           value: /etc/ingress-monitor-controller/config.yaml
 # TODO: Update name
         image: stakater/ingress-monitor-controller:1.0
-#       livenessProbe:
-#          exec:
-#            command:
-#            - cat
-#            - /tmp/restarteveryday
-#          initialDelaySeconds: 86164
         name: ingress-monitor-controller
         volumeMounts:
         - mountPath: /etc/ingress-monitor-controller
           name: config-volume
-#      serviceAccountName: ingress-monitor-controller-svcaccount
+      serviceAccountName: ingressmonitorcontroller
       volumes:
       - configMap:
           name: ingress-monitor-controller
