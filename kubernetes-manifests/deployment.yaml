@@ -29,8 +29,7 @@ spec:
         - name: CONFIG_FILE_PATH
           value: /etc/ingress-monitor-controller/config.yaml
 # TODO: Update name
-        image: stakater/ingress-monitor-controller:implementation
-        imagePullPolicy: Always
+        image: stakater/ingress-monitor-controller:1.0
 #       livenessProbe:
 #          exec:
 #            command:
