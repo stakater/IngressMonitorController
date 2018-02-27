@@ -39,7 +39,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*Monitor, error) {
 		return nil, nil
 	}
 
-	errorString := "GetByName Request failed"
+	errorString := "GetByName Request failed for name: " + name
 
 	log.Println(errorString)
 	return nil, errors.New(errorString)
@@ -64,7 +64,7 @@ func (monitor *UpTimeMonitorService) GetAll() []Monitor {
 
 	}
 
-	log.Println("GetAllMonitors Request failed")
+	log.Println("GetAllMonitors Request failed. Status Code: " + string(response.statusCode))
 	return nil
 
 }
@@ -83,13 +83,13 @@ func (monitor *UpTimeMonitorService) Add(m Monitor) {
 		json.Unmarshal(response.bytes, &f)
 
 		if f.Stat == "ok" {
-			log.Println("Monitor Added")
+			log.Println("Monitor Added: " + m.name)
 		} else {
-			log.Println("Monitor couldn't be added")
+			log.Println("Monitor couldn't be added: " + m.name)
 			log.Println(string(body))
 		}
 	} else {
-		log.Printf("AddMonitor Request failed")
+		log.Printf("AddMonitor Request failed. Status Code: " + string(response.statusCode))
 	}
 }
 
@@ -107,13 +107,13 @@ func (monitor *UpTimeMonitorService) Update(m Monitor) {
 		json.Unmarshal(response.bytes, &f)
 
 		if f.Stat == "ok" {
-			log.Println("Monitor Updated")
+			log.Println("Monitor Updated: " + m.name)
 		} else {
-			log.Println("Monitor couldn't be updated")
+			log.Println("Monitor couldn't be updated: " + m.name)
 			log.Println(string(body))
 		}
 	} else {
-		log.Println("UpdateMonitor Request failed")
+		log.Println("UpdateMonitor Request failed. Status Code: " + string(response.statusCode))
 	}
 }
 
@@ -131,12 +131,12 @@ func (monitor *UpTimeMonitorService) Remove(m Monitor) {
 		json.Unmarshal(response.bytes, &f)
 
 		if f.Stat == "ok" {
-			log.Println("Monitor Removed")
+			log.Println("Monitor Removed: " + m.name)
 		} else {
-			log.Println("Monitor couldn't be removed")
+			log.Println("Monitor couldn't be removed: " + m.name)
 			log.Println(string(body))
 		}
 	} else {
-		log.Println("RemoveMonitor Request failed")
+		log.Println("RemoveMonitor Request failed. Status Code: " + string(response.statusCode))
 	}
 }
