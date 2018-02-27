@@ -4,11 +4,8 @@ LABEL author="stakater"
 ARG SRC_DIR="ingress-monitor-controller"
 ENV SRC_DIR=${SRC_DIR}
 
-ADD ./src /go/${SRC_DIR}
-RUN cd ${SRC_DIR} && \
-    glide update && \
-    cp -r ./vendor/* /go/src/ && \
-    go test && \
-    go build -o ./out/main
+ADD bootstrap.sh /bootstrap.sh
 
-CMD [ "/bin/sh", "-c", "${SRC_DIR}/out/main" ]
+ADD ./src /go/${SRC_DIR}
+
+CMD [ "/bin/sh", "-c", "/bootstrap.sh" ]
