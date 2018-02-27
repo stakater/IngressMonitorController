@@ -15,4 +15,4 @@ echo "Building the controller"
 go build -o ./out/main
 
 echo "Running the controller"
-./main
+./out/main

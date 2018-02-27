@@ -56,6 +56,8 @@ kubectl apply -f rbac.yaml -n <namespace>
 kubectl apply -f deployment.yaml -n <namespace>
 ```
 
+*Note*: Before applying rbac.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply rbac.yaml to.
+
 ## Adding support for a new Monitor
 
 You can easily implement a new monitor and use it via the controller. First of all, you will need to create a new service struct that implements the following monitor service interface

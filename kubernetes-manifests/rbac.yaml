@@ -1,1 +1,38 @@
-# Placeholder
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    project: ingressmonitorcontroller
+    group: com.stakater
+  name: ingressmonitorcontroller
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: ingressmonitorcontroller-role
+rules:
+  - apiGroups:
+      - ""
+      - "extensions"
+    resources:
+      - ingresses
+    verbs:
+      - list
+      - get
+      - update
+      - patch
+      - watch
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: ingressmonitorcontroller-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ingressmonitorcontroller-role
+subjects:
+  - kind: ServiceAccount
+    name: ingressmonitorcontroller
+    namespace: test
