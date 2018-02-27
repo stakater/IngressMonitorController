@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    configmap.fabric8.io/update-on-change: {{ template "name" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+    project: {{ template "name" . }}
+  name: {{ template "name" . }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  template:
+    metadata:
+      annotations:
+        configmap.fabric8.io/update-on-change: {{ template "name" . }}
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: {{ .Release.Name | quote }}
+        heritage: {{ .Release.Service | quote }}
+        project: {{ template "name" . }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CONFIG_FILE_PATH
+          value: {{ .Values.ingressMonitorController.configFilePath }}
+        image: "{{ .Values.ingressMonitorController.image.name }}:{{ .Values.ingressMonitorController.image.tag }}"
+        imagePullPolicy: {{ .Values.ingressMonitorController.image.pullPolicy }}
+        name: {{ template "name" . }}
+        volumeMounts:
+        - mountPath: /etc/ingress-monitor-controller
+          name: config-volume
+      serviceAccountName: {{ template "name" . }}
+      volumes:
+      - configMap:
+          name: {{ template "name" . }}
+        name: config-volume
