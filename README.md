@@ -6,4 +6,44 @@ We want to monitor ingresses in a kubernetes cluster via any uptime checker but 
 
 ## Solution
 
-This controller will continuously watch ingresses and automatically add / remove them in uptime checker
+This controller will continuously watch ingresses in the namespace it is running, and automatically add / remove monitors in any of the uptime checkers
+
+## Supported Uptime Checkers
+
+Currently we support the following monitors:
+
+- [UptimeRobot](https://uptimerobot.com)
+
+## Deploying to Kubernetes
+
+You have to first clone or download the repository contents. The kubernetes deployment and files are provided inside `kubernetes-manifests` folder.
+
+### Configuring
+
+First of all you need to modify `configmap.yaml`'s `config.yaml` file. Following are the available options that you can use to customize the controller:
+
+| Key                   |Description                                                                    |
+|-----------------------|-------------------------------------------------------------------------------|
+| providers             | An array of uptime providers that you want to add to your controller          |
+| enableMonitorDeletion | A flag that is used to enable or disable monitor deletion on ingress deletion |
+
+For the list of providers, there's a number of options that you need to specify. The table below lists them:
+
+| Key           | Description                                                               |
+|---------------|---------------------------------------------------------------------------|
+| name          | Name of the provider (From the list of supported uptime checkers)         |
+| apiKey        | ApiKey of the provider                                                    |
+| apiURL        | Base url of the ApiProvider                                               |
+| alertContacts | A `-` separated list of contact id's that you want to add to the monitors |
+
+### Deploying
+
+You can deploy the controller in the namespace you want to monitor by running the following kubectl commands:
+
+```bash
+kubectl apply -f configmap.yaml -n <namespace>
+kubectl apply -f rbac.yaml -n <namespace>
+kubectl apply -f deployment.yaml -n <namespace>
+```
+
+By default, the controller ignores the ingresses without a specific annotation on it. You will need to add annotation on your ingresses so that the controller is able to recognize and monitor the controllers. The annotation key is `monitor.stakater.com/enabled`. You can toggle the value of this annotation between `true` and `false` to enable or disable monitoring of that specific ingress.
