@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strconv"
 	"testing"
 	"time"
 
@@ -22,7 +23,7 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 
 	time.Sleep(5 * time.Second)
 
-	ingress := createIngressObject(ingressName, namespace, url, false)
+	ingress := createIngressObject(ingressName, namespace, url)
 
 	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -52,7 +53,9 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress := createIngressObject(ingressName, namespace, url, true)
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotation(ingress, true)
 
 	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -76,6 +79,284 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 	checkMonitorWithName(t, monitorName, false)
 }
 
+func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+
+	controller := getControllerWithNamespace(namespace, true)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotation(ingress, false)
+
+	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+}
+
+func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+
+	controller := getControllerWithNamespace(namespace, true)
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	ingress = addMonitorAnnotation(ingress, false)
+
+	ingress, err = controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Updated ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+}
+
+func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+
+	controller := getControllerWithNamespace(namespace, true)
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	ingress = addMonitorAnnotation(ingress, true)
+
+	ingress, err = controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Updated ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	monitorName := ingressName + "-" + namespace
+
+	time.Sleep(3 * time.Second)
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(3 * time.Second)
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+}
+
+func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+
+	controller := getControllerWithNamespace(namespace, true)
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotation(ingress, true)
+
+	ingress, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	ingress = updateMonitorAnnotation(ingress, false)
+
+	ingress, err = controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Updated ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	time.Sleep(3 * time.Second)
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+}
+
+func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	newUrl := "facebook.com"
+	ingressName := "testingingress"
+
+	controller := getControllerWithNamespace(namespace, true)
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotation(ingress, true)
+
+	ingress, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	// Update url
+	ingress.Spec.Rules[0].Host = newUrl
+
+	ingress, err = controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Updated ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	time.Sleep(3 * time.Second)
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	service := getMonitorService()
+	monitor, err := service.GetByName(monitorName)
+
+	if err != nil {
+		t.Error("Cannot Fetch monitor")
+	}
+
+	if monitor == nil {
+		t.Error("Monitor with name" + monitorName + " does not exist")
+	}
+
+	if monitor.url != "http://"+newUrl {
+		t.Error("Monitor did not update")
+	}
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(3 * time.Second)
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+}
+
+func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+
+	controller := getControllerWithNamespace(namespace, true)
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotation(ingress, false)
+
+	ingress, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	ingress = updateMonitorAnnotation(ingress, true)
+
+	ingress, err = controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Updated ingress %q.\n", ingress.GetObjectMeta().GetName())
+
+	monitorName := ingressName + "-" + namespace
+
+	time.Sleep(3 * time.Second)
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(3 * time.Second)
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+}
+
 func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAndNotDelete(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
@@ -87,7 +368,9 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress := createIngressObject(ingressName, namespace, url, true)
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotation(ingress, true)
 
 	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -162,7 +445,7 @@ func getMonitorService() *UpTimeMonitorService {
 	return &service
 }
 
-func createIngressObject(ingressName string, namespace string, url string, withAnnotation bool) *v1beta1.Ingress {
+func createIngressObject(ingressName string, namespace string, url string) *v1beta1.Ingress {
 	ingress := &v1beta1.Ingress{
 		ObjectMeta: meta_v1.ObjectMeta{
 			Name:      ingressName,
@@ -177,10 +460,30 @@ func createIngressObject(ingressName string, namespace string, url string, withA
 		},
 	}
 
-	if withAnnotation {
-		annotations := make(map[string]string)
-		annotations["monitor.stakater.com/enabled"] = "true"
-		ingress.Annotations = annotations
+	return ingress
+}
+
+func addMonitorAnnotation(ingress *v1beta1.Ingress, annotationValue bool) *v1beta1.Ingress {
+	annotations := make(map[string]string)
+	annotations["monitor.stakater.com/enabled"] = strconv.FormatBool(annotationValue)
+	ingress.Annotations = annotations
+
+	return ingress
+}
+
+func updateMonitorAnnotation(ingress *v1beta1.Ingress, newValue bool) *v1beta1.Ingress {
+	monitorAnnotation := "monitor.stakater.com/enabled"
+	if _, ok := ingress.Annotations[monitorAnnotation]; ok {
+		ingress.Annotations[monitorAnnotation] = strconv.FormatBool(newValue)
+	}
+
+	return ingress
+}
+
+func removeMonitorAnnotation(ingress *v1beta1.Ingress) *v1beta1.Ingress {
+	monitorAnnotation := "monitor.stakater.com/enabled"
+	if _, ok := ingress.Annotations[monitorAnnotation]; ok {
+		delete(ingress.Annotations, monitorAnnotation)
 	}
 
 	return ingress
