@@ -1,0 +1,17 @@
+kubernetes:
+  host: https://kubernetes.default
+
+ingressMonitorController:
+  namespace: default
+  image:
+    name: stakater/ingress-monitor-controller
+    tag: "0.1"
+    pullPolicy: IfNotPresent
+  providers:
+  - name: UptimeRobot
+    apiKey: your-api-key
+    apiURL: https://google.com
+    alertContacts: some-alert-contacts
+  
+  enableMonitorDeletion: true
+  configFilePath: /etc/ingress-monitor-controller/config.yaml

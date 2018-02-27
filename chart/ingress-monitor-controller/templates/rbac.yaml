@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+    project: {{ template "name" . }}
+    group: com.stakater
+  name: {{ template "name" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: {{ template "name" . }}-role
+rules:
+  - apiGroups:
+      - ""
+      - "extensions"
+    resources:
+      - ingresses
+    verbs:
+      - list
+      - get
+      - update
+      - patch
+      - watch
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: {{ template "name" . }}-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "name" . }}-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "name" . }}
+    namespace: {{ .Values.ingressMonitorController.namespace }}

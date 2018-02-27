@@ -58,6 +58,8 @@ kubectl apply -f deployment.yaml -n <namespace>
 
 *Note*: Before applying rbac.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply rbac.yaml to.
 
+Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `chart` folder.
+
 ## Adding support for a new Monitor
 
 You can easily implement a new monitor and use it via the controller. First of all, you will need to create a new service struct that implements the following monitor service interface
@@ -105,3 +107,4 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 	return &m
 }
 ```
+
