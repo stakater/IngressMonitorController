@@ -6,7 +6,7 @@ We want to monitor ingresses in a kubernetes cluster via any uptime checker but 
 
 ## Solution
 
-This controller will continuously watch ingresses in the namespace it is running, and automatically add / remove monitors in any of the uptime checkers
+This controller will continuously watch ingresses in the namespace it is running, and automatically add / remove monitors in any of the uptime checkers. With the help of this solution, you can keep a check on your services and see whether they're up and running and live.
 
 ## Supported Uptime Checkers
 
@@ -17,6 +17,16 @@ Currently we support the following monitors:
 ## Deploying to Kubernetes
 
 You have to first clone or download the repository contents. The kubernetes deployment and files are provided inside `kubernetes-manifests` folder.
+
+### Enabling
+
+By default, the controller ignores the ingresses without a specific annotation on it. You will need to add the following annotation on your ingresses so that the controller is able to recognize and monitor the ingresses.
+
+```yaml
+"monitor.stakater.com/enabled": "true"
+```
+
+The annotation key is `monitor.stakater.com/enabled` and you can toggle the value of this annotation between `true` and `false` to enable or disable monitoring of that specific ingress.
 
 ### Configuring
 
@@ -45,5 +55,3 @@ kubectl apply -f configmap.yaml -n <namespace>
 kubectl apply -f rbac.yaml -n <namespace>
 kubectl apply -f deployment.yaml -n <namespace>
 ```
-
-By default, the controller ignores the ingresses without a specific annotation on it. You will need to add annotation on your ingresses so that the controller is able to recognize and monitor the controllers. The annotation key is `monitor.stakater.com/enabled`. You can toggle the value of this annotation between `true` and `false` to enable or disable monitoring of that specific ingress.
