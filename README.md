@@ -58,7 +58,7 @@ kubectl apply -f deployment.yaml -n <namespace>
 
 *Note*: Before applying rbac.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply rbac.yaml to.
 
-Or alternatively if you have `helm` deployed on your cluster, you can deploy the controller via helm chart located under `chart` folder.
+Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `chart` folder.
 
 ## Adding support for a new Monitor
 
