@@ -55,3 +55,37 @@ kubectl apply -f configmap.yaml -n <namespace>
 kubectl apply -f rbac.yaml -n <namespace>
 kubectl apply -f deployment.yaml -n <namespace>
 ```
+
+## Adding support for a new Monitor
+
+You can easily implement a new monitor and use it via the controller. First of all, you will need to create a new service struct that implements the following monitor service interface
+
+```go
+type MonitorService interface {
+	GetAll() []Monitor
+	Add(m Monitor)
+	Update(m Monitor)
+	GetByName(name string) (*Monitor, error)
+	Remove(m Monitor)
+	Setup(apiKey string, url string, alertContacts string)
+}
+```
+
+Once the implementation of your service is done, you have to open up `monitor-proxy.go` and add a new case inside `OfType` method for your new monitor. Lets say you have named your service `MyNewMonitorService`, then you have to add the case like in the example below:
+
+```go
+func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
+	mp.monitorType = mType
+	switch mType {
+	case "UptimeRobot":
+        mp.monitor = &UpTimeMonitorService{}
+	case "MyNewMonitor":
+        mp.monitor = &MyNewMonitorService{}
+	default:
+		log.Panic("No such provider found")
+	}
+	return *mp
+}
+```
+
+Note that the name you specify here for the case will be the key for your new monitor which you can add it in ConfigMap.
