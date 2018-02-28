@@ -5,8 +5,9 @@ metadata:
     configmap.fabric8.io/update-on-change: ingress-monitor-controller
   labels:
     app: ingress-monitor-controller
+    group: com.stakater.platform
+    version: 0.1.0
     provider: stakater
-    version: 1.0.0
   name: ingress-monitor-controller
 spec:
   replicas: 1
@@ -17,8 +18,9 @@ spec:
         configmap.fabric8.io/update-on-change: ingress-monitor-controller
       labels:
         app: ingress-monitor-controller
+        group: com.stakater.platform
+        version: 0.1.0
         provider: stakater
-        version: 1.0.0
     spec:
       containers:
       - env:

@@ -4,9 +4,10 @@ metadata:
   annotations:
     fabric8.io/target-platform: kubernetes
   labels:
+    app: ingress-monitor-controller
+    group: com.stakater.platform
+    version: 0.1.0
     provider: stakater
-    project: ingress-monitor-controller
-    version: 1.0.0
   name: ingress-monitor-controller
 data:
   config.yaml: |-
