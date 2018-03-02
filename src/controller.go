@@ -7,9 +7,7 @@ import (
 	"time"
 
 	"k8s.io/api/extensions/v1beta1"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
@@ -155,113 +153,12 @@ func (c *MonitorController) getMonitorName(ingressName string, namespace string)
 }
 
 func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
-	var url string
-	if ingress.Spec.TLS != nil && len(ingress.Spec.TLS) > 0 {
-		// Use https for TLS
-		url = "https://" + ingress.Spec.TLS[0].Hosts[0]
-	} else {
-		url = "http://" + ingress.Spec.Rules[0].Host
+	ingressWrapper := IngressWrapper{
+		ingress:   ingress,
+		namespace: c.namespace,
 	}
 
-	url += c.getIngressSubPathWithPort(ingress.Spec.Rules)
-
-	healthEndpoint, exists := c.getHealthEndpointFromIngress(ingress)
-
-	// Health endpoint from pod successful
-	if exists {
-		url += healthEndpoint
-	} else { // Try to get annotation and set
-		annotations := ingress.GetAnnotations()
-
-		// Annotation for health Endpoint exists
-		if value, ok := annotations[monitorHealthAnnotation]; ok {
-			url += value
-		}
-	}
-
-	return url
-}
-
-func (c *MonitorController) getHealthEndpointFromIngress(ingress *v1beta1.Ingress) (string, bool) {
-	if !c.rulesExist(ingress.Spec.Rules) {
-		return "", false
-	}
-
-	serviceName, exists := c.ingressHasService(ingress)
-
-	if !exists {
-		return "", false
-	}
-
-	service, err := c.clientset.Core().Services(c.namespace).Get(serviceName, meta_v1.GetOptions{})
-	if err != nil {
-		log.Panicf("Get service from kubernetes cluster error:%v", err)
-	}
-
-	set := labels.Set(service.Spec.Selector)
-
-	if pods, err := c.clientset.Core().Pods(c.namespace).List(meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
-		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
-	} else if len(pods.Items) > 0 {
-		pod := pods.Items[0]
-
-		podContainers := pod.Spec.Containers
-
-		if len(podContainers) == 1 {
-			if podContainers[0].ReadinessProbe != nil && podContainers[0].ReadinessProbe.HTTPGet != nil {
-				return podContainers[0].ReadinessProbe.HTTPGet.Path, true
-			}
-		} else {
-			log.Printf("Pod has %d containers so skipping health endpoint", len(podContainers))
-		}
-	}
-
-	return "", false
-}
-
-func (c *MonitorController) ingressHasService(ingress *v1beta1.Ingress) (string, bool) {
-	if ingress.Spec.Rules[0].HTTP != nil &&
-		ingress.Spec.Rules[0].HTTP.Paths != nil &&
-		len(ingress.Spec.Rules[0].HTTP.Paths) > 0 &&
-		ingress.Spec.Rules[0].HTTP.Paths[0].Backend.ServiceName != "" {
-		return ingress.Spec.Rules[0].HTTP.Paths[0].Backend.ServiceName, true
-	}
-	return "", false
-}
-
-func (c *MonitorController) rulesExist(rules []v1beta1.IngressRule) bool {
-	if rules != nil && len(rules) > 0 {
-		return true
-	}
-	return false
-}
-
-func (c *MonitorController) getIngressSubPathWithPort(rules []v1beta1.IngressRule) string {
-	if c.rulesExist(rules) {
-		port := c.getIngressPort(rules[0])
-		subPath := c.getIngressSubPath(rules[0])
-
-		return port + subPath
-	}
-	return ""
-}
-
-func (c *MonitorController) getIngressPort(rule v1beta1.IngressRule) string {
-	if rule.HTTP != nil {
-		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
-			return rule.HTTP.Paths[0].Backend.ServicePort.StrVal
-		}
-	}
-	return ""
-}
-
-func (c *MonitorController) getIngressSubPath(rule v1beta1.IngressRule) string {
-	if rule.HTTP != nil {
-		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
-			return rule.HTTP.Paths[0].Path
-		}
-	}
-	return ""
+	return ingressWrapper.getURL()
 }
 
 func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
