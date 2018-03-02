@@ -144,7 +144,11 @@ func (c *MonitorController) handleIngressOnDeletion(key string) {
 }
 
 func (c *MonitorController) getMonitorName(ingressName string, namespace string) string {
-	return ingressName + "-" + namespace
+	format, err := getNameTemplateFormat(c.config.MonitorNameTemplate)
+	if err != nil {
+		log.Fatal("Failed to parse MonitorNameTemplate")
+	}
+	return fmt.Sprintf(format, ingressName, namespace)
 }
 
 func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
