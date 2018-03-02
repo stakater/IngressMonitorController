@@ -139,7 +139,6 @@ func (c *MonitorController) handleIngressOnDeletion(key string) {
 		splitted := strings.Split(key, "/")
 		monitorName := c.getMonitorName(splitted[1], c.namespace)
 
-		log.Println("Monitor name for deletion: " + monitorName)
 		c.removeMonitorsIfExist(monitorName)
 	}
 }
@@ -189,7 +188,7 @@ func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.I
 	monitorName := c.getMonitorName(ingress.GetName(), c.namespace)
 	monitorURL := c.getMonitorURL(ingress)
 
-	log.Println("Monitor: Name: " + monitorName)
+	log.Println("Monitor Name: " + monitorName)
 	log.Println("Monitor URL: " + monitorURL)
 
 	annotations := ingress.GetAnnotations()
@@ -221,7 +220,7 @@ func (c *MonitorController) removeMonitorIfExists(monitorService MonitorServiceP
 	if m != nil { // Monitor Exists
 		monitorService.Remove(*m) // Remove the monitor
 	} else {
-		log.Println("Cannot find monitor for this ingress")
+		log.Println("Cannot find monitor with name: " + monitorName)
 	}
 }
 
