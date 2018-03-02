@@ -148,9 +148,46 @@ func (c *MonitorController) getMonitorName(ingressName string, namespace string)
 	return ingressName + "-" + namespace
 }
 
+func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
+	var url string
+	if ingress.Spec.TLS != nil && len(ingress.Spec.TLS) > 0 {
+		// Use https for TLS
+		url = "https://" + ingress.Spec.TLS[0].Hosts[0]
+	} else {
+		url = "http://" + ingress.Spec.Rules[0].Host
+	}
+
+	url += c.getIngressSubPathWithPort(ingress.Spec.Rules)
+
+	return url
+}
+
+func (c *MonitorController) getIngressSubPathWithPort(rules []v1beta1.IngressRule) string {
+	if rules != nil && len(rules) > 0 {
+		port := c.getIngressPort(rules[0])
+		subPath := c.getIngressSubPath(rules[0])
+		return port + subPath
+	}
+	return ""
+}
+
+func (c *MonitorController) getIngressPort(rule v1beta1.IngressRule) string {
+	if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
+		return rule.HTTP.Paths[0].Backend.ServicePort.StrVal
+	}
+	return ""
+}
+
+func (c *MonitorController) getIngressSubPath(rule v1beta1.IngressRule) string {
+	if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
+		return rule.HTTP.Paths[0].Path
+	}
+	return ""
+}
+
 func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
 	monitorName := c.getMonitorName(ingress.GetName(), c.namespace)
-	monitorURL := "http://" + ingress.Spec.Rules[0].Host
+	monitorURL := c.getMonitorURL(ingress)
 
 	log.Println("Monitor: Name: " + monitorName)
 	log.Println("Monitor URL: " + monitorURL)
