@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"testing"
@@ -40,6 +41,52 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 	checkMonitorWithName(t, monitorName, false)
 
 	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+}
+
+func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+	monitorTemplate := "{{.IngressName}}-{{.Namespace}}-hello"
+
+	controller := getControllerWithNamespace(namespace, true)
+
+	controller.config.MonitorNameTemplate = monitorTemplate
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	time.Sleep(5 * time.Second)
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	nameFormat, _ := getNameTemplateFormat(monitorTemplate)
+	monitorName := fmt.Sprintf(nameFormat, ingressName, namespace)
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+}
+
+func TestInvalidMonitorTemplateShouldPanic(t *testing.T) {
+	assertPanic(t, func() {
+		// Invalid monitor template
+		monitorTemplate := "{.IngressName}}-{{.Namespace}"
+
+		_, _ = getNameTemplateFormat(monitorTemplate)
+
+	})
 }
 
 func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.T) {
