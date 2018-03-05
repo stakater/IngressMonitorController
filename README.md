@@ -2,6 +2,8 @@
 
 ## Problem Statement
 
+We want to get notified in a slack channel & email if any of my services become unhealthy!
+
 We want to monitor ingresses in a kubernetes cluster via any uptime checker but the problem is to manually check for new ingresses / removed ingresses and add them to the checker or remove them. There isn't any out of the box solution for this as of now.
 
 ## Solution
