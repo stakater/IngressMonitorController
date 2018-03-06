@@ -18,14 +18,14 @@ clientsNode(clientsImage: 'stakater/pipeline-tools:1.1') {
             """
         }
 
-        if utils.isCI() {
+        if (utils.isCI()) {
             stage('CI: Test') {
                 sh """
                     cd ${WORKSPACE}
                     go test
                 """
             }
-        } else if utils.isCD() {
+        } else if (utils.isCD()) {
             stage('CD: Build') {
                 sh """
                     cd ${WORKSPACE}
