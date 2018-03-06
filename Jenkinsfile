@@ -52,10 +52,11 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
 		    
 		    git config --global user.email "stakater@aurorasolutions.io"
                     git config --global user.name "Stakater"
-                    
+		    
+                    git checkout master
                     git add Makefile
                     git commit -m 'release \${VERSION}'
-                    git push
+                    git push origin master
 
                     docker build -t docker.io/stakater/ingress-monitor-controller:\${VERSION} .
                     docker tag docker.io/stakater/ingress-monitor-controller:\${VERSION} docker.io/stakater/ingress-monitor-controller:latest
