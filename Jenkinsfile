@@ -49,6 +49,9 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
                     cd ..
                     VERSION=\$(jx-release-version)
                     echo "VERSION := \${VERSION}" > Makefile
+		    
+		    git config --global user.email "stakater@aurorasolutions.io"
+                    git config --global user.name "Stakater"
                     
                     git add Makefile
                     git commit -m 'release \${VERSION}'
