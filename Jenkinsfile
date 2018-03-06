@@ -5,7 +5,7 @@ def utils = new io.fabric8.Utils()
 
 clientsNode(clientsImage: 'stakater/pipeline-tools:1.1') {
     container(name: 'clients') {
-        String workspaceDir = WORKSPACE
+        String workspaceDir = WORKSPACE + "/src"
         stage('Checkout') {
             checkout scm
         }
@@ -14,7 +14,7 @@ clientsNode(clientsImage: 'stakater/pipeline-tools:1.1') {
             sh """
                 cd ${workspaceDir}
                 glide update
-                cp -r ./vendor/* /src/go/
+                cp -r ./vendor/* /go/src/
             """
         }
 
