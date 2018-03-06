@@ -21,3 +21,4 @@ import:
   - tools/cache
   - util/workqueue
 - package: gopkg.in/yaml.v2
+- package: github.com/pkg/errors

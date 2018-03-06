@@ -16,6 +16,7 @@ import (
 )
 
 const monitorEnabledAnnotation = "monitor.stakater.com/enabled"
+const monitorHealthAnnotation = "monitor.stakater.com/healthEndpoint" // "/health"
 
 // MonitorController which can be used for monitoring ingresses
 type MonitorController struct {
@@ -139,20 +140,33 @@ func (c *MonitorController) handleIngressOnDeletion(key string) {
 		splitted := strings.Split(key, "/")
 		monitorName := c.getMonitorName(splitted[1], c.namespace)
 
-		log.Println("Monitor name for deletion: " + monitorName)
 		c.removeMonitorsIfExist(monitorName)
 	}
 }
 
 func (c *MonitorController) getMonitorName(ingressName string, namespace string) string {
-	return ingressName + "-" + namespace
+	format, err := getNameTemplateFormat(c.config.MonitorNameTemplate)
+	if err != nil {
+		log.Fatal("Failed to parse MonitorNameTemplate")
+	}
+	return fmt.Sprintf(format, ingressName, namespace)
+}
+
+func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
+	ingressWrapper := IngressWrapper{
+		ingress:   ingress,
+		namespace: c.namespace,
+		clientset: c.clientset,
+	}
+
+	return ingressWrapper.getURL()
 }
 
 func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
 	monitorName := c.getMonitorName(ingress.GetName(), c.namespace)
-	monitorURL := "http://" + ingress.Spec.Rules[0].Host
+	monitorURL := c.getMonitorURL(ingress)
 
-	log.Println("Monitor: Name: " + monitorName)
+	log.Println("Monitor Name: " + monitorName)
 	log.Println("Monitor URL: " + monitorURL)
 
 	annotations := ingress.GetAnnotations()
@@ -184,7 +198,7 @@ func (c *MonitorController) removeMonitorIfExists(monitorService MonitorServiceP
 	if m != nil { // Monitor Exists
 		monitorService.Remove(*m) // Remove the monitor
 	} else {
-		log.Println("Cannot find monitor for this ingress")
+		log.Println("Cannot find monitor with name: " + monitorName)
 	}
 }
 
