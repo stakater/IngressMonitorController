@@ -38,7 +38,7 @@ clientsNode(clientsImage: 'stakater/pipeline-tools:1.1') {
                 sh """
                     cd ${workspaceDir}
                     
-                    VERSION=\$(jx-release-version)
+                    export VERSION=\$(jx-release-version)
                     echo "VERSION := \${VERSION}" > Makefile
                     
                     git add Makefile
