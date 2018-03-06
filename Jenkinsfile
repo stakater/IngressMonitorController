@@ -31,7 +31,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.1') {
                     go build -o ../out/ingressmonitorcontroller
                     cd ..
                     docker build -t docker.io/stakater/ingress-monitor-controller:dev .
-                    docker push docker.io/stakater/ingress-monitor-controller:latest
+                    docker push docker.io/stakater/ingress-monitor-controller:dev
                 """
             }
         } else if (utils.isCD()) {
