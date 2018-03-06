@@ -1,4 +1,4 @@
-FROM stakater/base-alpine:3.7
+FROM scratch
 LABEL author="stakater"
 
 COPY ./out/ingressmonitorcontroller /
