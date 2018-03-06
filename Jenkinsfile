@@ -28,7 +28,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.1') {
             stage('CI: Publish Dev Image') {
                 sh """
                     cd ${workspaceDir}
-                    go build -o /out/ingressmonitorcontroller
+                    go build -o ../out/ingressmonitorcontroller
                     cd ..
                     docker build -t docker.io/stakater/ingress-monitor-controller:dev .
                     docker push docker.io/stakater/ingress-monitor-controller:latest
@@ -39,7 +39,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.1') {
                 sh """
                     cd ${workspaceDir}
                     go test
-                    go build -o /out/ingressmonitorcontroller
+                    go build -o ../out/ingressmonitorcontroller
                 """
             }
 
