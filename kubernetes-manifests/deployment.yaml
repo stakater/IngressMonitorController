@@ -30,7 +30,7 @@ spec:
               fieldPath: metadata.namespace
         - name: CONFIG_FILE_PATH
           value: /etc/ingress-monitor-controller/config.yaml
-        image: stakater/ingress-monitor-controller:0.1
+        image: stakater/ingress-monitor-controller:0.2.0
         name: ingress-monitor-controller
         volumeMounts:
         - mountPath: /etc/ingress-monitor-controller
