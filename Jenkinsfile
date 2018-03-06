@@ -25,6 +25,15 @@ clientsNode(clientsImage: 'stakater/pipeline-tools:1.1') {
                     go test
                 """
             }
+            stage('CI: Publish Dev Image') {
+                sh """
+                    cd ${workspaceDir}
+                    go build -o /out/ingressmonitorcontroller
+                    
+                    docker build -t docker.io/stakater/ingress-monitor-controller:dev .
+                    docker push docker.io/stakater/ingress-monitor-controller:latest
+                """
+            }
         } else if (utils.isCD()) {
             stage('CD: Build') {
                 sh """
