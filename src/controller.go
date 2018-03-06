@@ -156,6 +156,7 @@ func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
 	ingressWrapper := IngressWrapper{
 		ingress:   ingress,
 		namespace: c.namespace,
+		clientset: c.clientset,
 	}
 
 	return ingressWrapper.getURL()
