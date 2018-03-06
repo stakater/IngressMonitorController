@@ -1,9 +1,9 @@
 #!/usr/bin/groovy
-@Library('github.com/stakater/fabric8-pipeline-library@master')
+@Library('github.com/stakater/fabric8-pipeline-library@add-controller-template')
 
 def utils = new io.fabric8.Utils()
 
-clientsNode(clientsImage: 'stakater/pipeline-tools:1.1') {
+controllerNode(clientsImage: 'stakater/pipeline-tools:1.1') {
     container(name: 'clients') {
         String workspaceDir = WORKSPACE + "/src"
         stage('Checkout') {
