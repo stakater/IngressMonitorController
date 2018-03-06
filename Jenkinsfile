@@ -5,14 +5,14 @@ def utils = new io.fabric8.Utils()
 
 clientsNode(clientsImage: 'stakater/pipeline-tools:1.1') {
     container(name: 'clients') {
-        
+        String workspaceDir = WORKSPACE
         stage('Checkout') {
             checkout scm
         }
 
         stage('Download Dependencies') {
             sh """
-                cd ${WORKSPACE}
+                cd ${workspaceDir}
                 glide update
                 cp -r ./vendor/* /src/go/
             """
@@ -21,14 +21,14 @@ clientsNode(clientsImage: 'stakater/pipeline-tools:1.1') {
         if (utils.isCI()) {
             stage('CI: Test') {
                 sh """
-                    cd ${WORKSPACE}
+                    cd ${workspaceDir}
                     go test
                 """
             }
         } else if (utils.isCD()) {
             stage('CD: Build') {
                 sh """
-                    cd ${WORKSPACE}
+                    cd ${workspaceDir}
                     go test
                     go build -o /out/ingressmonitorcontroller
                 """
@@ -36,7 +36,7 @@ clientsNode(clientsImage: 'stakater/pipeline-tools:1.1') {
 
             stage('CD: Tag and Push') {
                 sh """
-                    cd ${WORKSPACE}
+                    cd ${workspaceDir}
                     
                     VERSION=\$(jx-release-version)
                     echo "VERSION := \${VERSION}" > Makefile
