@@ -29,7 +29,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.1') {
                 sh """
                     cd ${workspaceDir}
                     go build -o /out/ingressmonitorcontroller
-                    
+                    cd ..
                     docker build -t docker.io/stakater/ingress-monitor-controller:dev .
                     docker push docker.io/stakater/ingress-monitor-controller:latest
                 """
@@ -46,7 +46,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.1') {
             stage('CD: Tag and Push') {
                 sh """
                     cd ${workspaceDir}
-
+                    cd ..
                     VERSION=\$(jx-release-version)
                     echo "VERSION := \${VERSION}" > Makefile
                     
