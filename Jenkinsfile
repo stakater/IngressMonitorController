@@ -3,7 +3,7 @@
 
 def utils = new io.fabric8.Utils()
 
-controllerNode(clientsImage: 'stakater/pipeline-tools:1.1') {
+controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
     container(name: 'clients') {
         String workspaceDir = WORKSPACE + "/src"
         stage('Checkout') {
