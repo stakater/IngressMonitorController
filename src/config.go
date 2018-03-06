@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Providers             []Provider `yaml:"providers"`
 	EnableMonitorDeletion bool       `yaml:"enableMonitorDeletion"`
+	MonitorNameTemplate   string     `yaml:"monitorNameTemplate"`
 }
 
 type Provider struct {

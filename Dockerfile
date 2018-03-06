@@ -1,11 +1,6 @@
-FROM stakater/go-glide:1.9.3
+FROM stakater/base-alpine:3.7
 LABEL author="stakater"
 
-ARG SRC_DIR="ingress-monitor-controller"
-ENV SRC_DIR=${SRC_DIR}
+COPY ./out/ingressmonitorcontroller /
 
-ADD bootstrap.sh /bootstrap.sh
-
-ADD ./src /go/${SRC_DIR}
-
-CMD [ "/bin/sh", "-c", "/bootstrap.sh" ]
+ENTRYPOINT [ "/ingressmonitorcontroller" ]
