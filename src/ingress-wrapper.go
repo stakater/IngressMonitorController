@@ -70,7 +70,8 @@ func (iw *IngressWrapper) getIngressSubPath() string {
 
 func (iw *IngressWrapper) getURL() string {
 	if !iw.rulesExist() {
-		log.Panic("No rules exist in ingress: " + iw.ingress.GetName())
+		log.Println("No rules exist in ingress: " + iw.ingress.GetName())
+		return ""
 	}
 
 	var url string
@@ -123,7 +124,8 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 
 	service, err := iw.clientset.Core().Services(iw.namespace).Get(serviceName, meta_v1.GetOptions{})
 	if err != nil {
-		log.Panicf("Get service from kubernetes cluster error:%v", err)
+		log.Printf("Get service from kubernetes cluster error:%v", err)
+		return "", false
 	}
 
 	set := labels.Set(service.Spec.Selector)
