@@ -25,7 +25,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
             """
         }
 
-        if (utils.isCI()) {
+        if (utils.isCD()) {
             stage('CI: Test') {
                 sh """
                     cd ${workspaceDir}
@@ -41,7 +41,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
                     docker push docker.io/stakater/ingress-monitor-controller:dev
                 """
             }
-        } else if (utils.isCD()) {
+        } else if (utils.isCI()) {
             stage('CD: Build') {
                 sh """
                     cd ${workspaceDir}
