@@ -2,10 +2,17 @@
 @Library('github.com/stakater/fabric8-pipeline-library@master')
 
 def utils = new io.fabric8.Utils()
+String gitUsername = "stakater-user"
+String gitEmail = "stakater@gmail.com"
+
+String thisRepo = "git@github.com:stakater/IngressMonitorController"
+String thisRepoBranch = "master"
+String thisRepoDir = "IngressMonitorController"
 
 controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
     container(name: 'clients') {
         String workspaceDir = WORKSPACE + "/src"
+        def git = new io.stakater.vc.Git()
         stage('Checkout') {
             checkout scm
         }
@@ -44,23 +51,33 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
             }
 
             stage('CD: Tag and Push') {
+                print "Checkout current Repo for pushing version"
+
+                git.setUserInfo(gitUsername, gitEmail)
+                git.addHostsToKnownHosts()
+                git.checkoutRepo(thisRepo, thisRepoBranch, thisRepoDir)
+
+                print "Generating New Version"
                 sh """
-                    cd ${workspaceDir}
-                    cd ..
+                    cd ${WORKSPACE}/${thisRepoDir}
                     VERSION=\$(jx-release-version)
                     echo "VERSION := \${VERSION}" > Makefile
-		    
-		    git config --global user.email "stakater@aurorasolutions.io"
-                    git config --global user.name "Stakater"
-		    
-                    git checkout master
-                    git add Makefile
-                    git commit -m 'release \${VERSION}'
-                    git push origin master
+		        """
 
-                    docker build -t docker.io/stakater/ingress-monitor-controller:\${VERSION} .
-                    docker tag docker.io/stakater/ingress-monitor-controller:\${VERSION} docker.io/stakater/ingress-monitor-controller:latest
-                    docker push docker.io/stakater/ingress-monitor-controller:\${VERSION}
+                def version = new io.stakater.Common().shOutput("cd ${WORKSPACE}/${thisRepoDir}; jx-release-version")
+                
+                git.commitChanges(thisRepoDir, "Bump Version")
+
+                sh """
+                    cd ${WORKSPACE}/${thisRepoDir}
+                    git tag -a ${version}
+                    git push --tags
+                """
+
+                sh """
+                    docker build -t docker.io/stakater/ingress-monitor-controller:${version} .
+                    docker tag docker.io/stakater/ingress-monitor-controller:${version} docker.io/stakater/ingress-monitor-controller:latest
+                    docker push docker.io/stakater/ingress-monitor-controller:${version}
 	                docker push docker.io/stakater/ingress-monitor-controller:latest
                 """
             }
