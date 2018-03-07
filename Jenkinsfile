@@ -25,7 +25,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
             """
         }
 
-        if (utils.isCD()) {
+        if (utils.isCI()) {
             stage('CI: Test') {
                 sh """
                     cd ${workspaceDir}
@@ -41,7 +41,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
                     docker push docker.io/stakater/ingress-monitor-controller:dev
                 """
             }
-        } else if (utils.isCI()) {
+        } else if (utils.isCD()) {
             stage('CD: Build') {
                 sh """
                     cd ${workspaceDir}
@@ -57,24 +57,46 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
                 git.addHostsToKnownHosts()
                 git.checkoutRepo(thisRepo, thisRepoBranch, thisRepoDir)
 
+                git.addHostsToKnownHosts()
                 print "Generating New Version"
                 sh """
                     cd ${WORKSPACE}/${thisRepoDir}
+                    
+                    chmod 600 /root/.ssh-git/ssh-key
+                    eval `ssh-agent -s`
+                    ssh-add /root/.ssh-git/ssh-key
+                    
                     VERSION=\$(jx-release-version)
                     echo "VERSION := \${VERSION}" > Makefile
 		        """
 
-                def version = new io.stakater.Common().shOutput("cd ${WORKSPACE}/${thisRepoDir}; jx-release-version")
+                def version = new io.stakater.Common().shOutput """
+                    cd ${WORKSPACE}/${thisRepoDir}
+                    
+                    chmod 600 /root/.ssh-git/ssh-key > /dev/null
+                    eval `ssh-agent -s` > /dev/null
+                    ssh-add /root/.ssh-git/ssh-key > /dev/null
+
+                    jx-release-version
+                """
                 
                 git.commitChanges(thisRepoDir, "Bump Version")
 
+                print "Pushing Tag ${version} to Git"
                 sh """
                     cd ${WORKSPACE}/${thisRepoDir}
-                    git tag -a ${version}
+                    
+                    chmod 600 /root/.ssh-git/ssh-key
+                    eval `ssh-agent -s`
+                    ssh-add /root/.ssh-git/ssh-key
+                    
+                    git tag ${version}
                     git push --tags
                 """
 
+                print "Pushing Tag ${version} to DockerHub"
                 sh """
+                    cd ${WORKSPACE}
                     docker build -t docker.io/stakater/ingress-monitor-controller:${version} .
                     docker tag docker.io/stakater/ingress-monitor-controller:${version} docker.io/stakater/ingress-monitor-controller:latest
                     docker push docker.io/stakater/ingress-monitor-controller:${version}
