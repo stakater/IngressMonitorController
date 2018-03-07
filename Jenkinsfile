@@ -55,6 +55,7 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
 
                 git.setUserInfo(gitUsername, gitEmail)
                 git.addHostsToKnownHosts()
+                // We need to checkout again because we can't commit and push changes to the repo that is checkout via scm
                 git.checkoutRepo(thisRepo, thisRepoBranch, thisRepoDir)
 
                 git.addHostsToKnownHosts()
