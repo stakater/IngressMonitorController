@@ -2,7 +2,9 @@
 
 ## Problem Statement
 
-We want to get notified in a slack channel & email if any of my services become unhealthy!
+How do I get notified if any of my services is down?
+
+We want to get notified in a slack channel & email if any of our services become unhealthy!
 
 We want to monitor ingresses in a kubernetes cluster via any uptime checker but the problem is to manually check for new ingresses / removed ingresses and add them to the checker or remove them. There isn't any out of the box solution for this as of now.
 
@@ -18,9 +20,11 @@ Currently we support the following monitors:
 
 ## Deploying to Kubernetes
 
+### Vanilla Manifests
+
 You have to first clone or download the repository contents. The kubernetes deployment and files are provided inside `kubernetes-manifests` folder.
 
-### Enabling
+#### Enabling
 
 By default, the controller ignores the ingresses without a specific annotation on it. You will need to add the following annotation on your ingresses so that the controller is able to recognize and monitor the ingresses.
 
@@ -30,7 +34,7 @@ By default, the controller ignores the ingresses without a specific annotation o
 
 The annotation key is `monitor.stakater.com/enabled` and you can toggle the value of this annotation between `true` and `false` to enable or disable monitoring of that specific ingress.
 
-### Configuring
+#### Configuring
 
 First of all you need to modify `configmap.yaml`'s `config.yaml` file. Following are the available options that you can use to customize the controller:
 
@@ -48,7 +52,7 @@ For the list of providers, there's a number of options that you need to specify.
 | apiURL        | Base url of the ApiProvider                                               |
 | alertContacts | A `-` separated list of contact id's that you want to add to the monitors |
 
-### Deploying
+#### Deploying
 
 You can deploy the controller in the namespace you want to monitor by running the following kubectl commands:
 
@@ -59,6 +63,8 @@ kubectl apply -f deployment.yaml -n <namespace>
 ```
 
 *Note*: Before applying rbac.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply rbac.yaml to.
+
+### Helm Charts
 
 Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `chart` folder.
 
