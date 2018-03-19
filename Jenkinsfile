@@ -9,10 +9,17 @@ String thisRepo = "git@github.com:stakater/IngressMonitorController"
 String thisRepoBranch = "master"
 String thisRepoDir = "IngressMonitorController"
 
+String chartPackageName = ""
+String chartName = "chart/ingress-monitor-controller"
+
 controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
     container(name: 'clients') {
         String workspaceDir = WORKSPACE + "/src"
         def git = new io.stakater.vc.Git()
+        def helm = new io.stakater.charts.Helm()
+        def common = new io.stakater.Common()
+        def chartManager = new io.stakater.charts.ChartManager()
+        
         stage('Checkout') {
             checkout scm
         }
@@ -103,6 +110,21 @@ controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
                     docker push docker.io/stakater/ingress-monitor-controller:${version}
 	                docker push docker.io/stakater/ingress-monitor-controller:latest
                 """
+            }
+             
+            stage('Chart: Init Helm') {
+                helm.init(true)
+            }
+
+            stage('Chart: Prepare') {
+                helm.lint(WORKSPACE, chartName)
+                chartPackageName = helm.package(WORKSPACE, chartName)
+            }
+
+            stage('Chart: Upload') {
+                String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
+                String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
+                chartManager.uploadToChartMuseum(WORKSPACE, chartName, chartPackageName, cmUsername, cmPassword)
             }
         }
     }
