@@ -20,3 +20,4 @@ data:
       alertContacts: {{ .alertContacts }}
     {{- end }}
     enableMonitorDeletion: {{ .Values.ingressMonitorController.enableMonitorDeletion }}
+    monitorNameTemplate: "{{ .Values.ingressMonitorController.monitorNameTemplate }}"
