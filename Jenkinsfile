@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-@Library('github.com/stakater/fabric8-pipeline-library@fix-upload-exit')
+@Library('github.com/stakater/fabric8-pipeline-library@master')
 
 def utils = new io.fabric8.Utils()
 String gitUsername = "stakater-user"
@@ -12,8 +12,8 @@ String thisRepoDir = "IngressMonitorController"
 String chartPackageName = ""
 String chartName = "chart/ingress-monitor-controller"
 
-controllerNode(clientsImage: 'stakater/pipeline-tools:1.2.0') {
-    container(name: 'clients') {
+toolsNode(toolsImage: 'stakater/pipeline-tools:1.4.0') {
+    container(name: 'tools') {
         String workspaceDir = WORKSPACE + "/src"
         def git = new io.stakater.vc.Git()
         def helm = new io.stakater.charts.Helm()
