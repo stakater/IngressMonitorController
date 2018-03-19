@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-@Library('github.com/stakater/fabric8-pipeline-library@master')
+@Library('github.com/stakater/fabric8-pipeline-library@fix-exit-upload')
 
 def utils = new io.fabric8.Utils()
 String gitUsername = "stakater-user"
