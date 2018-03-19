@@ -15,3 +15,4 @@ ingressMonitorController:
   
   enableMonitorDeletion: true
   configFilePath: /etc/ingress-monitor-controller/config.yaml
+  monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
