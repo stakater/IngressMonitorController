@@ -30,6 +30,18 @@ rules:
       - patch
       - watch
       - delete
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - services
+    verbs:
+      - list
+      - get
+      - update
+      - patch
+      - watch
+      - delete
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
@@ -47,4 +59,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ingressmonitorcontroller
-    namespace: test
+    namespace: dev
