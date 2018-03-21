@@ -6,7 +6,7 @@ metadata:
   labels:
     app: ingress-monitor-controller
     group: com.stakater.platform
-    version: 0.1.0
+    version: 0.2.8
     provider: stakater
   name: ingress-monitor-controller
 spec:
@@ -19,7 +19,7 @@ spec:
       labels:
         app: ingress-monitor-controller
         group: com.stakater.platform
-        version: 0.1.0
+        version: 0.2.8
         provider: stakater
     spec:
       containers:
@@ -30,7 +30,7 @@ spec:
               fieldPath: metadata.namespace
         - name: CONFIG_FILE_PATH
           value: /etc/ingress-monitor-controller/config.yaml
-        image: stakater/ingress-monitor-controller:0.2.0
+        image: stakater/ingress-monitor-controller:0.2.8
         name: ingress-monitor-controller
         volumeMounts:
         - mountPath: /etc/ingress-monitor-controller

@@ -4,7 +4,7 @@ metadata:
   labels:
     app: ingress-monitor-controller
     group: com.stakater.platform
-    version: 0.1.0
+    version: 0.2.8
     provider: stakater
   name: ingressmonitorcontroller
 ---
@@ -14,7 +14,7 @@ metadata:
   labels:
     app: ingress-monitor-controller
     group: com.stakater.platform
-    version: 0.1.0
+    version: 0.2.8
     provider: stakater
   name: ingressmonitorcontroller-role
 rules:
@@ -30,6 +30,18 @@ rules:
       - patch
       - watch
       - delete
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - services
+    verbs:
+      - list
+      - get
+      - update
+      - patch
+      - watch
+      - delete
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
@@ -37,7 +49,7 @@ metadata:
   labels:
     app: ingress-monitor-controller
     group: com.stakater.platform
-    version: 0.1.0
+    version: 0.2.8
     provider: stakater
   name: ingressmonitorcontroller-role-binding
 roleRef:
@@ -47,4 +59,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ingressmonitorcontroller
-    namespace: test
+    namespace: dev
