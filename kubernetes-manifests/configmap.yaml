@@ -6,7 +6,7 @@ metadata:
   labels:
     app: ingress-monitor-controller
     group: com.stakater.platform
-    version: 0.2.8
+    version: 0.2.9
     provider: stakater
   name: ingress-monitor-controller
 data:
