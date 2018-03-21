@@ -7,8 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
@@ -102,7 +104,7 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 
 	ingress := createIngressObject(ingressName, namespace, url)
 
-	ingress = addMonitorAnnotation(ingress, true)
+	ingress = addMonitorAnnotationToIngress(ingress, true)
 
 	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -139,7 +141,7 @@ func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
 
 	ingress := createIngressObject(ingressName, namespace, url)
 
-	ingress = addMonitorAnnotation(ingress, false)
+	ingress = addMonitorAnnotationToIngress(ingress, false)
 
 	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -180,7 +182,7 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress = addMonitorAnnotation(ingress, false)
+	ingress = addMonitorAnnotationToIngress(ingress, false)
 
 	ingress, err = controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
 	if err != nil {
@@ -218,7 +220,7 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress = addMonitorAnnotation(ingress, true)
+	ingress = addMonitorAnnotationToIngress(ingress, true)
 
 	ingress, err = controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
 	if err != nil {
@@ -250,7 +252,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 
 	ingress := createIngressObject(ingressName, namespace, url)
 
-	ingress = addMonitorAnnotation(ingress, true)
+	ingress = addMonitorAnnotationToIngress(ingress, true)
 
 	ingress, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -272,7 +274,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 	// Should exist
 	checkMonitorWithName(t, monitorName, true)
 
-	ingress = updateMonitorAnnotation(ingress, false)
+	ingress = updateMonitorAnnotationInIngress(ingress, false)
 
 	ingress, err = controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
 	if err != nil {
@@ -298,7 +300,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 
 	ingress := createIngressObject(ingressName, namespace, url)
 
-	ingress = addMonitorAnnotation(ingress, true)
+	ingress = addMonitorAnnotationToIngress(ingress, true)
 
 	ingress, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -366,7 +368,7 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 
 	ingress := createIngressObject(ingressName, namespace, url)
 
-	ingress = addMonitorAnnotation(ingress, false)
+	ingress = addMonitorAnnotationToIngress(ingress, false)
 
 	ingress, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -381,7 +383,7 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress = updateMonitorAnnotation(ingress, true)
+	ingress = updateMonitorAnnotationInIngress(ingress, true)
 
 	ingress, err = controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
 	if err != nil {
@@ -417,7 +419,7 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 
 	ingress := createIngressObject(ingressName, namespace, url)
 
-	ingress = addMonitorAnnotation(ingress, true)
+	ingress = addMonitorAnnotationToIngress(ingress, true)
 
 	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -442,6 +444,318 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 
 	// Delete the temporary monitor manually
 	deleteMonitorWithName(t, monitorName)
+}
+
+func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonitor(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+	podName := "testingpod"
+	serviceName := "testingservice"
+
+	controller := getControllerWithNamespace(namespace, false)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	pod := createPodObject(podName, namespace)
+
+	pod = addReadinessProbeToPod(pod, "/health", 80)
+
+	service := createServiceObject(serviceName, podName, namespace)
+
+	if _, err := controller.clientset.Pods(namespace).Create(pod); err != nil {
+		panic(err)
+	}
+
+	if _, err := controller.clientset.Services(namespace).Create(service); err != nil {
+		panic(err)
+	}
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotationToIngress(ingress, true)
+
+	ingress = addServiceToIngress(ingress, serviceName, 80)
+
+	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	monitorService := getMonitorService()
+
+	monitor, err := monitorService.GetByName(monitorName)
+
+	if err != nil {
+		t.Error("An error occured while getting monitor")
+	}
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	controller.clientset.Pods(namespace).Delete(podName, &meta_v1.DeleteOptions{})
+
+	controller.clientset.Services(namespace).Delete(serviceName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(15 * time.Second)
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	// Delete the temporary monitor manually
+	deleteMonitorWithName(t, monitorName)
+
+	if monitor.url != "http://google.com/health" {
+		t.Error("Monitor must have /health appended to the url")
+	}
+}
+
+func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShouldCreateMonitor(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+	podName := "testingpod"
+	serviceName := "testingservice"
+
+	controller := getControllerWithNamespace(namespace, false)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	pod := createPodObject(podName, namespace)
+
+	service := createServiceObject(serviceName, podName, namespace)
+
+	if _, err := controller.clientset.Pods(namespace).Create(pod); err != nil {
+		panic(err)
+	}
+
+	if _, err := controller.clientset.Services(namespace).Create(service); err != nil {
+		panic(err)
+	}
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotationToIngress(ingress, true)
+
+	ingress = addServiceToIngress(ingress, serviceName, 80)
+
+	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	monitorService := getMonitorService()
+
+	monitor, err := monitorService.GetByName(monitorName)
+
+	if err != nil {
+		t.Error("An error occured while getting monitor")
+	}
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	controller.clientset.Pods(namespace).Delete(podName, &meta_v1.DeleteOptions{})
+
+	controller.clientset.Services(namespace).Delete(serviceName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(15 * time.Second)
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	// Delete the temporary monitor manually
+	deleteMonitorWithName(t, monitorName)
+
+	if monitor.url != "http://google.com" {
+		t.Error("Monitor must not have /health appended to the url")
+	}
+}
+
+func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreateMonitor(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+	podName := "testingpod"
+	serviceName := "testingservice"
+
+	controller := getControllerWithNamespace(namespace, false)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	pod := createPodObject(podName, namespace)
+
+	service := createServiceObject(serviceName, podName, namespace)
+
+	if _, err := controller.clientset.Pods(namespace).Create(pod); err != nil {
+		panic(err)
+	}
+
+	if _, err := controller.clientset.Services(namespace).Create(service); err != nil {
+		panic(err)
+	}
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotationToIngress(ingress, true)
+
+	ingress = addHealthAnnotationToIngress(ingress, "/hello")
+
+	ingress = addServiceToIngress(ingress, serviceName, 80)
+
+	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	monitorService := getMonitorService()
+
+	monitor, err := monitorService.GetByName(monitorName)
+
+	if err != nil {
+		t.Error("An error occured while getting monitor")
+	}
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	controller.clientset.Pods(namespace).Delete(podName, &meta_v1.DeleteOptions{})
+
+	controller.clientset.Services(namespace).Delete(serviceName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(15 * time.Second)
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	// Delete the temporary monitor manually
+	deleteMonitorWithName(t, monitorName)
+
+	if monitor.url != "http://google.com/hello" {
+		t.Error("Monitor must have /health appended to the url")
+	}
+}
+
+func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMonitor(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+	podName := "somerandompod"
+	serviceName := "testingservice"
+
+	controller := getControllerWithNamespace(namespace, false)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	service := createServiceObject(serviceName, podName, namespace)
+
+	if _, err := controller.clientset.Services(namespace).Create(service); err != nil {
+		panic(err)
+	}
+
+	ingress := createIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotationToIngress(ingress, true)
+
+	ingress = addServiceToIngress(ingress, serviceName, 80)
+
+	result, err := controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	monitorService := getMonitorService()
+
+	monitor, err := monitorService.GetByName(monitorName)
+
+	if err != nil {
+		t.Error("An error occured while getting monitor")
+	}
+
+	controller.clientset.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	controller.clientset.Services(namespace).Delete(serviceName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(15 * time.Second)
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	// Delete the temporary monitor manually
+	deleteMonitorWithName(t, monitorName)
+
+	if monitor.url != "http://google.com" {
+		t.Error("Monitor should not have /health appended to the url since no pod exists")
+	}
+}
+
+func addServiceToIngress(ingress *v1beta1.Ingress, serviceName string, servicePort int) *v1beta1.Ingress {
+	ingress.Spec.Rules[0].HTTP = &v1beta1.HTTPIngressRuleValue{
+		Paths: []v1beta1.HTTPIngressPath{
+			v1beta1.HTTPIngressPath{
+				Backend: v1beta1.IngressBackend{
+					ServiceName: serviceName,
+					ServicePort: intstr.FromInt(servicePort),
+				},
+			},
+		},
+	}
+
+	return ingress
+}
+
+func addReadinessProbeToPod(pod *v1.Pod, path string, port int) *v1.Pod {
+	pod.Spec.Containers[0].ReadinessProbe = &v1.Probe{
+		Handler: v1.Handler{
+			HTTPGet: &v1.HTTPGetAction{
+				Path: path,
+				Port: intstr.FromInt(port),
+			},
+		},
+	}
+
+	return pod
 }
 
 func deleteMonitorWithName(t *testing.T, monitorName string) {
@@ -510,15 +824,77 @@ func createIngressObject(ingressName string, namespace string, url string) *v1be
 	return ingress
 }
 
-func addMonitorAnnotation(ingress *v1beta1.Ingress, annotationValue bool) *v1beta1.Ingress {
-	annotations := make(map[string]string)
-	annotations["monitor.stakater.com/enabled"] = strconv.FormatBool(annotationValue)
-	ingress.Annotations = annotations
+func createServiceObject(serviceName string, podName string, namespace string) *v1.Service {
+	service := &v1.Service{
+		ObjectMeta: meta_v1.ObjectMeta{
+			Name:      serviceName,
+			Namespace: namespace,
+			Labels: map[string]string{
+				"name":      serviceName,
+				"namespace": namespace,
+			},
+		},
+		Spec: v1.ServiceSpec{
+			Ports: []v1.ServicePort{
+				v1.ServicePort{
+					Name:       "http",
+					Protocol:   "TCP",
+					Port:       80,
+					TargetPort: intstr.FromInt(80),
+				},
+			},
+			Selector: map[string]string{
+				"name":      podName,
+				"namespace": namespace,
+			},
+		},
+	}
 
+	return service
+}
+
+func createPodObject(podName string, namespace string) *v1.Pod {
+	pod := &v1.Pod{
+		ObjectMeta: meta_v1.ObjectMeta{
+			Name:      podName,
+			Namespace: namespace,
+			Labels: map[string]string{
+				"name":      podName,
+				"namespace": namespace,
+			},
+		},
+		Spec: v1.PodSpec{
+			Containers: []v1.Container{
+				v1.Container{
+					Name:  "test",
+					Image: "tutum/hello-world",
+				},
+			},
+		},
+	}
+
+	return pod
+}
+
+func addMonitorAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue bool) *v1beta1.Ingress {
+	if ingress.Annotations == nil {
+		annotations := make(map[string]string)
+		ingress.Annotations = annotations
+	}
+	ingress.Annotations["monitor.stakater.com/enabled"] = strconv.FormatBool(annotationValue)
 	return ingress
 }
 
-func updateMonitorAnnotation(ingress *v1beta1.Ingress, newValue bool) *v1beta1.Ingress {
+func addHealthAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue string) *v1beta1.Ingress {
+	if ingress.Annotations == nil {
+		annotations := make(map[string]string)
+		ingress.Annotations = annotations
+	}
+	ingress.Annotations["monitor.stakater.com/healthEndpoint"] = annotationValue
+	return ingress
+}
+
+func updateMonitorAnnotationInIngress(ingress *v1beta1.Ingress, newValue bool) *v1beta1.Ingress {
 	monitorAnnotation := "monitor.stakater.com/enabled"
 	if _, ok := ingress.Annotations[monitorAnnotation]; ok {
 		ingress.Annotations[monitorAnnotation] = strconv.FormatBool(newValue)
@@ -527,7 +903,7 @@ func updateMonitorAnnotation(ingress *v1beta1.Ingress, newValue bool) *v1beta1.I
 	return ingress
 }
 
-func removeMonitorAnnotation(ingress *v1beta1.Ingress) *v1beta1.Ingress {
+func removeMonitorAnnotationFromIngress(ingress *v1beta1.Ingress) *v1beta1.Ingress {
 	monitorAnnotation := "monitor.stakater.com/enabled"
 	if _, ok := ingress.Annotations[monitorAnnotation]; ok {
 		delete(ingress.Annotations, monitorAnnotation)
