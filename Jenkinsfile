@@ -1,9 +1,7 @@
 #!/usr/bin/groovy
-@Library('github.com/stakater/fabric8-pipeline-library@remove-ssh-node')
+@Library('github.com/stakater/fabric8-pipeline-library@master')
 
 def utils = new io.fabric8.Utils()
-String gitUsername = "stakater-user"
-String gitEmail = "stakater@gmail.com"
 
 String chartPackageName = ""
 String chartName = "chart/ingress-monitor-controller"
