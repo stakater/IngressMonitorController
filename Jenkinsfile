@@ -21,13 +21,13 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
             def common = new io.stakater.Common()
             def chartManager = new io.stakater.charts.ChartManager()
 
-            stage('Download Dependencies') {
-                sh """
-                    cd ${workspaceDir}
-                    glide update
-                    cp -r ./vendor/* /go/src/
-                """
-            }
+            // stage('Download Dependencies') {
+            //     sh """
+            //         cd ${workspaceDir}
+            //         glide update
+            //         cp -r ./vendor/* /go/src/
+            //     """
+            // }
 
             if (false) {
                 stage('CI: Test') {
@@ -46,12 +46,12 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                     """
                 }
             } else if (true) {
-                stage('CD: Build') {
-                    sh """
-                        cd ${workspaceDir}
-                        go build -o ../out/ingressmonitorcontroller
-                    """
-                }
+                // stage('CD: Build') {
+                //     sh """
+                //         cd ${workspaceDir}
+                //         go build -o ../out/ingressmonitorcontroller
+                //     """
+                // }
 
                 stage('CD: Tag and Push') {
                     print "Generating New Version"
@@ -68,7 +68,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                         eval `ssh-agent -s` > /dev/null
                         ssh-add /root/.ssh-git/ssh-key > /dev/null
 
-                        jx-release-version
+                        jx-release-version --debug=true
                     """
 
                     sh """
