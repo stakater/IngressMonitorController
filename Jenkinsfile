@@ -6,10 +6,16 @@ def utils = new io.fabric8.Utils()
 String chartPackageName = ""
 String chartName = "chart/ingress-monitor-controller"
 
-toolsNode(toolsImage: 'stakater/pipeline-tools:1.4.0') {
+toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
     container(name: 'tools') {
         withCurrentRepo { def repoUrl, def repoName, def repoBranch ->
             String workspaceDir = WORKSPACE + "/src"
+            def chartTemalatesDir = WORKSPACE + "/kubernetes/templates/chart"
+            // TODO: fetch repo name dynamically
+            def chartDir = WORKSPACE + "/kubernetes/chart/ingress-monitor-controller"
+            def manifestsDir = WORKSPACE + "/kubernetes/manifests"
+            // TODO: fetch repo name dynamically
+            def dockerImage = "stakater/ingress-monitor-controller";
             def git = new io.stakater.vc.Git()
             def helm = new io.stakater.charts.Helm()
             def common = new io.stakater.Common()
@@ -35,8 +41,8 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.4.0') {
                         cd ${workspaceDir}
                         go build -o ../out/ingressmonitorcontroller
                         cd ..
-                        docker build -t docker.io/stakater/ingress-monitor-controller:dev .
-                        docker push docker.io/stakater/ingress-monitor-controller:dev
+                        docker build -t docker.io/${dockerImage}:dev .
+                        docker push docker.io/${dockerImage}:dev
                     """
                 }
             } else if (utils.isCD()) {
@@ -65,6 +71,17 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.4.0') {
 
                         jx-release-version
                     """
+
+                    sh """
+                        export VERSION=${version}
+                        export DOCKER_IMAGE=${dockerImage}
+                        gotplenv ${chartTemalatesDir}/Chart.yaml.tmpl > ${chartDir}/Chart.yaml
+                        gotplenv ${chartTemalatesDir}/values.yaml.tmpl > ${chartDir}/values.yaml
+
+                        helm template ${chartDir} -x templates/deployment.yaml > ${manifestsDir}/deployment.yaml
+                        helm template ${chartDir} -x templates/configmap.yaml > ${manifestsDir}/configmap.yaml
+                        helm template ${chartDir} -x templates/rbac.yaml > ${manifestsDir}/rbac.yaml
+                    """
                     
                     git.commitChanges(workspaceDir, "Bump Version")
 
@@ -83,10 +100,10 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.4.0') {
                     print "Pushing Tag ${version} to DockerHub"
                     sh """
                         cd ${WORKSPACE}
-                        docker build -t docker.io/stakater/ingress-monitor-controller:${version} .
-                        docker tag docker.io/stakater/ingress-monitor-controller:${version} docker.io/stakater/ingress-monitor-controller:latest
-                        docker push docker.io/stakater/ingress-monitor-controller:${version}
-                        docker push docker.io/stakater/ingress-monitor-controller:latest
+                        docker build -t docker.io/${dockerImage}:${version} .
+                        docker tag docker.io/${dockerImage}:${version} docker.io/${dockerImage}:latest
+                        docker push docker.io/${dockerImage}:${version}
+                        docker push docker.io/${dockerImage}:latest
                     """
                 }
                 
