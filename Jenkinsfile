@@ -29,7 +29,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                 """
             }
 
-            if (false) {
+            if (utils.isCI()) {
                 stage('CI: Test') {
                     sh """
                         cd ${workspaceDir}
@@ -45,10 +45,11 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                         docker push docker.io/${dockerImage}:dev
                     """
                 }
-            } else if (true) {
+            } else if (utils.isCD()) {
                 stage('CD: Build') {
                     sh """
                         cd ${workspaceDir}
+                        go test
                         go build -o ../out/ingressmonitorcontroller
                     """
                 }
