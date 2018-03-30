@@ -83,7 +83,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                         helm template ${chartDir} -x templates/rbac.yaml > ${manifestsDir}/rbac.yaml
                     """
                     
-                    git.commitChanges(workspaceDir, "Bump Version")
+                    git.commitChanges(workspaceDir, "Bump Version to ${version}")
 
                     print "Pushing Tag ${version} to Git"
                     sh """
