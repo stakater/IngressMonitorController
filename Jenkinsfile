@@ -15,8 +15,9 @@ String chartName = "chart/ingress-monitor-controller"
 toolsNode(toolsImage: 'stakater/pipeline-tools:1.4.0') {
     container(name: 'tools') {
         withCurrentRepo {
-            stage("Test") {
-                print "Hello i am inside"
+            stage('Test') {
+                print "I am in ${WORKSPACE}"
+                sh "ls"
             }
         }
         String workspaceDir = WORKSPACE + "/src"
@@ -26,7 +27,6 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.4.0') {
         def chartManager = new io.stakater.charts.ChartManager()
         
         stage('Checkout') {
-            git.checkoutRepo()
             //checkout scm
         }
 
