@@ -1,0 +1,20 @@
+# Generated from /kubernetes/templates/chart/values.yaml.tmpl
+
+kubernetes:
+  host: https://kubernetes.default
+
+ingressMonitorController:
+  namespace: default
+  image:
+    name: {{ getenv "DOCKER_IMAGE" }}
+    tag: "{{ getenv "VERSION" }}"
+    pullPolicy: IfNotPresent
+  providers:
+  - name: UptimeRobot
+    apiKey: your-api-key
+    apiURL: https://google.com
+    alertContacts: some-alert-contacts
+  
+  enableMonitorDeletion: true
+  configFilePath: /etc/ingress-monitor-controller/config.yaml
+  monitorNameTemplate: "{{ `{{.Namespace}}-{{.IngressName}}` }}"
