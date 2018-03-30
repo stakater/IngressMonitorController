@@ -21,13 +21,13 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
             def common = new io.stakater.Common()
             def chartManager = new io.stakater.charts.ChartManager()
 
-            // stage('Download Dependencies') {
-            //     sh """
-            //         cd ${workspaceDir}
-            //         glide update
-            //         cp -r ./vendor/* /go/src/
-            //     """
-            // }
+            stage('Download Dependencies') {
+                sh """
+                    cd ${workspaceDir}
+                    glide update
+                    cp -r ./vendor/* /go/src/
+                """
+            }
 
             if (false) {
                 stage('CI: Test') {
@@ -46,18 +46,18 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                     """
                 }
             } else if (true) {
-                // stage('CD: Build') {
-                //     sh """
-                //         cd ${workspaceDir}
-                //         go build -o ../out/ingressmonitorcontroller
-                //     """
-                // }
+                stage('CD: Build') {
+                    sh """
+                        cd ${workspaceDir}
+                        go build -o ../out/ingressmonitorcontroller
+                    """
+                }
 
                 stage('CD: Tag and Push') {
                     print "Generating New Version"
                     sh """
                         cd ${WORKSPACE}
-                        VERSION=\$(jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --debug=true)
+                        VERSION=\$(jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName})
                         echo "VERSION := \${VERSION}" > Makefile
                     """
 
@@ -68,8 +68,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                         eval `ssh-agent -s` > /dev/null
                         ssh-add /root/.ssh-git/ssh-key > /dev/null
 
-                        jx-release-version --gh-owner=${repoName.tokenize('/').first()} \
-                         --gh-repository=${repoName.tokenize('/').last()} --debug=true
+                        jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} 
                     """
 
                     sh """
