@@ -68,7 +68,8 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                         eval `ssh-agent -s` > /dev/null
                         ssh-add /root/.ssh-git/ssh-key > /dev/null
 
-                        jx-release-version --debug=true
+                        jx-release-version --gh-owner=${repoName.tokenize('/').first()} \
+                         --gh-repository=${repoName.tokenize('/').last()} --debug=true
                     """
 
                     sh """
