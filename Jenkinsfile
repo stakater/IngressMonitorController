@@ -8,7 +8,7 @@ String chartName = "chart/ingress-monitor-controller"
 
 toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
     container(name: 'tools') {
-        withCurrentRepo { def repoUrl, def repoName, def repoBranch ->
+        withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
             String workspaceDir = WORKSPACE + "/src"
             def chartTemalatesDir = WORKSPACE + "/kubernetes/templates/chart"
             // TODO: fetch repo name dynamically
@@ -57,7 +57,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                     print "Generating New Version"
                     sh """
                         cd ${WORKSPACE}
-                        VERSION=\$(jx-release-version --gh-owner=${repoName.tokenize('/').first()} --gh-repository=${repoName.tokenize('/').last()} --debug=true)
+                        VERSION=\$(jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --debug=true)
                         echo "VERSION := \${VERSION}" > Makefile
                     """
 
