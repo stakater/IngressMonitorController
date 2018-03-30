@@ -49,7 +49,6 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                 stage('CD: Build') {
                     sh """
                         cd ${workspaceDir}
-                        go test
                         go build -o ../out/ingressmonitorcontroller
                     """
                 }
