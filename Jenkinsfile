@@ -57,7 +57,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
                     print "Generating New Version"
                     sh """
                         cd ${WORKSPACE}
-                        VERSION=\$(jx-release-version)
+                        VERSION=\$(jx-release-version --gh-owner=${repoName.tokenize('/').first()} --gh-repository=${repoName.tokenize('/').last()} --debug=true)
                         echo "VERSION := \${VERSION}" > Makefile
                     """
 
