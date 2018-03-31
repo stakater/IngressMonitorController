@@ -58,6 +58,9 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     def imageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
                     docker.buildImageWithTag(dockerImage, imageVersion)
                     docker.pushTag(dockerImage, imageVersion)
+
+                    def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${imageVersion}`"
+                    git.addCommentToPullRequest(commentMessage)
                 }
             } else if (utils.isCD()) {
                 stage('CD: Tag and Push') {
