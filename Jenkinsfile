@@ -74,12 +74,12 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
 
                     sh """
                         export DOCKER_IMAGE=${dockerImage}
-                        gotplenv ${chartTemplatesDir}/Chart.yaml.tmpl > ${chartDir}/Chart.yaml
-                        gotplenv ${chartTemplatesDir}/values.yaml.tmpl > ${chartDir}/values.yaml
+                        gotplenv ${chartTemplatesDir}/Chart.yaml.tmpl > ${chartDir}/${repoName}/Chart.yaml
+                        gotplenv ${chartTemplatesDir}/values.yaml.tmpl > ${chartDir}/${repoName}/values.yaml
 
-                        helm template ${chartDir} -x templates/deployment.yaml > ${manifestsDir}/deployment.yaml
-                        helm template ${chartDir} -x templates/configmap.yaml > ${manifestsDir}/configmap.yaml
-                        helm template ${chartDir} -x templates/rbac.yaml > ${manifestsDir}/rbac.yaml
+                        helm template ${chartDir}/${repoName} -x templates/deployment.yaml > ${manifestsDir}/deployment.yaml
+                        helm template ${chartDir}/${repoName} -x templates/configmap.yaml > ${manifestsDir}/configmap.yaml
+                        helm template ${chartDir}/${repoName} -x templates/rbac.yaml > ${manifestsDir}/rbac.yaml
                     """
                     
                     git.commitChanges(WORKSPACE, "Bump Version to ${version}")
