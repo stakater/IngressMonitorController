@@ -61,17 +61,9 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     sh """
                         echo "VERSION := ${version}" > Makefile
                     """
-                    // def version = new io.stakater.Common().shOutput """
-                    //     cd ${WORKSPACE}
-                        
-                    //     chmod 600 /root/.ssh-git/ssh-key > /dev/null
-                    //     eval `ssh-agent -s` > /dev/null
-                    //     ssh-add /root/.ssh-git/ssh-key > /dev/null
-
-                    //     jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} 
-                    // """
 
                     sh """
+                        export VERSION=${version}
                         export DOCKER_IMAGE=${dockerImage}
                         gotplenv ${chartTemplatesDir}/Chart.yaml.tmpl > ${chartDir}/${repoName}/Chart.yaml
                         gotplenv ${chartTemplatesDir}/values.yaml.tmpl > ${chartDir}/${repoName}/values.yaml
