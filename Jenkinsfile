@@ -6,7 +6,7 @@ def utils = new io.fabric8.Utils()
 String chartPackageName = ""
 String chartName = "chart/ingress-monitor-controller"
 
-toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.0') {
+toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
     container(name: 'tools') {
         withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
             String workspaceDir = WORKSPACE + "/src"
