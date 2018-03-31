@@ -6,8 +6,8 @@ kubernetes:
 ingressMonitorController:
   namespace: default
   image:
-    name: stakater/ingress-monitor-controller
-    tag: "0.2.13"
+    name: stakateringressmonitorcontroller
+    tag: ""
     pullPolicy: IfNotPresent
   providers:
   - name: UptimeRobot
@@ -16,5 +16,5 @@ ingressMonitorController:
     alertContacts: some-alert-contacts
   
   enableMonitorDeletion: true
-  configFilePath: /etc/ingress-monitor-controller/config.yaml
+  configFilePath: /etc/IngressMonitorController/config.yaml
   monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
