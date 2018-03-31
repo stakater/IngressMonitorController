@@ -31,31 +31,26 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 """
             }
 
-            // if (utils.isCI()) {
-            //     stage('CI: Test') {
-            //         sh """
-            //             cd ${srcDir}
-            //             go test
-            //         """
-            //     }
-            //     stage('CI: Publish Dev Image') {
-            //         sh """
-            //             cd ${srcDir}
-            //             go build -o ../out/${repoName.toLowerCase()}
-            //             cd ..
-            //             docker build -t docker.io/${dockerImage}:dev .
-            //             docker push docker.io/${dockerImage}:dev
-            //         """
-            //     }
-            // } else if (utils.isCD()) {
-                stage('CD: Build') {
-                    sh """
-                        cd ${srcDir}
-                        go test
-                        go build -o ../out/${repoName.toLowerCase()}
-                    """
-                }
+            stage('Run Tests') {
+                sh """
+                    cd ${srcDir}
+                    go test
+                """
+            }
 
+            stage('Build Binary') {
+                sh """
+                    cd ${srcDir}
+                    go build -o ..out/${repoName.toLowerCase()}
+                """
+            }
+
+            if (utils.isCI()) {
+                stage('CI: Publish Dev Image') {
+                    docker.buildImageWithTag(dockerImage, "dev")
+                    docker.pushTag(dockerImage, "dev")
+                }
+            } else if (utils.isCD()) {
                 stage('CD: Tag and Push') {
                     print "Generating New Version"
                     def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName}")
@@ -77,21 +72,15 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
                     print "Pushing Tag ${version} to Git"
+                    
                     git.createTagAndPush(WORKSPACE, version)
 
                     print "Pushing Tag ${version} to DockerHub"
-                    
+
                     docker.buildImageWithTag(dockerImage, "latest")
                     docker.tagImage(dockerImage, "latest", version)
                     docker.pushTag(dockerImage, version)
                     docker.pushTag(dockerImage, "latest")
-                    // sh """
-                    //     cd ${WORKSPACE}
-                    //     docker build -t docker.io/${dockerImage}:${version} .
-                    //     docker tag docker.io/${dockerImage}:${version} docker.io/${dockerImage}:latest
-                    //     docker push docker.io/${dockerImage}:${version}
-                    //     docker push docker.io/${dockerImage}:latest
-                    // """
                 }
                 
                 stage('Chart: Init Helm') {
@@ -108,7 +97,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                     chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
                 }
-            //}
+            }
         }
     }
 }
