@@ -10,10 +10,11 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
     container(name: 'tools') {
         withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
             String srcDir = WORKSPACE + "/src"
-            def chartTemalatesDir = WORKSPACE + "/kubernetes/templates/chart"
+            def chartTemplatesDir = WORKSPACE + "/kubernetes/templates/chart"
             // TODO: fetch repo name dynamically
             def chartDir = WORKSPACE + "/kubernetes/chart/ingress-monitor-controller"
-            def manifestsDir = WORKSPACE + "/kubernetes/manifests"
+            def kubernetesDir = WORKSPACE + "/kubernetes"
+            def manifestsDir = kubernetesDir + "/manifests"
             // TODO: fetch repo name dynamically
             def dockerImage = "stakater/ingress-monitor-controller";
             def git = new io.stakater.vc.Git()
@@ -75,8 +76,8 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     sh """
                         export VERSION=${version}
                         export DOCKER_IMAGE=${dockerImage}
-                        gotplenv ${chartTemalatesDir}/Chart.yaml.tmpl > ${chartDir}/Chart.yaml
-                        gotplenv ${chartTemalatesDir}/values.yaml.tmpl > ${chartDir}/values.yaml
+                        gotplenv ${chartTemplatesDir}/Chart.yaml.tmpl > ${chartDir}/Chart.yaml
+                        gotplenv ${chartTemplatesDir}/values.yaml.tmpl > ${chartDir}/values.yaml
 
                         helm template ${chartDir} -x templates/deployment.yaml > ${manifestsDir}/deployment.yaml
                         helm template ${chartDir} -x templates/configmap.yaml > ${manifestsDir}/configmap.yaml
@@ -112,14 +113,14 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 }
 
                 stage('Chart: Prepare') {
-                    helm.lint(WORKSPACE, chartName)
-                    chartPackageName = helm.package(WORKSPACE, chartName)
+                    helm.lint(kubernetesDir, chartName)
+                    chartPackageName = helm.package(kubernetesDir, chartName)
                 }
 
                 stage('Chart: Upload') {
                     String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                     String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
-                    chartManager.uploadToChartMuseum(WORKSPACE, chartName, chartPackageName, cmUsername, cmPassword)
+                    chartManager.uploadToChartMuseum(kubernetesDir, chartName, chartPackageName, cmUsername, cmPassword)
                 }
             }
         }
