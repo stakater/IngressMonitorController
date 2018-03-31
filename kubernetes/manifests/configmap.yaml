@@ -7,7 +7,7 @@ metadata:
     fabric8.io/target-platform: kubernetes
   labels:
     app: IngressMonitorController
-    chart: "IngressMonitorController-0.2.15"
+    chart: "IngressMonitorController-0.2.16"
     release: "RELEASE-NAME"
     heritage: "Tiller"
     project: IngressMonitorController
