@@ -30,23 +30,23 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 """
             }
 
-            if (utils.isCI()) {
-                stage('CI: Test') {
-                    sh """
-                        cd ${srcDir}
-                        go test
-                    """
-                }
-                stage('CI: Publish Dev Image') {
-                    sh """
-                        cd ${srcDir}
-                        go build -o ../out/${repoName.toLowerCase()}
-                        cd ..
-                        docker build -t docker.io/${dockerImage}:dev .
-                        docker push docker.io/${dockerImage}:dev
-                    """
-                }
-            } else if (utils.isCD()) {
+            // if (utils.isCI()) {
+            //     stage('CI: Test') {
+            //         sh """
+            //             cd ${srcDir}
+            //             go test
+            //         """
+            //     }
+            //     stage('CI: Publish Dev Image') {
+            //         sh """
+            //             cd ${srcDir}
+            //             go build -o ../out/${repoName.toLowerCase()}
+            //             cd ..
+            //             docker build -t docker.io/${dockerImage}:dev .
+            //             docker push docker.io/${dockerImage}:dev
+            //         """
+            //     }
+            // } else if (utils.isCD()) {
                 stage('CD: Build') {
                     sh """
                         cd ${srcDir}
@@ -120,7 +120,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                     chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
                 }
-            }
+            //}
         }
     }
 }
