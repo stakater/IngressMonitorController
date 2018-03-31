@@ -59,13 +59,13 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 """
             }
 
-            if (utils.isCI()) {
-                stage('CI: Publish Dev Image') {
-                    dockerImageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
-                    docker.buildImageWithTag(dockerImage, dockerImageVersion)
-                    docker.pushTag(dockerImage, dockerImageVersion)
-                }
-            } else if (utils.isCD()) {
+            // if (utils.isCI()) {
+            //     stage('CI: Publish Dev Image') {
+            //         dockerImageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
+            //         docker.buildImageWithTag(dockerImage, dockerImageVersion)
+            //         docker.pushTag(dockerImage, dockerImageVersion)
+            //     }
+            // } else if (utils.isCD()) {
                 stage('CD: Tag and Push') {
                     print "Generating New Version"
                     def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName}")
@@ -119,6 +119,6 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 def commentMessage = "Image is available for testing. `docker pull ${dockerImageWithTag}`"
                 git.addCommentToPullRequest(commentMessage)
             }
-        }
+        // }
     }
 }
