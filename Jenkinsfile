@@ -9,7 +9,7 @@ String chartName = "chart/ingress-monitor-controller"
 toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
     container(name: 'tools') {
         withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
-            String workspaceDir = WORKSPACE + "/src"
+            String srcDir = WORKSPACE + "/src"
             def chartTemalatesDir = WORKSPACE + "/kubernetes/templates/chart"
             // TODO: fetch repo name dynamically
             def chartDir = WORKSPACE + "/kubernetes/chart/ingress-monitor-controller"
@@ -23,7 +23,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
 
             stage('Download Dependencies') {
                 sh """
-                    cd ${workspaceDir}
+                    cd ${srcDir}
                     glide update
                     cp -r ./vendor/* /go/src/
                 """
@@ -32,13 +32,13 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             if (utils.isCI()) {
                 stage('CI: Test') {
                     sh """
-                        cd ${workspaceDir}
+                        cd ${srcDir}
                         go test
                     """
                 }
                 stage('CI: Publish Dev Image') {
                     sh """
-                        cd ${workspaceDir}
+                        cd ${srcDir}
                         go build -o ../out/ingressmonitorcontroller
                         cd ..
                         docker build -t docker.io/${dockerImage}:dev .
@@ -48,7 +48,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             } else if (utils.isCD()) {
                 stage('CD: Build') {
                     sh """
-                        cd ${workspaceDir}
+                        cd ${srcDir}
                         go test
                         go build -o ../out/ingressmonitorcontroller
                     """
@@ -83,7 +83,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         helm template ${chartDir} -x templates/rbac.yaml > ${manifestsDir}/rbac.yaml
                     """
                     
-                    git.commitChanges(workspaceDir, "Bump Version to ${version}")
+                    git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
                     print "Pushing Tag ${version} to Git"
                     sh """
