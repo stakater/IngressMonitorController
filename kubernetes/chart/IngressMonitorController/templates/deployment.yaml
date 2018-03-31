@@ -4,7 +4,7 @@ metadata:
   annotations:
     configmap.fabric8.io/update-on-change: {{ template "name" . }}
   labels:
-    app: {{ template "fullname" . }}
+    app: {{ template "name" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service | quote }}
@@ -18,7 +18,7 @@ spec:
       annotations:
         configmap.fabric8.io/update-on-change: {{ template "name" . }}
       labels:
-        app: {{ template "fullname" . }}
+        app: {{ template "name" . }}
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         release: {{ .Release.Name | quote }}
         heritage: {{ .Release.Service | quote }}
@@ -36,7 +36,7 @@ spec:
         imagePullPolicy: {{ .Values.ingressMonitorController.image.pullPolicy }}
         name: {{ template "name" . }}
         volumeMounts:
-        - mountPath: /etc/ingress-monitor-controller
+        - mountPath: /etc/IngressMonitorController
           name: config-volume
       serviceAccountName: {{ template "name" . }}
       volumes:

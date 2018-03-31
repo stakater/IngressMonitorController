@@ -4,19 +4,19 @@
 def utils = new io.fabric8.Utils()
 
 String chartPackageName = ""
-String chartName = "chart/ingress-monitor-controller"
 
 toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
     container(name: 'tools') {
         withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
             String srcDir = WORKSPACE + "/src"
-            def chartTemplatesDir = WORKSPACE + "/kubernetes/templates/chart"
-            // TODO: fetch repo name dynamically
-            def chartDir = WORKSPACE + "/kubernetes/chart/ingress-monitor-controller"
             def kubernetesDir = WORKSPACE + "/kubernetes"
+
+            def chartTemplatesDir = kubernetesDir + "/templates/chart"
+            def chartDir = kubernetesDir + "/chart"
             def manifestsDir = kubernetesDir + "/manifests"
-            // TODO: fetch repo name dynamically
-            def dockerImage = "stakater/ingress-monitor-controller";
+            
+            def dockerImage = repoOwner.tolowerCase() + repoName.tolowerCase();
+            
             def git = new io.stakater.vc.Git()
             def helm = new io.stakater.charts.Helm()
             def common = new io.stakater.Common()
@@ -40,7 +40,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 stage('CI: Publish Dev Image') {
                     sh """
                         cd ${srcDir}
-                        go build -o ../out/ingressmonitorcontroller
+                        go build -o ../out/${repoName.toLowerCase()}
                         cd ..
                         docker build -t docker.io/${dockerImage}:dev .
                         docker push docker.io/${dockerImage}:dev
@@ -51,30 +51,28 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     sh """
                         cd ${srcDir}
                         go test
-                        go build -o ../out/ingressmonitorcontroller
+                        go build -o ../out/${repoName.toLowerCase()}
                     """
                 }
 
                 stage('CD: Tag and Push') {
                     print "Generating New Version"
                     sh """
-                        cd ${WORKSPACE}
-                        VERSION=\$(jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName})
+                        export VERSION=\$(jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName})
                         echo "VERSION := \${VERSION}" > Makefile
                     """
-
-                    def version = new io.stakater.Common().shOutput """
-                        cd ${WORKSPACE}
+                    def version = common.getEnvValue('VERSION')
+                    // def version = new io.stakater.Common().shOutput """
+                    //     cd ${WORKSPACE}
                         
-                        chmod 600 /root/.ssh-git/ssh-key > /dev/null
-                        eval `ssh-agent -s` > /dev/null
-                        ssh-add /root/.ssh-git/ssh-key > /dev/null
+                    //     chmod 600 /root/.ssh-git/ssh-key > /dev/null
+                    //     eval `ssh-agent -s` > /dev/null
+                    //     ssh-add /root/.ssh-git/ssh-key > /dev/null
 
-                        jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} 
-                    """
+                    //     jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} 
+                    // """
 
                     sh """
-                        export VERSION=${version}
                         export DOCKER_IMAGE=${dockerImage}
                         gotplenv ${chartTemplatesDir}/Chart.yaml.tmpl > ${chartDir}/Chart.yaml
                         gotplenv ${chartTemplatesDir}/values.yaml.tmpl > ${chartDir}/values.yaml
@@ -113,14 +111,14 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 }
 
                 stage('Chart: Prepare') {
-                    helm.lint(kubernetesDir, chartName)
-                    chartPackageName = helm.package(kubernetesDir, chartName)
+                    helm.lint(chartDir, repoName)
+                    chartPackageName = helm.package(chartDir, repoName)
                 }
 
                 stage('Chart: Upload') {
                     String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                     String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
-                    chartManager.uploadToChartMuseum(kubernetesDir, chartName, chartPackageName, cmUsername, cmPassword)
+                    chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
                 }
             }
         }
