@@ -1,6 +1,13 @@
 #!/usr/bin/groovy
 @Library('github.com/stakater/fabric8-pipeline-library@add-git-tag')
 
+def versionPrefix = ""
+try {
+    versionPrefix = VERSION_PREFIX
+} catch (Throwable e) {
+    versionPrefix = "1.0"
+}
+
 def utils = new io.fabric8.Utils()
 
 String chartPackageName = ""
@@ -22,6 +29,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             def common = new io.stakater.Common()
             def chartManager = new io.stakater.charts.ChartManager()
             def docker = new io.stakater.containers.Docker()
+            def stakaterCommands = new io.stakater.StakaterCommands()
 
             stage('Download Dependencies') {
                 sh """
@@ -47,8 +55,9 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
 
             if (utils.isCI()) {
                 stage('CI: Publish Dev Image') {
-                    docker.buildImageWithTag(dockerImage, "dev")
-                    docker.pushTag(dockerImage, "dev")
+                    def imageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
+                    docker.buildImageWithTag(dockerImage, imageVersion)
+                    docker.pushTag(dockerImage, imageVersion)
                 }
             } else if (utils.isCD()) {
                 stage('CD: Tag and Push') {
@@ -72,11 +81,9 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
                     print "Pushing Tag ${version} to Git"
-                    
                     git.createTagAndPush(WORKSPACE, version)
 
                     print "Pushing Tag ${version} to DockerHub"
-
                     docker.buildImageWithTag(dockerImage, "latest")
                     docker.tagImage(dockerImage, "latest", version)
                     docker.pushTag(dockerImage, version)
