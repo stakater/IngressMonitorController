@@ -6,8 +6,8 @@ kubernetes:
 ingressMonitorController:
   namespace: default
   image:
-    name: stakateringressmonitorcontroller
-    tag: ""
+    name: stakater/ingressmonitorcontroller
+    tag: "0.2.15"
     pullPolicy: IfNotPresent
   providers:
   - name: UptimeRobot
