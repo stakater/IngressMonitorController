@@ -5,7 +5,7 @@ kind: ServiceAccount
 metadata:
   labels:
     app: RELEASE-NAME-ingress-monitor-controller
-    chart: "ingress-monitor-controller-0.2.10"
+    chart: "ingress-monitor-controller-0.2.11"
     release: "RELEASE-NAME"
     heritage: "Tiller"
     project: ingress-monitor-controller
