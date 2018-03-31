@@ -57,11 +57,10 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
 
                 stage('CD: Tag and Push') {
                     print "Generating New Version"
+                    def version = common.shOutput("\$(jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName})")
                     sh """
-                        export VERSION=\$(jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName})
-                        echo "VERSION := \${VERSION}" > Makefile
+                        echo "VERSION := ${version}" > Makefile
                     """
-                    def version = common.getEnvValue('VERSION')
                     // def version = new io.stakater.Common().shOutput """
                     //     cd ${WORKSPACE}
                         
