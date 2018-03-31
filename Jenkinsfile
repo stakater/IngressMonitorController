@@ -77,12 +77,6 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
 
                     print "Pushing Tag ${version} to Git"
                     sh """
-                        cd ${WORKSPACE}
-                        
-                        chmod 600 /root/.ssh-git/ssh-key
-                        eval `ssh-agent -s`
-                        ssh-add /root/.ssh-git/ssh-key
-                        
                         git tag ${version}
                         git push --tags
                     """
