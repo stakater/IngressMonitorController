@@ -1,7 +1,9 @@
+# Generated from /kubernetes/templates/chart/Chart.yaml.tmpl
+
 apiVersion: v1
 name: ingress-monitor-controller
 description: ingress-monitor-controller chart that runs on kubernetes
-version: 1.0.0
+version: 0.2.10
 keywords:
   - ingress-monitor-controller
   - kubernetes

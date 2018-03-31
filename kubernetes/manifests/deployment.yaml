@@ -1,13 +1,16 @@
+---
+# Source: ingress-monitor-controller/templates/deployment.yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   annotations:
     configmap.fabric8.io/update-on-change: ingress-monitor-controller
   labels:
-    app: ingress-monitor-controller
-    group: com.stakater.platform
-    version: 0.2.9
-    provider: stakater
+    app: RELEASE-NAME-ingress-monitor-controller
+    chart: "ingress-monitor-controller-0.2.10"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
+    project: ingress-monitor-controller
   name: ingress-monitor-controller
 spec:
   replicas: 1
@@ -17,10 +20,11 @@ spec:
       annotations:
         configmap.fabric8.io/update-on-change: ingress-monitor-controller
       labels:
-        app: ingress-monitor-controller
-        group: com.stakater.platform
-        version: 0.2.9
-        provider: stakater
+        app: RELEASE-NAME-ingress-monitor-controller
+        chart: "ingress-monitor-controller-0.2.10"
+        release: "RELEASE-NAME"
+        heritage: "Tiller"
+        project: ingress-monitor-controller
     spec:
       containers:
       - env:
@@ -30,12 +34,13 @@ spec:
               fieldPath: metadata.namespace
         - name: CONFIG_FILE_PATH
           value: /etc/ingress-monitor-controller/config.yaml
-        image: stakater/ingress-monitor-controller:0.2.9
+        image: "stakater/ingress-monitor-controller:0.2.10"
+        imagePullPolicy: IfNotPresent
         name: ingress-monitor-controller
         volumeMounts:
         - mountPath: /etc/ingress-monitor-controller
           name: config-volume
-      serviceAccountName: ingressmonitorcontroller
+      serviceAccountName: ingress-monitor-controller
       volumes:
       - configMap:
           name: ingress-monitor-controller

@@ -1,3 +1,5 @@
+# Generated from /kubernetes/templates/chart/values.yaml.tmpl
+
 kubernetes:
   host: https://kubernetes.default
 
@@ -5,7 +7,7 @@ ingressMonitorController:
   namespace: default
   image:
     name: stakater/ingress-monitor-controller
-    tag: "0.1"
+    tag: "0.2.10"
     pullPolicy: IfNotPresent
   providers:
   - name: UptimeRobot

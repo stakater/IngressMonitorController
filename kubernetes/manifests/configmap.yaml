@@ -1,19 +1,23 @@
+---
+# Source: ingress-monitor-controller/templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   annotations:
     fabric8.io/target-platform: kubernetes
   labels:
-    app: ingress-monitor-controller
-    group: com.stakater.platform
-    version: 0.2.9
-    provider: stakater
+    app: RELEASE-NAME-ingress-monitor-controller
+    chart: "ingress-monitor-controller-0.2.10"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
+    project: ingress-monitor-controller
   name: ingress-monitor-controller
 data:
   config.yaml: |-
-    providers: 
+    providers:
     - name: UptimeRobot
-      apiKey: u544483-b3647f3e973b66417071a555
-      apiURL: https://api.uptimerobot.com/v2/
-      alertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"
+      apiKey: your-api-key
+      apiURL: https://google.com
+      alertContacts: some-alert-contacts
     enableMonitorDeletion: true
+    monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"

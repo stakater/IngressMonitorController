@@ -1,22 +1,21 @@
+---
+# Source: ingress-monitor-controller/templates/rbac.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
-    app: ingress-monitor-controller
-    group: com.stakater.platform
-    version: 0.2.9
-    provider: stakater
-  name: ingressmonitorcontroller
+    app: RELEASE-NAME-ingress-monitor-controller
+    chart: "ingress-monitor-controller-0.2.10"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
+    project: ingress-monitor-controller
+    group: com.stakater
+  name: ingress-monitor-controller
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
-  labels:
-    app: ingress-monitor-controller
-    group: com.stakater.platform
-    version: 0.2.9
-    provider: stakater
-  name: ingressmonitorcontroller-role
+  name: ingress-monitor-controller-role
 rules:
   - apiGroups:
       - ""
@@ -30,33 +29,16 @@ rules:
       - patch
       - watch
       - delete
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-      - services
-    verbs:
-      - list
-      - get
-      - update
-      - patch
-      - watch
-      - delete
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
-  labels:
-    app: ingress-monitor-controller
-    group: com.stakater.platform
-    version: 0.2.9
-    provider: stakater
-  name: ingressmonitorcontroller-role-binding
+  name: ingress-monitor-controller-role-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: ingressmonitorcontroller-role
+  name: ingress-monitor-controller-role
 subjects:
   - kind: ServiceAccount
-    name: ingressmonitorcontroller
-    namespace: dev
+    name: ingress-monitor-controller
+    namespace: default
