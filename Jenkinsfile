@@ -21,6 +21,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             def helm = new io.stakater.charts.Helm()
             def common = new io.stakater.Common()
             def chartManager = new io.stakater.charts.ChartManager()
+            def docker = new io.stakater.containers.Docker()
 
             stage('Download Dependencies') {
                 sh """
@@ -79,13 +80,18 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     git.createTagAndPush(WORKSPACE, version)
 
                     print "Pushing Tag ${version} to DockerHub"
-                    sh """
-                        cd ${WORKSPACE}
-                        docker build -t docker.io/${dockerImage}:${version} .
-                        docker tag docker.io/${dockerImage}:${version} docker.io/${dockerImage}:latest
-                        docker push docker.io/${dockerImage}:${version}
-                        docker push docker.io/${dockerImage}:latest
-                    """
+                    
+                    docker.buildImageWithTag(dockerImage, "latest")
+                    docker.tagImage(dockerImage, "latest", version)
+                    docker.pushTag(dockerImage, version)
+                    docker.pushTag(dockerImage, "latest")
+                    // sh """
+                    //     cd ${WORKSPACE}
+                    //     docker build -t docker.io/${dockerImage}:${version} .
+                    //     docker tag docker.io/${dockerImage}:${version} docker.io/${dockerImage}:latest
+                    //     docker push docker.io/${dockerImage}:${version}
+                    //     docker push docker.io/${dockerImage}:latest
+                    // """
                 }
                 
                 stage('Chart: Init Helm') {
