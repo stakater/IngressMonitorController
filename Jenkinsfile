@@ -22,7 +22,12 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             def chartDir = kubernetesDir + "/chart"
             def manifestsDir = kubernetesDir + "/manifests"
             
-            def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase();
+            def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase()
+            def dockerImageVersion = ""
+
+            // Slack variables
+            def slackChannel = "${env.SLACK_CHANNEL}"
+            def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
             
             def git = new io.stakater.vc.Git()
             def helm = new io.stakater.charts.Helm()
@@ -30,6 +35,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             def chartManager = new io.stakater.charts.ChartManager()
             def docker = new io.stakater.containers.Docker()
             def stakaterCommands = new io.stakater.StakaterCommands()
+            def slack = new io.stakater.notifications.Slack()
 
             stage('Download Dependencies') {
                 sh """
@@ -55,17 +61,15 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
 
             if (utils.isCI()) {
                 stage('CI: Publish Dev Image') {
-                    def imageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
-                    docker.buildImageWithTag(dockerImage, imageVersion)
-                    docker.pushTag(dockerImage, imageVersion)
-
-                    def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${imageVersion}`"
-                    git.addCommentToPullRequest(commentMessage)
+                    dockerImageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
+                    docker.buildImageWithTag(dockerImage, dockerImageVersion)
+                    docker.pushTag(dockerImage, dockerImageVersion)
                 }
             } else if (utils.isCD()) {
                 stage('CD: Tag and Push') {
                     print "Generating New Version"
                     def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName}")
+                    dockerImageVersion = version
                     sh """
                         echo "VERSION := ${version}" > Makefile
                     """
@@ -107,6 +111,13 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                     chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
                 }
+            }
+            stage('Notify') {
+                def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
+                slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
+
+                def commentMessage = "Image is available for testing. `docker pull ${dockerImageWithTag}`"
+                git.addCommentToPullRequest(commentMessage)
             }
         }
     }
