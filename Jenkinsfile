@@ -113,14 +113,14 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 }
 
                 stage('Chart: Prepare') {
-                    helm.lint(kubernetesDir + "/chart", chartName)
-                    chartPackageName = helm.package(kubernetesDir + "/chart", chartName)
+                    helm.lint(kubernetesDir, chartName)
+                    chartPackageName = helm.package(kubernetesDir, chartName)
                 }
 
                 stage('Chart: Upload') {
                     String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                     String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
-                    chartManager.uploadToChartMuseum(kubernetesDir + "/chart", chartName, chartPackageName, cmUsername, cmPassword)
+                    chartManager.uploadToChartMuseum(kubernetesDir, chartName, chartPackageName, cmUsername, cmPassword)
                 }
             }
         }
