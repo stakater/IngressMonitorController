@@ -111,7 +111,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                     chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
                 }
-            }
+            // }
             stage('Notify') {
                 def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
                 slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
@@ -119,6 +119,6 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 def commentMessage = "Image is available for testing. `docker pull ${dockerImageWithTag}`"
                 git.addCommentToPullRequest(commentMessage)
             }
-        // }
+        }
     }
 }
