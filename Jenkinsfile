@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-@Library('github.com/stakater/fabric8-pipeline-library@master')
+@Library('github.com/stakater/fabric8-pipeline-library@add-git-tag')
 
 def utils = new io.fabric8.Utils()
 
@@ -76,10 +76,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
                     print "Pushing Tag ${version} to Git"
-                    sh """
-                        git tag ${version}
-                        git push --tags
-                    """
+                    git.createTagAndPush(WORKSPACE, version)
 
                     print "Pushing Tag ${version} to DockerHub"
                     sh """
