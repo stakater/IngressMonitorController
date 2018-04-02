@@ -121,7 +121,7 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 ### Help
 
 **Got a question?**
-File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](stakater@gmail.com).
+File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](mailto:stakater@gmail.com).
 
 ### Contributing
 
