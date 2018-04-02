@@ -1,30 +1,30 @@
 ---
-# Source: ingress-monitor-controller/templates/deployment.yaml
+# Source: IngressMonitorController/templates/deployment.yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   annotations:
-    configmap.fabric8.io/update-on-change: ingress-monitor-controller
+    configmap.fabric8.io/update-on-change: IngressMonitorController
   labels:
-    app: RELEASE-NAME-ingress-monitor-controller
-    chart: "ingress-monitor-controller-0.2.13"
+    app: IngressMonitorController
+    chart: "IngressMonitorController-0.2.21"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    project: ingress-monitor-controller
-  name: ingress-monitor-controller
+    project: IngressMonitorController
+  name: IngressMonitorController
 spec:
   replicas: 1
   revisionHistoryLimit: 2
   template:
     metadata:
       annotations:
-        configmap.fabric8.io/update-on-change: ingress-monitor-controller
+        configmap.fabric8.io/update-on-change: IngressMonitorController
       labels:
-        app: RELEASE-NAME-ingress-monitor-controller
-        chart: "ingress-monitor-controller-0.2.13"
+        app: IngressMonitorController
+        chart: "IngressMonitorController-0.2.21"
         release: "RELEASE-NAME"
         heritage: "Tiller"
-        project: ingress-monitor-controller
+        project: IngressMonitorController
     spec:
       containers:
       - env:
@@ -33,15 +33,15 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: CONFIG_FILE_PATH
-          value: /etc/ingress-monitor-controller/config.yaml
-        image: "stakater/ingress-monitor-controller:0.2.13"
+          value: /etc/IngressMonitorController/config.yaml
+        image: "stakater/ingressmonitorcontroller:0.2.21"
         imagePullPolicy: IfNotPresent
-        name: ingress-monitor-controller
+        name: IngressMonitorController
         volumeMounts:
-        - mountPath: /etc/ingress-monitor-controller
+        - mountPath: /etc/IngressMonitorController
           name: config-volume
-      serviceAccountName: ingress-monitor-controller
+      serviceAccountName: IngressMonitorController
       volumes:
       - configMap:
-          name: ingress-monitor-controller
+          name: IngressMonitorController
         name: config-volume
