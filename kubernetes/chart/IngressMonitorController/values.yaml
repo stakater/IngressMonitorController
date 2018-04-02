@@ -7,7 +7,7 @@ ingressMonitorController:
   namespace: default
   image:
     name: stakater/ingressmonitorcontroller
-    tag: "0.2.19"
+    tag: "0.2.21"
     pullPolicy: IfNotPresent
   providers:
   - name: UptimeRobot
