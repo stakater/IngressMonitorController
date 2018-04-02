@@ -22,7 +22,7 @@ Currently we support the following monitors:
 
 ### Vanilla Manifests
 
-You have to first clone or download the repository contents. The kubernetes deployment and files are provided inside `kubernetes-manifests` folder.
+You have to first clone or download the repository contents. The kubernetes deployment and files are provided inside `kubernetes/manifests` folder.
 
 #### Enabling
 
@@ -52,6 +52,8 @@ For the list of providers, there's a number of options that you need to specify.
 | apiURL        | Base url of the ApiProvider                                               |
 | alertContacts | A `-` separated list of contact id's that you want to add to the monitors |
 
+*Note:* Follow [this](https://github.com/stakater/IngressMonitorController/docs/fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UpTimeRobot
+
 #### Deploying
 
 You can deploy the controller in the namespace you want to monitor by running the following kubectl commands:
@@ -66,7 +68,7 @@ kubectl apply -f deployment.yaml -n <namespace>
 
 ### Helm Charts
 
-Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `chart` folder.
+Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `kubernetes/chart` folder.
 
 ## Adding support for a new Monitor
 
