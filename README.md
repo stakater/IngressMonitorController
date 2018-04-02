@@ -22,7 +22,7 @@ Currently we support the following monitors:
 
 ### Vanilla Manifests
 
-You have to first clone or download the repository contents. The kubernetes deployment and files are provided inside `kubernetes-manifests` folder.
+You have to first clone or download the repository contents. The kubernetes deployment and files are provided inside `kubernetes/manifests` folder.
 
 #### Enabling
 
@@ -41,7 +41,7 @@ First of all you need to modify `configmap.yaml`'s `config.yaml` file. Following
 | Key                   |Description                                                                    |
 |-----------------------|-------------------------------------------------------------------------------|
 | providers             | An array of uptime providers that you want to add to your controller          |
-| enableMonitorDeletion | A flag that is used to enable or disable monitor deletion on ingress deletion |
+| enableMonitorDeletion | A safeguard flag that is used to enable or disable monitor deletion on ingress deletion (Useful for prod environments where you don't want to remove monitor on ingress deletion) |
 
 For the list of providers, there's a number of options that you need to specify. The table below lists them:
 
@@ -51,6 +51,8 @@ For the list of providers, there's a number of options that you need to specify.
 | apiKey        | ApiKey of the provider                                                    |
 | apiURL        | Base url of the ApiProvider                                               |
 | alertContacts | A `-` separated list of contact id's that you want to add to the monitors |
+
+*Note:* Follow [this](https://github.com/stakater/IngressMonitorController/docs/fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UpTimeRobot
 
 #### Deploying
 
@@ -66,7 +68,7 @@ kubectl apply -f deployment.yaml -n <namespace>
 
 ### Helm Charts
 
-Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `chart` folder.
+Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `kubernetes/chart` folder.
 
 ## Adding support for a new Monitor
 
@@ -74,12 +76,12 @@ You can easily implement a new monitor and use it via the controller. First of a
 
 ```go
 type MonitorService interface {
-	GetAll() []Monitor
-	Add(m Monitor)
-	Update(m Monitor)
-	GetByName(name string) (*Monitor, error)
-	Remove(m Monitor)
-	Setup(apiKey string, url string, alertContacts string)
+    GetAll() []Monitor
+    Add(m Monitor)
+    Update(m Monitor)
+    GetByName(name string) (*Monitor, error)
+    Remove(m Monitor)
+    Setup(apiKey string, url string, alertContacts string)
 }
 ```
 
@@ -87,16 +89,16 @@ Once the implementation of your service is done, you have to open up `monitor-pr
 
 ```go
 func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
-	mp.monitorType = mType
-	switch mType {
-	case "UptimeRobot":
+    mp.monitorType = mType
+    switch mType {
+    case "UptimeRobot":
         mp.monitor = &UpTimeMonitorService{}
-	case "MyNewMonitor":
+    case "MyNewMonitor":
         mp.monitor = &MyNewMonitorService{}
-	default:
-		log.Panic("No such provider found")
-	}
-	return *mp
+    default:
+        log.Panic("No such provider found")
+    }
+    return *mp
 }
 ```
 
@@ -106,13 +108,12 @@ Also in case of handling custom api objects for the monitor api, you can create 
 
 ```go
 func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor) *Monitor {
-	var m Monitor
+    var m Monitor
 
-	m.name = uptimeMonitor.FriendlyName
-	m.url = uptimeMonitor.URL
-	m.id = strconv.Itoa(uptimeMonitor.ID)
+    m.name = uptimeMonitor.FriendlyName
+    m.url = uptimeMonitor.URL
+    m.id = strconv.Itoa(uptimeMonitor.ID)
 
-	return &m
+    return &m
 }
 ```
-
