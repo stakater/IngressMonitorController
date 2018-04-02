@@ -151,9 +151,10 @@ Apache2 © [Stakater](https://stakater.com)
 
 ### About
 
-The `IngressMonitorController` is maintained and funded by [Stakater][website]. Like it? Please let us know at <hello@stakater.com>
+The `IngressMonitorController` is maintained by [Stakater][website]. Like it? Please let us know at <hello@stakater.com>
 
 See [our other projects][community]
+or contact us in case of professional services and queries on <hello@stakater.com>
 
   [website]: https://stakater.com/
   [community]: https://github.com/stakater/
