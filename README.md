@@ -41,7 +41,7 @@ First of all you need to modify `configmap.yaml`'s `config.yaml` file. Following
 | Key                   |Description                                                                    |
 |-----------------------|-------------------------------------------------------------------------------|
 | providers             | An array of uptime providers that you want to add to your controller          |
-| enableMonitorDeletion | A flag that is used to enable or disable monitor deletion on ingress deletion |
+| enableMonitorDeletion | A safeguard flag that is used to enable or disable monitor deletion on ingress deletion (Useful for prod environments where you don't want to remove monitor on ingress deletion) |
 
 For the list of providers, there's a number of options that you need to specify. The table below lists them:
 
@@ -74,12 +74,12 @@ You can easily implement a new monitor and use it via the controller. First of a
 
 ```go
 type MonitorService interface {
-	GetAll() []Monitor
-	Add(m Monitor)
-	Update(m Monitor)
-	GetByName(name string) (*Monitor, error)
-	Remove(m Monitor)
-	Setup(apiKey string, url string, alertContacts string)
+    GetAll() []Monitor
+    Add(m Monitor)
+    Update(m Monitor)
+    GetByName(name string) (*Monitor, error)
+    Remove(m Monitor)
+    Setup(apiKey string, url string, alertContacts string)
 }
 ```
 
@@ -87,16 +87,16 @@ Once the implementation of your service is done, you have to open up `monitor-pr
 
 ```go
 func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
-	mp.monitorType = mType
-	switch mType {
-	case "UptimeRobot":
+    mp.monitorType = mType
+    switch mType {
+    case "UptimeRobot":
         mp.monitor = &UpTimeMonitorService{}
-	case "MyNewMonitor":
+    case "MyNewMonitor":
         mp.monitor = &MyNewMonitorService{}
-	default:
-		log.Panic("No such provider found")
-	}
-	return *mp
+    default:
+        log.Panic("No such provider found")
+    }
+    return *mp
 }
 ```
 
@@ -106,13 +106,12 @@ Also in case of handling custom api objects for the monitor api, you can create 
 
 ```go
 func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor) *Monitor {
-	var m Monitor
+    var m Monitor
 
-	m.name = uptimeMonitor.FriendlyName
-	m.url = uptimeMonitor.URL
-	m.id = strconv.Itoa(uptimeMonitor.ID)
+    m.name = uptimeMonitor.FriendlyName
+    m.url = uptimeMonitor.URL
+    m.id = strconv.Itoa(uptimeMonitor.ID)
 
-	return &m
+    return &m
 }
 ```
-
