@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-@Library('github.com/stakater/fabric8-pipeline-library@master')
+@Library('github.com/stakater/fabric8-pipeline-library@create-release')
 
 def utils = new io.fabric8.Utils()
 
@@ -52,13 +52,13 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                     """
                 }
 
-                if (utils.isCI()) {
-                    stage('CI: Publish Dev Image') {
-                        dockerImageVersion = stakaterCommands.getBranchedVersion("${env.BUILD_NUMBER}")
-                        docker.buildImageWithTag(dockerImage, dockerImageVersion)
-                        docker.pushTag(dockerImage, dockerImageVersion)
-                    }
-                } else if (utils.isCD()) {
+                // if (utils.isCI()) {
+                //     stage('CI: Publish Dev Image') {
+                //         dockerImageVersion = stakaterCommands.getBranchedVersion("${env.BUILD_NUMBER}")
+                //         docker.buildImageWithTag(dockerImage, dockerImageVersion)
+                //         docker.pushTag(dockerImage, dockerImageVersion)
+                //     }
+                // } else if (utils.isCD()) {
                     stage('CD: Tag and Push') {
                         print "Generating New Version"
                         def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName}")
@@ -82,6 +82,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
 
                         print "Pushing Tag ${version} to Git"
                         git.createTagAndPush(WORKSPACE, version)
+                        git.createRelease(version)
 
                         print "Pushing Tag ${version} to DockerHub"
                         docker.buildImageWithTag(dockerImage, "latest")
@@ -104,7 +105,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                         chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
                     }
-                }
+                // }
             }
             catch(e) {
                 slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
