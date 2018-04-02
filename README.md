@@ -52,7 +52,7 @@ For the list of providers, there's a number of options that you need to specify.
 | apiURL        | Base url of the ApiProvider                                               |
 | alertContacts | A `-` separated list of contact id's that you want to add to the monitors |
 
-*Note:* Follow [this](https://github.com/stakater/IngressMonitorController/docs/fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UpTimeRobot
+*Note:* Follow [this](https://github.com/stakater/IngressMonitorController/blob/master/docs/fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UpTimeRobot
 
 #### Deploying
 
