@@ -118,18 +118,18 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 }
 ```
 
-### Help
+## Help
 
 **Got a question?**
 File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](mailto:stakater@gmail.com).
 
-### Contributing
+## Contributing
 
-#### Bug Reports & Feature Requests
+### Bug Reports & Feature Requests
 
 Please use the [issue tracker](https://github.com/stakater/IngressMonitorController/issues) to report any bugs or file feature requests.
 
-#### Developing
+### Developing
 
 PRs are welcome. In general, we follow the "fork-and-pull" Git workflow.
 
@@ -141,15 +141,15 @@ PRs are welcome. In general, we follow the "fork-and-pull" Git workflow.
 
 NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 
-### Changelog
+## Changelog
 
 View our closed [Pull Requests](https://github.com/stakater/IngressMonitorController/pulls?q=is%3Apr+is%3Aclosed).
 
-### License
+## License
 
 Apache2 © [Stakater](http://stakater.com)
 
-### About
+## About
 
 The `IngressMonitorController` is maintained by [Stakater][website]. Like it? Please let us know at <hello@stakater.com>
 
@@ -159,8 +159,8 @@ or contact us in case of professional services and queries on <hello@stakater.co
   [website]: http://stakater.com/
   [community]: https://github.com/stakater/
 
-### Contributers
+## Contributers
 
-[Waseem Hassan](https://github.com/waseem-h)            |  [Hazim](https://github.com/hazim1093)
-:-------------------------:|:-------------------------:
-[![Waseem Hassan](https://avatars3.githubusercontent.com/u/34707418?s=144&v=4)](https://github.com/waseem-h) |  [![Hazim](https://avatars2.githubusercontent.com/u/11160747?s=144&v=4)](https://github.com/hazim1093)
+[Waseem Hassan](https://github.com/waseem-h)            |  [Hazim](https://github.com/hazim1093) | [Rasheed Amir](https://github.com/rasheedamir)
+:-------------------------:|:-------------------------:|:---------------------------------:
+[![Waseem Hassan](https://avatars3.githubusercontent.com/u/34707418?s=144&v=4)](https://github.com/waseem-h) |  [![Hazim](https://avatars2.githubusercontent.com/u/11160747?s=144&v=4)](https://github.com/hazim1093) | [![Rasheed Amir](https://avatars3.githubusercontent.com/u/3967672?s=144&v=4)](https://github.com/rasheedamir)
