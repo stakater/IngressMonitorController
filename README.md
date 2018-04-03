@@ -117,3 +117,50 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
     return &m
 }
 ```
+
+### Help
+
+**Got a question?**
+File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](mailto:stakater@gmail.com).
+
+### Contributing
+
+#### Bug Reports & Feature Requests
+
+Please use the [issue tracker](https://github.com/stakater/IngressMonitorController/issues) to report any bugs or file feature requests.
+
+#### Developing
+
+PRs are welcome. In general, we follow the "fork-and-pull" Git workflow.
+
+ 1. **Fork** the repo on GitHub
+ 2. **Clone** the project to your own machine
+ 3. **Commit** changes to your own branch
+ 4. **Push** your work back up to your fork
+ 5. Submit a **Pull request** so that we can review your changes
+
+NOTE: Be sure to merge the latest from "upstream" before making a pull request!
+
+### Changelog
+
+View our closed [Pull Requests](https://github.com/stakater/IngressMonitorController/pulls?q=is%3Apr+is%3Aclosed).
+
+### License
+
+Apache2 © [Stakater](https://stakater.com)
+
+### About
+
+The `IngressMonitorController` is maintained by [Stakater][website]. Like it? Please let us know at <hello@stakater.com>
+
+See [our other projects][community]
+or contact us in case of professional services and queries on <hello@stakater.com>
+
+  [website]: https://stakater.com/
+  [community]: https://github.com/stakater/
+
+### Contributers
+
+[Waseem Hassan](https://github.com/waseem-h)            |  [Hazim](https://github.com/hazim1093)
+:-------------------------:|:-------------------------:
+[![Waseem Hassan](https://avatars3.githubusercontent.com/u/34707418?s=144&v=4)](https://github.com/waseem-h) |  [![Hazim](https://avatars2.githubusercontent.com/u/11160747?s=144&v=4)](https://github.com/hazim1093)
