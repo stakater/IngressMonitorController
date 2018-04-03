@@ -147,7 +147,7 @@ View our closed [Pull Requests](https://github.com/stakater/IngressMonitorContro
 
 ### License
 
-Apache2 © [Stakater](https://stakater.com)
+Apache2 © [Stakater](http://stakater.com)
 
 ### About
 
