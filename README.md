@@ -156,7 +156,7 @@ The `IngressMonitorController` is maintained by [Stakater][website]. Like it? Pl
 See [our other projects][community]
 or contact us in case of professional services and queries on <hello@stakater.com>
 
-  [website]: https://stakater.com/
+  [website]: http://stakater.com/
   [community]: https://github.com/stakater/
 
 ### Contributers
