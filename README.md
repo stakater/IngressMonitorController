@@ -1,5 +1,7 @@
 # Ingress Monitor Controller
 
+[![Get started with Stakater](https://stakater.github.io/README/stakater-github-banner.png)](http://stakater.com/?utm_source=IngressMonitorController&utm_medium=github)
+
 ## Problem Statement
 
 How do I get notified if any of my services is down?
