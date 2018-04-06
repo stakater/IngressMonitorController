@@ -4,27 +4,27 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   annotations:
-    configmap.fabric8.io/update-on-change: IngressMonitorController
+    configmap.fabric8.io/update-on-change: ingressmonitorcontroller
   labels:
-    app: IngressMonitorController
-    chart: "IngressMonitorController-1.0.1"
+    app: ingressmonitorcontroller
+    chart: "IngressMonitorController-1.0.2"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    project: IngressMonitorController
-  name: IngressMonitorController
+    project: ingressmonitorcontroller
+  name: ingressmonitorcontroller
 spec:
   replicas: 1
   revisionHistoryLimit: 2
   template:
     metadata:
       annotations:
-        configmap.fabric8.io/update-on-change: IngressMonitorController
+        configmap.fabric8.io/update-on-change: ingressmonitorcontroller
       labels:
-        app: IngressMonitorController
-        chart: "IngressMonitorController-1.0.1"
+        app: ingressmonitorcontroller
+        chart: "IngressMonitorController-1.0.2"
         release: "RELEASE-NAME"
         heritage: "Tiller"
-        project: IngressMonitorController
+        project: ingressmonitorcontroller
     spec:
       containers:
       - env:
@@ -34,14 +34,14 @@ spec:
               fieldPath: metadata.namespace
         - name: CONFIG_FILE_PATH
           value: /etc/IngressMonitorController/config.yaml
-        image: "stakater/ingressmonitorcontroller:1.0.1"
+        image: "stakater/ingressmonitorcontroller:1.0.2"
         imagePullPolicy: IfNotPresent
-        name: IngressMonitorController
+        name: ingressmonitorcontroller
         volumeMounts:
         - mountPath: /etc/IngressMonitorController
           name: config-volume
-      serviceAccountName: IngressMonitorController
+      serviceAccountName: ingressmonitorcontroller
       volumes:
       - configMap:
-          name: IngressMonitorController
+          name: ingressmonitorcontroller
         name: config-volume

@@ -4,18 +4,18 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
-    app: IngressMonitorController
-    chart: "IngressMonitorController-1.0.1"
+    app: ingressmonitorcontroller
+    chart: "IngressMonitorController-1.0.2"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    project: IngressMonitorController
+    project: ingressmonitorcontroller
     group: com.stakater
-  name: IngressMonitorController
+  name: ingressmonitorcontroller
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
-  name: IngressMonitorController-role
+  name: ingressmonitorcontroller-role
 rules:
   - apiGroups:
       - ""
@@ -33,12 +33,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
-  name: IngressMonitorController-role-binding
+  name: ingressmonitorcontroller-role-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: IngressMonitorController-role
+  name: ingressmonitorcontroller-role
 subjects:
   - kind: ServiceAccount
-    name: IngressMonitorController
+    name: ingressmonitorcontroller
     namespace: default

@@ -6,12 +6,12 @@ metadata:
   annotations:
     fabric8.io/target-platform: kubernetes
   labels:
-    app: IngressMonitorController
-    chart: "IngressMonitorController-1.0.1"
+    app: ingressmonitorcontroller
+    chart: "IngressMonitorController-1.0.2"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    project: IngressMonitorController
-  name: IngressMonitorController
+    project: ingressmonitorcontroller
+  name: ingressmonitorcontroller
 data:
   config.yaml: |-
     providers:
