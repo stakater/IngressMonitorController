@@ -5,7 +5,7 @@ metadata:
     configmap.fabric8.io/update-on-change: {{ template "name" . }}
   labels:
     app: {{ template "name" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    chart: "{{ .Chart.Name }}"
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service | quote }}
     project: {{ template "name" . }}
@@ -19,7 +19,7 @@ spec:
         configmap.fabric8.io/update-on-change: {{ template "name" . }}
       labels:
         app: {{ template "name" . }}
-        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        chart: "{{ .Chart.Name }}"
         release: {{ .Release.Name | quote }}
         heritage: {{ .Release.Service | quote }}
         project: {{ template "name" . }}
