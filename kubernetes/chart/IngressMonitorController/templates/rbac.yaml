@@ -3,7 +3,7 @@ kind: ServiceAccount
 metadata:
   labels:
     app: {{ template "name" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    chart: "{{ .Chart.Name }}"
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service | quote }}
     project: {{ template "name" . }}
