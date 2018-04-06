@@ -5,7 +5,7 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    chart: "IngressMonitorController-1.0.2"
+    chart: "IngressMonitorController-1.0.3"
     release: "RELEASE-NAME"
     heritage: "Tiller"
     project: ingressmonitorcontroller
@@ -29,6 +29,15 @@ rules:
       - patch
       - watch
       - delete
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - pods
+    verbs:
+      - list
+      - get
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
