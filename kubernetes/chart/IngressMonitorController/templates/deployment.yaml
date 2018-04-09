@@ -21,9 +21,6 @@ spec:
       version: {{ .Chart.Version }}
       group: {{ .Values.ingressMonitorController.group }}
       provider: {{ .Values.ingressMonitorController.provider }}
-      chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-      release: {{ .Release.Name | quote }}
-      heritage: {{ .Release.Service | quote }}
   template:
     metadata:
       annotations:
@@ -33,9 +30,6 @@ spec:
         version: {{ .Chart.Version }}
         group: {{ .Values.ingressMonitorController.group }}
         provider: {{ .Values.ingressMonitorController.provider }}
-        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-        release: {{ .Release.Name | quote }}
-        heritage: {{ .Release.Service | quote }}
     spec:
       containers:
       - env:
