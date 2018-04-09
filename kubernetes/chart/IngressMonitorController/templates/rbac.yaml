@@ -3,11 +3,12 @@ kind: ServiceAccount
 metadata:
   labels:
     app: {{ template "name" . }}
-    chart: "{{ .Chart.Name }}"
+    version: {{ .Chart.Version }}
+    group: {{ .Values.ingressMonitorController.group }}
+    provider: {{ .Values.ingressMonitorController.provider }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service | quote }}
-    project: {{ template "name" . }}
-    group: com.stakater
   name: {{ template "name" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
