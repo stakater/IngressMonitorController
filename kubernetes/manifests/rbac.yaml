@@ -5,11 +5,12 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    chart: "IngressMonitorController"
+    version: 1.0.5
+    group: 
+    provider: 
+    chart: "IngressMonitorController-1.0.5"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    project: ingressmonitorcontroller
-    group: com.stakater
   name: ingressmonitorcontroller
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1

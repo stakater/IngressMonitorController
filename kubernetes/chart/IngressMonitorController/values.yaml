@@ -4,12 +4,10 @@ kubernetes:
   host: https://kubernetes.default
 
 ingressMonitorController:
-  group: com.stakater.platform
-  provider: stakater
   namespace: default
   image:
     name: stakater/ingressmonitorcontroller
-    tag: "1.0.4"
+    tag: "1.0.5"
     pullPolicy: IfNotPresent
   providers:
   - name: UptimeRobot
