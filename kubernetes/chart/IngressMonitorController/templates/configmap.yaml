@@ -5,10 +5,12 @@ metadata:
     fabric8.io/target-platform: kubernetes
   labels:
     app: {{ template "name" . }}
-    chart: "{{ .Chart.Name }}"
+    version: {{ .Chart.Version }}
+    group: {{ .Values.ingressMonitorController.group }}
+    provider: {{ .Values.ingressMonitorController.provider }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service | quote }}
-    project: {{ template "name" . }}
   name: {{ template "name" . }}
 data:
   config.yaml: |-

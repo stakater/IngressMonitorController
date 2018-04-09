@@ -4,6 +4,8 @@ kubernetes:
   host: https://kubernetes.default
 
 ingressMonitorController:
+  group: com.stakater.platform
+  provider: stakater
   namespace: default
   image:
     name: stakater/ingressmonitorcontroller

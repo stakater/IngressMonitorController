@@ -5,24 +5,37 @@ metadata:
     configmap.fabric8.io/update-on-change: {{ template "name" . }}
   labels:
     app: {{ template "name" . }}
-    chart: "{{ .Chart.Name }}"
+    version: {{ .Chart.Version }}
+    group: {{ .Values.ingressMonitorController.group }}
+    provider: {{ .Values.ingressMonitorController.provider }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service | quote }}
-    project: {{ template "name" . }}
   name: {{ template "name" . }}
 spec:
   replicas: 1
   revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      version: {{ .Chart.Version }}
+      group: {{ .Values.ingressMonitorController.group }}
+      provider: {{ .Values.ingressMonitorController.provider }}
+      chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+      release: {{ .Release.Name | quote }}
+      heritage: {{ .Release.Service | quote }}
   template:
     metadata:
       annotations:
         configmap.fabric8.io/update-on-change: {{ template "name" . }}
       labels:
         app: {{ template "name" . }}
-        chart: "{{ .Chart.Name }}"
+        version: {{ .Chart.Version }}
+        group: {{ .Values.ingressMonitorController.group }}
+        provider: {{ .Values.ingressMonitorController.provider }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         release: {{ .Release.Name | quote }}
         heritage: {{ .Release.Service | quote }}
-        project: {{ template "name" . }}
     spec:
       containers:
       - env:
