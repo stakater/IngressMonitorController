@@ -6,8 +6,8 @@ metadata:
   labels:
     app: {{ template "name" . }}
     version: {{ .Chart.Version }}
-    group: {{ .Values.ingressMonitorController.group }}
-    provider: {{ .Values.ingressMonitorController.provider }}
+    group: {{ .Values.ingressMonitorController.labels.group }}
+    provider: {{ .Values.ingressMonitorController.labels.provider }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service | quote }}
