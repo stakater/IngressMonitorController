@@ -5,6 +5,9 @@ kubernetes:
 
 ingressMonitorController:
   namespace: default
+  labels:
+    provider: stakater
+    group: com.stakater.platform
   image:
     name: {{ getenv "DOCKER_IMAGE" }}
     tag: "{{ getenv "VERSION" }}"
