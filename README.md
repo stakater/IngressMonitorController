@@ -20,6 +20,8 @@ Currently we support the following monitors:
 
 - [UptimeRobot](https://uptimerobot.com)
 
+- [Pingdom](https://pingdom.com)
+
 ## Deploying to Kubernetes
 
 ### Vanilla Manifests
@@ -55,6 +57,14 @@ For the list of providers, there's a number of options that you need to specify.
 | alertContacts | A `-` separated list of contact id's that you want to add to the monitors |
 
 *Note:* Follow [this](https://github.com/stakater/IngressMonitorController/blob/master/docs/fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UpTimeRobot
+
+Currently additional pingdom configurations can be added through a set of annotations to each ingress object, the current supported annotations are:
+- monitor.stakater.com/pingdom-resolution # The pingdom check interval in minutes
+- monitor.stakater.com/pingdom-send-notification-when-down # How many failed check attempts before notifying
+- monitor.stakater.com/pingdom-paused # set to "true" to pause checks
+- monitor.stakater.com/pingdom-notify-when-back-up # Set to "false" to disable recovery notifications
+- monitor.stakater.com/pingdom-user-ids # string formatted array of integer user IDs to send notifications to
+                                        # ie. "[123456, 654321]"
 
 #### Deploying
 
