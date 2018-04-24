@@ -125,6 +125,12 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 **Got a question?**
 File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](mailto:stakater@gmail.com).
 
+### Talk to us on Slack
+Join and talk to us on the #tools-imc channel for discussing the Ingress Monitor Controller
+
+[![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://stakater-slack.herokuapp.com/)
+[![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater.slack.com/messages/CA66MMYSE/)
+
 ## Contributing
 
 ### Bug Reports & Feature Requests
