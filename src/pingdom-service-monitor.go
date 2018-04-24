@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/russellcardullo/go-pingdom/pingdom"
 	"log"
@@ -10,6 +9,7 @@ import (
 	"strconv"
 )
 
+// PingdomService interfaces with monitor-proxy
 type PingdomService struct {
 	apiKey        string
 	username      string
@@ -39,9 +39,7 @@ func (monitor *PingdomService) GetAll() []Monitor {
 func (monitor *PingdomService) Add(m Monitor) {
 	client := pingdom.NewClient(monitor.username, monitor.password, monitor.apiKey)
 	checkConfig := m.setupPingdomConfigsFromAnnotations(m.annotations)
-	checkConfig.Name = m.name
-	checkConfig.Paused = false
-	resp, err := client.Checks.Create(&checkConfig)
+	_, err := client.Checks.Create(&checkConfig)
 	if err != nil {
 		log.Println("error adding service:", err.Error())
 	}
@@ -51,10 +49,8 @@ func (monitor *PingdomService) Add(m Monitor) {
 func (monitor *PingdomService) Update(m Monitor) {
 	client := pingdom.NewClient(monitor.username, monitor.password, monitor.apiKey)
 	checkConfig := m.setupPingdomConfigsFromAnnotations(m.annotations)
-	checkConfig.Name = m.name
-	checkConfig.Paused = false
-	int_id, _ := strconv.Atoi(m.id)
-	resp, err := client.Checks.Update(int_id, &checkConfig)
+	intID, _ := strconv.Atoi(m.id)
+	resp, err := client.Checks.Update(intID, &checkConfig)
 	if err != nil {
 		log.Println("Error updating service:", err.Error())
 	}
@@ -63,24 +59,23 @@ func (monitor *PingdomService) Update(m Monitor) {
 
 func (monitor *PingdomService) GetByName(name string) (*Monitor, error) {
 	var match *Monitor
-	all_monitors := monitor.GetAll()
-	for _, mon := range all_monitors {
+	allMonitors := monitor.GetAll()
+	for _, mon := range allMonitors {
 		if mon.name == name {
 			match = &mon
 		}
 	}
-	if match != nil {
-		return match, nil
-	} else {
-		return match, errors.New(fmt.Sprintf("Unable to locate service with name %v", name))
+	if match == nil {
+		return match, fmt.Errorf("Unable to locate service with name %v", name)
 	}
+	return match, nil
 }
 
 func (monitor *PingdomService) Remove(m Monitor) {
 	client := pingdom.NewClient(monitor.username, monitor.password, monitor.apiKey)
-	int_id, _ := strconv.Atoi(m.id)
+	intID, _ := strconv.Atoi(m.id)
 	log.Println("Deleting monitoring: ", m.name)
-	client.Checks.Delete(int_id)
+	client.Checks.Delete(intID)
 }
 
 func (monitor *PingdomService) Setup(apiKey string, url string, alertContacts string, username string, password string) {
@@ -94,7 +89,9 @@ func (monitor *PingdomService) Setup(apiKey string, url string, alertContacts st
 func (monitor *Monitor) setupPingdomConfigsFromAnnotations(annotations map[string]string) (checkConfig pingdom.HttpCheck) {
 	const resolutionAnnotation = "monitor.stakater.com/pingdom-resolution"
 	const sendNotificationWhenDownAnnotation = "monitor.stakater.com/pingdom-send-notification-when-down"
-	const teamIdsAnnotation = "monitor.stakater.com/pingdom-team-ids"
+	const userIdsAnnotation = "monitor.stakater.com/pingdom-user-ids"
+	const pausedAnnotation = "monitor.stakater.com/pingdom-paused"
+	const notifyWhenBackUpAnnotation = "monitor.stakater.com/pingdom-notify-when-back-up"
 
 	httpCheck := pingdom.HttpCheck{}
 	url, err := url.Parse(monitor.url)
@@ -109,8 +106,16 @@ func (monitor *Monitor) setupPingdomConfigsFromAnnotations(annotations map[strin
 
 	httpCheck.Hostname = url.Host
 	httpCheck.Url = url.Path
+	httpCheck.Name = monitor.name
+
 	// Read known annotations, try to map them to pingdom configs
 	// set some default values if we can't find them
+	if annotations[notifyWhenBackUpAnnotation] != "false" {
+		httpCheck.NotifyWhenBackup = true
+	}
+	if annotations[pausedAnnotation] == "true" {
+		httpCheck.Paused = true
+	}
 	if annotations[resolutionAnnotation] != "" {
 		intVal, err := strconv.Atoi(annotations[resolutionAnnotation])
 		if err != nil {
@@ -128,14 +133,16 @@ func (monitor *Monitor) setupPingdomConfigsFromAnnotations(annotations map[strin
 		}
 		httpCheck.SendNotificationWhenDown = intVal
 	} else {
-		httpCheck.SendNotificationWhenDown = 2
+		httpCheck.SendNotificationWhenDown = 3
 	}
-	if annotations[teamIdsAnnotation] != "" {
-		var is []int
-		if err := json.Unmarshal([]byte(annotations[teamIdsAnnotation]), &is); err != nil {
-			panic(err)
+	// This feels wrong, by im trying to take a string with a slice of ints
+	// and make them an actual slice of ints. oh well.
+	if annotations[userIdsAnnotation] != "" {
+		var intSlice []int
+		if err := json.Unmarshal([]byte(annotations[userIdsAnnotation]), &intSlice); err != nil {
+			log.Println(err.Error())
 		}
-		httpCheck.TeamIds = is
+		httpCheck.UserIds = intSlice
 	}
 	return httpCheck
 }
