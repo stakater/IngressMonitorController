@@ -13,7 +13,8 @@ type UpTimeMonitorService struct {
 	alertContacts string
 }
 
-func (monitor *UpTimeMonitorService) Setup(apiKey string, url string, alertContacts string) {
+func (monitor *UpTimeMonitorService) Setup(apiKey string, url string, alertContacts string, username string, password string) {
+
 	monitor.apiKey = apiKey
 	monitor.url = url
 	monitor.alertContacts = alertContacts

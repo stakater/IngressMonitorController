@@ -174,7 +174,7 @@ func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.I
 	if value, ok := annotations[monitorEnabledAnnotation]; ok {
 		if value == "true" {
 			// Annotation exists and is enabled
-			c.createOrUpdateMonitors(monitorName, monitorURL)
+			c.createOrUpdateMonitors(monitorName, monitorURL, annotations)
 		} else {
 			// Annotation exists but is disabled
 			c.removeMonitorsIfExist(monitorName)
@@ -202,14 +202,14 @@ func (c *MonitorController) removeMonitorIfExists(monitorService MonitorServiceP
 	}
 }
 
-func (c *MonitorController) createOrUpdateMonitors(monitorName string, monitorURL string) {
+func (c *MonitorController) createOrUpdateMonitors(monitorName string, monitorURL string, annotations map[string]string) {
 	for index := 0; index < len(c.monitorServices); index++ {
 		monitorService := c.monitorServices[index]
-		c.createOrUpdateMonitor(monitorService, monitorName, monitorURL)
+		c.createOrUpdateMonitor(monitorService, monitorName, monitorURL, annotations)
 	}
 }
 
-func (c *MonitorController) createOrUpdateMonitor(monitorService MonitorServiceProxy, monitorName string, monitorURL string) {
+func (c *MonitorController) createOrUpdateMonitor(monitorService MonitorServiceProxy, monitorName string, monitorURL string, annotations map[string]string) {
 	m, _ := monitorService.GetByName(monitorName)
 
 	if m != nil { // Monitor Already Exists
@@ -217,11 +217,12 @@ func (c *MonitorController) createOrUpdateMonitor(monitorService MonitorServiceP
 		if m.url != monitorURL { // Monitor does not have the same url
 			// update the monitor with the new url
 			m.url = monitorURL
+			m.annotations = annotations
 			monitorService.Update(*m)
 		}
 	} else {
 		// Create a new monitor for this ingress
-		m := Monitor{name: monitorName, url: monitorURL}
+		m := Monitor{name: monitorName, url: monitorURL, annotations: annotations}
 		monitorService.Add(m)
 	}
 }
