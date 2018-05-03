@@ -24,6 +24,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             
             def git = new io.stakater.vc.Git()
             def helm = new io.stakater.charts.Helm()
+            def templates = new io.stakater.charts.Templates()
             def common = new io.stakater.Common()
             def chartManager = new io.stakater.charts.ChartManager()
             def docker = new io.stakater.containers.Docker()
@@ -58,6 +59,14 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         docker.buildImageWithTag(dockerImage, dockerImageVersion)
                         docker.pushTag(dockerImage, dockerImageVersion)
                     }
+
+                    stage('Notify') {
+                        def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
+                        slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
+
+                        def commentMessage = "Image is available for testing. `docker pull ${dockerImageWithTag}`"
+                        git.addCommentToPullRequest(commentMessage)
+                    }
                 } else if (utils.isCD()) {
                     stage('CD: Tag and Push') {
                         print "Generating New Version"
@@ -67,16 +76,10 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                             echo "VERSION := ${version}" > Makefile
                         """
 
-                        sh """
-                            export VERSION=${version}
-                            export DOCKER_IMAGE=${dockerImage}
-                            gotplenv ${chartTemplatesDir}/Chart.yaml.tmpl > ${chartDir}/${repoName}/Chart.yaml
-                            gotplenv ${chartTemplatesDir}/values.yaml.tmpl > ${chartDir}/${repoName}/values.yaml
-
-                            helm template ${chartDir}/${repoName} -x templates/deployment.yaml > ${manifestsDir}/deployment.yaml
-                            helm template ${chartDir}/${repoName} -x templates/configmap.yaml > ${manifestsDir}/configmap.yaml
-                            helm template ${chartDir}/${repoName} -x templates/rbac.yaml > ${manifestsDir}/rbac.yaml
-                        """
+                        // Render chart from templates
+                        templates.renderChart(chartTemplatesDir, chartDir, repoName, version, dockerImage)
+                        // Generate manifests from chart
+                        templates.generateManifests(chartDir, repoName, manifestsDir)
                         
                         git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
@@ -105,6 +108,14 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                         chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
                     }
+
+                    stage('Notify') {
+                        def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
+                        slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
+
+                        def commentMessage = "Image is available for testing. `docker pull ${dockerImageWithTag}`"
+                        git.addCommentToPullRequest(commentMessage)
+                    }
                 }
             }
             catch(e) {
@@ -114,13 +125,6 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                 git.addCommentToPullRequest(commentMessage)
 
                 throw e
-            }
-            stage('Notify') {
-                def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
-                slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
-
-                def commentMessage = "Image is available for testing. `docker pull ${dockerImageWithTag}`"
-                git.addCommentToPullRequest(commentMessage)
             }
         }
     }
