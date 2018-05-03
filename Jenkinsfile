@@ -24,6 +24,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             
             def git = new io.stakater.vc.Git()
             def helm = new io.stakater.charts.Helm()
+            def templates = new io.stakater.charts.Templates()
             def common = new io.stakater.Common()
             def chartManager = new io.stakater.charts.ChartManager()
             def docker = new io.stakater.containers.Docker()
