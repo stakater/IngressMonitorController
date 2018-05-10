@@ -5,10 +5,10 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    version: 1.0.6
+    version: 1.0.7
     group: com.stakater.platform
     provider: stakater
-    chart: "IngressMonitorController-1.0.6"
+    chart: "IngressMonitorController-1.0.7"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: ingressmonitorcontroller
