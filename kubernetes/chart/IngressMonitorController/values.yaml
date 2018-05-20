@@ -4,6 +4,7 @@ kubernetes:
   host: https://kubernetes.default
 
 ingressMonitorController:
+  watchNamespace: "default"
   labels:
     provider: stakater
     group: com.stakater.platform

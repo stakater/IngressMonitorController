@@ -136,9 +136,9 @@ func (c *MonitorController) handleIngress(key string) error {
 func (c *MonitorController) handleIngressOnDeletion(key string) {
 	if c.config.EnableMonitorDeletion {
 		// Delete the monitor if it exists
-		// key is in the format "namespace/ingressname"
+		// key is in the format "namespace/ingressname" (see cache store MetaNamespaceKeyFunc)
 		splitted := strings.Split(key, "/")
-		monitorName := c.getMonitorName(splitted[1], c.namespace)
+		monitorName := c.getMonitorName(splitted[1], splitted[0])
 
 		c.removeMonitorsIfExist(monitorName)
 	}
@@ -155,7 +155,7 @@ func (c *MonitorController) getMonitorName(ingressName string, namespace string)
 func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
 	ingressWrapper := IngressWrapper{
 		ingress:   ingress,
-		namespace: c.namespace,
+		namespace: ingress.Namespace,
 		clientset: c.clientset,
 	}
 
@@ -163,7 +163,7 @@ func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
 }
 
 func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
-	monitorName := c.getMonitorName(ingress.GetName(), c.namespace)
+	monitorName := c.getMonitorName(ingress.GetName(), ingress.Namespace)
 	monitorURL := c.getMonitorURL(ingress)
 
 	log.Println("Monitor Name: " + monitorName)

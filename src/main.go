@@ -6,12 +6,14 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func main() {
 	currentNamespace := os.Getenv("KUBERNETES_NAMESPACE")
 	if len(currentNamespace) == 0 {
-		log.Fatal("Could not find the current namespace")
+		currentNamespace = v1.NamespaceAll
+		log.Println("Warning: KUBERNETES_NAMESPACE is unset, will monitor ingresses in all namespaces.")
 	}
 
 	// create the in-cluster config
