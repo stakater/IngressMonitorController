@@ -49,4 +49,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: {{ template "name" . }}
-    namespace: {{ .Values.ingressMonitorController.namespace }}
+    namespace: {{ .Release.Namespace | quote }}
