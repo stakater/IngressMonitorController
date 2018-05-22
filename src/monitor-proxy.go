@@ -12,14 +12,17 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	switch mType {
 	case "UptimeRobot":
 		mp.monitor = &UpTimeMonitorService{}
+	case "Pingdom":
+		mp.monitor = &PingdomService{}
+
 	default:
-		log.Panic("No such provider found")
+		log.Panic("No such provider found: ", mType)
 	}
 	return *mp
 }
 
-func (mp *MonitorServiceProxy) Setup(apiKey string, url string, alertContacts string) {
-	mp.monitor.Setup(apiKey, url, alertContacts)
+func (mp *MonitorServiceProxy) Setup(apiKey string, url string, alertContacts string, username string, password string) {
+	mp.monitor.Setup(apiKey, url, alertContacts, username, password)
 }
 
 func (mp *MonitorServiceProxy) GetAll() []Monitor {
