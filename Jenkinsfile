@@ -14,14 +14,14 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             def chartTemplatesDir = kubernetesDir + "/templates/chart"
             def chartDir = kubernetesDir + "/chart"
             def manifestsDir = kubernetesDir + "/manifests"
-            
+
             def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase()
             def dockerImageVersion = ""
 
             // Slack variables
             def slackChannel = "${env.SLACK_CHANNEL}"
             def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-            
+
             def git = new io.stakater.vc.Git()
             def helm = new io.stakater.charts.Helm()
             def templates = new io.stakater.charts.Templates()
@@ -80,7 +80,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         templates.renderChart(chartTemplatesDir, chartDir, repoName, version, dockerImage)
                         // Generate manifests from chart
                         templates.generateManifests(chartDir, repoName, manifestsDir)
-                        
+
                         git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
                         print "Pushing Tag ${version} to Git"
@@ -93,7 +93,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         docker.pushTag(dockerImage, version)
                         docker.pushTag(dockerImage, "latest")
                     }
-                    
+
                     stage('Chart: Init Helm') {
                         helm.init(true)
                     }
@@ -107,6 +107,9 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
                         String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                         chartManager.uploadToChartMuseum(chartDir, repoName, chartPackageName, cmUsername, cmPassword)
+
+                        def packagedChartLocation = chartDir + "/" + repoName + "/" + chartPackageName;
+                        chartManager.uploadToStakaterCharts(packagedChartLocation)
                     }
 
                     stage('Notify') {
@@ -120,7 +123,7 @@ toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.1') {
             }
             catch(e) {
                 slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
-            
+
                 def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                 git.addCommentToPullRequest(commentMessage)
 
