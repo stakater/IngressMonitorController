@@ -20,7 +20,7 @@ const monitorHealthAnnotation = "monitor.stakater.com/healthEndpoint" // "/healt
 
 // MonitorController which can be used for monitoring ingresses
 type MonitorController struct {
-	clientset       *kubernetes.Clientset
+	kubeClient      kubernetes.Interface
 	namespace       string
 	indexer         cache.Indexer
 	queue           workqueue.RateLimitingInterface
@@ -29,11 +29,11 @@ type MonitorController struct {
 	config          Config
 }
 
-func NewMonitorController(namespace string, clientset *kubernetes.Clientset, config Config) *MonitorController {
+func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config Config) *MonitorController {
 	controller := &MonitorController{
-		clientset: clientset,
-		namespace: namespace,
-		config:    config,
+		kubeClient: kubeClient,
+		namespace:  namespace,
+		config:     config,
 	}
 
 	controller.monitorServices = setupMonitorServicesForProviders(config.Providers)
@@ -41,7 +41,7 @@ func NewMonitorController(namespace string, clientset *kubernetes.Clientset, con
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
 
 	// Create the Ingress Watcher
-	ingressListWatcher := cache.NewListWatchFromClient(clientset.ExtensionsV1beta1().RESTClient(), "ingresses", namespace, fields.Everything())
+	ingressListWatcher := cache.NewListWatchFromClient(kubeClient.ExtensionsV1beta1().RESTClient(), "ingresses", namespace, fields.Everything())
 
 	indexer, informer := cache.NewIndexerInformer(ingressListWatcher, &v1beta1.Ingress{}, 0, cache.ResourceEventHandlerFuncs{
 		AddFunc:    controller.onIngressAdded,
@@ -154,9 +154,9 @@ func (c *MonitorController) getMonitorName(ingressName string, namespace string)
 
 func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
 	ingressWrapper := IngressWrapper{
-		ingress:   ingress,
-		namespace: c.namespace,
-		clientset: c.clientset,
+		ingress:    ingress,
+		namespace:  c.namespace,
+		kubeClient: c.kubeClient,
 	}
 
 	return ingressWrapper.getURL()
