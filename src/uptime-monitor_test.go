@@ -8,10 +8,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	config := getControllerConfig()
 
 	service := UpTimeMonitorService{}
-	apiKey := config.Providers[0].ApiKey
-	alertContacts := config.Providers[0].AlertContacts
-	url := config.Providers[0].ApiURL
-	service.Setup(apiKey, url, alertContacts)
+	service.Setup(config.Providers[0])
 
 	m := Monitor{name: "google-test", url: "https://google.com"}
 	service.Add(m)
@@ -31,10 +28,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	config := getControllerConfig()
 
 	service := UpTimeMonitorService{}
-	apiKey := config.Providers[0].ApiKey
-	alertContacts := config.Providers[0].AlertContacts
-	url := config.Providers[0].ApiURL
-	service.Setup(apiKey, url, alertContacts)
+	service.Setup(config.Providers[0])
 
 	m := Monitor{name: "google-test", url: "https://google.com"}
 	service.Add(m)
@@ -68,10 +62,8 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	config := getControllerConfig()
 
 	service := UpTimeMonitorService{}
-	apiKey := "dummy-api-key"
-	alertContacts := config.Providers[0].AlertContacts
-	url := config.Providers[0].ApiURL
-	service.Setup(apiKey, url, alertContacts)
+	config.Providers[0].ApiKey = "dummy-api-key"
+	service.Setup(config.Providers[0])
 
 	m := Monitor{name: "google-test", url: "https://google.com"}
 	service.Add(m)

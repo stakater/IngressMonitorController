@@ -13,13 +13,13 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	case "UptimeRobot":
 		mp.monitor = &UpTimeMonitorService{}
 	default:
-		log.Panic("No such provider found")
+		log.Panic("No such provider found: ", mType)
 	}
 	return *mp
 }
 
-func (mp *MonitorServiceProxy) Setup(apiKey string, url string, alertContacts string) {
-	mp.monitor.Setup(apiKey, url, alertContacts)
+func (mp *MonitorServiceProxy) Setup(p Provider) {
+	mp.monitor.Setup(p)
 }
 
 func (mp *MonitorServiceProxy) GetAll() []Monitor {
