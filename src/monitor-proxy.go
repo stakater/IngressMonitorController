@@ -12,6 +12,8 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	switch mType {
 	case "UptimeRobot":
 		mp.monitor = &UpTimeMonitorService{}
+	case "Pingdom":
+		mp.monitor = &PingdomMonitorService{}
 	default:
 		log.Panic("No such provider found: ", mType)
 	}
