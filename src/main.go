@@ -14,17 +14,19 @@ func main() {
 		log.Fatal("Could not find the current namespace")
 	}
 
-	// create the in-cluster config
-	clusterConfig := createInClusterConfig()
-
-	// create the clientset
-	clientset := createKubernetesClient(clusterConfig)
+	var kubeClient kubernetes.Interface
+	_, err := rest.InClusterConfig()
+	if err != nil {
+		kubeClient = GetClientOutOfCluster()
+	} else {
+		kubeClient = GetClient()
+	}
 
 	// fetche and create controller config from file
 	config := getControllerConfig()
 
 	// create the monitoring controller
-	controller := NewMonitorController(currentNamespace, clientset, config)
+	controller := NewMonitorController(currentNamespace, kubeClient, config)
 
 	// Now let's start the controller
 	stop := make(chan struct{})

@@ -19,6 +19,7 @@ This controller will continuously watch ingresses in the namespace it is running
 Currently we support the following monitors:
 
 - [UptimeRobot](https://uptimerobot.com)
+- [Pingdom](https://pingdom.com) ([Additional Config](https://github.com/stakater/IngressMonitorController/blob/master/docs/pingdom-configuration.md))
 
 ## Deploying to Kubernetes
 
@@ -83,7 +84,7 @@ type MonitorService interface {
     Update(m Monitor)
     GetByName(name string) (*Monitor, error)
     Remove(m Monitor)
-    Setup(apiKey string, url string, alertContacts string)
+    Setup(provider Provider)
 }
 ```
 

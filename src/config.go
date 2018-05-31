@@ -18,17 +18,20 @@ type Provider struct {
 	ApiKey        string `yaml:"apiKey"`
 	ApiURL        string `yaml:"apiURL"`
 	AlertContacts string `yaml:"alertContacts"`
+	Username      string `yaml:"username"`
+	Password      string `yaml:"password"`
 }
 
 func (p *Provider) createMonitorService() MonitorServiceProxy {
 	monitorService := (&MonitorServiceProxy{}).OfType(p.Name)
-	monitorService.Setup(p.ApiKey, p.ApiURL, p.AlertContacts)
+	monitorService.Setup(*p)
 	return monitorService
 }
 
 func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML
+	log.Println("Reading YAML Configuration")
 	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Panic(err)
