@@ -109,7 +109,7 @@ func (service *PingdomMonitorService) Remove(m Monitor) {
 
 func (service *PingdomMonitorService) createHttpCheck(monitor Monitor) pingdom.HttpCheck {
 	httpCheck := pingdom.HttpCheck{}
-	url, err := url.Parse(service.url)
+	url, err := url.Parse(monitor.url)
 	if err != nil {
 		log.Println("Unable to parse the URL: ", service.url)
 	}
