@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/url"
 	"path"
 
 	"k8s.io/api/extensions/v1beta1"
@@ -75,16 +76,16 @@ func (iw *IngressWrapper) getURL() string {
 		return ""
 	}
 
-	var url string
+	var URL string
 
 	if host, exists := iw.tryGetTLSHost(); exists { // Get TLS Host if it exists
-		url = host
+		URL = host
 	} else {
-		url = iw.getHost() // Fallback for normal Host
+		URL = iw.getHost() // Fallback for normal Host
 	}
 
 	// Convert url to url object
-	u, err := url.Parse(url)
+	u, err := url.Parse(URL)
 
 	if err != nil {
 		log.Printf("URL parsing error in getURL() :%v", err)
