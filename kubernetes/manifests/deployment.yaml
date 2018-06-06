@@ -7,10 +7,10 @@ metadata:
     configmap.fabric8.io/update-on-change: ingressmonitorcontroller
   labels:
     app: ingressmonitorcontroller
-    version: 1.0.12
+    version: 1.0.13
     group: com.stakater.platform
     provider: stakater
-    chart: "ingressmonitorcontroller-1.0.12"
+    chart: "ingressmonitorcontroller-1.0.13"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: ingressmonitorcontroller
@@ -39,7 +39,7 @@ spec:
               fieldPath: metadata.namespace
         - name: CONFIG_FILE_PATH
           value: /etc/IngressMonitorController/config.yaml
-        image: "stakater/ingressmonitorcontroller:1.0.12"
+        image: "stakater/ingressmonitorcontroller:1.0.13"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
