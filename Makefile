@@ -1,1 +1,57 @@
-VERSION := 1.0.12
+# note: call scripts from /scripts
+
+.PHONY: default build builder-image binary-image test stop clean-images clean push apply deploy
+
+BUILDER = ingressMonitorController-builder
+BINARY = IngressMonitorController
+DOCKER_IMAGE ?= stakater/ingressMonitorController
+
+hello:
+	echo ${DOCKER_IMAGE}
+# Default value "dev"
+DOCKER_TAG ?= dev
+REPOSITORY = ${DOCKER_IMAGE}:${DOCKER_TAG}
+
+VERSION=$(shell cat .version)
+BUILD=
+
+GOCMD = go
+GLIDECMD = glide
+GOFLAGS ?= $(GOFLAGS:)
+LDFLAGS =
+
+default: build test
+
+install:
+	"$(GLIDECMD)" install
+	cp -r vendor/* ${GOPATH}/src/
+	rm -rf vendor
+
+build:
+	"$(GOCMD)" build ${GOFLAGS} ${LDFLAGS} -o "${BINARY}"
+
+builder-image:
+	@docker build -t "${BUILDER}" -f build/package/Dockerfile.build .
+
+binary-image: builder-image
+	@docker run --rm "${BUILDER}" | docker build -t "${REPOSITORY}" -f Dockerfile.run -
+
+test:
+	"$(GOCMD)" test -v ./...
+
+stop:
+	@docker stop "${BINARY}"
+
+clean-images: stop
+	@docker rmi "${BUILDER}" "${BINARY}"
+
+clean:
+	"$(GOCMD)" clean -i
+
+push: ## push the latest Docker image to DockerHub
+	docker push $(REPOSITORY)
+
+apply:
+	kubectl apply -f deployments/manifests/
+
+deploy: binary-image push apply
