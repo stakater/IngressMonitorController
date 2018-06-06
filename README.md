@@ -1,4 +1,4 @@
-# Ingress Monitor Controller
+# ![](assets/web/IMC-round-100px.png) Ingress Monitor Controller
 
 [![Get started with Stakater](https://stakater.github.io/README/stakater-github-banner.png)](http://stakater.com/?utm_source=IngressMonitorController&utm_medium=github)
 
