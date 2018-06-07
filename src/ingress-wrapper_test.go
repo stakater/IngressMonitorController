@@ -5,6 +5,7 @@ import (
 
 	"k8s.io/api/extensions/v1beta1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -22,13 +23,15 @@ func createIngressObjectWithPath(ingressName string, namespace string, url strin
 			Rules: []v1beta1.IngressRule{
 				v1beta1.IngressRule{
 					Host: url,
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						paths: []v1beta1.HTTPIngressPath{
-							v1beta1.HTTPIngressPath{
-								path: "/",
-								backend: &v1beta1.IngressBackend{
-									serviceName: "test",
-									servicePort: "80",
+					IngressRuleValue: v1beta1.IngressRuleValue{
+						HTTP: &v1beta1.HTTPIngressRuleValue{
+							Paths: []v1beta1.HTTPIngressPath{
+								v1beta1.HTTPIngressPath{
+									Path: "/",
+									Backend: v1beta1.IngressBackend{
+										ServiceName: "test",
+										ServicePort: intstr.FromInt(80),
+									},
 								},
 							},
 						},
