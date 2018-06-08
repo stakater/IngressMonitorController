@@ -2,12 +2,10 @@
 
 .PHONY: default build builder-image binary-image test stop clean-images clean push apply deploy
 
-BUILDER = ingressMonitorController-builder
-BINARY = IngressMonitorController
+BUILDER ?= ingressMonitorController-builder
+BINARY ?= IngressMonitorController
 DOCKER_IMAGE ?= stakater/ingressMonitorController
 
-hello:
-	echo ${DOCKER_IMAGE}
 # Default value "dev"
 DOCKER_TAG ?= dev
 REPOSITORY = ${DOCKER_IMAGE}:${DOCKER_TAG}
