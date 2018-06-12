@@ -7,6 +7,7 @@ import (
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 const (
@@ -61,9 +62,9 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			fields: fields{
 				ingress:    createIngressObjectWithPath("testIngress", "test", testUrl),
 				namespace:  "test",
-				kubeClient: nil,
+				kubeClient: getTestKubeClient(),
 			},
-			want: "want",
+			want: "http://testurl.stackator.com/",
 		},
 	}
 	for _, tt := range tests {
@@ -78,4 +79,16 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			}
 		})
 	}
+}
+
+func getTestKubeClient() kubernetes.Interface {
+	var kubeClient kubernetes.Interface
+	_, err := rest.InClusterConfig()
+	if err != nil {
+		kubeClient = GetClientOutOfCluster()
+	} else {
+		kubeClient = GetClient()
+	}
+
+	return kubeClient
 }
