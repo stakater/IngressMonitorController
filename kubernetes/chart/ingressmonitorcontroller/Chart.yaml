@@ -3,7 +3,7 @@
 apiVersion: v1
 name: ingressmonitorcontroller
 description: IngressMonitorController chart that runs on kubernetes
-version: 1.0.13
+version: 1.0.14
 keywords:
   - IngressMonitorController
   - kubernetes

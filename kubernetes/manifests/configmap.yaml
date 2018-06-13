@@ -7,10 +7,10 @@ metadata:
     fabric8.io/target-platform: kubernetes
   labels:
     app: ingressmonitorcontroller
-    version: 1.0.13
+    version: 1.0.14
     group: com.stakater.platform
     provider: stakater
-    chart: "ingressmonitorcontroller-1.0.13"
+    chart: "ingressmonitorcontroller-1.0.14"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: ingressmonitorcontroller
