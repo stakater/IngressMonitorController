@@ -4,39 +4,21 @@ import (
 	"testing"
 
 	"k8s.io/api/extensions/v1beta1"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
 
 const (
-	testUrl = "testurl.stackator.com"
+	testUrl = "testurl.stackator.com/"
 )
 
-func createIngressObjectWithPath(ingressName string, namespace string, url string) *v1beta1.Ingress {
-	ingress := &v1beta1.Ingress{
-		ObjectMeta: meta_v1.ObjectMeta{
-			Name:      ingressName,
-			Namespace: namespace,
-		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{
-				v1beta1.IngressRule{
-					Host: url,
-					IngressRuleValue: v1beta1.IngressRuleValue{
-						HTTP: &v1beta1.HTTPIngressRuleValue{
-							Paths: []v1beta1.HTTPIngressPath{
-								v1beta1.HTTPIngressPath{
-									Path: "/",
-									Backend: v1beta1.IngressBackend{
-										ServiceName: "test",
-										ServicePort: intstr.FromInt(80),
-									},
-								},
-							},
-						},
-					},
+func createIngressObjectWithPath(ingressName string, namespace string, url string, path string) *v1beta1.Ingress {
+	ingress := createIngressObject(ingressName, namespace, url)
+	ingress.Spec.Rules[0].IngressRuleValue = v1beta1.IngressRuleValue{
+		HTTP: &v1beta1.HTTPIngressRuleValue{
+			Paths: []v1beta1.HTTPIngressPath{
+				v1beta1.HTTPIngressPath{
+					Path: path,
 				},
 			},
 		},
@@ -56,11 +38,28 @@ func TestIngressWrapper_getURL(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		// TODO: Add test cases.
 		{
-			name: "TestGetUrlWithPath",
+			name: "TestGetUrlWithEmptyPath",
 			fields: fields{
-				ingress:    createIngressObjectWithPath("testIngress", "test", testUrl),
+				ingress:    createIngressObjectWithPath("testIngress", "test", testUrl, "/"),
+				namespace:  "test",
+				kubeClient: getTestKubeClient(),
+			},
+			want: "http://testurl.stackator.com/",
+		},
+		{
+			name: "TestGetUrlWithHelloPath",
+			fields: fields{
+				ingress:    createIngressObjectWithPath("testIngress", "test", testUrl, "/hello"),
+				namespace:  "test",
+				kubeClient: getTestKubeClient(),
+			},
+			want: "http://testurl.stackator.com/hello",
+		},
+		{
+			name: "TestGetUrlWithNoPath",
+			fields: fields{
+				ingress:    createIngressObject("testIngress", "test", testUrl),
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
