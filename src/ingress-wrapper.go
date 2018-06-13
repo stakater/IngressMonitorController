@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"net/url"
+	"path"
 
 	"k8s.io/api/extensions/v1beta1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -74,33 +76,41 @@ func (iw *IngressWrapper) getURL() string {
 		return ""
 	}
 
-	var url string
+	var URL string
 
 	if host, exists := iw.tryGetTLSHost(); exists { // Get TLS Host if it exists
-		url = host
+		URL = host
 	} else {
-		url = iw.getHost() // Fallback for normal Host
+		URL = iw.getHost() // Fallback for normal Host
+	}
+
+	// Convert url to url object
+	u, err := url.Parse(URL)
+
+	if err != nil {
+		log.Printf("URL parsing error in getURL() :%v", err)
+		return ""
 	}
 
 	// Append port + ingressSubPath
-	url += iw.getIngressSubPathWithPort()
+	u.Path = path.Join(u.Path, iw.getIngressSubPathWithPort())
 
 	// Find pod by backtracking ingress -> service -> pod
 	healthEndpoint, exists := iw.tryGetHealthEndpointFromIngress()
 
 	// Health endpoint from pod successful
 	if exists {
-		url += healthEndpoint
+		u.Path = path.Join(u.Path, healthEndpoint)
 	} else { // Try to get annotation and set
 		annotations := iw.ingress.GetAnnotations()
 
 		// Annotation for health Endpoint exists
 		if value, ok := annotations[monitorHealthAnnotation]; ok {
-			url += value
+			u.Path = path.Join(u.Path, value)
 		}
 	}
 
-	return url
+	return u.String()
 }
 
 func (iw *IngressWrapper) hasService() (string, bool) {
