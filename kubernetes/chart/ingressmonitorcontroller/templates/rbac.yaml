@@ -15,6 +15,9 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: {{ template "name" . }}-role
+  {{ if .Values.ingressMonitorController.watchNamespace }}
+  namespace: {{ .Values.ingressMonitorController.watchNamespace | quote }}
+  {{ end }}
 rules:
   - apiGroups:
       - ""
@@ -42,6 +45,9 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
   name: {{ template "name" . }}-role-binding
+  {{ if .Values.ingressMonitorController.watchNamespace }}
+  namespace: {{ .Values.ingressMonitorController.watchNamespace | quote }}
+  {{ end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
