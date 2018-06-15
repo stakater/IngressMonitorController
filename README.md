@@ -57,6 +57,14 @@ For the list of providers, there's a number of options that you need to specify.
 
 *Note:* Follow [this](https://github.com/stakater/IngressMonitorController/blob/master/docs/fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UpTimeRobot
 
+#### Configuring through ingress annotations
+
+The following optional annotations allow you to set further configuration:
+
+| Annotation                          | Description                                                                                                                 |
+|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `"monitor.stakater.com/forceHttps"` | If set to the string `"true"`, the monitor endpoint will use HTTPS, even if the Ingress manifest itself doesn't specify TLS |
+
 #### Deploying
 
 You can deploy the controller in the namespace you want to monitor by running the following kubectl commands:
