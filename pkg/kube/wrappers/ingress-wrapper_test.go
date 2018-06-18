@@ -92,6 +92,15 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			},
 			want: "http://testurl.stackator.com/",
 		},
+		{
+			name: "TestGetUrlWithOverridePathAnnotation",
+			fields: fields{
+				ingress:    createIngressObjectWithAnnotations("testIngress", "test", testUrl, map[string]string{"monitor.stakater.com/overridePath": "/overriden-path"}),
+				namespace:  "test",
+				kubeClient: getTestKubeClient(),
+			},
+			want: "http://testurl.stackator.com/overriden-path",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
