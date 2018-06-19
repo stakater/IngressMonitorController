@@ -73,6 +73,10 @@ kubectl apply -f deployment.yaml -n <namespace>
 
 Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `kubernetes/chart` folder.
 
+#### Using Ingress Monitor Controller globally
+
+If you want to use 1 instance of Ingress Monitor Controller for your cluster, you can remove `watchNamespace` key from `values.yaml` before applying the helm chart and the controller will then watch in all namespaces. By default the controller watches in the `default` namespace.
+
 ## Adding support for a new Monitor
 
 You can easily implement a new monitor and use it via the controller. First of all, you will need to create a new service struct that implements the following monitor service interface
