@@ -1,0 +1,8 @@
+FROM alpine:3.4
+MAINTAINER "Stakater Team"
+
+RUN apk add --update ca-certificates
+
+COPY ingressmonitorcontroller /bin/ingressmonitorcontroller
+
+ENTRYPOINT ["/bin/ingressmonitorcontroller"]
