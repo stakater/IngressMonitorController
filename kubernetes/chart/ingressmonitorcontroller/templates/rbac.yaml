@@ -11,13 +11,12 @@ metadata:
     heritage: {{ .Release.Service | quote }}
   name: {{ template "name" . }}
 ---
+{{- if .Values.ingressMonitorController.watchNamespace }}
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: {{ template "name" . }}-role
-  {{ if .Values.ingressMonitorController.watchNamespace }}
   namespace: {{ .Values.ingressMonitorController.watchNamespace | quote }}
-  {{ end }}
 rules:
   - apiGroups:
       - ""
@@ -45,9 +44,7 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
   name: {{ template "name" . }}-role-binding
-  {{ if .Values.ingressMonitorController.watchNamespace }}
   namespace: {{ .Values.ingressMonitorController.watchNamespace | quote }}
-  {{ end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -56,3 +53,44 @@ subjects:
   - kind: ServiceAccount
     name: {{ template "name" . }}
     namespace: {{ .Release.Namespace | quote }}
+{{- else }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: {{ template "name" . }}-role
+rules:
+  - apiGroups:
+      - ""
+      - "extensions"
+    resources:
+      - ingresses
+    verbs:
+      - list
+      - get
+      - update
+      - patch
+      - watch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - pods
+    verbs:
+      - list
+      - get
+      - watch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: {{ template "name" . }}-role-binding
+roleRef:
+  kind: ClusterRole
+  name: {{ template "name" . }}-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: {{ template "name" . }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}
