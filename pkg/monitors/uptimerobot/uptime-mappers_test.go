@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
 func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
@@ -11,7 +13,7 @@ func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 
 	monitorObject := UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitorObject)
 
-	if monitorObject.id != strconv.Itoa(uptimeMonitorObject.ID) || monitorObject.name != uptimeMonitorObject.FriendlyName || monitorObject.url != uptimeMonitorObject.URL {
+	if monitorObject.ID != strconv.Itoa(uptimeMonitorObject.ID) || monitorObject.Name != uptimeMonitorObject.FriendlyName || monitorObject.URL != uptimeMonitorObject.URL {
 		t.Error("Mapper did not map the values correctly")
 	}
 }
@@ -20,7 +22,7 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 	uptimeMonitorObject1 := UptimeMonitorMonitor{FriendlyName: "Test Monitor 1", ID: 124, URL: "https://stakater.com"}
 	uptimeMonitorObject2 := UptimeMonitorMonitor{FriendlyName: "Test Monitor 2", ID: 125, URL: "https://stackator.com"}
 
-	correctMonitors := []Monitor{Monitor{name: "Test Monitor 1", id: "124", url: "https://stakater.com"}, Monitor{name: "Test Monitor 2", id: "125", url: "https://stackator.com"}}
+	correctMonitors := []models.Monitor{models.Monitor{Name: "Test Monitor 1", ID: "124", URL: "https://stakater.com"}, models.Monitor{Name: "Test Monitor 2", ID: "125", URL: "https://stackator.com"}}
 
 	var uptimeMonitors []UptimeMonitorMonitor
 	uptimeMonitors = append(uptimeMonitors, uptimeMonitorObject1)

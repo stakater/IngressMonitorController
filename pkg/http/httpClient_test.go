@@ -7,7 +7,7 @@ import (
 
 func TestCreateHttpClient(t *testing.T) {
 	url := "https://google.com"
-	client := createHttpClient(url)
+	client := CreateHttpClient(url)
 
 	if client.url != url {
 		t.Error("Client URL should match the assigned url")
@@ -16,18 +16,18 @@ func TestCreateHttpClient(t *testing.T) {
 
 func TestPostShouldReturn405Status(t *testing.T) {
 	url := "https://google.com"
-	client := createHttpClient(url)
+	client := CreateHttpClient(url)
 
 	response := client.post("")
 
-	if response.statusCode != 405 {
+	if response.StatusCode != 405 {
 		t.Error("Status code mismatch")
 	}
 }
 
 func TestAddHeaders(t *testing.T) {
 	url := "https://google.com"
-	client := createHttpClient(url)
+	client := CreateHttpClient(url)
 
 	request := &http.Request{}
 	request.Header = http.Header{}

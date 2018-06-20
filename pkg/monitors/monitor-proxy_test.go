@@ -1,6 +1,10 @@
 package monitors
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stakater/IngressMonitorController/pkg/util"
+)
 
 func TestMonitorServiceProxyOfTypeWithCorrectType(t *testing.T) {
 	monitorType := "UptimeRobot"
@@ -12,7 +16,7 @@ func TestMonitorServiceProxyOfTypeWithCorrectType(t *testing.T) {
 }
 
 func TestMonitorServiceProxyOfTypeWithWrongType(t *testing.T) {
-	assertPanic(t, func() {
+	util.AssertPanic(t, func() {
 		monitorType := "Testing"
 		uptime := (&MonitorServiceProxy{}).OfType(monitorType)
 

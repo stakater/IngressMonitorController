@@ -7,6 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stakater/IngressMonitorController/pkg/config"
+	"github.com/stakater/IngressMonitorController/pkg/kube"
+	"github.com/stakater/IngressMonitorController/pkg/monitors/uptimerobot"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 	"k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,7 +32,7 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 
 	time.Sleep(5 * time.Second)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -63,7 +67,7 @@ func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
 
 	time.Sleep(5 * time.Second)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -74,7 +78,7 @@ func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
 
 	time.Sleep(5 * time.Second)
 
-	nameFormat, _ := getNameTemplateFormat(monitorTemplate)
+	nameFormat, _ := util.GetNameTemplateFormat(monitorTemplate)
 	monitorName := fmt.Sprintf(nameFormat, ingressName, namespace)
 
 	// Should not exist
@@ -84,11 +88,11 @@ func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
 }
 
 func TestInvalidMonitorTemplateShouldPanic(t *testing.T) {
-	assertPanic(t, func() {
+	util.AssertPanic(t, func() {
 		// Invalid monitor template
 		monitorTemplate := "{.IngressName}}-{{.Namespace}"
 
-		_, _ = getNameTemplateFormat(monitorTemplate)
+		_, _ = util.GetNameTemplateFormat(monitorTemplate)
 
 	})
 }
@@ -104,7 +108,7 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
@@ -141,7 +145,7 @@ func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, false)
 
@@ -169,7 +173,7 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 
 	controller := getControllerWithNamespace(namespace, true)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -207,7 +211,7 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 
 	controller := getControllerWithNamespace(namespace, true)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
@@ -252,7 +256,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 
 	controller := getControllerWithNamespace(namespace, true)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
@@ -300,7 +304,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 
 	controller := getControllerWithNamespace(namespace, true)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
@@ -349,7 +353,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 		t.Error("Monitor with name" + monitorName + " does not exist")
 	}
 
-	if monitor.url != "http://"+newUrl {
+	if monitor.URL != "http://"+newUrl {
 		t.Error("Monitor did not update")
 	}
 
@@ -368,7 +372,7 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 
 	controller := getControllerWithNamespace(namespace, true)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, false)
 
@@ -419,7 +423,7 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
@@ -475,7 +479,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonit
 		panic(err)
 	}
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
@@ -517,7 +521,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonit
 	// Delete the temporary monitor manually
 	deleteMonitorWithName(t, monitorName)
 
-	if monitor.url != "http://google.com/health" {
+	if monitor.URL != "http://google.com/health" {
 		t.Error("Monitor must have /health appended to the url")
 	}
 }
@@ -547,7 +551,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 		panic(err)
 	}
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
@@ -589,7 +593,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 	// Delete the temporary monitor manually
 	deleteMonitorWithName(t, monitorName)
 
-	if monitor.url != "http://google.com" {
+	if monitor.URL != "http://google.com" {
 		t.Error("Monitor must not have /health appended to the url")
 	}
 }
@@ -619,7 +623,7 @@ func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreat
 		panic(err)
 	}
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
@@ -663,7 +667,7 @@ func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreat
 	// Delete the temporary monitor manually
 	deleteMonitorWithName(t, monitorName)
 
-	if monitor.url != "http://google.com/hello" {
+	if monitor.URL != "http://google.com/hello" {
 		t.Error("Monitor must have /health appended to the url")
 	}
 }
@@ -687,7 +691,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMon
 		panic(err)
 	}
 
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
@@ -727,7 +731,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMon
 	// Delete the temporary monitor manually
 	deleteMonitorWithName(t, monitorName)
 
-	if monitor.url != "http://google.com" {
+	if monitor.URL != "http://google.com" {
 		t.Error("Monitor should not have /health appended to the url since no pod exists")
 	}
 }
@@ -796,31 +800,13 @@ func checkMonitorWithName(t *testing.T, monitorName string, shouldExist bool) {
 	}
 }
 
-func getMonitorService() *UpTimeMonitorService {
-	config := getControllerConfig()
+func getMonitorService() *uptimerobot.UpTimeMonitorService {
+	config := config.GetControllerConfig()
 
-	service := UpTimeMonitorService{}
+	service := uptimerobot.UpTimeMonitorService{}
 	service.Setup(config.Providers[0])
 
 	return &service
-}
-
-func createIngressObject(ingressName string, namespace string, url string) *v1beta1.Ingress {
-	ingress := &v1beta1.Ingress{
-		ObjectMeta: meta_v1.ObjectMeta{
-			Name:      ingressName,
-			Namespace: namespace,
-		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{
-				v1beta1.IngressRule{
-					Host: url,
-				},
-			},
-		},
-	}
-
-	return ingress
 }
 
 func createServiceObject(serviceName string, podName string, namespace string) *v1.Service {
@@ -915,13 +901,13 @@ func getControllerWithNamespace(namespace string, enableDeletion bool) *MonitorC
 	var kubeClient kubernetes.Interface
 	_, err := rest.InClusterConfig()
 	if err != nil {
-		kubeClient = GetClientOutOfCluster()
+		kubeClient = kube.GetClientOutOfCluster()
 	} else {
-		kubeClient = GetClient()
+		kubeClient = kube.GetClient()
 	}
 
 	// fetche and create controller config from file
-	config := getControllerConfig()
+	config := config.GetControllerConfig()
 
 	config.EnableMonitorDeletion = enableDeletion
 

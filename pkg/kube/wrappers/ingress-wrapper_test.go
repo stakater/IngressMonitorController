@@ -3,6 +3,8 @@ package wrappers
 import (
 	"testing"
 
+	"github.com/stakater/IngressMonitorController/pkg/kube"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -13,7 +15,7 @@ const (
 )
 
 func createIngressObjectWithPath(ingressName string, namespace string, url string, path string) *v1beta1.Ingress {
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 	ingress.Spec.Rules[0].IngressRuleValue = v1beta1.IngressRuleValue{
 		HTTP: &v1beta1.HTTPIngressRuleValue{
 			Paths: []v1beta1.HTTPIngressPath{
@@ -28,7 +30,7 @@ func createIngressObjectWithPath(ingressName string, namespace string, url strin
 }
 
 func createIngressObjectWithAnnotations(ingressName string, namespace string, url string, annotations map[string]string) *v1beta1.Ingress {
-	ingress := createIngressObject(ingressName, namespace, url)
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
 	ingress.ObjectMeta.SetAnnotations(annotations)
 
 	return ingress
@@ -66,7 +68,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithNoPath",
 			fields: fields{
-				ingress:    createIngressObject("testIngress", "test", testUrl),
+				ingress:    util.CreateIngressObject("testIngress", "test", testUrl),
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
@@ -94,11 +96,11 @@ func TestIngressWrapper_getURL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			iw := &IngressWrapper{
-				ingress:    tt.fields.ingress,
-				namespace:  tt.fields.namespace,
-				kubeClient: tt.fields.kubeClient,
+				Ingress:    tt.fields.ingress,
+				Namespace:  tt.fields.namespace,
+				KubeClient: tt.fields.kubeClient,
 			}
-			if got := iw.getURL(); got != tt.want {
+			if got := iw.GetURL(); got != tt.want {
 				t.Errorf("IngressWrapper.getURL() = %v, want %v", got, tt.want)
 			}
 		})
@@ -109,9 +111,9 @@ func getTestKubeClient() kubernetes.Interface {
 	var kubeClient kubernetes.Interface
 	_, err := rest.InClusterConfig()
 	if err != nil {
-		kubeClient = GetClientOutOfCluster()
+		kubeClient = kube.GetClientOutOfCluster()
 	} else {
-		kubeClient = GetClient()
+		kubeClient = kube.GetClient()
 	}
 
 	return kubeClient

@@ -2,15 +2,18 @@ package uptimerobot
 
 import (
 	"testing"
+
+	"github.com/stakater/IngressMonitorController/pkg/config"
+	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
-	config := getControllerConfig()
+	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
 	service.Setup(config.Providers[0])
 
-	m := Monitor{name: "google-test", url: "https://google.com"}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
@@ -18,19 +21,19 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-	if mRes.name != m.name || mRes.url != m.url {
+	if mRes.Name != m.Name || mRes.URL != m.URL {
 		t.Error("URL and name should be the same")
 	}
 	service.Remove(*mRes)
 }
 
 func TestUpdateMonitorWithCorrectValues(t *testing.T) {
-	config := getControllerConfig()
+	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
 	service.Setup(config.Providers[0])
 
-	m := Monitor{name: "google-test", url: "https://google.com"}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
@@ -38,11 +41,11 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-	if mRes.name != m.name || mRes.url != m.url {
+	if mRes.Name != m.Name || mRes.URL != m.URL {
 		t.Error("URL and name should be the same")
 	}
 
-	mRes.url = "https://facebook.com"
+	mRes.URL = "https://facebook.com"
 
 	service.Update(*mRes)
 
@@ -51,7 +54,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-	if mRes.url != "https://facebook.com" {
+	if mRes.URL != "https://facebook.com" {
 		t.Error("URL and name should be the same")
 	}
 
@@ -59,13 +62,13 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 }
 
 func TestAddMonitorWithIncorrectValues(t *testing.T) {
-	config := getControllerConfig()
+	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
 	config.Providers[0].ApiKey = "dummy-api-key"
 	service.Setup(config.Providers[0])
 
-	m := Monitor{name: "google-test", url: "https://google.com"}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
