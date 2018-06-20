@@ -61,9 +61,10 @@ For the list of providers, there's a number of options that you need to specify.
 
 The following optional annotations allow you to set further configuration:
 
-| Annotation                          | Description                                                                                                                 |
-|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `"monitor.stakater.com/forceHttps"` | If set to the string `"true"`, the monitor endpoint will use HTTPS, even if the Ingress manifest itself doesn't specify TLS |
+| Annotation                            | Description                                                                                                                 |
+|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `"monitor.stakater.com/forceHttps"`   | If set to the string `"true"`, the monitor endpoint will use HTTPS, even if the Ingress manifest itself doesn't specify TLS |
+| `"monitor.stakater.com/overridePath"` | Set this annotation to define the healthcheck path for this monitor, overriding the controller's default logic              |
 
 #### Deploying
 

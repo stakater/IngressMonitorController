@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	IngressForceHTTPSAnnotation = "monitor.stakater.com/forceHttps"
-	MonitorEnabledAnnotation    = "monitor.stakater.com/enabled"
-	MonitorHealthAnnotation     = "monitor.stakater.com/healthEndpoint" // "/health"
+	IngressForceHTTPSAnnotation   = "monitor.stakater.com/forceHttps"
+	IngressOverridePathAnnotation = "monitor.stakater.com/overridePath"
+	MonitorEnabledAnnotation      = "monitor.stakater.com/enabled"
+	MonitorHealthAnnotation       = "monitor.stakater.com/healthEndpoint" // "/health"
 )
 
 type IngressWrapper struct {
@@ -106,21 +107,26 @@ func (iw *IngressWrapper) GetURL() string {
 		return ""
 	}
 
-	// Append port + ingressSubPath
-	u.Path = path.Join(u.Path, iw.getIngressSubPathWithPort())
+	annotations := iw.Ingress.GetAnnotations()
 
-	// Find pod by backtracking ingress -> service -> pod
-	healthEndpoint, exists := iw.tryGetHealthEndpointFromIngress()
+	if value, ok := annotations[IngressOverridePathAnnotation]; ok {
+		u.Path = value
+	} else {
+		// Append port + ingressSubPath
+		u.Path = path.Join(u.Path, iw.getIngressSubPathWithPort())
 
-	// Health endpoint from pod successful
-	if exists {
-		u.Path = path.Join(u.Path, healthEndpoint)
-	} else { // Try to get annotation and set
-		annotations := iw.Ingress.GetAnnotations()
+		// Find pod by backtracking ingress -> service -> pod
+		healthEndpoint, exists := iw.tryGetHealthEndpointFromIngress()
 
-		// Annotation for health Endpoint exists
-		if value, ok := annotations[MonitorHealthAnnotation]; ok {
-			u.Path = path.Join(u.Path, value)
+		// Health endpoint from pod successful
+		if exists {
+			u.Path = path.Join(u.Path, healthEndpoint)
+		} else { // Try to get annotation and set
+
+			// Annotation for health Endpoint exists
+			if value, ok := annotations[MonitorHealthAnnotation]; ok {
+				u.Path = path.Join(u.Path, value)
+			}
 		}
 	}
 
