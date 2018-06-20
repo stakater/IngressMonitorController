@@ -87,7 +87,7 @@ If you want to use 1 instance of Ingress Monitor Controller for your cluster, yo
 
 ## Adding support for a new Monitor
 
-You can easily implement a new monitor and use it via the controller. First of all, you will need to create a new service struct that implements the following monitor service interface
+You can easily implement a new monitor and use it via the controller. First of all you will need to create a folder under `/pkg/monitors/` with the name of the new monitor and then you will create a new service struct inside this folder that implements the following monitor service interface
 
 ```go
 type MonitorService interface {
