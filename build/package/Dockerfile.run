@@ -3,6 +3,6 @@ MAINTAINER "Stakater Team"
 
 RUN apk add --update ca-certificates
 
-COPY ingressmonitorcontroller /bin/ingressmonitorcontroller
+COPY IngressMonitorController /bin/IngressMonitorController
 
-ENTRYPOINT ["/bin/ingressmonitorcontroller"]
+ENTRYPOINT ["/bin/IngressMonitorController"]
