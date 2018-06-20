@@ -11,6 +11,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+const (
+	IngressForceHTTPSAnnotation = "monitor.stakater.com/forceHttps"
+)
+
 type IngressWrapper struct {
 	ingress    *v1beta1.Ingress
 	namespace  string
@@ -27,6 +31,14 @@ func (iw *IngressWrapper) supportsTLS() bool {
 func (iw *IngressWrapper) tryGetTLSHost() (string, bool) {
 	if iw.supportsTLS() {
 		return "https://" + iw.ingress.Spec.TLS[0].Hosts[0], true
+	}
+
+	annotations := iw.ingress.GetAnnotations()
+	if value, ok := annotations[IngressForceHTTPSAnnotation]; ok {
+		if value == "true" {
+			// Annotation exists and is enabled
+			return "https://" + iw.ingress.Spec.Rules[0].Host, true
+		}
 	}
 
 	return "", false
