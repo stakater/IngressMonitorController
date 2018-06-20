@@ -77,13 +77,21 @@ kubectl apply -f deployment.yaml -n <namespace>
 
 *Note*: Before applying rbac.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply rbac.yaml to.
 
+#### Using 1 Ingress Monitor Controller for all namespaces
+
+By default the controller watches in the `default` namespace. If you want to use 1 instance of Ingress Monitor Controller for your cluster, you can follow 1 of the steps below:
+
+##### Via Helm Chart
+
+Set `watchNamespace` to `null` in `values.yaml` before applying the helm chart and the controller will then watch in all namespaces.
+
+##### Via Kubernetes Manifests
+
+Apply the manifests located under `/examples/watch-all-namespaces/` in any namespace and then the deployed controller will watch in all namespaces.
+
 ### Helm Charts
 
 Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `kubernetes/chart` folder.
-
-#### Using Ingress Monitor Controller globally
-
-If you want to use 1 instance of Ingress Monitor Controller for your cluster, you can remove `watchNamespace` key from `values.yaml` before applying the helm chart and the controller will then watch in all namespaces. By default the controller watches in the `default` namespace.
 
 ## Adding support for a new Monitor
 
