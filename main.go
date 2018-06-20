@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// fetche and create controller config from file
-	config := getControllerConfig()
+	config := config.GetControllerConfig()
 
 	// create the monitoring controller
 	controller := controller.NewMonitorController(currentNamespace, kubeClient, config)
@@ -56,15 +56,4 @@ func createKubernetesClient(config *rest.Config) *kubernetes.Clientset {
 		log.Panic(err.Error())
 	}
 	return clientset
-}
-
-func getControllerConfig() config.Config {
-	configFilePath := os.Getenv("CONFIG_FILE_PATH")
-	if len(configFilePath) == 0 {
-		configFilePath = "config.yaml"
-	}
-
-	config := config.ReadConfig(configFilePath)
-
-	return config
 }

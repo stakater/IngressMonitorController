@@ -3,6 +3,7 @@ package config
 import (
 	"io/ioutil"
 	"log"
+	"os"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -36,6 +37,17 @@ func ReadConfig(filePath string) Config {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	return config
+}
+
+func GetControllerConfig() Config {
+	configFilePath := os.Getenv("CONFIG_FILE_PATH")
+	if len(configFilePath) == 0 {
+		configFilePath = "config.yaml"
+	}
+
+	config := ReadConfig(configFilePath)
 
 	return config
 }
