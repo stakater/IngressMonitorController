@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ type MonitorNameTemplateParts struct {
 	Namespace   string
 }
 
-func getNameTemplateFormat(nameTemplate string) (string, error) {
+func GetNameTemplateFormat(nameTemplate string) (string, error) {
 	if nameTemplate == "" {
 		nameTemplate = "{{.IngressName}}-{{.Namespace}}"
 	}

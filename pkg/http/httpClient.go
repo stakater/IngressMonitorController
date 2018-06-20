@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"io/ioutil"
@@ -11,11 +11,11 @@ type HttpClient struct {
 }
 
 type HttpResponse struct {
-	statusCode int
-	bytes      []byte
+	StatusCode int
+	Bytes      []byte
 }
 
-func createHttpClient(url string) *HttpClient {
+func CreateHttpClient(url string) *HttpClient {
 	client := HttpClient{url: url}
 	return &client
 }
@@ -33,16 +33,16 @@ func (client *HttpClient) postWithHeaders(body string, headers map[string]string
 
 	response, _ := http.DefaultClient.Do(request)
 
-	httpResponse := HttpResponse{statusCode: response.StatusCode}
+	httpResponse := HttpResponse{StatusCode: response.StatusCode}
 
 	defer response.Body.Close()
 	responseBytes, _ := ioutil.ReadAll(response.Body)
-	httpResponse.bytes = responseBytes
+	httpResponse.Bytes = responseBytes
 
 	return httpResponse
 }
 
-func (client *HttpClient) postUrlEncodedFormBody(body string) HttpResponse {
+func (client *HttpClient) PostUrlEncodedFormBody(body string) HttpResponse {
 	requestHeaders := make(map[string]string)
 	requestHeaders["content-type"] = "application/x-www-form-urlencoded"
 	requestHeaders["cache-control"] = "no-cache"

@@ -1,4 +1,4 @@
-package main
+package pingdom
 
 import (
 	"fmt"
@@ -8,6 +8,9 @@ import (
 	"strings"
 
 	"github.com/russellcardullo/go-pingdom/pingdom"
+	"github.com/stakater/IngressMonitorController/pkg/config"
+	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 )
 
 const (
@@ -27,7 +30,7 @@ type PingdomMonitorService struct {
 	client        *pingdom.Client
 }
 
-func (service *PingdomMonitorService) Setup(p Provider) {
+func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.apiKey = p.ApiKey
 	service.url = p.ApiURL
 	service.alertContacts = p.AlertContacts
@@ -36,12 +39,12 @@ func (service *PingdomMonitorService) Setup(p Provider) {
 	service.client = pingdom.NewClient(service.username, service.password, service.apiKey)
 }
 
-func (service *PingdomMonitorService) GetByName(name string) (*Monitor, error) {
-	var match *Monitor
+func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, error) {
+	var match *models.Monitor
 
 	monitors := service.GetAll()
 	for _, mon := range monitors {
-		if mon.name == name {
+		if mon.Name == name {
 			match = &mon
 		}
 	}
@@ -53,8 +56,8 @@ func (service *PingdomMonitorService) GetByName(name string) (*Monitor, error) {
 	return match, nil
 }
 
-func (service *PingdomMonitorService) GetAll() []Monitor {
-	var monitors []Monitor
+func (service *PingdomMonitorService) GetAll() []models.Monitor {
+	var monitors []models.Monitor
 
 	checks, err := service.client.Checks.List()
 	if err != nil {
@@ -62,10 +65,10 @@ func (service *PingdomMonitorService) GetAll() []Monitor {
 		return nil
 	}
 	for _, mon := range checks {
-		newMon := Monitor{
-			url:  mon.Hostname,
-			id:   fmt.Sprintf("%v", mon.ID),
-			name: mon.Name,
+		newMon := models.Monitor{
+			URL:  mon.Hostname,
+			ID:   fmt.Sprintf("%v", mon.ID),
+			Name: mon.Name,
 		}
 		monitors = append(monitors, newMon)
 	}
@@ -73,20 +76,20 @@ func (service *PingdomMonitorService) GetAll() []Monitor {
 	return monitors
 }
 
-func (service *PingdomMonitorService) Add(m Monitor) {
+func (service *PingdomMonitorService) Add(m models.Monitor) {
 	httpCheck := service.createHttpCheck(m)
 
 	_, err := service.client.Checks.Create(&httpCheck)
 	if err != nil {
 		log.Println("Error Adding Monitor: ", err.Error())
 	} else {
-		log.Println("Added monitor for: ", m.name)
+		log.Println("Added monitor for: ", m.Name)
 	}
 }
 
-func (service *PingdomMonitorService) Update(m Monitor) {
+func (service *PingdomMonitorService) Update(m models.Monitor) {
 	httpCheck := service.createHttpCheck(m)
-	monitorID, _ := strconv.Atoi(m.id)
+	monitorID, _ := strconv.Atoi(m.ID)
 
 	resp, err := service.client.Checks.Update(monitorID, &httpCheck)
 	if err != nil {
@@ -96,8 +99,8 @@ func (service *PingdomMonitorService) Update(m Monitor) {
 	}
 }
 
-func (service *PingdomMonitorService) Remove(m Monitor) {
-	monitorID, _ := strconv.Atoi(m.id)
+func (service *PingdomMonitorService) Remove(m models.Monitor) {
+	monitorID, _ := strconv.Atoi(m.ID)
 
 	resp, err := service.client.Checks.Delete(monitorID)
 	if err != nil {
@@ -107,9 +110,9 @@ func (service *PingdomMonitorService) Remove(m Monitor) {
 	}
 }
 
-func (service *PingdomMonitorService) createHttpCheck(monitor Monitor) pingdom.HttpCheck {
+func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pingdom.HttpCheck {
 	httpCheck := pingdom.HttpCheck{}
-	url, err := url.Parse(monitor.url)
+	url, err := url.Parse(monitor.URL)
 	if err != nil {
 		log.Println("Unable to parse the URL: ", service.url)
 	}
@@ -122,17 +125,17 @@ func (service *PingdomMonitorService) createHttpCheck(monitor Monitor) pingdom.H
 
 	httpCheck.Hostname = url.Host
 	httpCheck.Url = url.Path
-	httpCheck.Name = monitor.name
+	httpCheck.Name = monitor.Name
 
 	userIdsStringArray := strings.Split(service.alertContacts, "-")
 
-	if userIds, err := sliceAtoi(userIdsStringArray); err != nil {
+	if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
 		log.Println(err.Error())
 	} else {
 		httpCheck.UserIds = userIds
 	}
 
-	service.addAnnotationConfigToHttpCheck(&httpCheck, monitor.annotations)
+	service.addAnnotationConfigToHttpCheck(&httpCheck, monitor.Annotations)
 
 	return httpCheck
 }

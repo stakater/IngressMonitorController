@@ -1,8 +1,8 @@
-package main
+package util
 
 import "strconv"
 
-func sliceAtoi(stringSlice []string) ([]int, error) {
+func SliceAtoi(stringSlice []string) ([]int, error) {
 	var intSlice = []int{}
 
 	for _, stringValue := range stringSlice {

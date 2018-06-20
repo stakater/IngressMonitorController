@@ -4,9 +4,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/stakater/IngressMonitorController/pkg/config"
+	"github.com/stakater/IngressMonitorController/pkg/controller"
+	"github.com/stakater/IngressMonitorController/pkg/kube"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func main() {
@@ -19,16 +22,16 @@ func main() {
 	var kubeClient kubernetes.Interface
 	_, err := rest.InClusterConfig()
 	if err != nil {
-		kubeClient = GetClientOutOfCluster()
+		kubeClient = kube.GetClientOutOfCluster()
 	} else {
-		kubeClient = GetClient()
+		kubeClient = kube.GetClient()
 	}
 
 	// fetche and create controller config from file
 	config := getControllerConfig()
 
 	// create the monitoring controller
-	controller := NewMonitorController(currentNamespace, kubeClient, config)
+	controller := controller.NewMonitorController(currentNamespace, kubeClient, config)
 
 	// Now let's start the controller
 	stop := make(chan struct{})
@@ -55,13 +58,13 @@ func createKubernetesClient(config *rest.Config) *kubernetes.Clientset {
 	return clientset
 }
 
-func getControllerConfig() Config {
+func getControllerConfig() config.Config {
 	configFilePath := os.Getenv("CONFIG_FILE_PATH")
 	if len(configFilePath) == 0 {
 		configFilePath = "config.yaml"
 	}
 
-	config := ReadConfig(configFilePath)
+	config := config.ReadConfig(configFilePath)
 
 	return config
 }

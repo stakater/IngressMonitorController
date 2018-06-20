@@ -1,4 +1,4 @@
-package main
+package controller
 
 import (
 	"fmt"
@@ -6,6 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/stakater/IngressMonitorController/pkg/config"
+	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
+	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/pkg/monitors"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -15,9 +20,6 @@ import (
 	"k8s.io/client-go/util/workqueue"
 )
 
-const monitorEnabledAnnotation = "monitor.stakater.com/enabled"
-const monitorHealthAnnotation = "monitor.stakater.com/healthEndpoint" // "/health"
-
 // MonitorController which can be used for monitoring ingresses
 type MonitorController struct {
 	kubeClient      kubernetes.Interface
@@ -25,11 +27,11 @@ type MonitorController struct {
 	indexer         cache.Indexer
 	queue           workqueue.RateLimitingInterface
 	informer        cache.Controller
-	monitorServices []MonitorServiceProxy
-	config          Config
+	monitorServices []monitors.MonitorServiceProxy
+	config          config.Config
 }
 
-func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config Config) *MonitorController {
+func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config config.Config) *MonitorController {
 	controller := &MonitorController{
 		kubeClient: kubeClient,
 		namespace:  namespace,
@@ -55,15 +57,15 @@ func NewMonitorController(namespace string, kubeClient kubernetes.Interface, con
 	return controller
 }
 
-func setupMonitorServicesForProviders(providers []Provider) []MonitorServiceProxy {
+func setupMonitorServicesForProviders(providers []config.Provider) []monitors.MonitorServiceProxy {
 	if len(providers) < 1 {
 		log.Panic("Cannot Instantiate controller with no providers")
 	}
 
-	monitorServices := []MonitorServiceProxy{}
+	monitorServices := []monitors.MonitorServiceProxy{}
 
 	for index := 0; index < len(providers); index++ {
-		monitorServices = append(monitorServices, providers[index].createMonitorService())
+		monitorServices = append(monitorServices, monitors.CreateMonitorService(&providers[index]))
 	}
 
 	return monitorServices
@@ -145,7 +147,7 @@ func (c *MonitorController) handleIngressOnDeletion(key string) {
 }
 
 func (c *MonitorController) getMonitorName(ingressName string, namespace string) string {
-	format, err := getNameTemplateFormat(c.config.MonitorNameTemplate)
+	format, err := util.GetNameTemplateFormat(c.config.MonitorNameTemplate)
 	if err != nil {
 		log.Fatal("Failed to parse MonitorNameTemplate")
 	}
@@ -153,13 +155,13 @@ func (c *MonitorController) getMonitorName(ingressName string, namespace string)
 }
 
 func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
-	ingressWrapper := IngressWrapper{
-		ingress:    ingress,
-		namespace: ingress.Namespace,
-		kubeClient: c.kubeClient,
+	ingressWrapper := wrappers.IngressWrapper{
+		Ingress:    ingress,
+		Namespace:  ingress.Namespace,
+		KubeClient: c.kubeClient,
 	}
 
-	return ingressWrapper.getURL()
+	return ingressWrapper.GetURL()
 }
 
 func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
@@ -171,7 +173,7 @@ func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.I
 
 	annotations := ingress.GetAnnotations()
 
-	if value, ok := annotations[monitorEnabledAnnotation]; ok {
+	if value, ok := annotations[wrappers.MonitorEnabledAnnotation]; ok {
 		if value == "true" {
 			// Annotation exists and is enabled
 			c.createOrUpdateMonitors(monitorName, monitorURL, annotations)
@@ -182,7 +184,7 @@ func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.I
 
 	} else {
 		c.removeMonitorsIfExist(monitorName)
-		log.Println("Not doing anything with this ingress because no annotation exists with name: " + monitorEnabledAnnotation)
+		log.Println("Not doing anything with this ingress because no annotation exists with name: " + wrappers.MonitorEnabledAnnotation)
 	}
 }
 
@@ -192,7 +194,7 @@ func (c *MonitorController) removeMonitorsIfExist(monitorName string) {
 	}
 }
 
-func (c *MonitorController) removeMonitorIfExists(monitorService MonitorServiceProxy, monitorName string) {
+func (c *MonitorController) removeMonitorIfExists(monitorService monitors.MonitorServiceProxy, monitorName string) {
 	m, _ := monitorService.GetByName(monitorName)
 
 	if m != nil { // Monitor Exists
@@ -209,23 +211,23 @@ func (c *MonitorController) createOrUpdateMonitors(monitorName string, monitorUR
 	}
 }
 
-func (c *MonitorController) createOrUpdateMonitor(monitorService MonitorServiceProxy, monitorName string, monitorURL string, annotations map[string]string) {
+func (c *MonitorController) createOrUpdateMonitor(monitorService monitors.MonitorServiceProxy, monitorName string, monitorURL string, annotations map[string]string) {
 	m, _ := monitorService.GetByName(monitorName)
 
 	if m != nil { // Monitor Already Exists
 		log.Println("Monitor already exists for ingress: " + monitorName)
-		if m.url != monitorURL { // Monitor does not have the same url
+		if m.URL != monitorURL { // Monitor does not have the same url
 			// update the monitor with the new url
-			m.url = monitorURL
-			m.annotations = annotations
+			m.URL = monitorURL
+			m.Annotations = annotations
 			monitorService.Update(*m)
 		}
 	} else {
 		// Create a new monitor for this ingress
-		m := Monitor{
-			name:        monitorName,
-			url:         monitorURL,
-			annotations: annotations,
+		m := models.Monitor{
+			Name:        monitorName,
+			URL:         monitorURL,
+			Annotations: annotations,
 		}
 		monitorService.Add(m)
 	}

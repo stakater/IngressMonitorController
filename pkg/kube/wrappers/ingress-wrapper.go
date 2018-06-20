@@ -1,4 +1,4 @@
-package main
+package wrappers
 
 import (
 	"log"
@@ -13,16 +13,18 @@ import (
 
 const (
 	IngressForceHTTPSAnnotation = "monitor.stakater.com/forceHttps"
+	MonitorEnabledAnnotation    = "monitor.stakater.com/enabled"
+	MonitorHealthAnnotation     = "monitor.stakater.com/healthEndpoint" // "/health"
 )
 
 type IngressWrapper struct {
-	ingress    *v1beta1.Ingress
-	namespace  string
-	kubeClient kubernetes.Interface
+	Ingress    *v1beta1.Ingress
+	Namespace  string
+	KubeClient kubernetes.Interface
 }
 
 func (iw *IngressWrapper) supportsTLS() bool {
-	if iw.ingress.Spec.TLS != nil && len(iw.ingress.Spec.TLS) > 0 {
+	if iw.Ingress.Spec.TLS != nil && len(iw.Ingress.Spec.TLS) > 0 {
 		return true
 	}
 	return false
@@ -30,14 +32,14 @@ func (iw *IngressWrapper) supportsTLS() bool {
 
 func (iw *IngressWrapper) tryGetTLSHost() (string, bool) {
 	if iw.supportsTLS() {
-		return "https://" + iw.ingress.Spec.TLS[0].Hosts[0], true
+		return "https://" + iw.Ingress.Spec.TLS[0].Hosts[0], true
 	}
 
-	annotations := iw.ingress.GetAnnotations()
+	annotations := iw.Ingress.GetAnnotations()
 	if value, ok := annotations[IngressForceHTTPSAnnotation]; ok {
 		if value == "true" {
 			// Annotation exists and is enabled
-			return "https://" + iw.ingress.Spec.Rules[0].Host, true
+			return "https://" + iw.Ingress.Spec.Rules[0].Host, true
 		}
 	}
 
@@ -45,11 +47,11 @@ func (iw *IngressWrapper) tryGetTLSHost() (string, bool) {
 }
 
 func (iw *IngressWrapper) getHost() string {
-	return "http://" + iw.ingress.Spec.Rules[0].Host
+	return "http://" + iw.Ingress.Spec.Rules[0].Host
 }
 
 func (iw *IngressWrapper) rulesExist() bool {
-	if iw.ingress.Spec.Rules != nil && len(iw.ingress.Spec.Rules) > 0 {
+	if iw.Ingress.Spec.Rules != nil && len(iw.Ingress.Spec.Rules) > 0 {
 		return true
 	}
 	return false
@@ -63,7 +65,7 @@ func (iw *IngressWrapper) getIngressSubPathWithPort() string {
 }
 
 func (iw *IngressWrapper) getIngressPort() string {
-	rule := iw.ingress.Spec.Rules[0]
+	rule := iw.Ingress.Spec.Rules[0]
 	if rule.HTTP != nil {
 		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
 			return rule.HTTP.Paths[0].Backend.ServicePort.StrVal
@@ -73,7 +75,7 @@ func (iw *IngressWrapper) getIngressPort() string {
 }
 
 func (iw *IngressWrapper) getIngressSubPath() string {
-	rule := iw.ingress.Spec.Rules[0]
+	rule := iw.Ingress.Spec.Rules[0]
 	if rule.HTTP != nil {
 		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
 			return rule.HTTP.Paths[0].Path
@@ -82,9 +84,9 @@ func (iw *IngressWrapper) getIngressSubPath() string {
 	return ""
 }
 
-func (iw *IngressWrapper) getURL() string {
+func (iw *IngressWrapper) GetURL() string {
 	if !iw.rulesExist() {
-		log.Println("No rules exist in ingress: " + iw.ingress.GetName())
+		log.Println("No rules exist in ingress: " + iw.Ingress.GetName())
 		return ""
 	}
 
@@ -114,10 +116,10 @@ func (iw *IngressWrapper) getURL() string {
 	if exists {
 		u.Path = path.Join(u.Path, healthEndpoint)
 	} else { // Try to get annotation and set
-		annotations := iw.ingress.GetAnnotations()
+		annotations := iw.Ingress.GetAnnotations()
 
 		// Annotation for health Endpoint exists
-		if value, ok := annotations[monitorHealthAnnotation]; ok {
+		if value, ok := annotations[MonitorHealthAnnotation]; ok {
 			u.Path = path.Join(u.Path, value)
 		}
 	}
@@ -126,7 +128,7 @@ func (iw *IngressWrapper) getURL() string {
 }
 
 func (iw *IngressWrapper) hasService() (string, bool) {
-	ingress := iw.ingress
+	ingress := iw.Ingress
 	if ingress.Spec.Rules[0].HTTP != nil &&
 		ingress.Spec.Rules[0].HTTP.Paths != nil &&
 		len(ingress.Spec.Rules[0].HTTP.Paths) > 0 &&
@@ -144,7 +146,7 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 		return "", false
 	}
 
-	service, err := iw.kubeClient.Core().Services(iw.ingress.Namespace).Get(serviceName, meta_v1.GetOptions{})
+	service, err := iw.KubeClient.Core().Services(iw.Ingress.Namespace).Get(serviceName, meta_v1.GetOptions{})
 	if err != nil {
 		log.Printf("Get service from kubernetes cluster error:%v", err)
 		return "", false
@@ -152,7 +154,7 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 
 	set := labels.Set(service.Spec.Selector)
 
-	if pods, err := iw.kubeClient.Core().Pods(iw.ingress.Namespace).List(meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
+	if pods, err := iw.KubeClient.Core().Pods(iw.Ingress.Namespace).List(meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
 		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
 	} else if len(pods.Items) > 0 {
 		pod := pods.Items[0]

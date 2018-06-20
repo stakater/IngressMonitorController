@@ -1,4 +1,4 @@
-package main
+package pingdom
 
 // import "testing"
 

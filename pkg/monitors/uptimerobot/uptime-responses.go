@@ -1,4 +1,4 @@
-package main
+package uptimerobot
 
 type UptimeMonitorGetMonitorsResponse struct {
 	Stat       string                  `json:"stat"`
