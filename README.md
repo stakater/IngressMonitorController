@@ -163,25 +163,6 @@ PRs are welcome. In general, we follow the "fork-and-pull" Git workflow.
 
 NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 
-### Running Tests Locally
-
-Tests require a Kubernetes instance to talk to with a `test` namespace created, and a config with a valid UptimeRobot `apiKey` and `alertContacts`. For example, on MacOS with Homebrew and Minikube, you could accomplish this like
-
-```bash
-# install dependencies
-$ brew install glide
-$ cd src
-$ glide update
-
-# while still in the ./src folder, configure test setup
-$ export CONFIG_FILE_PATH=./test-config.yaml # update the apikey and alertContacts in this file
-$ minikube start
-$ kubectl create namespace test
-
-# run tests from inside the ./src folder
-$ go test
-```
-
 ## Changelog
 
 View our closed [Pull Requests](https://github.com/stakater/IngressMonitorController/pulls?q=is%3Apr+is%3Aclosed).
