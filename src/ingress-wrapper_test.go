@@ -27,6 +27,13 @@ func createIngressObjectWithPath(ingressName string, namespace string, url strin
 	return ingress
 }
 
+func createIngressObjectWithAnnotations(ingressName string, namespace string, url string, annotations map[string]string) *v1beta1.Ingress {
+	ingress := createIngressObject(ingressName, namespace, url)
+	ingress.ObjectMeta.SetAnnotations(annotations)
+
+	return ingress
+}
+
 func TestIngressWrapper_getURL(t *testing.T) {
 	type fields struct {
 		ingress    *v1beta1.Ingress
@@ -60,6 +67,24 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithNoPath",
 			fields: fields{
 				ingress:    createIngressObject("testIngress", "test", testUrl),
+				namespace:  "test",
+				kubeClient: getTestKubeClient(),
+			},
+			want: "http://testurl.stackator.com/",
+		},
+		{
+			name: "TestGetUrlWithForceHTTPSAnnotation",
+			fields: fields{
+				ingress:    createIngressObjectWithAnnotations("testIngress", "test", testUrl, map[string]string{"monitor.stakater.com/forceHttps": "true"}),
+				namespace:  "test",
+				kubeClient: getTestKubeClient(),
+			},
+			want: "https://testurl.stackator.com/",
+		},
+		{
+			name: "TestGetUrlWithForceHTTPSAnnotationOff",
+			fields: fields{
+				ingress:    createIngressObjectWithAnnotations("testIngress", "test", testUrl, map[string]string{"monitor.stakater.com/forceHttps": "false"}),
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},

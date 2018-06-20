@@ -57,6 +57,14 @@ For the list of providers, there's a number of options that you need to specify.
 
 *Note:* Follow [this](https://github.com/stakater/IngressMonitorController/blob/master/docs/fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UpTimeRobot
 
+#### Configuring through ingress annotations
+
+The following optional annotations allow you to set further configuration:
+
+| Annotation                          | Description                                                                                                                 |
+|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `"monitor.stakater.com/forceHttps"` | If set to the string `"true"`, the monitor endpoint will use HTTPS, even if the Ingress manifest itself doesn't specify TLS |
+
 #### Deploying
 
 You can deploy the controller in the namespace you want to monitor by running the following kubectl commands:
@@ -153,6 +161,25 @@ PRs are welcome. In general, we follow the "fork-and-pull" Git workflow.
  5. Submit a **Pull request** so that we can review your changes
 
 NOTE: Be sure to merge the latest from "upstream" before making a pull request!
+
+### Running Tests Locally
+
+Tests require a Kubernetes instance to talk to with a `test` namespace created, and a config with a valid UptimeRobot `apiKey` and `alertContacts`. For example, on MacOS with Homebrew and Minikube, you could accomplish this like
+
+```bash
+# install dependencies
+$ brew install glide
+$ cd src
+$ glide update
+
+# while still in the ./src folder, configure test setup
+$ export CONFIG_FILE_PATH=./test-config.yaml # update the apikey and alertContacts in this file
+$ minikube start
+$ kubectl create namespace test
+
+# run tests from inside the ./src folder
+$ go test
+```
 
 ## Changelog
 
