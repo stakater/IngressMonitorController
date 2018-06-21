@@ -173,7 +173,8 @@ $ brew install glide
 $ glide update
 
 # while still in the root folder, configure test setup
-$ export CONFIG_FILE_PATH=$(pwd)/configs/testConfigs/test-config.yaml # update the apikey and alertContacts in this file
+$ export CONFIG_FILE_PATH=$(pwd)/configs/testConfigs/test-config.yaml 
+# update the apikey and alertContacts in this file and the config_test.go file (`correctTestAPIKey` and `correctTestAlertContacts` contstants)
 $ minikube start
 $ kubectl create namespace test
 
