@@ -5,10 +5,17 @@ import (
 	"testing"
 )
 
-const configFilePath = "../../configs/testConfigs/test-config.yaml"
+const (
+	configFilePath                   = "../../configs/testConfigs/test-config.yaml"
+	correctTestConfigName            = "UptimeRobot"
+	correctTestAPIKey                = "657a68d9ashdyasjdklkskuasd"
+	correctTestAPIURL                = "https://api.uptimerobot.com/v2/"
+	correctTestAlertContacts         = "0544483_0_0-2628365_0_0-2633263_0_0"
+	correctTestEnableMonitorDeletion = true
+)
 
 func TestConfigWithCorrectValues(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: "UptimeRobot", ApiKey: "657a68d9ashdyasjdklkskuasd", ApiURL: "https://api.uptimerobot.com/v2/", AlertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"}}, EnableMonitorDeletion: true}
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePath)
 
 	if !reflect.DeepEqual(config, correctConfig) {
@@ -17,7 +24,7 @@ func TestConfigWithCorrectValues(t *testing.T) {
 }
 
 func TestConfigWithIncorrectProviderValues(t *testing.T) {
-	incorrectConifg := Config{Providers: []Provider{Provider{Name: "UptimeRobot2", ApiKey: "abc", ApiURL: "https://api.uptimerobot.com/v2/", AlertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"}}, EnableMonitorDeletion: true}
+	incorrectConifg := Config{Providers: []Provider{Provider{Name: "UptimeRobot2", ApiKey: "abc", ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConifg) {
@@ -26,7 +33,7 @@ func TestConfigWithIncorrectProviderValues(t *testing.T) {
 }
 
 func TestConfigWithIncorrectEnableFlag(t *testing.T) {
-	incorrectConifg := Config{Providers: []Provider{Provider{Name: "UptimeRobot", ApiKey: "657a68d9ashdyasjdklkskuasd", ApiURL: "https://api.uptimerobot.com/v2/", AlertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"}}, EnableMonitorDeletion: false}
+	incorrectConifg := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: false}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConifg) {
@@ -44,7 +51,7 @@ func TestConfigWithoutProvider(t *testing.T) {
 }
 
 func TestConfigWithoutEnabledFlag(t *testing.T) {
-	incorrectConifg := Config{Providers: []Provider{Provider{Name: "UptimeRobot", ApiKey: "657a68d9ashdyasjdklkskuasd", ApiURL: "https://api.uptimerobot.com/v2/", AlertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"}}}
+	incorrectConifg := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConifg) {
