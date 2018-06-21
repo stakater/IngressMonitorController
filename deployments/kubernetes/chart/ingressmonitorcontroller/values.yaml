@@ -10,7 +10,7 @@ ingressMonitorController:
     group: com.stakater.platform
   image:
     name: stakater/ingressmonitorcontroller
-    tag: "1.0.18"
+    tag: "1.0.19"
     pullPolicy: IfNotPresent
   providers:
   - name: UptimeRobot
