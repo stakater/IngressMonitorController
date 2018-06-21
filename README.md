@@ -170,16 +170,15 @@ Tests require a Kubernetes instance to talk to with a `test` namespace created, 
 ```bash
 # install dependencies
 $ brew install glide
-$ cd src
 $ glide update
 
-# while still in the ./src folder, configure test setup
-$ export CONFIG_FILE_PATH=./test-config.yaml # update the apikey and alertContacts in this file
+# while still in the root folder, configure test setup
+$ export CONFIG_FILE_PATH=$(pwd)/configs/testConfigs/test-config.yaml # update the apikey and alertContacts in this file
 $ minikube start
 $ kubectl create namespace test
 
-# run tests from inside the ./src folder
-$ go test
+# run the following command in the root folder
+$ make test
 ```
 
 ## Changelog
