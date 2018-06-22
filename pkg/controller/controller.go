@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
@@ -29,6 +28,18 @@ type MonitorController struct {
 	informer        cache.Controller
 	monitorServices []monitors.MonitorServiceProxy
 	config          config.Config
+}
+
+type IngressAction interface {
+	handle(c *MonitorController) error
+}
+
+type IngressUpdatedAction struct {
+	ingress *v1beta1.Ingress
+}
+
+type IngressDeletedAction struct {
+	ingress *v1beta1.Ingress
 }
 
 func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config config.Config) *MonitorController {
@@ -101,78 +112,30 @@ func (c *MonitorController) runWorker() {
 
 func (c *MonitorController) processNextItem() bool {
 	// Wait until there is a new item in the working queue
-	key, quit := c.queue.Get()
+	ingressAction, quit := c.queue.Get()
 	if quit {
 		return false
 	}
 	// Tell the queue that we are done with processing this key. This unblocks the key for other workers
 	// This allows safe parallel processing because two ingresses with the same key are never processed in
 	// parallel.
-	defer c.queue.Done(key)
+	defer c.queue.Done(ingressAction)
 
 	// Invoke the method containing the business logic
-	err := c.handleIngress(key.(string))
+	err := ingressAction.(IngressAction).handle(c)
 	// Handle the error if something went wrong during the execution of the business logic
-	c.handleErr(err, key)
+	c.handleErr(err, ingressAction)
 	return true
 }
 
-// handleIngress handles sync between the provided monitors for each ingress
-func (c *MonitorController) handleIngress(key string) error {
-	obj, exists, err := c.indexer.GetByKey(key)
-	if err != nil {
-		log.Printf("Fetching object with key %s from store failed with %v", key, err)
-		return err
-	}
-
-	if !exists {
-		c.handleIngressOnDeletion(key)
-
-	} else {
-		ingress := obj.(*v1beta1.Ingress)
-		c.handleIngressOnCreationOrUpdation(ingress)
-	}
-	return nil
-}
-
-func (c *MonitorController) handleIngressOnDeletion(key string) {
-	if c.config.EnableMonitorDeletion {
-		// Delete the monitor if it exists
-		// key is in the format "namespace/ingressname" (see cache store MetaNamespaceKeyFunc)
-		splitted := strings.Split(key, "/")
-		monitorName := c.getMonitorName(splitted[1], splitted[0])
-
-		c.removeMonitorsIfExist(monitorName)
-	}
-}
-
-func (c *MonitorController) getMonitorName(ingressName string, namespace string) string {
-	format, err := util.GetNameTemplateFormat(c.config.MonitorNameTemplate)
-	if err != nil {
-		log.Fatal("Failed to parse MonitorNameTemplate")
-	}
-	return fmt.Sprintf(format, ingressName, namespace)
-}
-
-func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
-	ingressWrapper := wrappers.IngressWrapper{
-		Ingress:    ingress,
-		Namespace:  ingress.Namespace,
-		KubeClient: c.kubeClient,
-	}
-
-	return ingressWrapper.GetURL()
-}
-
-func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.Ingress) {
-	monitorName := c.getMonitorName(ingress.GetName(), ingress.Namespace)
-	monitorURL := c.getMonitorURL(ingress)
+func (i IngressUpdatedAction) handle(c *MonitorController) error {
+	monitorName := c.getMonitorName(i.ingress)
+	monitorURL := c.getMonitorURL(i.ingress)
 
 	log.Println("Monitor Name: " + monitorName)
 	log.Println("Monitor URL: " + monitorURL)
 
-	annotations := ingress.GetAnnotations()
-
+	annotations := i.ingress.GetAnnotations()
 	if value, ok := annotations[wrappers.MonitorEnabledAnnotation]; ok {
 		if value == "true" {
 			// Annotation exists and is enabled
@@ -186,6 +149,41 @@ func (c *MonitorController) handleIngressOnCreationOrUpdation(ingress *v1beta1.I
 		c.removeMonitorsIfExist(monitorName)
 		log.Println("Not doing anything with this ingress because no annotation exists with name: " + wrappers.MonitorEnabledAnnotation)
 	}
+
+	return nil
+}
+
+func (i IngressDeletedAction) handle(c *MonitorController) error {
+	if c.config.EnableMonitorDeletion {
+		// Delete the monitor if it exists
+		monitorName := c.getMonitorName(i.ingress)
+		c.removeMonitorsIfExist(monitorName)
+	}
+
+	return nil
+}
+
+func (c *MonitorController) getMonitorName(ingress *v1beta1.Ingress) string {
+	annotations := ingress.GetAnnotations()
+	if value, ok := annotations[wrappers.MonitorNameAnnotation]; ok {
+		return value
+	}
+
+	format, err := util.GetNameTemplateFormat(c.config.MonitorNameTemplate)
+	if err != nil {
+		log.Fatal("Failed to parse MonitorNameTemplate")
+	}
+	return fmt.Sprintf(format, ingress.GetName(), ingress.GetNamespace())
+}
+
+func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
+	ingressWrapper := wrappers.IngressWrapper{
+		Ingress:    ingress,
+		Namespace:  ingress.Namespace,
+		KubeClient: c.kubeClient,
+	}
+
+	return ingressWrapper.GetURL()
 }
 
 func (c *MonitorController) removeMonitorsIfExist(monitorName string) {
@@ -260,26 +258,19 @@ func (c *MonitorController) handleErr(err error, key interface{}) {
 }
 
 func (c *MonitorController) onIngressAdded(obj interface{}) {
-	key, err := cache.MetaNamespaceKeyFunc(obj)
-	if err == nil {
-		c.queue.Add(key)
-	}
+	c.queue.Add(IngressUpdatedAction{
+		ingress: obj.(*v1beta1.Ingress),
+	})
 }
 
 func (c *MonitorController) onIngressUpdated(old interface{}, new interface{}) {
-	key, err := cache.MetaNamespaceKeyFunc(new)
-	if err == nil {
-		c.queue.Add(key)
-	}
+	c.queue.Add(IngressUpdatedAction{
+		ingress: new.(*v1beta1.Ingress),
+	})
 }
 
 func (c *MonitorController) onIngressDeleted(obj interface{}) {
-	// IndexerInformer uses a delta queue, therefore for deletes we have to use this
-	// key function.
-	key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
-	if err == nil {
-		c.queue.Add(key)
-	} else {
-		log.Println("Error: " + err.Error())
-	}
+	c.queue.Add(IngressDeletedAction{
+		ingress: obj.(*v1beta1.Ingress),
+	})
 }

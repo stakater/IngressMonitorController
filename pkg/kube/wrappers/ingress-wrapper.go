@@ -15,6 +15,7 @@ const (
 	IngressForceHTTPSAnnotation   = "monitor.stakater.com/forceHttps"
 	IngressOverridePathAnnotation = "monitor.stakater.com/overridePath"
 	MonitorEnabledAnnotation      = "monitor.stakater.com/enabled"
+	MonitorNameAnnotation         = "monitor.stakater.com/name"
 	MonitorHealthAnnotation       = "monitor.stakater.com/healthEndpoint" // "/health"
 )
 

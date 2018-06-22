@@ -65,6 +65,7 @@ The following optional annotations allow you to set further configuration:
 |---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | `"monitor.stakater.com/forceHttps"`   | If set to the string `"true"`, the monitor endpoint will use HTTPS, even if the Ingress manifest itself doesn't specify TLS |
 | `"monitor.stakater.com/overridePath"` | Set this annotation to define the healthcheck path for this monitor, overriding the controller's default logic              |
+| `"monitor.stakater.com/name"`         | Set this annotation to define the Monitor friendly name in Uptime Robot. If unset, defaults to the template in the config   |
 
 #### Deploying
 
