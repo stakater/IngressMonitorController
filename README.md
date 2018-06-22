@@ -210,6 +210,4 @@ or contact us in case of professional services and queries on <hello@stakater.co
 
 ## Contributers
 
-[Waseem Hassan](https://github.com/waseem-h)            |  [Hazim](https://github.com/hazim1093) | [Rasheed Amir](https://github.com/rasheedamir)
-:-------------------------:|:-------------------------:|:---------------------------------:
-[![Waseem Hassan](https://avatars3.githubusercontent.com/u/34707418?s=144&v=4)](https://github.com/waseem-h) |  [![Hazim](https://avatars2.githubusercontent.com/u/11160747?s=144&v=4)](https://github.com/hazim1093) | [![Rasheed Amir](https://avatars3.githubusercontent.com/u/3967672?s=144&v=4)](https://github.com/rasheedamir)
+Stakater Team and the Open Source community! :trophy:
