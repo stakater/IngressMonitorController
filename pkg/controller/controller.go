@@ -32,10 +32,12 @@ type MonitorController struct {
 
 type IngressAction interface {
 	handle(c *MonitorController) error
+	getNames(c *MonitorController) (string, string)
 }
 
 type IngressUpdatedAction struct {
-	ingress *v1beta1.Ingress
+	ingress    *v1beta1.Ingress
+	oldIngress *v1beta1.Ingress
 }
 
 type IngressDeletedAction struct {
@@ -128,8 +130,18 @@ func (c *MonitorController) processNextItem() bool {
 	return true
 }
 
-func (i IngressUpdatedAction) handle(c *MonitorController) error {
+func (i IngressUpdatedAction) getNames(c *MonitorController) (string, string) {
 	monitorName := c.getMonitorName(i.ingress)
+	if i.oldIngress == nil {
+		return monitorName, monitorName
+	}
+
+	oldMonitorName := c.getMonitorName(i.oldIngress)
+	return monitorName, oldMonitorName
+}
+
+func (i IngressUpdatedAction) handle(c *MonitorController) error {
+	monitorName, oldMonitorName := i.getNames(c)
 	monitorURL := c.getMonitorURL(i.ingress)
 
 	log.Println("Monitor Name: " + monitorName)
@@ -139,24 +151,29 @@ func (i IngressUpdatedAction) handle(c *MonitorController) error {
 	if value, ok := annotations[wrappers.MonitorEnabledAnnotation]; ok {
 		if value == "true" {
 			// Annotation exists and is enabled
-			c.createOrUpdateMonitors(monitorName, monitorURL, annotations)
+			c.createOrUpdateMonitors(monitorName, oldMonitorName, monitorURL, annotations)
 		} else {
 			// Annotation exists but is disabled
-			c.removeMonitorsIfExist(monitorName)
+			c.removeMonitorsIfExist(oldMonitorName)
 		}
 
 	} else {
-		c.removeMonitorsIfExist(monitorName)
+		c.removeMonitorsIfExist(oldMonitorName)
 		log.Println("Not doing anything with this ingress because no annotation exists with name: " + wrappers.MonitorEnabledAnnotation)
 	}
 
 	return nil
 }
 
+func (i IngressDeletedAction) getNames(c *MonitorController) (string, string) {
+	monitorName := c.getMonitorName(i.ingress)
+	return monitorName, monitorName
+}
+
 func (i IngressDeletedAction) handle(c *MonitorController) error {
 	if c.config.EnableMonitorDeletion {
 		// Delete the monitor if it exists
-		monitorName := c.getMonitorName(i.ingress)
+		monitorName, _ := i.getNames(c)
 		c.removeMonitorsIfExist(monitorName)
 	}
 
@@ -202,21 +219,21 @@ func (c *MonitorController) removeMonitorIfExists(monitorService monitors.Monito
 	}
 }
 
-func (c *MonitorController) createOrUpdateMonitors(monitorName string, monitorURL string, annotations map[string]string) {
+func (c *MonitorController) createOrUpdateMonitors(monitorName string, oldMonitorName string, monitorURL string, annotations map[string]string) {
 	for index := 0; index < len(c.monitorServices); index++ {
 		monitorService := c.monitorServices[index]
-		c.createOrUpdateMonitor(monitorService, monitorName, monitorURL, annotations)
+		c.createOrUpdateMonitor(monitorService, monitorName, oldMonitorName, monitorURL, annotations)
 	}
 }
 
-func (c *MonitorController) createOrUpdateMonitor(monitorService monitors.MonitorServiceProxy, monitorName string, monitorURL string, annotations map[string]string) {
-	m, _ := monitorService.GetByName(monitorName)
+func (c *MonitorController) createOrUpdateMonitor(monitorService monitors.MonitorServiceProxy, monitorName string, oldMonitorName string, monitorURL string, annotations map[string]string) {
+	m, _ := monitorService.GetByName(oldMonitorName)
 
 	if m != nil { // Monitor Already Exists
 		log.Println("Monitor already exists for ingress: " + monitorName)
-		if m.URL != monitorURL { // Monitor does not have the same url
-			// update the monitor with the new url
+		if m.URL != monitorURL || monitorName != oldMonitorName {
 			m.URL = monitorURL
+			m.Name = monitorName
 			m.Annotations = annotations
 			monitorService.Update(*m)
 		}
@@ -265,7 +282,8 @@ func (c *MonitorController) onIngressAdded(obj interface{}) {
 
 func (c *MonitorController) onIngressUpdated(old interface{}, new interface{}) {
 	c.queue.Add(IngressUpdatedAction{
-		ingress: new.(*v1beta1.Ingress),
+		ingress:    new.(*v1beta1.Ingress),
+		oldIngress: old.(*v1beta1.Ingress),
 	})
 }
 
