@@ -125,11 +125,10 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 			return nil
 		}
 		return StatusCakeMonitorMonitorsToBaseMonitorsMapper(f)
-	} else {
-		errorString := "GetAll Request failed"
-		log.Println(errorString)
-		return nil
 	}
+	errorString := "GetAll Request failed"
+	log.Println(errorString)
+	return nil
 }
 
 // Add will create a new Monitor
