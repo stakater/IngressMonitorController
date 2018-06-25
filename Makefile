@@ -1,21 +1,53 @@
-VERSION := 1.0.14
-HELMVALUES := kubernetes/chart/ingressmonitorcontroller/values.yaml
-HELMNAME := ingressmonitorcontroller
+# note: call scripts from /scripts
 
-list:
-	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | xargs
+.PHONY: default build builder-image binary-image test stop clean-images clean push apply deploy
 
-clean:
-	rm -rvf out
+BUILDER ?= ingressmonitorcontroller-builder
+BINARY ?= IngressMonitorController
+DOCKER_IMAGE ?= stakater/ingressmonitorcontroller
+
+# Default value "dev"
+DOCKER_TAG ?= dev
+REPOSITORY = ${DOCKER_IMAGE}:${DOCKER_TAG}
+
+VERSION=$(shell cat .version)
+BUILD=
+
+GOCMD = go
+GLIDECMD = glide
+GOFLAGS ?= $(GOFLAGS:)
+LDFLAGS =
+
+default: build test
+
+install:
+	"$(GLIDECMD)" install
 
 build:
-	go build -o out/ingressmonitorcontroller github.com/BoseCorp/IngressMonitorController/src
+	"$(GOCMD)" build ${GOFLAGS} ${LDFLAGS} -o "${BINARY}"
 
-docker-build:
-	docker run --rm -it -v .
+builder-image:
+	@docker build --network host -t "${BUILDER}" -f build/package/Dockerfile.build .
 
-helm-template:
-	helm template kubernetes/chart/ingressmonitorcontroller --values $(HELMVALUES) --name $(HELMNAME)
+binary-image: builder-image
+	@docker run --network host --rm "${BUILDER}" | docker build --network host -t "${REPOSITORY}" -f Dockerfile.run -
 
-helm-install:
-	helm install kubernetes/chart/ingressmonitorcontroller --values $(HELMVALUES) --name $(HELMNAME)
+test:
+	"$(GOCMD)" test -v ./...
+
+stop:
+	@docker stop "${BINARY}"
+
+clean-images: stop
+	@docker rmi "${BUILDER}" "${BINARY}"
+
+clean:
+	"$(GOCMD)" clean -i
+
+push: ## push the latest Docker image to DockerHub
+	docker push $(REPOSITORY)
+
+apply:
+	kubectl apply -f deployments/manifests/
+
+deploy: binary-image push apply

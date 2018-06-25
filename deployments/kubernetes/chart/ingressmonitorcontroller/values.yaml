@@ -1,0 +1,23 @@
+# Generated from /kubernetes/templates/chart/values.yaml.tmpl
+
+kubernetes:
+  host: https://kubernetes.default
+
+ingressMonitorController:
+  watchNamespace: "default"
+  labels:
+    provider: stakater
+    group: com.stakater.platform
+  image:
+    name: stakater/ingressmonitorcontroller
+    tag: "1.0.21"
+    pullPolicy: IfNotPresent
+  providers:
+  - name: UptimeRobot
+    apiKey: your-api-key
+    apiURL: https://google.com
+    alertContacts: some-alert-contacts
+  
+  enableMonitorDeletion: true
+  configFilePath: /etc/IngressMonitorController/config.yaml
+  monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"

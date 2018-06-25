@@ -58,6 +58,15 @@ For the list of providers, there's a number of options that you need to specify.
 
 *Note:* Follow [this](https://github.com/stakater/IngressMonitorController/blob/master/docs/fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UpTimeRobot
 
+#### Configuring through ingress annotations
+
+The following optional annotations allow you to set further configuration:
+
+| Annotation                            | Description                                                                                                                 |
+|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `"monitor.stakater.com/forceHttps"`   | If set to the string `"true"`, the monitor endpoint will use HTTPS, even if the Ingress manifest itself doesn't specify TLS |
+| `"monitor.stakater.com/overridePath"` | Set this annotation to define the healthcheck path for this monitor, overriding the controller's default logic              |
+
 #### Deploying
 
 You can deploy the controller in the namespace you want to monitor by running the following kubectl commands:
@@ -70,13 +79,25 @@ kubectl apply -f deployment.yaml -n <namespace>
 
 *Note*: Before applying rbac.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply rbac.yaml to.
 
+#### Using 1 Ingress Monitor Controller for all namespaces
+
+By default the controller watches in the `default` namespace. If you want to use 1 instance of Ingress Monitor Controller for your cluster, you can follow 1 of the steps below:
+
+##### Via Helm Chart
+
+Set `watchNamespace` to `null` in `values.yaml` before applying the helm chart and the controller will then watch in all namespaces.
+
+##### Via Kubernetes Manifests
+
+Apply the manifests located under `/examples/watch-all-namespaces/` in any namespace and then the deployed controller will watch in all namespaces.
+
 ### Helm Charts
 
 Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `kubernetes/chart` folder.
 
 ## Adding support for a new Monitor
 
-You can easily implement a new monitor and use it via the controller. First of all, you will need to create a new service struct that implements the following monitor service interface
+You can easily implement a new monitor and use it via the controller. First of all you will need to create a folder under `/pkg/monitors/` with the name of the new monitor and then you will create a new service struct inside this folder that implements the following monitor service interface
 
 ```go
 type MonitorService interface {
@@ -151,6 +172,25 @@ PRs are welcome. In general, we follow the "fork-and-pull" Git workflow.
 
 NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 
+### Running Tests Locally
+
+Tests require a Kubernetes instance to talk to with a `test` namespace created, and a config with a valid UptimeRobot `apiKey` and `alertContacts`. For example, on MacOS with Homebrew and Minikube, you could accomplish this like
+
+```bash
+# install dependencies
+$ brew install glide
+$ glide update
+
+# while still in the root folder, configure test setup
+$ export CONFIG_FILE_PATH=$(pwd)/configs/testConfigs/test-config.yaml 
+# update the apikey and alertContacts in this file and the config_test.go file (`correctTestAPIKey` and `correctTestAlertContacts` contstants)
+$ minikube start
+$ kubectl create namespace test
+
+# run the following command in the root folder
+$ make test
+```
+
 ## Changelog
 
 View our closed [Pull Requests](https://github.com/stakater/IngressMonitorController/pulls?q=is%3Apr+is%3Aclosed).
@@ -171,6 +211,4 @@ or contact us in case of professional services and queries on <hello@stakater.co
 
 ## Contributers
 
-[Waseem Hassan](https://github.com/waseem-h)            |  [Hazim](https://github.com/hazim1093) | [Rasheed Amir](https://github.com/rasheedamir)
-:-------------------------:|:-------------------------:|:---------------------------------:
-[![Waseem Hassan](https://avatars3.githubusercontent.com/u/34707418?s=144&v=4)](https://github.com/waseem-h) |  [![Hazim](https://avatars2.githubusercontent.com/u/11160747?s=144&v=4)](https://github.com/hazim1093) | [![Rasheed Amir](https://avatars3.githubusercontent.com/u/3967672?s=144&v=4)](https://github.com/rasheedamir)
+Stakater Team and the Open Source community! :trophy:

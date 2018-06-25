@@ -1,5 +1,3 @@
-src/vendor
-src/glide.lock
-
+vendor
 .idea
 \.vscode/
