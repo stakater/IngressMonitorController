@@ -274,16 +274,8 @@ func TestUpdateIngressNameAnnotationShouldUpdateMonitorAndDelete(t *testing.T) {
 
 	time.Sleep(5 * time.Second)
 
-	// Old monitor name can be used to fetch the new monitor
-	checkMonitorWithName(t, monitorName, true)
-
-	service := getMonitorService()
-	monitor, err := service.GetByName(monitorName)
-
-	if monitor.Name == monitorName || monitor.Name != updatedMonitorName {
-		t.Error("Monitor name is not updated but it should be")
-	}
-
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
 	// Monitor with updated name should exist
 	checkMonitorWithName(t, updatedMonitorName, true)
 

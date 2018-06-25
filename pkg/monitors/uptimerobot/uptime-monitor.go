@@ -33,13 +33,17 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 	response := client.PostUrlEncodedFormBody(body)
 
 	if response.StatusCode == 200 {
-
 		var f UptimeMonitorGetMonitorsResponse
 		json.Unmarshal(response.Bytes, &f)
 
-		if f.Monitors != nil && len(f.Monitors) > 0 {
-			return UptimeMonitorMonitorToBaseMonitorMapper(f.Monitors[0]), nil
+		if f.Monitors != nil {
+			for _, monitor := range f.Monitors {
+				if monitor.FriendlyName == name {
+					return UptimeMonitorMonitorToBaseMonitorMapper(monitor), nil
+				}
+			}
 		}
+
 		return nil, nil
 	}
 
