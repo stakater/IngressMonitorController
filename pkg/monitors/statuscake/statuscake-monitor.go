@@ -18,6 +18,7 @@ type StatusCakeMonitorService struct {
 	apiKey   string
 	url      string
 	username string
+	cgroup   string
 	client   *http.Client
 }
 
@@ -29,31 +30,39 @@ type AnnotationInfo struct {
 
 // AnnotationMap holds all the enabled annotations for StatusCake
 var AnnotationMap = map[string]AnnotationInfo{
-	"monitor.stakater.com/statuscake/check-rate":      AnnotationInfo{"CheckRate", "int"},       // Int (0-24000)
-	"monitor.stakater.com/statuscake/test-type":       AnnotationInfo{"TestType", "string"},     // String (HTTP, TCP, PING)
-	"monitor.stakater.com/statuscake/paused":          AnnotationInfo{"Paused", "bool"},         // Int (0,1)
-	"monitor.stakater.com/statuscake/ping-url":        AnnotationInfo{"PingURL", "string"},      // String (url)
-	"monitor.stakater.com/statuscake/follow-redirect": AnnotationInfo{"FollowRedirect", "bool"}, // Int (0,1)
-	"monitor.stakater.com/statuscake/port":            AnnotationInfo{"Port", "int"},            // Int (TCP Port)
-	"monitor.stakater.com/statuscake/trigger-rate":    AnnotationInfo{"TriggerRate", "int"},     // Int (0-60)
-	"monitor.stakater.com/statuscake/contact-group":   AnnotationInfo{"ContactGroup", "string"}} // String (0-60)
+	"monitor.stakater.com/statuscake-check-rate":      AnnotationInfo{"CheckRate", "int"},       // Int (0-24000)
+	"monitor.stakater.com/statuscake-test-type":       AnnotationInfo{"TestType", "string"},     // String (HTTP, TCP, PING)
+	"monitor.stakater.com/statuscake-paused":          AnnotationInfo{"Paused", "bool"},         // Int (0,1)
+	"monitor.stakater.com/statuscake-ping-url":        AnnotationInfo{"PingURL", "string"},      // String (url)
+	"monitor.stakater.com/statuscake-follow-redirect": AnnotationInfo{"FollowRedirect", "bool"}, // Int (0,1)
+	"monitor.stakater.com/statuscake-port":            AnnotationInfo{"Port", "int"},            // Int (TCP Port)
+	"monitor.stakater.com/statuscake-trigger-rate":    AnnotationInfo{"TriggerRate", "int"},     // Int (0-60)
+	"monitor.stakater.com/statuscake-contact-group":   AnnotationInfo{"ContactGroup", "string"}} // String (0-60)
 
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
-func buildUpsertForm(m models.Monitor) url.Values {
+func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	f := url.Values{}
 	f.Add("WebsiteName", m.Name)
 	f.Add("WebsiteURL", m.URL)
-	if val, ok := m.Annotations["monitor.stakater.com/statuscake/check-rate"]; ok {
+	if val, ok := m.Annotations["monitor.stakater.com/statuscake-check-rate"]; ok {
 		f.Add("CheckRate", val)
-		delete(m.Annotations, "monitor.stakater.com/statuscake/check-rate")
+		delete(m.Annotations, "monitor.stakater.com/statuscake-check-rate")
 	} else {
 		f.Add("CheckRate", "300")
 	}
-	if val, ok := m.Annotations["monitor.stakater.com/statuscake/test-type"]; ok {
+	if val, ok := m.Annotations["monitor.stakater.com/statuscake-test-type"]; ok {
 		f.Add("TestType", val)
-		delete(m.Annotations, "monitor.stakater.com/statuscake/test-type")
+		delete(m.Annotations, "monitor.stakater.com/statuscake-test-type")
 	} else {
 		f.Add("TestType", "HTTP")
+	}
+	if val, ok := m.Annotations["monitor.stakater.com/statuscake-contact-group"]; ok {
+		f.Add("ContactGroup", val)
+		delete(m.Annotations, "monitor.stakater.com/statuscake-contact-group")
+	} else {
+		if cgroup != "" {
+			f.Add("ContactGroup", cgroup)
+		}
 	}
 	for key, value := range m.Annotations {
 		if (AnnotationInfo{}) != AnnotationMap[key] {
@@ -81,6 +90,7 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 	service.apiKey = p.ApiKey
 	service.url = p.ApiURL
 	service.username = p.Username
+	service.cgroup = p.AlertContacts
 	service.client = &http.Client{}
 }
 
@@ -140,7 +150,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 	}
 	u.Path = "/API/Tests/Update"
 	u.Scheme = "https"
-	data := buildUpsertForm(m)
+	data := buildUpsertForm(m, service.cgroup)
 	req, err := http.NewRequest("PUT", u.String(), bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		log.Println(err)
@@ -181,7 +191,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 	}
 	u.Path = "/API/Tests/Update"
 	u.Scheme = "https"
-	data := buildUpsertForm(m)
+	data := buildUpsertForm(m, service.cgroup)
 	data.Add("TestID", m.ID)
 	req, err := http.NewRequest("PUT", u.String(), bytes.NewBufferString(data.Encode()))
 	if err != nil {
