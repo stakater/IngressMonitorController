@@ -204,6 +204,90 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 }
 
+func TestAddIngressWithNameAnnotationShouldCreateMonitorAndDelete(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "testingingress"
+
+	controller := getControllerWithNamespace(namespace, true)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotationToIngress(ingress, true)
+
+	monitorName := "monitor-friendly-name"
+	ingress = addMonitorNameAnnotationToIngress(ingress, monitorName)
+
+	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	// Should exist
+	checkMonitorWithName(t, monitorName, true)
+
+	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(5 * time.Second)
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+}
+
+func TestUpdateIngressNameAnnotationShouldUpdateMonitorAndDelete(t *testing.T) {
+	namespace := "test"
+	url := "google.com"
+	ingressName := "name-annotation-ingress"
+
+	controller := getControllerWithNamespace(namespace, true)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotationToIngress(ingress, true)
+
+	monitorName := "monitor-friendly-name"
+	ingress = addMonitorNameAnnotationToIngress(ingress, monitorName)
+
+	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	updatedMonitorName := "monitor-friendly-name-updated"
+	ingress = addMonitorNameAnnotationToIngress(ingress, updatedMonitorName)
+	result, err = controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Updated ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+	// Monitor with updated name should exist
+	checkMonitorWithName(t, updatedMonitorName, true)
+
+	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(5 * time.Second)
+
+	// Should not exist
+	checkMonitorWithName(t, monitorName, false)
+	checkMonitorWithName(t, updatedMonitorName, false)
+}
+
 func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
@@ -867,6 +951,15 @@ func addMonitorAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue boo
 		ingress.Annotations = annotations
 	}
 	ingress.Annotations["monitor.stakater.com/enabled"] = strconv.FormatBool(annotationValue)
+	return ingress
+}
+
+func addMonitorNameAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue string) *v1beta1.Ingress {
+	if ingress.Annotations == nil {
+		annotations := make(map[string]string)
+		ingress.Annotations = annotations
+	}
+	ingress.Annotations["monitor.stakater.com/name"] = annotationValue
 	return ingress
 }
 
