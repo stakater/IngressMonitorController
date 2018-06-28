@@ -30,14 +30,14 @@ type AnnotationInfo struct {
 
 // AnnotationMap holds all the enabled annotations for StatusCake
 var AnnotationMap = map[string]AnnotationInfo{
-	"monitor.stakater.com/statuscake-check-rate":      AnnotationInfo{"CheckRate", "int"},       // Int (0-24000)
-	"monitor.stakater.com/statuscake-test-type":       AnnotationInfo{"TestType", "string"},     // String (HTTP, TCP, PING)
-	"monitor.stakater.com/statuscake-paused":          AnnotationInfo{"Paused", "bool"},         // Int (0,1)
-	"monitor.stakater.com/statuscake-ping-url":        AnnotationInfo{"PingURL", "string"},      // String (url)
-	"monitor.stakater.com/statuscake-follow-redirect": AnnotationInfo{"FollowRedirect", "bool"}, // Int (0,1)
-	"monitor.stakater.com/statuscake-port":            AnnotationInfo{"Port", "int"},            // Int (TCP Port)
-	"monitor.stakater.com/statuscake-trigger-rate":    AnnotationInfo{"TriggerRate", "int"},     // Int (0-60)
-	"monitor.stakater.com/statuscake-contact-group":   AnnotationInfo{"ContactGroup", "string"}} // String (0-60)
+	"statuscake.monitor.stakater.com/check-rate":      AnnotationInfo{"CheckRate", "int"},       // Int (0-24000)
+	"statuscake.monitor.stakater.com/test-type":       AnnotationInfo{"TestType", "string"},     // String (HTTP, TCP, PING)
+	"statuscake.monitor.stakater.com/paused":          AnnotationInfo{"Paused", "bool"},         // Int (0,1)
+	"statuscake.monitor.stakater.com/ping-url":        AnnotationInfo{"PingURL", "string"},      // String (url)
+	"statuscake.monitor.stakater.com/follow-redirect": AnnotationInfo{"FollowRedirect", "bool"}, // Int (0,1)
+	"statuscake.monitor.stakater.com/port":            AnnotationInfo{"Port", "int"},            // Int (TCP Port)
+	"statuscake.monitor.stakater.com/trigger-rate":    AnnotationInfo{"TriggerRate", "int"},     // Int (0-60)
+	"statuscake.monitor.stakater.com/contact-group":   AnnotationInfo{"ContactGroup", "string"}} // String (0-60)
 
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
 func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
