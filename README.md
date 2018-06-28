@@ -110,6 +110,8 @@ type MonitorService interface {
 }
 ```
 
+*Note:* While developing, make sure to follow the conventions mentioned [here](https://github.com/stakater/IngressMonitorController/blob/master/docs/developing/conventions.md)
+
 Once the implementation of your service is done, you have to open up `monitor-proxy.go` and add a new case inside `OfType` method for your new monitor. Lets say you have named your service `MyNewMonitorService`, then you have to add the case like in the example below:
 
 ```go
