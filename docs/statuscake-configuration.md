@@ -4,11 +4,11 @@ Currently additional Statuscake configurations can be added through a set of ann
 
 |                        Annotation                        |                    Description                   |
 |:--------------------------------------------------------:|:------------------------------------------------:|
-| monitor.stakater.com/statuscake-check-rate               | Set Check Rate for the monitor (default: 300)    |
-| monitor.stakater.com/statuscake-test-type                | Set Test type - HTTP, TCP, PING (default: HTTP)  |
-| monitor.stakater.com/statuscake-paused                   | Pause the service                                |
-| monitor.stakater.com/statuscake-ping-url                 | Webhook for alerts                               |
-| monitor.stakater.com/statuscake-follow-redirect          | Enable ingress redirects                         |
-| monitor.stakater.com/statuscake-port                     | TCP Port                                         |
-| monitor.stakater.com/statuscake-trigger-rate             | Minutes to wait before sending an alert          |
-| monitor.stakater.com/statuscake-contact-group            | Contact Group to be alerted.                     |
+| statuscake.monitor.stakater.com/check-rate               | Set Check Rate for the monitor (default: 300)    |
+| statuscake.monitor.stakater.com/test-type                | Set Test type - HTTP, TCP, PING (default: HTTP)  |
+| statuscake.monitor.stakater.com/paused                   | Pause the service                                |
+| statuscake.monitor.stakater.com/ping-url                 | Webhook for alerts                               |
+| statuscake.monitor.stakater.com/follow-redirect          | Enable ingress redirects                         |
+| statuscake.monitor.stakater.com/port                     | TCP Port                                         |
+| statuscake.monitor.stakater.com/trigger-rate             | Minutes to wait before sending an alert          |
+| statuscake.monitor.stakater.com/contact-group            | Contact Group to be alerted.                     |
