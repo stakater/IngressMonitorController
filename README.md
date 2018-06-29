@@ -80,7 +80,7 @@ kubectl apply -f deployment.yaml -n <namespace>
 
 *Note*: Before applying rbac.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply rbac.yaml to.
 
-#### Running Ingress Monitor Controller in for a single namespace
+#### Running Ingress Monitor Controller for a single namespace
 
 By default the controller watches in all namespaces. If you want to use Ingress Monitor Controller for a specific namespace in your cluster, you can follow 1 of the steps below:
 
