@@ -11,7 +11,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := StatusCakeMonitorService{}
-	service.Setup(config.Providers[0])
+	service.Setup(config.Providers[1])
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
@@ -31,7 +31,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := StatusCakeMonitorService{}
-	service.Setup(config.Providers[0])
+	service.Setup(config.Providers[1])
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
