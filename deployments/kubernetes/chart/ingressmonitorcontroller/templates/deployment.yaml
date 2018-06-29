@@ -31,8 +31,10 @@ spec:
     spec:
       containers:
       - env:
+      {{- if .Values.ingressMonitorController.watchNamespace }}
         - name: KUBERNETES_NAMESPACE
-          value: {{ default .Values.ingressMonitorController.watchNamespace .Release.Namespace | quote }}
+          value: {{ .Values.ingressMonitorController.watchNamespace | quote }}
+      {{- end }}
         - name: CONFIG_FILE_PATH
           value: {{ .Values.ingressMonitorController.configFilePath }}
         image: "{{ .Values.ingressMonitorController.image.name }}:{{ .Values.ingressMonitorController.image.tag }}"

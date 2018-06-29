@@ -12,7 +12,7 @@ We want to monitor ingresses in a kubernetes cluster via any uptime checker but 
 
 ## Solution
 
-This controller will continuously watch ingresses in the namespace it is running, and automatically add / remove monitors in any of the uptime checkers. With the help of this solution, you can keep a check on your services and see whether they're up and running and live.
+This controller will continuously watch ingresses in all namespaces, and automatically add / remove monitors in any of the uptime checkers. With the help of this solution, you can keep a check on your services and see whether they're up and running and live.
 
 ## Supported Uptime Checkers
 
@@ -46,6 +46,7 @@ First of all you need to modify `configmap.yaml`'s `config.yaml` file. Following
 |-----------------------|-------------------------------------------------------------------------------|
 | providers             | An array of uptime providers that you want to add to your controller          |
 | enableMonitorDeletion | A safeguard flag that is used to enable or disable monitor deletion on ingress deletion (Useful for prod environments where you don't want to remove monitor on ingress deletion) |
+| watchNamespace        | Name of the namespace if you want to monitor ingresses only in that namespace. Defaults to null |
 
 For the list of providers, there's a number of options that you need to specify. The table below lists them:
 
@@ -80,21 +81,21 @@ kubectl apply -f deployment.yaml -n <namespace>
 
 *Note*: Before applying rbac.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply rbac.yaml to.
 
-#### Using 1 Ingress Monitor Controller for all namespaces
+#### Running Ingress Monitor Controller for a single namespace
 
-By default the controller watches in the `default` namespace. If you want to use 1 instance of Ingress Monitor Controller for your cluster, you can follow 1 of the steps below:
+By default the controller watches in all namespaces. If you want to use Ingress Monitor Controller for a specific namespace in your cluster, you can follow 1 of the steps below:
 
 ##### Via Helm Chart
 
-Set `watchNamespace` to `null` in `values.yaml` before applying the helm chart and the controller will then watch in all namespaces.
+Set `watchNamespace` to `<namespace-name>` in `values.yaml` before applying the helm chart and the controller will then watch in that namespace.
 
 ##### Via Kubernetes Manifests
 
-Apply the manifests located under `/examples/watch-all-namespaces/` in any namespace and then the deployed controller will watch in all namespaces.
+Add environment variable `KUBERNETES_NAMESPACE` in `deployments/kubernetes/manifests/deployment.yaml` and set its value to the namespace you want to watch in. After that, apply the manifests located under `deployments/kubernetes/examples/watch-all-namespaces/` in any namespace. The deployed controller will now watch only that namespace.
 
 ### Helm Charts
 
-Or alternatively if you configured `helm` on your cluster, you can deploy the controller via helm chart located under `kubernetes/chart` folder.
+If you configured `helm` on your cluster, you can deploy the controller via helm chart located under `kubernetes/chart` folder.
 
 ## Adding support for a new Monitor
 
@@ -110,6 +111,8 @@ type MonitorService interface {
     Setup(provider Provider)
 }
 ```
+
+*Note:* While developing, make sure to follow the conventions mentioned [here](https://github.com/stakater/IngressMonitorController/blob/master/docs/developing/conventions.md)
 
 Once the implementation of your service is done, you have to open up `monitor-proxy.go` and add a new case inside `OfType` method for your new monitor. Lets say you have named your service `MyNewMonitorService`, then you have to add the case like in the example below:
 
@@ -183,7 +186,7 @@ $ brew install glide
 $ glide update
 
 # while still in the root folder, configure test setup
-$ export CONFIG_FILE_PATH=$(pwd)/configs/testConfigs/test-config.yaml 
+$ export CONFIG_FILE_PATH=$(pwd)/configs/testConfigs/test-config.yaml
 # update the apikey and alertContacts in this file and the config_test.go file (`correctTestAPIKey` and `correctTestAlertContacts` contstants)
 $ minikube start
 $ kubectl create namespace test
@@ -191,6 +194,26 @@ $ kubectl create namespace test
 # run the following command in the root folder
 $ make test
 ```
+
+### Test config for monitors
+
+When running monitor test cases, make sure to provide a config similar to the following, making sure that the order of providers is the same as below:
+
+```yaml
+providers:
+  - name: UptimeRobot
+    apiKey: <your-api-key>
+    apiURL: https://api.uptimerobot.com/v2/
+    alertContacts: <your-alert-contacts>
+  - name: StatusCake
+    apiKey: <your-api-key>
+    apiURL: https://app.statuscake.com/API/
+    username: <your-account-username>
+enableMonitorDeletion: true
+monitorNameTemplate: "{{.IngressName}}-{{.Namespace}}"
+```
+
+For example if you want to run only test cases for `StatusCake`, the 1st block of provider should still be present since test cases are written in that way.
 
 ## Changelog
 
