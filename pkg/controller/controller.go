@@ -169,7 +169,7 @@ func (c *MonitorController) createOrUpdateMonitor(monitorService monitors.Monito
 		log.Println("Monitor already exists for ingress: " + monitorName)
 		m.URL = monitorURL
 		m.Annotations = annotations
-			m.Name = monitorName
+		m.Name = monitorName
 		monitorService.Update(*m)
 	} else {
 		// Create a new monitor for this ingress
