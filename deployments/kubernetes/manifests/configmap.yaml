@@ -7,10 +7,10 @@ metadata:
     fabric8.io/target-platform: kubernetes
   labels:
     app: ingressmonitorcontroller
-    version: 1.0.24
+    version: 1.0.25
     group: com.stakater.platform
     provider: stakater
-    chart: "ingressmonitorcontroller-1.0.24"
+    chart: "ingressmonitorcontroller-1.0.25"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: ingressmonitorcontroller
@@ -20,6 +20,7 @@ data:
     - name: UptimeRobot
       apiKey: your-api-key
       apiURL: https://google.com
+      username: null
       alertContacts: some-alert-contacts
     enableMonitorDeletion: true
     monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"

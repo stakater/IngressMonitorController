@@ -5,19 +5,18 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    version: 1.0.24
+    version: 1.0.25
     group: com.stakater.platform
     provider: stakater
-    chart: "ingressmonitorcontroller-1.0.24"
+    chart: "ingressmonitorcontroller-1.0.25"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: ingressmonitorcontroller
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: Role
+kind: ClusterRole
 metadata:
   name: ingressmonitorcontroller-role
-  namespace: "default"
 rules:
   - apiGroups:
       - ""
@@ -41,16 +40,15 @@ rules:
       - get
       - watch
 ---
+kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: RoleBinding
 metadata:
   name: ingressmonitorcontroller-role-binding
-  namespace: "default"
 roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
+  kind: ClusterRole
   name: ingressmonitorcontroller-role
+  apiGroup: rbac.authorization.k8s.io
 subjects:
-  - kind: ServiceAccount
-    name: ingressmonitorcontroller
-    namespace: "tools"
+- kind: ServiceAccount
+  name: ingressmonitorcontroller
+  namespace: tools

@@ -1,6 +1,6 @@
 # note: call scripts from /scripts
 
-.PHONY: default build builder-image binary-image test stop clean-images clean push apply deploy
+.PHONY: default build builder-image binary-image test stop clean-images clean push apply deploy helm-template helm-install
 
 BUILDER ?= ingressmonitorcontroller-builder
 BINARY ?= IngressMonitorController
@@ -17,6 +17,10 @@ GOCMD = go
 GLIDECMD = glide
 GOFLAGS ?= $(GOFLAGS:)
 LDFLAGS =
+
+HELMPATH= deployments/kubernetes/chart/ingressmonitorcontroller
+HELMVALUES = $(HELMPATH)/values.yaml
+HELMNAME = IMC
 
 default: build test
 
@@ -51,3 +55,9 @@ apply:
 	kubectl apply -f deployments/manifests/
 
 deploy: binary-image push apply
+
+helm-template:
+	helm template $(HELMPATH) --values $(HELMVALUES) --name $(HELMNAME)
+
+helm-install:
+	helm install $(HELMPATH) --values $(HELMVALUES) --name $(HELMNAME)
