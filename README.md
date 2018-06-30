@@ -20,6 +20,7 @@ Currently we support the following monitors:
 
 - [UptimeRobot](https://uptimerobot.com)
 - [Pingdom](https://pingdom.com) ([Additional Config](https://github.com/stakater/IngressMonitorController/blob/master/docs/pingdom-configuration.md))
+- [StatusCake](https://www.statuscake.com) ([Additional Config](https://github.com/stakater/IngressMonitorController/blob/master/docs/statuscake-configuration.md))
 
 ## Deploying to Kubernetes
 
