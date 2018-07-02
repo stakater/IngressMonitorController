@@ -21,9 +21,9 @@ import (
 )
 
 var (
-	ingressNamePrefix = "testingress-imc-"
-	podNamePrefix     = "testpod-imc-"
-	serviceNamePrefix = "testservice-imc-"
+	ingressNamePrefix = "ingress-imc-"
+	podNamePrefix     = "pod-imc-"
+	serviceNamePrefix = "service-imc-"
 	letters           = []rune("abcdefghijklmnopqrstuvwxyz")
 )
 
