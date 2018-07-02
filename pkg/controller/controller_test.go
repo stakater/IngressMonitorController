@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
 	"testing"
 	"time"
@@ -19,10 +20,26 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+var (
+	ingressNamePrefix = "testingress-imc-"
+	podNamePrefix     = "testpod-imc-"
+	serviceNamePrefix = "testservice-imc-"
+	letters           = []rune("abcdefghijklmnopqrstuvwxyz")
+)
+
+func randSeq(n int) string {
+	rand.Seed(time.Now().UnixNano())
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
 func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -54,7 +71,7 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 	monitorTemplate := "{{.IngressName}}-{{.Namespace}}-hello"
 
 	controller := getControllerWithNamespace(namespace, true)
@@ -100,7 +117,7 @@ func TestInvalidMonitorTemplateShouldPanic(t *testing.T) {
 func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -137,7 +154,7 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -169,7 +186,7 @@ func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
 func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -207,7 +224,7 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 func TestAddIngressWithNameAnnotationShouldCreateMonitorAndDelete(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -291,7 +308,7 @@ func TestUpdateIngressNameAnnotationShouldUpdateMonitorAndDelete(t *testing.T) {
 func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -336,7 +353,7 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -384,7 +401,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
 	newUrl := "facebook.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -452,7 +469,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
 
@@ -499,7 +516,7 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAndNotDelete(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
+	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
 
@@ -539,9 +556,9 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
-	podName := "testingpod"
-	serviceName := "testingservice"
+	ingressName := ingressNamePrefix + randSeq(5)
+	podName := podNamePrefix + randSeq(5)
+	serviceName := serviceNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
 
@@ -613,9 +630,9 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonit
 func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShouldCreateMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
-	podName := "testingpod"
-	serviceName := "testingservice"
+	ingressName := ingressNamePrefix + randSeq(5)
+	podName := podNamePrefix + randSeq(5)
+	serviceName := serviceNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
 
@@ -685,9 +702,9 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreateMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
-	podName := "testingpod"
-	serviceName := "testingservice"
+	ingressName := ingressNamePrefix + randSeq(5)
+	podName := podNamePrefix + randSeq(5)
+	serviceName := serviceNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
 
@@ -759,9 +776,9 @@ func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreat
 func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMonitor(t *testing.T) {
 	namespace := "test"
 	url := "google.com"
-	ingressName := "testingingress"
-	podName := "somerandompod"
-	serviceName := "testingservice"
+	ingressName := ingressNamePrefix + randSeq(5)
+	podName := podNamePrefix + randSeq(5)
+	serviceName := serviceNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
 
