@@ -1017,12 +1017,15 @@ func getControllerWithNamespace(namespace string, enableDeletion bool) *MonitorC
 	}
 
 	// fetche and create controller config from file
-	config := config.GetControllerConfig()
+	c := config.GetControllerConfig()
 
-	config.EnableMonitorDeletion = enableDeletion
+	// Only run controller with the 1st provider for tests
+	c.Providers = []config.Provider{c.Providers[0]}
+
+	c.EnableMonitorDeletion = enableDeletion
 
 	// create the monitoring controller
-	controller := NewMonitorController(namespace, kubeClient, config)
+	controller := NewMonitorController(namespace, kubeClient, c)
 
 	return controller
 }
