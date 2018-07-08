@@ -23,6 +23,6 @@ detected so you can quickly resolve the root cause and prevent potential escalat
 
 IngressMonitorController (IMC) offers exactly these features:
 
-- Automatically create new URL endpoint monitors when new applications are deployed
-- Automatically update URL endpoint monitors when applications are changed/updated
-- Automatically delete URL endpoint monitors when applications are deleted/removed
+- Automatically create new URL endpoint monitors in Pingdom when new applications / services / microservices / REST API's are deployed in Kubernetes
+- Automatically update URL endpoint monitors in Pingdom when applications / services / microservices / REST API's are changed/updated in Kubernetes
+- Automatically delete URL endpoint monitors in Pingdom when applications / services / microservices / REST API's are deleted/removed in Kubernetes
