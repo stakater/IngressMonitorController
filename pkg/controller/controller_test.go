@@ -40,12 +40,28 @@ func generateRandomURL() string {
 	return randSeq(15) + ".com"
 }
 
+func createNamespace(t *testing.T, kubeClient kubernetes.Interface, namespace string) {
+	_, err := kubeClient.Core().Namespaces().Create(&v1.Namespace{ObjectMeta: meta_v1.ObjectMeta{Name: namespace}})
+	if err != nil {
+		t.Error("Failed to create namespace for testing", err)
+	}
+}
+
+func deleteNamespace(t *testing.T, kubeClient kubernetes.Interface, namespace string) {
+	err := kubeClient.Core().Namespaces().Delete(namespace, &meta_v1.DeleteOptions{})
+	if err != nil {
+		t.Error("Failed to delete namespace that was created for testing", err)
+	}
+}
+
 func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -73,12 +89,14 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 }
 
 func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 	monitorTemplate := "{{.IngressName}}-{{.Namespace}}-hello"
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	controller.config.MonitorNameTemplate = monitorTemplate
 
@@ -119,11 +137,13 @@ func TestInvalidMonitorTemplateShouldPanic(t *testing.T) {
 }
 
 func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -156,11 +176,13 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 }
 
 func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -188,11 +210,13 @@ func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
 }
 
 func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
@@ -226,11 +250,13 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 }
 
 func TestAddIngressWithNameAnnotationShouldCreateMonitorAndDelete(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -264,11 +290,13 @@ func TestAddIngressWithNameAnnotationShouldCreateMonitorAndDelete(t *testing.T) 
 }
 
 func TestUpdateIngressNameAnnotationShouldUpdateMonitorAndDelete(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := "name-annotation-ingress"
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -310,11 +338,13 @@ func TestUpdateIngressNameAnnotationShouldUpdateMonitorAndDelete(t *testing.T) {
 }
 
 func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
@@ -355,11 +385,13 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 }
 
 func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
@@ -402,12 +434,14 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 }
 
 func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	newURL := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
@@ -471,11 +505,13 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 }
 
 func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
@@ -518,11 +554,13 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 }
 
 func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAndNotDelete(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -558,13 +596,15 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 }
 
 func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonitor(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 	podName := podNamePrefix + randSeq(5)
 	serviceName := serviceNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -632,13 +672,15 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonit
 }
 
 func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShouldCreateMonitor(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 	podName := podNamePrefix + randSeq(5)
 	serviceName := serviceNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -705,13 +747,15 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 }
 
 func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreateMonitor(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 	podName := podNamePrefix + randSeq(5)
 	serviceName := serviceNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -780,13 +824,15 @@ func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreat
 }
 
 func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMonitor(t *testing.T) {
-	namespace := "test"
+	namespace := randSeq(10)
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 	podName := podNamePrefix + randSeq(5)
 	serviceName := serviceNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, false)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
 
 	stop := make(chan struct{})
 	defer close(stop)
