@@ -425,7 +425,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 	}
 	log.Printf("Updated ingress %q.\n", ingress.GetObjectMeta().GetName())
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
