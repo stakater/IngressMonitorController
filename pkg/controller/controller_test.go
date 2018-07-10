@@ -404,7 +404,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 	namespace := "test"
 	url := generateRandomURL()
-	newUrl := generateRandomURL()
+	newURL := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
 	controller := getControllerWithNamespace(namespace, true)
@@ -434,7 +434,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
 	// Update url
-	ingress.Spec.Rules[0].Host = newUrl
+	ingress.Spec.Rules[0].Host = newURL
 
 	ingress, err = controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Update(ingress)
 	if err != nil {
@@ -457,7 +457,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 			t.Error("Monitor with name" + monitorName + " does not exist")
 		}
 
-		if monitor.URL != "http://"+newUrl {
+		if monitor.URL != "http://"+newURL {
 			t.Error("Monitor did not update")
 		}
 	}

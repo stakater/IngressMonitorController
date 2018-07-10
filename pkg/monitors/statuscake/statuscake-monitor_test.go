@@ -34,7 +34,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	monitor, err := service.GetByName(mRes.Name)
 
 	if monitor != nil {
-		t.Error("Monitor should've been deleted ", monitor)
+		t.Error("Monitor should've been deleted ", monitor, err)
 	}
 }
 
@@ -79,6 +79,6 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	monitor, err := service.GetByName(mRes.Name)
 
 	if monitor != nil {
-		t.Error("Monitor should've been deleted ", monitor)
+		t.Error("Monitor should've been deleted ", monitor, err)
 	}
 }
