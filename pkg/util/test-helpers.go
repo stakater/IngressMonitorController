@@ -3,6 +3,7 @@ package util
 import (
 	"testing"
 
+	"github.com/stakater/IngressMonitorController/pkg/config"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"k8s.io/api/extensions/v1beta1"
@@ -33,4 +34,14 @@ func CreateIngressObject(ingressName string, namespace string, url string) *v1be
 	}
 
 	return ingress
+}
+
+func GetProviderWithName(controllerConfig config.Config, name string) *config.Provider {
+	for _, provider := range controllerConfig.Providers {
+		if provider.Name == name {
+			return &provider
+		}
+	}
+
+	return nil
 }

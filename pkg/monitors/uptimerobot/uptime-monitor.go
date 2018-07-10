@@ -94,7 +94,6 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 			log.Println("Monitor Added: " + m.Name)
 		} else {
 			log.Println("Monitor couldn't be added: " + m.Name)
-			log.Println(string(body))
 		}
 	} else {
 		log.Printf("AddMonitor Request failed. Status Code: " + string(response.StatusCode))
@@ -118,7 +117,6 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 			log.Println("Monitor Updated: " + m.Name)
 		} else {
 			log.Println("Monitor couldn't be updated: " + m.Name)
-			log.Println(string(body))
 		}
 	} else {
 		log.Println("UpdateMonitor Request failed. Status Code: " + string(response.StatusCode))
