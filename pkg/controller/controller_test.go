@@ -41,14 +41,14 @@ func generateRandomURL() string {
 }
 
 func createNamespace(t *testing.T, kubeClient kubernetes.Interface, namespace string) {
-	_, err := kubeClient.Core().Namespaces().Create(&v1.Namespace{ObjectMeta: meta_v1.ObjectMeta{Name: namespace}})
+	_, err := kubeClient.CoreV1().Namespaces().Create(&v1.Namespace{ObjectMeta: meta_v1.ObjectMeta{Name: namespace}})
 	if err != nil {
 		t.Error("Failed to create namespace for testing", err)
 	}
 }
 
 func deleteNamespace(t *testing.T, kubeClient kubernetes.Interface, namespace string) {
-	err := kubeClient.Core().Namespaces().Delete(namespace, &meta_v1.DeleteOptions{})
+	err := kubeClient.CoreV1().Namespaces().Delete(namespace, &meta_v1.DeleteOptions{})
 	if err != nil {
 		t.Error("Failed to delete namespace that was created for testing", err)
 	}
