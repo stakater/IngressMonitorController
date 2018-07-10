@@ -5,15 +5,20 @@ import (
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 )
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := StatusCakeMonitorService{}
-	service.Setup(config.Providers[1])
+	provider := util.GetProviderWithName(config, "StatusCake")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+	m := models.Monitor{Name: "google-test", URL: "https://google1.com"}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
@@ -25,13 +30,24 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		t.Error("URL and name should be the same")
 	}
 	service.Remove(*mRes)
+
+	monitor, err := service.GetByName(mRes.Name)
+
+	if monitor != nil {
+		t.Error("Monitor should've been deleted ", monitor)
+	}
 }
 
 func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := StatusCakeMonitorService{}
-	service.Setup(config.Providers[1])
+
+	provider := util.GetProviderWithName(config, "StatusCake")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
@@ -59,4 +75,10 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	}
 
 	service.Remove(*mRes)
+
+	monitor, err := service.GetByName(mRes.Name)
+
+	if monitor != nil {
+		t.Error("Monitor should've been deleted ", monitor)
+	}
 }
