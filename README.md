@@ -24,6 +24,10 @@ Currently we support the following monitors:
 
 ## Deploying to Kubernetes
 
+### Supported Kubernetes versions
+
+Ingress Monitor Controller has been tested with Kubernetes version 1.8.x, and should work with higher versions.
+
 ### Vanilla Manifests
 
 You have to first clone or download the repository contents. The kubernetes deployment and files are provided inside `kubernetes/manifests` folder.
