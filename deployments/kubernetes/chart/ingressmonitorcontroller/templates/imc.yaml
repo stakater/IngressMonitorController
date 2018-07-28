@@ -20,6 +20,7 @@ data:
       apiKey: {{ .apiKey }}
       apiURL: {{ .apiURL }}
       username: {{ .username | default "null" }}
+      password: {{ .password | default "null" }}
       alertContacts: {{ .alertContacts }}
     {{- end }}
     enableMonitorDeletion: {{ .Values.ingressMonitorController.enableMonitorDeletion }}

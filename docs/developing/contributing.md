@@ -94,6 +94,7 @@ providers:
     apiKey: <your-api-key>
     apiURL: https://app.statuscake.com/API/
     username: <your-account-username>
+    password: <your-account-password>
 enableMonitorDeletion: true
 monitorNameTemplate: "{{.IngressName}}-{{.Namespace}}"
 ```

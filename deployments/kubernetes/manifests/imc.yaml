@@ -19,8 +19,9 @@ data:
     providers:
     - name: UptimeRobot
       apiKey: your-api-key
-      apiURL: https://google.com
+      apiURL: https://api.uptimerobot.com/v2/
       username: null
+      password: null
       alertContacts: some-alert-contacts
     enableMonitorDeletion: true
     monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"

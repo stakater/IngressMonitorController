@@ -1,5 +1,15 @@
 # Pingdom Configuration
 
+## Basic
+The following properties need to be configured for Pingdom, in addition to the general properties listed 
+in the [Configuration section of the README](../README.md#configuration):
+
+| Key      | Description                                      |
+|----------|--------------------------------------------------|
+| username | Account username for authentication with Pingdom |
+
+## Advanced
+
 Currently additional pingdom configurations can be added through a set of annotations to each ingress object, the current supported annotations are:
 
 |                        Annotation                        |                    Description                   |
