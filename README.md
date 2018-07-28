@@ -26,7 +26,7 @@ Currently we support the following monitors:
 
 ### Supported Kubernetes versions
 
-Ingress Monitor Controller has been tested with Kubernetes version 1.8.x, and should work with higher versions.
+Ingress Monitor Controller has been tested with Kubernetes version 1.8.x and 1.10.x, and should work with higher versions.
 
 ### Vanilla Manifests
 
@@ -44,7 +44,7 @@ The annotation key is `monitor.stakater.com/enabled` and you can toggle the valu
 
 #### Configuring
 
-First of all you need to modify `configmap.yaml`'s `config.yaml` file. Following are the available options that you can use to customize the controller:
+First of all you need to modify `config.yaml` data for the ConfigMap resource in the `imc.yaml` file. Following are the available options that you can use to customize the controller:
 
 | Key                   |Description                                                                    |
 |-----------------------|-------------------------------------------------------------------------------|
@@ -78,12 +78,10 @@ The following optional annotations allow you to set further configuration:
 You can deploy the controller in the namespace you want to monitor by running the following kubectl commands:
 
 ```bash
-kubectl apply -f configmap.yaml -n <namespace>
-kubectl apply -f rbac.yaml -n <namespace>
-kubectl apply -f deployment.yaml -n <namespace>
+kubectl apply -f imc.yaml -n <namespace>
 ```
 
-*Note*: Before applying rbac.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply rbac.yaml to.
+*Note*: Before applying imc.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply RBAC to.
 
 #### Running Ingress Monitor Controller for a single namespace
 
@@ -95,7 +93,7 @@ Set `watchNamespace` to `<namespace-name>` in `values.yaml` before applying the 
 
 ##### Via Kubernetes Manifests
 
-Add environment variable `KUBERNETES_NAMESPACE` in `deployments/kubernetes/manifests/deployment.yaml` and set its value to the namespace you want to watch in. After that, apply the manifests located under `deployments/kubernetes/examples/watch-all-namespaces/` in any namespace. The deployed controller will now watch only that namespace.
+Add environment variable `KUBERNETES_NAMESPACE` in `deployments/kubernetes/manifests/imc.yaml` for the Deployment resource and set its value to the namespace you want to watch in. After that, apply the `imc.yaml` manifest in any namespace. The deployed controller will now watch only that namespace.
 
 ### Helm Charts
 
