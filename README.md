@@ -77,8 +77,8 @@ The following optional annotations allow you to set further configuration:
 
 ### Vanilla Manifests
 
-The Ingress Monitor Controller can be deployed with vanilla manifests or Helm Charts. For Vanilla manifests, you have to first clone or download the
- repository contents. The kubernetes deployment and files are provided inside `kubernetes/manifests` folder.
+The Ingress Monitor Controller can be deployed with vanilla manifests or Helm Charts. For Vanilla manifests,
+ you can either first clone the respository or download the `deployments/kubernetes/manifests/imc.yaml` file only.
 
 #### Configuring
 
@@ -86,7 +86,9 @@ The configuration discussed in the above section needs to be done by modifying `
 
 ##### Running for a single namespace
 
-Add environment variable `KUBERNETES_NAMESPACE` in `deployments/kubernetes/manifests/imc.yaml` for the Deployment resource and set its value to the namespace you want to watch in. After that, apply the `imc.yaml` manifest in any namespace. The deployed controller will now watch only that namespace.
+Add environment variable `KUBERNETES_NAMESPACE` in `imc.yaml` for the Deployment resource and set its value
+ to the namespace you want to watch in. After that, apply the `imc.yaml` manifest in any namespace.
+  The deployed controller will now watch only that namespace.
 
 #### Deploying
 
@@ -100,8 +102,9 @@ kubectl apply -f imc.yaml -n <namespace>
 
 ### Helm Charts
 
-The Ingress Monitor Controller can be deployed with Helm Charts or vanilla manifests. If you configured `helm` 
-on your cluster, you can deploy the controller via helm chart located under `kubernetes/chart` folder.
+The Ingress Monitor Controller can be deployed with Helm Charts or vanilla manifests. For Helm Charts you can first clone
+ or download the repository contents. If you configured `helm` on your cluster, you can deploy the controller 
+ via helm chart located under `deployments/kubernetes/chart` folder.
 
 #### Configuring
 
