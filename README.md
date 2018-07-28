@@ -123,7 +123,7 @@ helm install ./deployments/kubernetes/chart/ingressmonitorcontroller --name ingr
 ## Help
 
 **Got a question?**
-File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](mailto:stakater@gmail.com).
+File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](mailto:hello@stakater.com).
 
 ### Talk to us on Slack
 Join and talk to us on the #tools-imc channel for discussing the Ingress Monitor Controller
@@ -131,10 +131,19 @@ Join and talk to us on the #tools-imc channel for discussing the Ingress Monitor
 [![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://stakater-slack.herokuapp.com/)
 [![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater.slack.com/messages/CA66MMYSE/)
 
+## Extending
+
+If you'd like to extend the functionality of Ingress Monitor Controller, please refer to the documentation
+ [here](docs/developing/extension.md)
+
+## Testing
+
+For running tests, please refer to the documentation [here](docs/developing/testing.md)
+
 ## Contributing
 
-If you'd like to extend the functionality of Ingress Monitor Controller, you can refer to the contribution and 
-development documentation [here](docs/developing/contributing.md)
+If you'd like to contribute any fixes or enhancements, please refer to the documentation
+ [here](docs/developing/contributing.md)
 
 ## Bug Reports & Feature Requests
 
