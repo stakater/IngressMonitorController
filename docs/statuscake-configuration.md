@@ -1,5 +1,16 @@
 # StatusCake Configuration
 
+## Basic
+The following properties need to be configured for Statuscake, in addition to the general properties listed 
+ in the [Configuration section of the README](../README.md#configuration):
+
+| Key      | Description                                         |
+|----------|-----------------------------------------------------|
+| username | Account username for authentication with Statuscake |
+| password | Account password for authentication with Statuscake |
+
+## Advanced
+
 Currently additional Statuscake configurations can be added through a set of annotations to each ingress object, the current supported annotations are:
 
 |                        Annotation                        |                    Description                   |
