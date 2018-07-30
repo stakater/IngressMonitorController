@@ -14,7 +14,7 @@ Currently additional pingdom configurations can be added through a set of annota
 
 |                        Annotation                        |                    Description                   |
 |:--------------------------------------------------------:|:------------------------------------------------:|
-| monitor.stakater.com/pingdom/resolution                  | The pingdom check interval in minutes            |
-| monitor.stakater.com/pingdom/send-notification-when-down | How many failed check attempts before notifying  |
-| monitor.stakater.com/pingdom/paused                      | Set to "true" to pause checks                    |
-| monitor.stakater.com/pingdom/notify-when-back-up         | Set to "false" to disable recovery notifications |
+| pingdom.monitor.stakater.com/resolution                  | The pingdom check interval in minutes            |
+| pingdom.monitor.stakater.com/send-notification-when-down | How many failed check attempts before notifying  |
+| pingdom.monitor.stakater.com/paused                      | Set to "true" to pause checks                    |
+| pingdom.monitor.stakater.com/notify-when-back-up         | Set to "false" to disable recovery notifications |

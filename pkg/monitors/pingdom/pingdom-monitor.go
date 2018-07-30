@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	PingdomResolutionAnnotation               = "monitor.stakater.com/pingdom/resolution"
-	PingdomSendNotificationWhenDownAnnotation = "monitor.stakater.com/pingdom/send-notification-when-down"
-	PingdomPausedAnnotation                   = "monitor.stakater.com/pingdom/paused"
-	PingdomNotifyWhenBackUpAnnotation         = "monitor.stakater.com/pingdom/notify-when-back-up"
+	PingdomResolutionAnnotation               = "pingdom.monitor.stakater.com/resolution"
+	PingdomSendNotificationWhenDownAnnotation = "pingdom.monitor.stakater.com/send-notification-when-down"
+	PingdomPausedAnnotation                   = "pingdom.monitor.stakater.com/paused"
+	PingdomNotifyWhenBackUpAnnotation         = "pingdom.monitor.stakater.com/notify-when-back-up"
 )
 
 // PingdomMonitorService interfaces with MonitorService
