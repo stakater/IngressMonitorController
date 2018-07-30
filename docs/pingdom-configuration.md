@@ -7,6 +7,7 @@ in the [Configuration section of the README](../README.md#configuration):
 | Key      | Description                                      |
 |----------|--------------------------------------------------|
 | username | Account username for authentication with Pingdom |
+| password | Account password for authentication with Pingdom |
 
 ## Advanced
 
