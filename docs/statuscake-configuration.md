@@ -7,7 +7,6 @@ The following properties need to be configured for Statuscake, in addition to th
 | Key      | Description                                         |
 |----------|-----------------------------------------------------|
 | username | Account username for authentication with Statuscake |
-| password | Account password for authentication with Statuscake |
 
 ## Advanced
 
