@@ -78,16 +78,16 @@ The following optional annotations allow you to set further configuration:
 ### Vanilla Manifests
 
 The Ingress Monitor Controller can be deployed with vanilla manifests or Helm Charts. For Vanilla manifests,
- you can either first clone the respository or download the `deployments/kubernetes/manifests/imc.yaml` file only.
+ you can either first clone the respository or download the `deployments/kubernetes/ingressmonitorcontroller.yaml` file only.
 
 #### Configuring
 
-The configuration discussed in the above section needs to be done by modifying `config.yaml` data for the ConfigMap resource in the `imc.yaml` file. 
+The configuration discussed in the above section needs to be done by modifying `config.yaml` data for the ConfigMap resource in the `ingressmonitorcontroller.yaml` file. 
 
 ##### Running for a single namespace
 
-Add environment variable `KUBERNETES_NAMESPACE` in `imc.yaml` for the Deployment resource and set its value
- to the namespace you want to watch in. After that, apply the `imc.yaml` manifest in any namespace.
+Add environment variable `KUBERNETES_NAMESPACE` in `ingressmonitorcontroller.yaml` for the Deployment resource and set its value
+ to the namespace you want to watch in. After that, apply the `ingressmonitorcontroller.yaml` manifest in any namespace.
   The deployed controller will now watch only that namespace.
 
 #### Deploying
@@ -95,10 +95,10 @@ Add environment variable `KUBERNETES_NAMESPACE` in `imc.yaml` for the Deployment
 You can deploy the controller in the namespace you want to monitor by running the following kubectl command:
 
 ```bash
-kubectl apply -f imc.yaml -n <namespace>
+kubectl apply -f ingressmonitorcontroller.yaml -n <namespace>
 ```
 
-*Note*: Before applying imc.yaml, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply RBAC to.
+*Note*: Before applying `ingressmonitorcontroller.yaml`, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply RBAC to.
 
 ### Helm Charts
 
