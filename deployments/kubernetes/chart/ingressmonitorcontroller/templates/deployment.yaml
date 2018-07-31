@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   annotations:
-    configmap.fabric8.io/update-on-change: {{ template "name" . }}
+    configmap.reloader.stakater.com/reload: {{ template "name" . }}
   labels:
     app: {{ template "name" . }}
     version: {{ .Chart.Version }}
@@ -22,8 +22,6 @@ spec:
       provider: {{ .Values.ingressMonitorController.labels.provider }}
   template:
     metadata:
-      annotations:
-        configmap.fabric8.io/update-on-change: {{ template "name" . }}
       labels:
         app: {{ template "name" . }}
         group: {{ .Values.ingressMonitorController.labels.group }}
