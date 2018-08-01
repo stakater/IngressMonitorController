@@ -77,8 +77,8 @@ The following optional annotations allow you to set further configuration:
 
 ### Vanilla Manifests
 
-The Ingress Monitor Controller can be deployed with vanilla manifests or Helm Charts. For Vanilla manifests,
- you can either first clone the respository or download the `deployments/kubernetes/ingressmonitorcontroller.yaml` file only.
+The Ingress Monitor Controller can be deployed with vanilla manifests or Helm Charts. For Vanilla manifests, download the
+ [ingressmonitorcontroller.yaml](https://github.com/stakater/IngressMonitorController/blob/master/deployments/kubernetes/ingressmonitorcontroller.yaml) file.
 
 #### Configuring
 
@@ -102,14 +102,20 @@ kubectl apply -f ingressmonitorcontroller.yaml -n <namespace>
 
 ### Helm Charts
 
-The Ingress Monitor Controller can be deployed with Helm Charts or vanilla manifests. For Helm Charts you can first clone
- or download the repository contents. If you configured `helm` on your cluster, you can deploy the controller 
- via helm chart located under `deployments/kubernetes/chart` folder.
+The Ingress Monitor Controller can be deployed with Helm Charts or vanilla manifests. For Helm Charts follow the below steps:
 
-#### Configuring
+1. Add the chart repo:
 
-The configuration discussed in the Configuration section needs to be done by modifying 
-`deployments/kubernetes/chart/ingressmonitorcontroller/values.yaml`
+   i. `helm repo add stakater https://stakater.github.io/stakater-charts/`
+
+   ii. `helm repo update`
+2. Set configuration as discussed in the Configuration section
+
+   i.`helm fetch --untar stakater/ingressmonitorcontroller`
+
+   ii. Open and edit `ingressmonitorcontroller/values.yaml` in a text editor
+3. Install the chart
+   * `helm install stakater/ingressmonitorcontroller -f ingressmonitorcontroller/values.yaml -n ingressmonitorcontroller`
 
 ##### Running for a single namespace
 
