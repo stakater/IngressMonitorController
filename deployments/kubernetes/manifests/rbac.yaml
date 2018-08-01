@@ -5,10 +5,10 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    version: 1.0.32
+    version: 1.0.33
     group: com.stakater.platform
     provider: stakater
-    chart: "ingressmonitorcontroller-1.0.32"
+    chart: "ingressmonitorcontroller-1.0.33"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: ingressmonitorcontroller
@@ -51,4 +51,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: ingressmonitorcontroller
-  namespace: tools
+  namespace: default
