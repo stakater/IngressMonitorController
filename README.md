@@ -111,7 +111,7 @@ The Ingress Monitor Controller can be deployed with Helm Charts or vanilla manif
    ii. `helm repo update`
 2. Set configuration as discussed in the Configuration section
 
-   i.`helm fetch --untar stakater/ingressmonitorcontroller`
+   i. `helm fetch --untar stakater/ingressmonitorcontroller`
 
    ii. Open and edit `ingressmonitorcontroller/values.yaml` in a text editor
 3. Install the chart
@@ -119,15 +119,8 @@ The Ingress Monitor Controller can be deployed with Helm Charts or vanilla manif
 
 ##### Running for a single namespace
 
-Set `watchNamespace` to `<namespace-name>` in `deployments/kubernetes/chart/ingressmonitorcontroller/values.yaml` before applying the helm chart and the controller will then watch in that namespace.
-
-#### Deploying
-
-You can deploy the controller by running the following command:
-
-```bash
-helm install ./deployments/kubernetes/chart/ingressmonitorcontroller --name ingressmonitorcontroller
-```
+Set `watchNamespace` to `<namespace-name>` in `ingressmonitorcontroller/values.yaml` before applying the helm chart
+ and the controller will then watch in that namespace.
 
 ## Help
 
