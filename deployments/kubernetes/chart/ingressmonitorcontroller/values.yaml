@@ -9,12 +9,12 @@ ingressMonitorController:
     group: com.stakater.platform
   image:
     name: stakater/ingressmonitorcontroller
-    tag: "1.0.35"
+    tag: "1.0.36"
     pullPolicy: IfNotPresent
   providers:
   - name: UptimeRobot
     apiKey: your-api-key
-    apiURL: https://api.uptimerobot.com/v2/
+    apiURL: https://google.com
     alertContacts: some-alert-contacts
   
   enableMonitorDeletion: true
