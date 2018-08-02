@@ -1,4 +1,5 @@
-# Fetching alert contacts from UpTime Robot
+# UptimeRobot Configuration
+## Fetching alert contacts from UpTime Robot
 
 In order to use Ingress Monitor controller, you need to have alert contacts added to your account. Once you add them via Dashboard, you will need their ID's. Fetching ID's is not something you can do via UpTime Robot's Dashboard. You will have to use their REST API to fetch alert contacts. To do that, run the following curl command on your terminal with your api key:
 

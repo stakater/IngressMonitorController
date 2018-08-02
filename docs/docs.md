@@ -1,13 +1,5 @@
 # Documentation
 
-## Supported Uptime Checkers
-
-Currently we support the following monitors:
-
-- [UptimeRobot](https://uptimerobot.com)
-- [Pingdom](https://pingdom.com) ([Additional Config](../docs/pingdom-configuration.md))
-- [StatusCake](https://www.statuscake.com) ([Additional Config](../docs/statuscake-configuration.md))
-
 ## Deploying to Kubernetes
 
 Ingress Monitor Controller can be used to watch ingresses in a specific namespace, or all namespaces. By default the
@@ -47,9 +39,15 @@ For the list of providers, there are a number of options that you need to specif
 | apiURL        | Base url of the ApiProvider                                               |
 | alertContacts | A `-` separated list of contact id's that you want to add to the monitors |
 
-*Note:* Follow [this](fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UpTimeRobot.
-For other uptime checkers refer to the corresponding configuration document from [here](./) for any additional
- configuration needed for the specific uptime checker.
+#### Uptime Checker specific
+##### UptimeRobot ([https://uptimerobot.com](https://uptimerobot.com))
+Follow the [UptimeRobot Configuration guide](uptimerobot-configuration.md) to see how to fetch `alertContacts` from UptimeRobot.
+
+##### Pingdom ([https://pingdom.com](https://pingdom.com))
+[Pingdom Configuration guide](../docs/pingdom-configuration.md)
+
+##### Statuscake ([https://www.statuscake.com](https://www.statuscake.com))
+[Statuscake Configuration guide](../docs/statuscake-configuration.md)
 
 #### Configuring through ingress annotations
 

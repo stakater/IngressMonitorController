@@ -15,6 +15,14 @@ This controller will continuously watch ingresses in specific or all namespaces,
  in any of the uptime checkers. With the help of this solution, you can keep a check on your services and see whether
   they're up and running and live, without worrying about manually registering them on the Uptime checker.
 
+## Supported Uptime Checkers
+
+Currently we support the following monitors:
+
+- [UptimeRobot](https://uptimerobot.com)
+- [Pingdom](https://pingdom.com) ([Additional Config](docs/pingdom-configuration.md))
+- [StatusCake](https://www.statuscake.com) ([Additional Config](docs/statuscake-configuration.md))
+
 ## Usage
 
 The following quickstart let's you set up Ingress Monitor Controller to register uptime monitors for ingresses in all namespaces:
@@ -31,7 +39,7 @@ The following quickstart let's you set up Ingress Monitor Controller to register
     | apiURL        | Base url of the ApiProvider                                               |
     | alertContacts | A `-` separated list of contact id's that you want to add to the monitors |
 
-    *Note:* Follow [this](docs/fetching-alert-contacts-from-uptime-robot.md) guide to see how to fetch `alertContacts` from UptimeRobot.
+    *Note:* Follow [this](docs/uptimerobot-configuration.md) guide to see how to fetch `alertContacts` from UptimeRobot.
 
 3. Enable for your Ingress
 
