@@ -25,3 +25,10 @@ IngressMonitorController (IMC) offers exactly these features:
 - Automatically create new URL endpoint monitors in UptimeRobot when new applications / services / microservices / REST API's are deployed in Kubernetes
 - Automatically update URL endpoint monitors in UptimeRobot when applications / services / microservices / REST API's are changed/updated in Kubernetes
 - Automatically delete URL endpoint monitors in UptimeRobot when applications / services / microservices / REST API's are deleted/removed in Kubernetes
+
+## Free Monitoring of Apps Deployed to Kubernetes
+
+UptimeRobot offers 50 FREE monitors; which is really awesome to get started! And with IngressMonitorController its even easier
+to get started and have free monitors for the services/apps/microservices deployed to Kubernetes.
+
+At most of our customers we use UptimeRobot as they don't have to pay for first 50 monitors! And if you have smaller setup then 50 might be good enough.
