@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/url"
+	"strconv"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
@@ -47,7 +48,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		return nil, nil
 	}
 
-	errorString := "GetByName Request failed for name: " + name
+	errorString := "GetByName Request failed for name: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
 
 	log.Println(errorString)
 	return nil, errors.New(errorString)
@@ -72,7 +73,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	}
 
-	log.Println("GetAllMonitors Request failed. Status Code: " + string(response.StatusCode))
+	log.Println("GetAllMonitors Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	return nil
 
 }
@@ -96,7 +97,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 			log.Println("Monitor couldn't be added: " + m.Name)
 		}
 	} else {
-		log.Printf("AddMonitor Request failed. Status Code: " + string(response.StatusCode))
+		log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
 
@@ -119,7 +120,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 			log.Println("Monitor couldn't be updated: " + m.Name)
 		}
 	} else {
-		log.Println("UpdateMonitor Request failed. Status Code: " + string(response.StatusCode))
+		log.Println("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
 
@@ -143,6 +144,6 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 			log.Println(string(body))
 		}
 	} else {
-		log.Println("RemoveMonitor Request failed. Status Code: " + string(response.StatusCode))
+		log.Println("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
