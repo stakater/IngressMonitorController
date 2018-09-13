@@ -8,5 +8,4 @@ properties([
 ])
 
 goBuildAndRelease {
-    removeNestedOpenshiftVendor = true
 }
