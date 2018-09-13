@@ -48,11 +48,21 @@ func NewMonitorController(namespace string, kubeClient kubernetes.Interface, con
 	// Create the Ingress Watcher
 	ingressListWatcher := cache.NewListWatchFromClient(kubeClient.ExtensionsV1beta1().RESTClient(), resource, namespace, fields.Everything())
 
-	indexer, informer := cache.NewIndexerInformer(ingressListWatcher, kube.ResourceMap[resource], 0, cache.ResourceEventHandlerFuncs{
+	var indexer cache.Indexer
+	var informer cache.Controller
+
+	resourceEventHandlers := cache.ResourceEventHandlerFuncs{
 		AddFunc:    controller.onResourceAdded,
 		UpdateFunc: controller.onResourceUpdated,
 		DeleteFunc: controller.onResourceDeleted,
-	}, cache.Indexers{})
+	}
+
+	if resource == "routes" {
+		indexer, informer = cache.NewIndexerInformer(ingressListWatcher, &routev1.Route{}, 0, resourceEventHandlers, cache.Indexers{})
+	} else {
+		indexer, informer = cache.NewIndexerInformer(ingressListWatcher, &v1beta1.Ingress{}, 0, resourceEventHandlers, cache.Indexers{})
+	}
+
 	controller.indexer = indexer
 	controller.informer = informer
 	controller.queue = queue
