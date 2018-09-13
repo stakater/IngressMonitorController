@@ -3,42 +3,48 @@ package controller
 import (
 	"log"
 
+	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
-	"k8s.io/api/extensions/v1beta1"
 )
 
-type IngressAction interface {
+// Action is an interface for ingress and route actions
+type Action interface {
 	handle(c *MonitorController) error
 	getNames(c *MonitorController) (string, string)
 }
 
-type IngressUpdatedAction struct {
-	ingress    *v1beta1.Ingress
-	oldIngress *v1beta1.Ingress
+// ResourceUpdatedAction provide implementation of action interface
+type ResourceUpdatedAction struct {
+	resource    interface{}
+	oldResource interface{}
 }
 
-type IngressDeletedAction struct {
-	ingress *v1beta1.Ingress
+// ResourceDeletedAction provide implementation of action interface
+type ResourceDeletedAction struct {
+	resource interface{}
 }
 
-func (i IngressUpdatedAction) getNames(c *MonitorController) (string, string) {
-	monitorName := c.getMonitorName(i.ingress)
-	if i.oldIngress == nil {
+func (r ResourceUpdatedAction) getNames(c *MonitorController) (string, string) {
+	rAFuncs := kube.GetResourceActionFuncs(r.resource)
+	monitorName := c.getMonitorName(rAFuncs, r.resource)
+	if r.oldResource == nil {
 		return monitorName, monitorName
 	}
 
-	oldMonitorName := c.getMonitorName(i.oldIngress)
+	oldMonitorName := c.getMonitorName(rAFuncs, r.oldResource)
 	return monitorName, oldMonitorName
 }
 
-func (i IngressUpdatedAction) handle(c *MonitorController) error {
-	monitorName, oldMonitorName := i.getNames(c)
-	monitorURL := c.getMonitorURL(i.ingress)
+func (r ResourceUpdatedAction) handle(c *MonitorController) error {
+	rAFuncs := kube.GetResourceActionFuncs(r.resource)
+
+	monitorName, oldMonitorName := r.getNames(c)
+	monitorURL := c.getMonitorURL(r.resource)
 
 	log.Println("Monitor Name: " + monitorName)
 	log.Println("Monitor URL: " + monitorURL)
 
-	annotations := i.ingress.GetAnnotations()
+	annotations := rAFuncs.AnnotationFunc(r.resource)
 	if value, ok := annotations[wrappers.MonitorEnabledAnnotation]; ok {
 		if value == "true" {
 			// Annotation exists and is enabled
@@ -56,15 +62,16 @@ func (i IngressUpdatedAction) handle(c *MonitorController) error {
 	return nil
 }
 
-func (i IngressDeletedAction) getNames(c *MonitorController) (string, string) {
-	monitorName := c.getMonitorName(i.ingress)
+func (r ResourceDeletedAction) getNames(c *MonitorController) (string, string) {
+	rAFuncs := kube.GetResourceActionFuncs(r.resource)
+	monitorName := c.getMonitorName(rAFuncs, r.resource)
 	return monitorName, monitorName
 }
 
-func (i IngressDeletedAction) handle(c *MonitorController) error {
+func (r ResourceDeletedAction) handle(c *MonitorController) error {
 	if c.config.EnableMonitorDeletion {
 		// Delete the monitor if it exists
-		monitorName, _ := i.getNames(c)
+		monitorName, _ := r.getNames(c)
 		c.removeMonitorsIfExist(monitorName)
 	}
 

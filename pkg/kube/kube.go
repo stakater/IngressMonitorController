@@ -1,9 +1,12 @@
 package kube
 
 import (
+	"encoding/json"
 	"os"
 
+	routev1 "github.com/openshift/api/route/v1"
 	"github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -42,4 +45,34 @@ func GetClientOutOfCluster() kubernetes.Interface {
 	clientset, err := kubernetes.NewForConfig(config)
 
 	return clientset
+}
+
+// IsRoute returns true if given resource is a route
+func IsRoute(resource interface{}) bool {
+	if _, ok := resource.(*routev1.Route); ok {
+		return true
+	}
+	return false
+}
+
+// IsOpenShift returns true if cluster is openshift based
+func IsOpenShift(c *kubernetes.Clientset) bool {
+	res, err := c.RESTClient().Get().AbsPath("").DoRaw()
+	if err != nil {
+		logrus.Errorf("Could not discover the type of your installation: %v", err)
+		return false
+	}
+
+	var rp v1.RootPaths
+	err = json.Unmarshal(res, &rp)
+	if err != nil {
+		logrus.Errorf("Could not discover the type of your installation: %v", err)
+		return false
+	}
+	for _, p := range rp.Paths {
+		if p == "/oapi" {
+			return true
+		}
+	}
+	return false
 }

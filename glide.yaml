@@ -1,14 +1,16 @@
-package: .
+package: github.com/stakater/IngressMonitorController
 import:
 - package: k8s.io/api
-  version: kubernetes-1.8.0
+  version: kubernetes-1.9.1
 - package: k8s.io/apimachinery
-  version: kubernetes-1.8.0
+  version: kubernetes-1.9.1
 - package: k8s.io/client-go
-  version: 5.0.0
+  version: kubernetes-1.9.1
 - package: github.com/russellcardullo/go-pingdom
   version: 3448ee0e92d39f82d5cb830d36ca2febf54672e2
 - package: gopkg.in/yaml.v2
   version: v2.2.1
 - package: github.com/pkg/errors
   version: v0.8.0
+- package: github.com/openshift/client-go
+  version: v3.9.0

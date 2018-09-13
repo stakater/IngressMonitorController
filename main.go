@@ -30,8 +30,13 @@ func main() {
 	// fetche and create controller config from file
 	config := config.GetControllerConfig()
 
+	var resource = "ingresses"
+	if kube.IsOpenShift(kubeClient.(*kubernetes.Clientset)) {
+		resource = "routes"
+	}
+
 	// create the monitoring controller
-	controller := controller.NewMonitorController(currentNamespace, kubeClient, config)
+	controller := controller.NewMonitorController(currentNamespace, kubeClient, config, resource)
 
 	// Now let's start the controller
 	stop := make(chan struct{})
