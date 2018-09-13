@@ -6,6 +6,7 @@ import (
 
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/sirupsen/logrus"
+	"github.com/stakater/IngressMonitorController/pkg/callbacks"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -75,4 +76,21 @@ func IsOpenShift(c *kubernetes.Clientset) bool {
 		}
 	}
 	return false
+}
+
+// GetResourceActionFuncs provides the resource actions for ingress and routes
+func GetResourceActionFuncs(resource interface{}) callbacks.ResourceActionFuncs {
+	if IsRoute(resource) {
+		return callbacks.ResourceActionFuncs{
+			AnnotationFunc: callbacks.GetRouteAnnotation,
+			NameFunc:       callbacks.GetRouteName,
+			NamespaceFunc:  callbacks.GetRouteNamespace,
+		}
+	}
+
+	return callbacks.ResourceActionFuncs{
+		AnnotationFunc: callbacks.GetIngressAnnotation,
+		NameFunc:       callbacks.GetIngressName,
+		NamespaceFunc:  callbacks.GetIngressNamespace,
+	}
 }
