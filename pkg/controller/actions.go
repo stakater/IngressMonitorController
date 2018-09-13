@@ -3,8 +3,8 @@ package controller
 import (
 	"log"
 
+	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
-	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
 )
 
 // Action is an interface for ingress and route actions
@@ -45,7 +45,7 @@ func (r ResourceUpdatedAction) handle(c *MonitorController) error {
 	log.Println("Monitor URL: " + monitorURL)
 
 	annotations := rAFuncs.AnnotationFunc(r.resource)
-	if value, ok := annotations[wrappers.MonitorEnabledAnnotation]; ok {
+	if value, ok := annotations[constants.MonitorEnabledAnnotation]; ok {
 		if value == "true" {
 			// Annotation exists and is enabled
 			c.createOrUpdateMonitors(monitorName, oldMonitorName, monitorURL, annotations)
@@ -56,7 +56,7 @@ func (r ResourceUpdatedAction) handle(c *MonitorController) error {
 
 	} else {
 		c.removeMonitorsIfExist(oldMonitorName)
-		log.Println("Not doing anything with this ingress because no annotation exists with name: " + wrappers.MonitorEnabledAnnotation)
+		log.Println("Not doing anything with this ingress because no annotation exists with name: " + constants.MonitorEnabledAnnotation)
 	}
 
 	return nil

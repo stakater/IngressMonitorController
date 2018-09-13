@@ -6,6 +6,7 @@ import (
 	"path"
 
 	routev1 "github.com/openshift/api/route/v1"
+	"github.com/stakater/IngressMonitorController/pkg/constants"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
@@ -30,7 +31,7 @@ func (rw *RouteWrapper) tryGetTLSHost() (string, bool) {
 	}
 
 	annotations := rw.Route.GetAnnotations()
-	if value, ok := annotations[IngressForceHTTPSAnnotation]; ok {
+	if value, ok := annotations[constants.ForceHTTPSAnnotation]; ok {
 		if value == "true" {
 			// Annotation exists and is enabled
 			return "https://" + rw.Route.Spec.Host, true
@@ -120,13 +121,13 @@ func (rw *RouteWrapper) GetURL() string {
 
 	annotations := rw.Route.GetAnnotations()
 
-	if value, ok := annotations[IngressOverridePathAnnotation]; ok {
+	if value, ok := annotations[constants.OverridePathAnnotation]; ok {
 		u.Path = value
 	} else {
-		// Append port + ingressSubPath
+		// Append port + path
 		u.Path = path.Join(u.Path, rw.getRouteSubPathWithPort())
 
-		// Find pod by backtracking ingress -> service -> pod
+		// Find pod by backtracking route -> service -> pod
 		healthEndpoint, exists := rw.tryGetHealthEndpointFromRoute()
 
 		// Health endpoint from pod successful
@@ -135,7 +136,7 @@ func (rw *RouteWrapper) GetURL() string {
 		} else { // Try to get annotation and set
 
 			// Annotation for health Endpoint exists
-			if value, ok := annotations[MonitorHealthAnnotation]; ok {
+			if value, ok := annotations[constants.MonitorHealthAnnotation]; ok {
 				u.Path = path.Join(u.Path, value)
 			}
 		}
