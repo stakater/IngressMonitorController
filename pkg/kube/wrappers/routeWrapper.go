@@ -53,7 +53,10 @@ func (rw *RouteWrapper) getRouteSubPathWithPort() string {
 }
 
 func (rw *RouteWrapper) getRoutePort() string {
-	return rw.Route.Spec.Port.TargetPort.String()
+	if rw.Route.Spec.Port != nil && rw.Route.Spec.Port.TargetPort.String() != "" {
+		return rw.Route.Spec.Port.TargetPort.String()
+	}
+	return ""
 }
 
 func (rw *RouteWrapper) getRouteSubPath() string {
