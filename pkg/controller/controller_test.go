@@ -1076,7 +1076,7 @@ func getControllerWithNamespace(namespace string, enableDeletion bool) *MonitorC
 	c.EnableMonitorDeletion = enableDeletion
 
 	// create the monitoring controller
-	controller := NewMonitorController(namespace, kubeClient, c, "ingresses")
+	controller := NewMonitorController(namespace, kubeClient, c, "ingresses", nil)
 
 	return controller
 }

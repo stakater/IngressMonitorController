@@ -6,6 +6,7 @@ import (
 	"time"
 
 	routev1 "github.com/openshift/api/route/v1"
+	buildv1 "github.com/openshift/client-go/build/clientset/versioned/typed/build/v1"
 	"github.com/stakater/IngressMonitorController/pkg/callbacks"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/constants"
@@ -35,7 +36,7 @@ type MonitorController struct {
 }
 
 // NewMonitorController implements a controller to monitor ingresses and routes
-func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config config.Config, resource string) *MonitorController {
+func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config config.Config, resource string, osClient *buildv1.BuildV1Client) *MonitorController {
 	controller := &MonitorController{
 		kubeClient: kubeClient,
 		namespace:  namespace,
@@ -47,7 +48,12 @@ func NewMonitorController(namespace string, kubeClient kubernetes.Interface, con
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
 
 	// Create the Ingress Watcher
-	ingressListWatcher := cache.NewListWatchFromClient(kubeClient.ExtensionsV1beta1().RESTClient(), resource, namespace, fields.Everything())
+	var ingressListWatcher *cache.ListWatch
+	if osClient != nil {
+		ingressListWatcher = cache.NewListWatchFromClient(osClient.RESTClient(), resource, namespace, fields.Everything())
+	} else {
+		ingressListWatcher = cache.NewListWatchFromClient(kubeClient.ExtensionsV1beta1().RESTClient(), resource, namespace, fields.Everything())
+	}
 
 	indexer, informer := cache.NewIndexerInformer(ingressListWatcher, kube.ResourceMap[resource], 0, cache.ResourceEventHandlerFuncs{
 		AddFunc:    controller.onResourceAdded,
