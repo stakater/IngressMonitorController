@@ -3,6 +3,7 @@ package util
 import (
 	"testing"
 
+	routev1 "github.com/openshift/api/route/v1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -34,6 +35,20 @@ func CreateIngressObject(ingressName string, namespace string, url string) *v1be
 	}
 
 	return ingress
+}
+
+// CreateRouteObject creates an openshift route object
+func CreateRouteObject(routeName string, namespace string, url string) *routev1.Route {
+	route := &routev1.Route{
+		ObjectMeta: meta_v1.ObjectMeta{
+			Name:      routeName,
+			Namespace: namespace,
+		},
+		Spec: routev1.RouteSpec{
+			Host: url,
+		},
+	}
+	return route
 }
 
 func GetProviderWithName(controllerConfig config.Config, name string) *config.Provider {
