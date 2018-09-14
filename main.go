@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	buildv1 "github.com/openshift/client-go/build/clientset/versioned/typed/build/v1"
+	routeClient "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/controller"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
@@ -32,11 +32,11 @@ func main() {
 	config := config.GetControllerConfig()
 
 	var resource = "ingresses"
-	var osClient *buildv1.BuildV1Client
+	var osClient *routeClient.RouteV1Client
 	if kube.IsOpenShift(kubeClient.(*kubernetes.Clientset)) {
 		resource = "routes"
 		// Create an OpenShift build/v1 client.
-		osClient, err = buildv1.NewForConfig(cfg)
+		osClient, err = routeClient.NewForConfig(cfg)
 		if err != nil {
 			log.Panic(err.Error())
 		}

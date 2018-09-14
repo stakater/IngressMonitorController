@@ -6,7 +6,7 @@ import (
 	"time"
 
 	routev1 "github.com/openshift/api/route/v1"
-	buildv1 "github.com/openshift/client-go/build/clientset/versioned/typed/build/v1"
+	routeClient "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
 	"github.com/stakater/IngressMonitorController/pkg/callbacks"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/constants"
@@ -36,7 +36,7 @@ type MonitorController struct {
 }
 
 // NewMonitorController implements a controller to monitor ingresses and routes
-func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config config.Config, resource string, osClient *buildv1.BuildV1Client) *MonitorController {
+func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config config.Config, resource string, osClient *routeClient.RouteV1Client) *MonitorController {
 	controller := &MonitorController{
 		kubeClient: kubeClient,
 		namespace:  namespace,
