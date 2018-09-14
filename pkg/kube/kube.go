@@ -60,14 +60,12 @@ func IsRoute(resource interface{}) bool {
 func IsOpenShift(c *kubernetes.Clientset) bool {
 	res, err := c.RESTClient().Get().AbsPath("").DoRaw()
 	if err != nil {
-		logrus.Errorf("Could not discover the type of your installation: %v", err)
 		return false
 	}
 
 	var rp v1.RootPaths
 	err = json.Unmarshal(res, &rp)
 	if err != nil {
-		logrus.Errorf("Could not discover the type of your installation: %v", err)
 		return false
 	}
 	for _, p := range rp.Paths {

@@ -32,6 +32,7 @@ func main() {
 	config := config.GetControllerConfig()
 
 	var resource = "ingresses"
+	var restClient rest.Interface
 	var osClient *routeClient.RouteV1Client
 	if kube.IsOpenShift(kubeClient.(*kubernetes.Clientset)) {
 		resource = "routes"
@@ -40,12 +41,13 @@ func main() {
 		if err != nil {
 			log.Panic(err.Error())
 		}
+		restClient = osClient.RESTClient()
 	} else {
-		osClient = nil
+		restClient = kubeClient.ExtensionsV1beta1().RESTClient()
 	}
 
 	// create the monitoring controller
-	controller := controller.NewMonitorController(currentNamespace, kubeClient, config, resource, osClient)
+	controller := controller.NewMonitorController(currentNamespace, kubeClient, config, resource, restClient)
 
 	// Now let's start the controller
 	stop := make(chan struct{})
