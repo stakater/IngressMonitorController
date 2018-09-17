@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	routeClient "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/controller"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
@@ -20,7 +21,7 @@ func main() {
 	}
 
 	var kubeClient kubernetes.Interface
-	_, err := rest.InClusterConfig()
+	cfg, err := rest.InClusterConfig()
 	if err != nil {
 		kubeClient = kube.GetClientOutOfCluster()
 	} else {
@@ -30,8 +31,23 @@ func main() {
 	// fetche and create controller config from file
 	config := config.GetControllerConfig()
 
+	var resource = "ingresses"
+	var restClient rest.Interface
+	var osClient *routeClient.RouteV1Client
+	if kube.IsOpenShift(kubeClient.(*kubernetes.Clientset)) {
+		resource = "routes"
+		// Create an OpenShift build/v1 client.
+		osClient, err = routeClient.NewForConfig(cfg)
+		if err != nil {
+			log.Panic(err.Error())
+		}
+		restClient = osClient.RESTClient()
+	} else {
+		restClient = kubeClient.ExtensionsV1beta1().RESTClient()
+	}
+
 	// create the monitoring controller
-	controller := controller.NewMonitorController(currentNamespace, kubeClient, config)
+	controller := controller.NewMonitorController(currentNamespace, kubeClient, config, resource, restClient)
 
 	// Now let's start the controller
 	stop := make(chan struct{})

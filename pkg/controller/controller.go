@@ -5,7 +5,11 @@ import (
 	"log"
 	"time"
 
+	routev1 "github.com/openshift/api/route/v1"
+	"github.com/stakater/IngressMonitorController/pkg/callbacks"
 	"github.com/stakater/IngressMonitorController/pkg/config"
+	"github.com/stakater/IngressMonitorController/pkg/constants"
+	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
@@ -15,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 )
@@ -30,7 +35,8 @@ type MonitorController struct {
 	config          config.Config
 }
 
-func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config config.Config) *MonitorController {
+// NewMonitorController implements a controller to monitor ingresses and routes
+func NewMonitorController(namespace string, kubeClient kubernetes.Interface, config config.Config, resource string, restClient rest.Interface) *MonitorController {
 	controller := &MonitorController{
 		kubeClient: kubeClient,
 		namespace:  namespace,
@@ -42,13 +48,14 @@ func NewMonitorController(namespace string, kubeClient kubernetes.Interface, con
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
 
 	// Create the Ingress Watcher
-	ingressListWatcher := cache.NewListWatchFromClient(kubeClient.ExtensionsV1beta1().RESTClient(), "ingresses", namespace, fields.Everything())
+	ingressListWatcher := cache.NewListWatchFromClient(restClient, resource, namespace, fields.Everything())
 
-	indexer, informer := cache.NewIndexerInformer(ingressListWatcher, &v1beta1.Ingress{}, 0, cache.ResourceEventHandlerFuncs{
-		AddFunc:    controller.onIngressAdded,
-		UpdateFunc: controller.onIngressUpdated,
-		DeleteFunc: controller.onIngressDeleted,
+	indexer, informer := cache.NewIndexerInformer(ingressListWatcher, kube.ResourceMap[resource], 0, cache.ResourceEventHandlerFuncs{
+		AddFunc:    controller.onResourceAdded,
+		UpdateFunc: controller.onResourceUpdated,
+		DeleteFunc: controller.onResourceDeleted,
 	}, cache.Indexers{})
+
 	controller.indexer = indexer
 	controller.informer = informer
 	controller.queue = queue
@@ -70,6 +77,7 @@ func setupMonitorServicesForProviders(providers []config.Provider) []monitors.Mo
 	return monitorServices
 }
 
+// Run method starts the controller
 func (c *MonitorController) Run(threadiness int, stopCh chan struct{}) {
 	defer runtime.HandleCrash()
 
@@ -100,25 +108,25 @@ func (c *MonitorController) runWorker() {
 
 func (c *MonitorController) processNextItem() bool {
 	// Wait until there is a new item in the working queue
-	ingressAction, quit := c.queue.Get()
+	action, quit := c.queue.Get()
 	if quit {
 		return false
 	}
 	// Tell the queue that we are done with processing this key. This unblocks the key for other workers
 	// This allows safe parallel processing because two ingresses with the same key are never processed in
 	// parallel.
-	defer c.queue.Done(ingressAction)
+	defer c.queue.Done(action)
 
 	// Invoke the method containing the business logic
-	err := ingressAction.(IngressAction).handle(c)
+	err := action.(Action).handle(c)
 	// Handle the error if something went wrong during the execution of the business logic
-	c.handleErr(err, ingressAction)
+	c.handleErr(err, action)
 	return true
 }
 
-func (c *MonitorController) getMonitorName(ingress *v1beta1.Ingress) string {
-	annotations := ingress.GetAnnotations()
-	if value, ok := annotations[wrappers.MonitorNameAnnotation]; ok {
+func (c *MonitorController) getMonitorName(rAFuncs callbacks.ResourceActionFuncs, resource interface{}) string {
+	annotations := rAFuncs.AnnotationFunc(resource)
+	if value, ok := annotations[constants.MonitorNameAnnotation]; ok {
 		return value
 	}
 
@@ -126,16 +134,24 @@ func (c *MonitorController) getMonitorName(ingress *v1beta1.Ingress) string {
 	if err != nil {
 		log.Fatal("Failed to parse MonitorNameTemplate")
 	}
-	return fmt.Sprintf(format, ingress.GetName(), ingress.GetNamespace())
+	return fmt.Sprintf(format, rAFuncs.NameFunc(resource), rAFuncs.NamespaceFunc(resource))
 }
 
-func (c *MonitorController) getMonitorURL(ingress *v1beta1.Ingress) string {
-	ingressWrapper := wrappers.IngressWrapper{
-		Ingress:    ingress,
-		Namespace:  ingress.Namespace,
-		KubeClient: c.kubeClient,
+func (c *MonitorController) getMonitorURL(resource interface{}) string {
+	if kube.IsRoute(resource) {
+		routeWrapper := wrappers.RouteWrapper{
+			Route:      resource.(*routev1.Route),
+			Namespace:  resource.(*routev1.Route).Namespace,
+			KubeClient: c.kubeClient,
+		}
+		return routeWrapper.GetURL()
 	}
 
+	ingressWrapper := wrappers.IngressWrapper{
+		Ingress:    resource.(*v1beta1.Ingress),
+		Namespace:  resource.(*v1beta1.Ingress).Namespace,
+		KubeClient: c.kubeClient,
+	}
 	return ingressWrapper.GetURL()
 }
 
@@ -208,21 +224,21 @@ func (c *MonitorController) handleErr(err error, key interface{}) {
 	log.Printf("Dropping ingress %q out of the queue: %v", key, err)
 }
 
-func (c *MonitorController) onIngressAdded(obj interface{}) {
-	c.queue.Add(IngressUpdatedAction{
-		ingress: obj.(*v1beta1.Ingress),
+func (c *MonitorController) onResourceAdded(obj interface{}) {
+	c.queue.Add(ResourceUpdatedAction{
+		resource: obj,
 	})
 }
 
-func (c *MonitorController) onIngressUpdated(old interface{}, new interface{}) {
-	c.queue.Add(IngressUpdatedAction{
-		ingress:    new.(*v1beta1.Ingress),
-		oldIngress: old.(*v1beta1.Ingress),
+func (c *MonitorController) onResourceUpdated(old interface{}, new interface{}) {
+	c.queue.Add(ResourceUpdatedAction{
+		resource:    new,
+		oldResource: old,
 	})
 }
 
-func (c *MonitorController) onIngressDeleted(obj interface{}) {
-	c.queue.Add(IngressDeletedAction{
-		ingress: obj.(*v1beta1.Ingress),
+func (c *MonitorController) onResourceDeleted(obj interface{}) {
+	c.queue.Add(ResourceDeletedAction{
+		resource: obj,
 	})
 }

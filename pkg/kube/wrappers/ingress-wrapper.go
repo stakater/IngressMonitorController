@@ -5,18 +5,11 @@ import (
 	"net/url"
 	"path"
 
+	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"k8s.io/api/extensions/v1beta1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
-)
-
-const (
-	IngressForceHTTPSAnnotation   = "monitor.stakater.com/forceHttps"
-	IngressOverridePathAnnotation = "monitor.stakater.com/overridePath"
-	MonitorEnabledAnnotation      = "monitor.stakater.com/enabled"
-	MonitorNameAnnotation         = "monitor.stakater.com/name"
-	MonitorHealthAnnotation       = "monitor.stakater.com/healthEndpoint" // "/health"
 )
 
 type IngressWrapper struct {
@@ -38,7 +31,7 @@ func (iw *IngressWrapper) tryGetTLSHost() (string, bool) {
 	}
 
 	annotations := iw.Ingress.GetAnnotations()
-	if value, ok := annotations[IngressForceHTTPSAnnotation]; ok {
+	if value, ok := annotations[constants.ForceHTTPSAnnotation]; ok {
 		if value == "true" {
 			// Annotation exists and is enabled
 			return "https://" + iw.Ingress.Spec.Rules[0].Host, true
@@ -110,7 +103,7 @@ func (iw *IngressWrapper) GetURL() string {
 
 	annotations := iw.Ingress.GetAnnotations()
 
-	if value, ok := annotations[IngressOverridePathAnnotation]; ok {
+	if value, ok := annotations[constants.OverridePathAnnotation]; ok {
 		u.Path = value
 	} else {
 		// Append port + ingressSubPath
@@ -125,7 +118,7 @@ func (iw *IngressWrapper) GetURL() string {
 		} else { // Try to get annotation and set
 
 			// Annotation for health Endpoint exists
-			if value, ok := annotations[MonitorHealthAnnotation]; ok {
+			if value, ok := annotations[constants.MonitorHealthAnnotation]; ok {
 				u.Path = path.Join(u.Path, value)
 			}
 		}

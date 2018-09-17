@@ -67,8 +67,10 @@ rules:
   - apiGroups:
       - ""
       - "extensions"
+      - "route.openshift.io"
     resources:
       - ingresses
+      - routes
     verbs:
       - list
       - get
