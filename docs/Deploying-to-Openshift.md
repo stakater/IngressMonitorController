@@ -1,24 +1,22 @@
-# Documentation
+# Deploying to Openshift
 
-## Deploying to Kubernetes
-
-Ingress Monitor Controller can be used to watch ingresses in a specific namespace, or all namespaces. By default the
+Ingress Monitor Controller can be used to watch routes in a specific namespace, or all namespaces. By default the
  controller watches in all namespaces. To use Ingress Monitor Controller for a specific namespace, the relevant
  instructions where indicated should be followed.  
 
-### Supported Kubernetes versions
+### Supported Openshift versions
 
-Ingress Monitor Controller has been tested with Kubernetes version 1.8.x and 1.10.x, and should work with higher versions.
+Ingress Monitor Controller has been tested with Openshift version 3.7.x and 3.9.x, and should work with higher versions.
 
 ### Enabling
 
-By default, the controller ignores the ingresses without a specific annotation on it. You will need to add the following annotation on your ingresses so that the controller is able to recognize and monitor the ingresses.
+By default, the controller ignores the routes without a specific annotation on it. You will need to add the following annotation on your routes so that the controller is able to recognize and monitor the routes.
 
 ```yaml
 "monitor.stakater.com/enabled": "true"
 ```
 
-The annotation key is `monitor.stakater.com/enabled` and you can toggle the value of this annotation between `true` and `false` to enable or disable monitoring of that specific ingress.
+The annotation key is `monitor.stakater.com/enabled` and you can toggle the value of this annotation between `true` and `false` to enable or disable monitoring of that specific route.
 
 ### Configuration
 
@@ -27,8 +25,8 @@ Following are the available options that you can use to customize the controller
 | Key                   |Description                                                                    |
 |-----------------------|-------------------------------------------------------------------------------|
 | providers             | An array of uptime providers that you want to add to your controller          |
-| enableMonitorDeletion | A safeguard flag that is used to enable or disable monitor deletion on ingress deletion (Useful for prod environments where you don't want to remove monitor on ingress deletion) |
-| watchNamespace        | Name of the namespace if you want to monitor ingresses only in that namespace. Defaults to null |
+| enableMonitorDeletion | A safeguard flag that is used to enable or disable monitor deletion on route deletion (Useful for prod environments where you don't want to remove monitor on route deletion) |
+| watchNamespace        | Name of the namespace if you want to monitor routes only in that namespace. Defaults to null |
 
 For the list of providers, there are a number of options that you need to specify. The table below lists them:
 
@@ -49,13 +47,13 @@ Follow the [UptimeRobot Configuration guide](uptimerobot-configuration.md) to se
 ##### Statuscake ([https://www.statuscake.com](https://www.statuscake.com))
 [Statuscake Configuration guide](../docs/statuscake-configuration.md)
 
-#### Configuring through ingress annotations
+#### Configuring through route annotations
 
 The following optional annotations allow you to set further configuration:
 
 | Annotation                            | Description                                                                                                                 |
 |---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `"monitor.stakater.com/forceHttps"`   | If set to the string `"true"`, the monitor endpoint will use HTTPS, even if the Ingress manifest itself doesn't specify TLS |
+| `"monitor.stakater.com/forceHttps"`   | If set to the string `"true"`, the monitor endpoint will use HTTPS, even if the route manifest itself doesn't specify TLS |
 | `"monitor.stakater.com/overridePath"` | Set this annotation to define the healthcheck path for this monitor, overriding the controller's default logic              |
 | `"monitor.stakater.com/name"`         | Set this annotation to define the Monitor friendly name in Uptime Robot. If unset, defaults to the template in the config   |
 
@@ -76,10 +74,10 @@ Add environment variable `KUBERNETES_NAMESPACE` in `ingressmonitorcontroller.yam
 
 #### Deploying
 
-You can deploy the controller in the namespace you want to monitor by running the following kubectl command:
+You can deploy the controller in the namespace you want to monitor by running the following command:
 
 ```bash
-kubectl apply -f ingressmonitorcontroller.yaml -n <namespace>
+oc create -f ingressmonitorcontroller.yaml -n <namespace>
 ```
 
 *Note*: Before applying `ingressmonitorcontroller.yaml`, You need to modify the namespace in the `RoleBinding` subjects section to the namespace you want to apply RBAC to.

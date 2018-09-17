@@ -1,17 +1,16 @@
 # ![](assets/web/IMC-round-100px.png) Ingress Monitor Controller
 
-A Kubernetes controller to watch ingresses and create liveness alerts for your apps/microservices in Uptime checkers.
+A Kubernetes/Openshift controller to watch ingresses/routes and create liveness alerts for your apps/microservices in Uptime checkers.
 
 [![Get started with Stakater](https://stakater.github.io/README/stakater-github-banner.png)](http://stakater.com/?utm_source=IngressMonitorController&utm_medium=github)
 
 ## Problem Statement
 
-We want to monitor ingresses in a kubernetes cluster via any uptime checker but the problem is having to manually check
- for new ingresses / removed ingresses and add them to the checker or remove them.
+We want to monitor ingresses in a kubernetes cluster and routes in openshift cluster via any uptime checker but the problem is having to manually check for new ingresses or routes / removed ingresses or routes and add them to the checker or remove them.
 
 ## Solution
 
-This controller will continuously watch ingresses in specific or all namespaces, and automatically add / remove monitors
+This controller will continuously watch ingresses/routes in specific or all namespaces, and automatically add / remove monitors
  in any of the uptime checkers. With the help of this solution, you can keep a check on your services and see whether
   they're up and running and live, without worrying about manually registering them on the Uptime checker.
 
@@ -25,7 +24,7 @@ Currently we support the following monitors:
 
 ## Usage
 
-The following quickstart let's you set up Ingress Monitor Controller to register uptime monitors for ingresses in all namespaces:
+The following quickstart let's you set up Ingress Monitor Controller to register uptime monitors for ingresses/routes in all namespaces:
 
 1. Download the
  [manifest file](https://raw.githubusercontent.com/stakater/IngressMonitorController/master/deployments/kubernetes/ingressmonitorcontroller.yaml)
@@ -41,17 +40,22 @@ The following quickstart let's you set up Ingress Monitor Controller to register
 
     *Note:* Follow [this](docs/uptimerobot-configuration.md) guide to see how to fetch `alertContacts` from UptimeRobot.
 
-3. Enable for your Ingress
+3. Enable for your Ingress/Route
 
-   You will need to add the following annotation on your ingresses so that the controller is able to recognize and monitor it.
+   You will need to add the following annotation on your ingresses/routes so that the controller is able to recognize and monitor it.
 
    ```yaml
    "monitor.stakater.com/enabled": "true"
    ```
-4. Deploy the controller by running the following kubectl command:
-   
+4. Deploy the controller by running the following command:
+
+    For Kubernetes Cluster
    ```bash
    kubectl apply -f ingressmonitorcontroller.yaml -n default
+   ```
+   For Openshift Cluster
+   ```bash
+   oc create -f ingressmonitorcontroller.yaml -n default
    ```
 
 ## Help
