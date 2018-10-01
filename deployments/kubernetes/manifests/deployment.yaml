@@ -7,10 +7,10 @@ metadata:
     configmap.reloader.stakater.com/reload: ingressmonitorcontroller
   labels:
     app: ingressmonitorcontroller
-    version: 1.0.43
+    version: 1.0.44
     group: com.stakater.platform
     provider: stakater
-    chart: "ingressmonitorcontroller-1.0.43"
+    chart: "ingressmonitorcontroller-1.0.44"
     release: "RELEASE-NAME"
     heritage: "Tiller"
   name: ingressmonitorcontroller
@@ -33,7 +33,7 @@ spec:
       - env:
         - name: CONFIG_FILE_PATH
           value: /etc/IngressMonitorController/config.yaml
-        image: "stakater/ingressmonitorcontroller:1.0.43"
+        image: "stakater/ingressmonitorcontroller:1.0.44"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
