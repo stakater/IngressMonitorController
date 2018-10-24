@@ -61,7 +61,7 @@ The following quickstart let's you set up Ingress Monitor Controller to register
 ## Help
 
 ### Documentation
-You can find more detailed documentation for configuration, extension, and support for other Uptime checkers etc. [here](docs/docs.md)
+You can find more detailed documentation for configuration, extension, and support for other Uptime checkers etc. [here](docs/Deploying-to-Kubernetes.md)
 
 ### Have a question?
 File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](mailto:hello@stakater.com).
