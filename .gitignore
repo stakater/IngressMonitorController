@@ -1,3 +1,5 @@
 vendor
 .idea
+build/package/ingressmonitorcontroller
+out
 \.vscode/

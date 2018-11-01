@@ -1,0 +1,12 @@
+# .goreleaser.yml
+# Build customization
+builds:
+  - binary: imc
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+      - darwin
+      - linux
+env_files:
+  github_token: /home/jenkins/.apitoken/hub
