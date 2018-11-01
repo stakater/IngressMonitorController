@@ -1,5 +1,5 @@
 hash: f537ab66d84ffc888ec310d9619cf8d0919cf20ed349594c016f9ae2a9ddfd41
-updated: 2018-09-13T01:00:12.904053914+05:00
+updated: 2018-11-01T10:51:26.723849259Z
 imports:
 - name: github.com/davecgh/go-spew
   version: 782f4967f2dc4564575ca782fe2d04090b5faca8
@@ -60,6 +60,8 @@ imports:
   version: 36b14963da70d11297d313183d7e6388c8510e1e
 - name: github.com/juju/ratelimit
   version: 5b9ff866471762aa2ab2dced63c9fb6f53921342
+- name: github.com/konsorten/go-windows-terminal-sequences
+  version: 5c8c8bd35d3832f5d134ae1e1e375b69a4d25242
 - name: github.com/mailru/easyjson
   version: 2f5df55504ebc322e4d52d34df6a1f5b503bf26d
   subpackages:
@@ -69,13 +71,12 @@ imports:
 - name: github.com/openshift/api
   version: 322a19404e375a4b2f59e081a61343404c49bf46
   subpackages:
-  - build/v1
   - route/v1
 - name: github.com/openshift/client-go
   version: 1fa528d3be060e4c7178eb69e76d37cf7e699e3c
   subpackages:
-  - build/clientset/versioned/scheme
-  - build/clientset/versioned/typed/build/v1
+  - route/clientset/versioned/scheme
+  - route/clientset/versioned/typed/route/v1
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
 - name: github.com/pkg/errors
@@ -89,7 +90,7 @@ imports:
   subpackages:
   - pingdom
 - name: github.com/sirupsen/logrus
-  version: f3df9aeffda7c12bd9f5a03f9251d75d35993165
+  version: 7eeb7b7cbdeb0a582a5b7a1512d91f956f1674aa
 - name: github.com/spf13/pflag
   version: 9ff6c6923cfffbcd502984b8e0c80539a94968b7
 - name: golang.org/x/crypto
