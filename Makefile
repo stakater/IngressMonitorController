@@ -25,7 +25,7 @@ HELMNAME = IMC
 default: build test
 
 install:
-	"$(GLIDECMD)" install --strip-vendor
+	"$(GLIDECMD)" update --strip-vendor
 
 build:
 	"$(GOCMD)" build ${GOFLAGS} ${LDFLAGS} -o "${BINARY}"
