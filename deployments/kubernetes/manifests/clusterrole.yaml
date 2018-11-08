@@ -1,0 +1,31 @@
+---
+# Source: ingressmonitorcontroller/templates/clusterrole.yaml
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: ingressmonitorcontroller-role
+rules:
+  - apiGroups:
+      - ""
+      - "extensions"
+      - "route.openshift.io"
+    resources:
+      - ingresses
+      - routes
+    verbs:
+      - list
+      - get
+      - update
+      - patch
+      - watch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - pods
+    verbs:
+      - list
+      - get
+      - watch

@@ -3,17 +3,18 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: ingressmonitorcontroller
   annotations:
-    fabric8.io/target-platform: kubernetes
   labels:
     app: ingressmonitorcontroller
-    version: 1.0.46
-    group: com.stakater.platform
-    provider: stakater
-    chart: "ingressmonitorcontroller-1.0.46"
+    chart: "ingressmonitorcontroller-1.0.47"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-  name: ingressmonitorcontroller
+    version: 1.0.47
+    
+    group: com.stakater.platform
+    provider: stakater
+    
 data:
   config.yaml: |-
     providers:
