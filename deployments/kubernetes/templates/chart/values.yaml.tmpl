@@ -17,6 +17,8 @@ ingressMonitorController:
   config:
     labels:
       version: "{{ getenv "VERSION" }}"
+    annotations:
+      fabric8.io/target-platform: kubernetes
   rbac:
     create: true
   # Service account config for the agent pods
