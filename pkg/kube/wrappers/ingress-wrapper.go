@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/url"
 	"path"
+	"strings"
 
 	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"k8s.io/api/extensions/v1beta1"
@@ -59,21 +60,26 @@ func (iw *IngressWrapper) getIngressSubPathWithPort() string {
 	return port + subPath
 }
 
-func (iw *IngressWrapper) getIngressPort() string {
-	rule := iw.Ingress.Spec.Rules[0]
-	if rule.HTTP != nil {
-		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
-			return rule.HTTP.Paths[0].Backend.ServicePort.StrVal
-		}
-	}
-	return ""
-}
+// func (iw *IngressWrapper) getIngressPort() string {
+// 	rule := iw.Ingress.Spec.Rules[0]
+// 	if rule.HTTP != nil {
+// 		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
+// 			return rule.HTTP.Paths[0].Backend.ServicePort.StrVal
+// 		}
+// 	}
+// 	return ""
+// }
 
 func (iw *IngressWrapper) getIngressSubPath() string {
 	rule := iw.Ingress.Spec.Rules[0]
 	if rule.HTTP != nil {
 		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
-			return rule.HTTP.Paths[0].Path
+			if strings.ContainsAny(rule.HTTP.Paths[0].Path, "*") {
+				return strings.TrimRight(rule.HTTP.Paths[0].Path, "*")
+			}
+			else {
+				return rule.HTTP.Paths[0].Path
+			}
 		}
 	}
 	return ""
