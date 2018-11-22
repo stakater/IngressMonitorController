@@ -100,15 +100,15 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				kubeClient: getTestKubeClient(),
 			},
 			want: "http://testurl.stackator.com/overriden-path",
-		},{
+		}, {
 			name: "TestGetUrlWithWildCardInPath",
 			fields: fields{
-				ingress: createIngressObjectWithPath("testIngress", "test", testUrl, "/*"),
-				namespace: "test",
+				ingress:    createIngressObjectWithPath("testIngress", "test", testUrl, "/*"),
+				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
 			want: "http://testurl.stackator.com/",
-		}
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
