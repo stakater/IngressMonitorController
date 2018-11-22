@@ -58,6 +58,18 @@ The following quickstart let's you set up Ingress Monitor Controller to register
    oc create -f ingressmonitorcontroller.yaml -n default
    ```
 
+### Helm Charts
+
+Alternatively if you have configured helm on your cluster, you can add ingressmonitorcontroller to helm from helm's public chart repository and deploy it via helm using below mentioned commands
+
+ ```bash
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+
+helm repo update
+
+helm install stable/ingressmonitorcontroller
+```
+
 ## Help
 
 ### Documentation
