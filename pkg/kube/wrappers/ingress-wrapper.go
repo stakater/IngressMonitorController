@@ -65,7 +65,7 @@ func (iw *IngressWrapper) getIngressPort() string {
 	rule := iw.Ingress.Spec.Rules[0]
 	if rule.HTTP != nil {
 		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
-			if reflect.TypeOf(rule.HTTP.Paths[0].Backend.ServicePort).Kind() == request.String {
+			if reflect.TypeOf(rule.HTTP.Paths[0].Backend.ServicePort).Kind() == reflect.String {
 				return "80"
 			} else {
 				return rule.HTTP.Paths[0].Backend.ServicePort.StrVal
