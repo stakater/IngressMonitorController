@@ -58,7 +58,19 @@ func (iw *IngressWrapper) getIngressSubPathWithPort() string {
 	port := iw.getIngressPort()
 	subPath := iw.getIngressSubPath()
 
-	return port + subPath
+	if port != nil {
+		if subPath != nil {
+			return port + subPath
+		} else {
+			return port + "/"
+		}
+	} else {
+		if subPath != nil {
+			return "80" + subPath
+		} else {
+			return "80/"
+		}
+	}
 }
 
 func (iw *IngressWrapper) getIngressPort() string {
@@ -118,7 +130,7 @@ func (iw *IngressWrapper) GetURL() string {
 	} else {
 		// Append port + ingressSubPath
 		ingressSubPathWithPort := iw.getIngressSubPathWithPort()
-		u.Path = u.Path + ":" + strings.Split(ingressSubPathWithPort, "/")[0]
+		u.Path = strings.TripSuffix(u.Path, "/") + ":" + strings.Split(ingressSubPathWithPort, "/")[0]
 		u.Path = path.Join(u.Path, strings.Join(strings.Split(iw.getIngressSubPathWithPort(), "/")[1:], "/"))
 
 		// Find pod by backtracking ingress -> service -> pod

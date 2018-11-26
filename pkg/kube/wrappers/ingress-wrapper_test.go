@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	testUrl = "testurl.stackator.com/"
+	testUrl = "testurl.stackator.com"
 )
 
 func createIngressObjectWithPath(ingressName string, namespace string, url string, path string) *v1beta1.Ingress {
@@ -54,7 +54,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com/",
+			want: "http://testurl.stackator.com:80/",
 		},
 		{
 			name: "TestGetUrlWithHelloPath",
@@ -63,7 +63,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com/hello",
+			want: "http://testurl.stackator.com:80/hello",
 		},
 		{
 			name: "TestGetUrlWithNoPath",
@@ -72,7 +72,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com/",
+			want: "http://testurl.stackator.com:80/",
 		},
 		{
 			name: "TestGetUrlWithForceHTTPSAnnotation",
@@ -81,7 +81,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "https://testurl.stackator.com/",
+			want: "https://testurl.stackator.com:80/",
 		},
 		{
 			name: "TestGetUrlWithForceHTTPSAnnotationOff",
@@ -90,7 +90,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com/",
+			want: "http://testurl.stackator.com:80/",
 		},
 		{
 			name: "TestGetUrlWithOverridePathAnnotation",
@@ -99,7 +99,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com/overriden-path",
+			want: "http://testurl.stackator.com:80/overriden-path",
 		}, {
 			name: "TestGetUrlWithWildCardInPath",
 			fields: fields{
@@ -107,7 +107,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com/",
+			want: "http://testurl.stackator.com:80/",
 		},
 	}
 	for _, tt := range tests {
