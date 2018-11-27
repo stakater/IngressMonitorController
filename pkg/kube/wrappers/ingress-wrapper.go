@@ -58,14 +58,14 @@ func (iw *IngressWrapper) getIngressSubPathWithPort() string {
 	port := iw.getIngressPort()
 	subPath := iw.getIngressSubPath()
 
-	if port != nil {
-		if subPath != nil {
+	if port != "" {
+		if subPath != "" {
 			return port + subPath
 		} else {
 			return port + "/"
 		}
 	} else {
-		if subPath != nil {
+		if subPath != "" {
 			return "80" + subPath
 		} else {
 			return "80/"
