@@ -81,7 +81,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "https://testurl.stackator.com/",
+			want: "https://testurl.stackator.com",
 		},
 		{
 			name: "TestGetUrlWithForceHTTPSAnnotationOff",
@@ -90,7 +90,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com/",
+			want: "http://testurl.stackator.com",
 		},
 		{
 			name: "TestGetUrlWithOverridePathAnnotation",
