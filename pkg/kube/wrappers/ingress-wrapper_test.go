@@ -54,7 +54,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com:80/",
+			want: "http://testurl.stackator.com/",
 		},
 		{
 			name: "TestGetUrlWithHelloPath",
@@ -63,7 +63,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com:80/hello",
+			want: "http://testurl.stackator.com/hello",
 		},
 		{
 			name: "TestGetUrlWithNoPath",
@@ -72,7 +72,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com:80/",
+			want: "http://testurl.stackator.com/",
 		},
 		{
 			name: "TestGetUrlWithForceHTTPSAnnotation",
@@ -81,7 +81,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "https://testurl.stackator.com:80/",
+			want: "https://testurl.stackator.com/",
 		},
 		{
 			name: "TestGetUrlWithForceHTTPSAnnotationOff",
@@ -90,7 +90,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com:80/",
+			want: "http://testurl.stackator.com/",
 		},
 		{
 			name: "TestGetUrlWithOverridePathAnnotation",
@@ -99,7 +99,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com:80/overriden-path",
+			want: "http://testurl.stackator.com/overriden-path",
 		}, {
 			name: "TestGetUrlWithWildCardInPath",
 			fields: fields{
@@ -107,7 +107,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com:80/",
+			want: "http://testurl.stackator.com/",
 		},
 	}
 	for _, tt := range tests {

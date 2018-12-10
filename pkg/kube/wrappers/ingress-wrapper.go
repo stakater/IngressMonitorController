@@ -66,9 +66,9 @@ func (iw *IngressWrapper) getIngressSubPathWithPort() string {
 		}
 	} else {
 		if subPath != "" {
-			return "80" + subPath
+			return subPath
 		} else {
-			return "80/"
+			return ""
 		}
 	}
 }
@@ -78,7 +78,7 @@ func (iw *IngressWrapper) getIngressPort() string {
 	if rule.HTTP != nil {
 		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
 			if reflect.TypeOf(rule.HTTP.Paths[0].Backend.ServicePort).Kind() == reflect.String {
-				return "80"
+				return ""
 			} else {
 				return rule.HTTP.Paths[0].Backend.ServicePort.StrVal
 			}
@@ -129,9 +129,7 @@ func (iw *IngressWrapper) GetURL() string {
 		u.Path = value
 	} else {
 		// Append port + ingressSubPath
-		ingressSubPathWithPort := iw.getIngressSubPathWithPort()
-		u.Path = u.Path + ":" + strings.Split(ingressSubPathWithPort, "/")[0]
-		u.Path = path.Join(u.Path, strings.Join(strings.Split(iw.getIngressSubPathWithPort(), "/")[1:], "/"))
+		u.Path = path.Join(u.Path, iw.getIngressSubPathWithPort())
 
 		// Find pod by backtracking ingress -> service -> pod
 		healthEndpoint, exists := iw.tryGetHealthEndpointFromIngress()
