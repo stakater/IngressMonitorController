@@ -85,6 +85,10 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	body := "api_key=" + monitor.apiKey + "&format=json&type=1&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name) + "&alert_contacts=" + monitor.alertContacts
 
+	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
+	    body += "&interval=" + val
+	}
+
 	response := client.PostUrlEncodedFormBody(body)
 
 	if response.StatusCode == 200 {
@@ -107,6 +111,10 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 	client := http.CreateHttpClient(monitor.url + action)
 
 	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL
+
+	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
+	    body += "&interval=" + val
+	}
 
 	response := client.PostUrlEncodedFormBody(body)
 
