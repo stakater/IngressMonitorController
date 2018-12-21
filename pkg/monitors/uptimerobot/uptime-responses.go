@@ -26,8 +26,6 @@ type UptimeMonitorMonitor struct {
 	Interval       int                 `json:"interval"`
 	Status         int                 `json:"status"`
 	CreateDatetime int                 `json:"create_datetime"`
-	MonitorGroup   int                 `json:"monitor_group"`
-	IsGroupMain    int                 `json:"is_group_main"`
 	Logs           []UptimeMonitorLogs `json:"logs"`
 }
 
