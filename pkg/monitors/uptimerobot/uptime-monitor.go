@@ -3,25 +3,27 @@ package uptimerobot
 import (
 	"encoding/json"
 	"errors"
-	"log"
-	"net/url"
-	"strconv"
-
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	"log"
+	"net/url"
+	"strconv"
 )
 
 type UpTimeMonitorService struct {
-	apiKey        string
-	url           string
-	alertContacts string
+	apiKey            string
+	url               string
+	alertContacts     string
+	statusPageService UpTimeStatusPageService
 }
 
 func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
 	monitor.apiKey = p.ApiKey
 	monitor.url = p.ApiURL
 	monitor.alertContacts = p.AlertContacts
+	monitor.statusPageService = UpTimeStatusPageService{}
+	monitor.statusPageService.Setup(p)
 }
 
 func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, error) {
@@ -97,6 +99,10 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Added: " + m.Name)
+			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/status-pages"]; ok {
+				createdMonitor := models.Monitor{ID: strconv.Itoa(f.Monitor.ID)}
+				monitor.updateStatusPages(val, createdMonitor)
+			}
 		} else {
 			log.Println("Monitor couldn't be added: " + m.Name)
 		}
@@ -124,6 +130,10 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Updated: " + m.Name)
+			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/status-pages"]; ok {
+				updatedMonitor := models.Monitor{ID: strconv.Itoa(f.Monitor.ID)}
+				monitor.updateStatusPages(val, updatedMonitor)
+			}
 		} else {
 			log.Println("Monitor couldn't be updated: " + m.Name)
 		}
@@ -153,5 +163,13 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 		}
 	} else {
 		log.Println("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+	}
+}
+
+func (monitor *UpTimeMonitorService) updateStatusPages(statusPages string, monitorToAdd models.Monitor) {
+	statusPage := UpTimeStatusPage{ID: statusPages}
+	_, err := monitor.statusPageService.AddMonitorToStatusPage(statusPage, monitorToAdd)
+	if err != nil {
+		log.Println("Monitor couldn't be added to status page: " + err.Error())
 	}
 }

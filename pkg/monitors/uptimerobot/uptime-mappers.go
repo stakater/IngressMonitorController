@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 )
 
 func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor) *models.Monitor {
@@ -29,4 +30,14 @@ func UptimeMonitorMonitorsToBaseMonitorsMapper(uptimeMonitors []UptimeMonitorMon
 	}
 
 	return monitors
+}
+
+func UptimeStatusPageToBaseStatusPageMapper(uptimePublicStatusPage UptimePublicStatusPage) *UpTimeStatusPage {
+	var s UpTimeStatusPage
+
+	s.Name = uptimePublicStatusPage.FriendlyName
+	s.Monitors = util.SliceItoa(uptimePublicStatusPage.Monitors)
+	s.ID = strconv.Itoa(uptimePublicStatusPage.ID)
+
+	return &s
 }
