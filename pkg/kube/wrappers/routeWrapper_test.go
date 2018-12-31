@@ -8,6 +8,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+const (
+	routeTestUrl = "testurl.stackator.com/"
+)
+
 func createRouteObjectWithPath(routeName string, namespace string, url string, path string) *routev1.Route {
 	route := util.CreateRouteObject(routeName, namespace, url)
 	route.Spec.Path = path
@@ -35,7 +39,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithEmptyPath",
 			fields: fields{
-				route:      createRouteObjectWithPath("testRoute", "test", testUrl, "/"),
+				route:      createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/"),
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
@@ -44,7 +48,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithHelloPath",
 			fields: fields{
-				route:      createRouteObjectWithPath("testRoute", "test", testUrl, "/hello"),
+				route:      createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/hello"),
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
@@ -53,7 +57,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithNoPath",
 			fields: fields{
-				route:      util.CreateRouteObject("testRoute", "test", testUrl),
+				route:      util.CreateRouteObject("testRoute", "test", routeTestUrl),
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
@@ -62,7 +66,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithForceHTTPSAnnotation",
 			fields: fields{
-				route:      createRouteObjectWithAnnotations("testRoute", "test", testUrl, map[string]string{"monitor.stakater.com/forceHttps": "true"}),
+				route:      createRouteObjectWithAnnotations("testRoute", "test", routeTestUrl, map[string]string{"monitor.stakater.com/forceHttps": "true"}),
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
@@ -71,7 +75,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithForceHTTPSAnnotationOff",
 			fields: fields{
-				route:      createRouteObjectWithAnnotations("testRoute", "test", testUrl, map[string]string{"monitor.stakater.com/forceHttps": "false"}),
+				route:      createRouteObjectWithAnnotations("testRoute", "test", routeTestUrl, map[string]string{"monitor.stakater.com/forceHttps": "false"}),
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
@@ -80,7 +84,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithOverridePathAnnotation",
 			fields: fields{
-				route:      createRouteObjectWithAnnotations("testRoute", "test", testUrl, map[string]string{"monitor.stakater.com/overridePath": "/overriden-path"}),
+				route:      createRouteObjectWithAnnotations("testRoute", "test", routeTestUrl, map[string]string{"monitor.stakater.com/overridePath": "/overriden-path"}),
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
