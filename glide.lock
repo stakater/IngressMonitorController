@@ -1,5 +1,5 @@
 hash: f537ab66d84ffc888ec310d9619cf8d0919cf20ed349594c016f9ae2a9ddfd41
-updated: 2018-11-08T10:01:43.600238931Z
+updated: 2018-12-28T12:23:26.567140014Z
 imports:
 - name: github.com/davecgh/go-spew
   version: 782f4967f2dc4564575ca782fe2d04090b5faca8
@@ -90,7 +90,7 @@ imports:
   subpackages:
   - pingdom
 - name: github.com/sirupsen/logrus
-  version: 44067abb194b1bc8b342e1f2120f8d3ea691b834
+  version: 6180652bb05834ae178c93911ddae14b689408b7
 - name: github.com/spf13/pflag
   version: 9ff6c6923cfffbcd502984b8e0c80539a94968b7
 - name: golang.org/x/crypto
