@@ -11,12 +11,12 @@ ingressMonitorController:
     provider: stakater
   deployment:
     labels:
-      version: "1.0.48"
+      version: "1.0.49"
     annotations:
       configmap.reloader.stakater.com/reload: ingressmonitorcontroller
   config:
     labels:
-      version: "1.0.48"
+      version: "1.0.49"
   rbac:
     create: true
   # Service account config for the agent pods
@@ -24,13 +24,13 @@ ingressMonitorController:
     # Specifies whether a ServiceAccount should be created
     create: true
     labels:
-      version: "1.0.48"
+      version: "1.0.49"
     # The name of the ServiceAccount to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ingressmonitorcontroller
   image:
     name: stakater/ingressmonitorcontroller
-    tag: "1.0.48"
+    tag: "1.0.49"
     pullPolicy: IfNotPresent
   providers:
   - name: UptimeRobot
