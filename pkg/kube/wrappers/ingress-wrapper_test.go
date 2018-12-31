@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	testUrl = "testurl.stackator.com/"
+	testUrl = "testurl.stackator.com"
 )
 
 func createIngressObjectWithPath(ingressName string, namespace string, url string, path string) *v1beta1.Ingress {
@@ -72,7 +72,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com/",
+			want: "http://testurl.stackator.com",
 		},
 		{
 			name: "TestGetUrlWithForceHTTPSAnnotation",
@@ -81,7 +81,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "https://testurl.stackator.com/",
+			want: "https://testurl.stackator.com",
 		},
 		{
 			name: "TestGetUrlWithForceHTTPSAnnotationOff",
@@ -90,7 +90,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				namespace:  "test",
 				kubeClient: getTestKubeClient(),
 			},
-			want: "http://testurl.stackator.com/",
+			want: "http://testurl.stackator.com",
 		},
 		{
 			name: "TestGetUrlWithOverridePathAnnotation",
@@ -100,6 +100,14 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				kubeClient: getTestKubeClient(),
 			},
 			want: "http://testurl.stackator.com/overriden-path",
+		}, {
+			name: "TestGetUrlWithWildCardInPath",
+			fields: fields{
+				ingress:    createIngressObjectWithPath("testIngress", "test", testUrl, "/*"),
+				namespace:  "test",
+				kubeClient: getTestKubeClient(),
+			},
+			want: "http://testurl.stackator.com/",
 		},
 	}
 	for _, tt := range tests {
