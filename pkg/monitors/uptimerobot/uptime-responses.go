@@ -18,7 +18,7 @@ type UptimeMonitorMonitor struct {
 	URL            string              `json:"url"`
 	Type           int                 `json:"type"`
 	SubType        string              `json:"sub_type"`
-	KeywordType    string              `json:"keyword_type"`
+	KeywordType    int                 `json:"keyword_type"`
 	KeywordValue   string              `json:"keyword_value"`
 	HTTPUsername   string              `json:"http_username"`
 	HTTPPassword   string              `json:"http_password"`

@@ -220,7 +220,7 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
-	ingress, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
 	if err != nil {
 		panic(err)
@@ -348,7 +348,7 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
-	ingress, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
 	if err != nil {
 		panic(err)
@@ -397,7 +397,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
-	ingress, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
 	if err != nil {
 		panic(err)
@@ -447,7 +447,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
-	ingress, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
 	if err != nil {
 		panic(err)
@@ -517,7 +517,7 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 
 	ingress = addMonitorAnnotationToIngress(ingress, false)
 
-	ingress, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
 
 	if err != nil {
 		panic(err)

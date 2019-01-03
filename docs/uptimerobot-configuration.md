@@ -30,3 +30,11 @@ You will get a response similar to what is shown below
 ```
 
 Copy values of `id` field of your alert contacts which you want to use for Ingress Monitor Controller and append `_0_0` to them and seperate them by `-`. You will now have a string similar to `12345_0_0-23564_0_0`. This is basically the value you will need to specify in Ingress Monitor Controller's ConfigMap as `alertContacts`.
+
+## Annotations
+
+Additional uptime robot configurations can be added through a set of annotations to each ingress object, the current supported annotations are:
+
+|                        Annotation         |                    Description            |
+|:-----------------------------------------:|:-----------------------------------------:|
+| uptimerobot.monitor.stakater.com/interval | The uptimerobot check interval in minutes |

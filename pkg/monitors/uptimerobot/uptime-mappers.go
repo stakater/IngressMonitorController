@@ -13,6 +13,11 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 	m.URL = uptimeMonitor.URL
 	m.ID = strconv.Itoa(uptimeMonitor.ID)
 
+    var annotations = map[string]string {
+        "uptimerobot.monitor.stakater.com/interval": strconv.Itoa(uptimeMonitor.Interval),
+    }
+	m.Annotations = annotations
+
 	return &m
 }
 
