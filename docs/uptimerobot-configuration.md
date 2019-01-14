@@ -37,7 +37,7 @@ Additional uptime robot configurations can be added through a set of annotations
 
 |                        Annotation             |                    Description                               |
 |:---------------------------------------------:|:------------------------------------------------------------:|
-| uptimerobot.monitor.stakater.com/interval     | The uptimerobot check interval in minutes                    |
+| uptimerobot.monitor.stakater.com/interval     | The uptimerobot check interval in seconds                    |
 | uptimerobot.monitor.stakater.com/status-pages | The uptimerobot public status page ID to add this monitor to |
 
 ### Fetching public status page ids from UpTime Robot
