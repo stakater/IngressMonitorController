@@ -10,16 +10,16 @@ import (
 )
 
 func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
-    config := config.GetControllerConfig()
+	config := config.GetControllerConfig()
 	service := UpTimeStatusPageService{}
 	service.Setup(config.Providers[0])
 
- 	statusPage := UpTimeStatusPage{Name: "status-page-test"}
-    ID, err :=  service.Add(statusPage)
+	statusPage := UpTimeStatusPage{Name: "status-page-test"}
+	ID, err := service.Add(statusPage)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-    statusPage.ID = ID
+	statusPage.ID = ID
 
 	monitorService := UpTimeMonitorService{}
 	monitorService.Setup(config.Providers[0])
@@ -31,7 +31,7 @@ func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
- 	service.AddMonitorToStatusPage(statusPage, *monitorRes)
+	service.AddMonitorToStatusPage(statusPage, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -44,7 +44,7 @@ func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 		t.Error("The status page does not contain the monitor, expected: " + monitorRes.ID + ", but was: " + strings.Join(statusPageRes.Monitors, "-"))
 	}
 
- 	service.AddMonitorToStatusPage(statusPage, *monitorRes)
+	service.AddMonitorToStatusPage(statusPage, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -57,22 +57,22 @@ func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 		t.Error("The status page does not contain the monitor, expected: " + monitorRes.ID + ", but was: " + strings.Join(statusPageRes.Monitors, "-"))
 	}
 
-    // Tidy up
+	// Tidy up
 	monitorService.Remove(*monitorRes)
-    service.Remove(statusPage)
+	service.Remove(statusPage)
 }
 
 func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
-    config := config.GetControllerConfig()
+	config := config.GetControllerConfig()
 	service := UpTimeStatusPageService{}
 	service.Setup(config.Providers[0])
 
- 	statusPage := UpTimeStatusPage{Name: "status-page-test"}
-    ID, err :=  service.Add(statusPage)
+	statusPage := UpTimeStatusPage{Name: "status-page-test"}
+	ID, err := service.Add(statusPage)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-    statusPage.ID = ID
+	statusPage.ID = ID
 
 	monitorService := UpTimeMonitorService{}
 	monitorService.Setup(config.Providers[0])
@@ -84,7 +84,7 @@ func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
- 	service.AddMonitorToStatusPage(statusPage, *monitor1Res)
+	service.AddMonitorToStatusPage(statusPage, *monitor1Res)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -97,7 +97,7 @@ func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
- 	service.AddMonitorToStatusPage(statusPage, *monitor2Res)
+	service.AddMonitorToStatusPage(statusPage, *monitor2Res)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -113,37 +113,37 @@ func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 		t.Error("The status page does not contain the second monitor, expected: " + monitor2Res.ID + ", but was: " + strings.Join(statusPageRes.Monitors, "-"))
 	}
 
-    // Tidy up
+	// Tidy up
 	monitorService.Remove(*monitor1Res)
 	monitorService.Remove(*monitor2Res)
-    service.Remove(statusPage)
+	service.Remove(statusPage)
 }
 
 func TestGetStatusPagesForMonitor(t *testing.T) {
-    config := config.GetControllerConfig()
+	config := config.GetControllerConfig()
 	service := UpTimeStatusPageService{}
 	service.Setup(config.Providers[0])
 
- 	statusPage1 := UpTimeStatusPage{Name: "status-page-test-1"}
-    ID1, err :=  service.Add(statusPage1)
+	statusPage1 := UpTimeStatusPage{Name: "status-page-test-1"}
+	ID1, err := service.Add(statusPage1)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-    statusPage1.ID = ID1
+	statusPage1.ID = ID1
 
- 	statusPage2 := UpTimeStatusPage{Name: "status-page-test-2"}
-    ID2, err :=  service.Add(statusPage2)
+	statusPage2 := UpTimeStatusPage{Name: "status-page-test-2"}
+	ID2, err := service.Add(statusPage2)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-    statusPage2.ID = ID2
+	statusPage2.ID = ID2
 
- 	statusPage3 := UpTimeStatusPage{Name: "status-page-test-3"}
-    ID3, err :=  service.Add(statusPage3)
+	statusPage3 := UpTimeStatusPage{Name: "status-page-test-3"}
+	ID3, err := service.Add(statusPage3)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-    statusPage3.ID = ID3
+	statusPage3.ID = ID3
 
 	monitorService := UpTimeMonitorService{}
 	monitorService.Setup(config.Providers[0])
@@ -155,12 +155,12 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
- 	service.AddMonitorToStatusPage(statusPage1, *monitorRes)
+	service.AddMonitorToStatusPage(statusPage1, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
 
- 	service.AddMonitorToStatusPage(statusPage2, *monitorRes)
+	service.AddMonitorToStatusPage(statusPage2, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -180,13 +180,12 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 		t.Error("The third status page should not contain the monitor, but was: " + strings.Join(statusPageIds, "-"))
 	}
 
-    // Tidy up
+	// Tidy up
 	monitorService.Remove(*monitorRes)
-    service.Remove(statusPage1)
-    service.Remove(statusPage2)
-    service.Remove(statusPage3)
+	service.Remove(statusPage1)
+	service.Remove(statusPage2)
+	service.Remove(statusPage3)
 }
-
 
 func TestRemoveMonitorFromStatusPage(t *testing.T) {
 	config := config.GetControllerConfig()
@@ -194,7 +193,7 @@ func TestRemoveMonitorFromStatusPage(t *testing.T) {
 	service.Setup(config.Providers[0])
 
 	statusPage := UpTimeStatusPage{Name: "status-page-test"}
-	ID, err :=  service.Add(statusPage)
+	ID, err := service.Add(statusPage)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
