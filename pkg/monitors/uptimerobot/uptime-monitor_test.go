@@ -1,6 +1,8 @@
 package uptimerobot
 
 import (
+	"github.com/stakater/IngressMonitorController/pkg/util"
+	"strings"
 	"testing"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
@@ -67,7 +69,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	service.Remove(*mRes)
 }
 
-func TestAddMonitorWithAnnotations(t *testing.T) {
+func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
@@ -97,7 +99,7 @@ func TestAddMonitorWithAnnotations(t *testing.T) {
 	service.Remove(*mRes)
 }
 
-func TestUpdateMonitorAnnotations(t *testing.T) {
+func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
@@ -144,6 +146,111 @@ func TestUpdateMonitorAnnotations(t *testing.T) {
 	}
 
 	service.Remove(*mRes)
+}
+
+func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
+	config := config.GetControllerConfig()
+
+	service := UpTimeMonitorService{}
+	service.Setup(config.Providers[0])
+
+	statusPageService := UpTimeStatusPageService{}
+	statusPageService.Setup(config.Providers[0])
+
+	statusPage := UpTimeStatusPage{Name: "status-page-test"}
+	ID, err :=  statusPageService.Add(statusPage)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	statusPage.ID = ID
+
+	var annotations = map[string]string {
+		"uptimerobot.monitor.stakater.com/status-pages": statusPage.ID,
+	}
+
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	service.Add(m)
+
+	mRes, err := service.GetByName("google-test")
+
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name {
+		t.Error("The name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
+	}
+	if mRes.URL != m.URL {
+		t.Error("The URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
+	}
+	statusPageRes, err := statusPageService.Get(statusPage.ID)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if ! util.ContainsString(statusPageRes.Monitors, mRes.ID) {
+		t.Error("The status page does not contain the monitor, expected: " + mRes.ID + ", but was: " + strings.Join(statusPageRes.Monitors, "-"))
+	}
+	service.Remove(*mRes)
+	statusPageService.Remove(statusPage)
+}
+
+func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
+	config := config.GetControllerConfig()
+
+	service := UpTimeMonitorService{}
+	service.Setup(config.Providers[0])
+
+	statusPageService := UpTimeStatusPageService{}
+	statusPageService.Setup(config.Providers[0])
+
+	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+	service.Add(m)
+
+	mRes, err := service.GetByName("google-test")
+
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name {
+		t.Error("The initial name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
+	}
+	if mRes.URL != m.URL {
+		t.Error("The initial URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
+	}
+
+	statusPage := UpTimeStatusPage{Name: "status-page-test"}
+	ID, err :=  statusPageService.Add(statusPage)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	statusPage.ID = ID
+
+	var annotations = map[string]string {
+		"uptimerobot.monitor.stakater.com/status-pages": statusPage.ID,
+	}
+
+	mRes.URL = "https://facebook.com"
+	mRes.Annotations = annotations
+
+	service.Update(*mRes)
+
+	mRes, err = service.GetByName("google-test")
+
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.URL != "https://facebook.com" {
+		t.Error("The updated URL is incorrect, expected: https://facebook.com, but was: " + mRes.URL)
+	}
+	statusPageRes, err := statusPageService.Get(statusPage.ID)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if ! util.ContainsString(statusPageRes.Monitors, mRes.ID) {
+		t.Error("The status page does not contain the monitor, expected: " + mRes.ID + ", but was: " + strings.Join(statusPageRes.Monitors, "-"))
+	}
+
+	service.Remove(*mRes)
+	statusPageService.Remove(statusPage)
 }
 
 func TestAddMonitorWithIncorrectValues(t *testing.T) {
