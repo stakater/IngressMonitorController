@@ -8,10 +8,10 @@ metadata:
     
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-1.0.51"
+    chart: "ingressmonitorcontroller-1.0.52"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: 1.0.51
+    version: 1.0.52
     
     group: com.stakater.platform
     provider: stakater
@@ -31,10 +31,10 @@ spec:
     metadata:
       labels:
         app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-1.0.51"
+        chart: "ingressmonitorcontroller-1.0.52"
         release: "RELEASE-NAME"
         heritage: "Tiller"
-        version: 1.0.51
+        version: 1.0.52
         
         group: com.stakater.platform
         provider: stakater
@@ -44,7 +44,7 @@ spec:
       - env:
         - name: CONFIG_FILE_PATH
           value: /etc/IngressMonitorController/config.yaml
-        image: "stakater/ingressmonitorcontroller:1.0.51"
+        image: "stakater/ingressmonitorcontroller:1.0.52"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
