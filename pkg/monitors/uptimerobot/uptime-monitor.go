@@ -13,15 +13,18 @@ import (
 )
 
 type UpTimeMonitorService struct {
-	apiKey        string
-	url           string
-	alertContacts string
+	apiKey            string
+	url               string
+	alertContacts     string
+	statusPageService UpTimeStatusPageService
 }
 
 func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
 	monitor.apiKey = p.ApiKey
 	monitor.url = p.ApiURL
 	monitor.alertContacts = p.AlertContacts
+	monitor.statusPageService = UpTimeStatusPageService{}
+	monitor.statusPageService.Setup(p)
 }
 
 func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, error) {
@@ -88,6 +91,9 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
 	    body += "&interval=" + val
 	}
+	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
+	    body += "&mwindows=" + val
+	}
 
 	response := client.PostUrlEncodedFormBody(body)
 
@@ -97,6 +103,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Added: " + m.Name)
+			monitor.handleStatusPagesAnnotations(m, strconv.Itoa(f.Monitor.ID))
 		} else {
 			log.Println("Monitor couldn't be added: " + m.Name)
 		}
@@ -110,10 +117,13 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL
+	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL + "&alert_contacts=" + monitor.alertContacts
 
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
 	    body += "&interval=" + val
+	}
+	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
+	    body += "&mwindows=" + val
 	}
 
 	response := client.PostUrlEncodedFormBody(body)
@@ -124,6 +134,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Updated: " + m.Name)
+			monitor.handleStatusPagesAnnotations(m, strconv.Itoa(f.Monitor.ID))
 		} else {
 			log.Println("Monitor couldn't be updated: " + m.Name)
 		}
@@ -153,5 +164,19 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 		}
 	} else {
 		log.Println("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+	}
+}
+
+func (monitor *UpTimeMonitorService) handleStatusPagesAnnotations(monitorToAdd models.Monitor, monitorId string) {
+	if val, ok := monitorToAdd.Annotations["uptimerobot.monitor.stakater.com/status-pages"]; ok {
+		monitor.updateStatusPages(val, models.Monitor{ID: monitorId})
+	}
+}
+
+func (monitor *UpTimeMonitorService) updateStatusPages(statusPages string, monitorToAdd models.Monitor) {
+	statusPage := UpTimeStatusPage{ID: statusPages}
+	_, err := monitor.statusPageService.AddMonitorToStatusPage(statusPage, monitorToAdd)
+	if err != nil {
+		log.Println("Monitor couldn't be added to status page: " + err.Error())
 	}
 }
