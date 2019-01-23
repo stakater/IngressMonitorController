@@ -19,3 +19,4 @@ Currently additional pingdom configurations can be added through a set of annota
 | pingdom.monitor.stakater.com/send-notification-when-down | How many failed check attempts before notifying  |
 | pingdom.monitor.stakater.com/paused                      | Set to "true" to pause checks                    |
 | pingdom.monitor.stakater.com/notify-when-back-up         | Set to "false" to disable recovery notifications |
+| pingdom.monitor.stakater.com/request-headers             | Custom pingdom request headers (e.g. {"Accept"="application/json"}) |
