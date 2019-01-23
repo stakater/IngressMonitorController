@@ -91,6 +91,9 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
 	    body += "&interval=" + val
 	}
+	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
+	    body += "&mwindows=" + val
+	}
 
 	response := client.PostUrlEncodedFormBody(body)
 
@@ -118,6 +121,9 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
 	    body += "&interval=" + val
+	}
+	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
+	    body += "&mwindows=" + val
 	}
 
 	response := client.PostUrlEncodedFormBody(body)
