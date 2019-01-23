@@ -18,6 +18,7 @@ const (
 	PingdomSendNotificationWhenDownAnnotation = "pingdom.monitor.stakater.com/send-notification-when-down"
 	PingdomPausedAnnotation                   = "pingdom.monitor.stakater.com/paused"
 	PingdomNotifyWhenBackUpAnnotation         = "pingdom.monitor.stakater.com/notify-when-back-up"
+	PingdomRequestHeadersAnnotation           = "pingdom.monitor.stakater.com/request-headers"
 )
 
 // PingdomMonitorService interfaces with MonitorService
@@ -182,4 +183,10 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		httpCheck.SendNotificationWhenDown = 3
 	}
 
+	if value, ok := annotations[PingdomRequestHeadersAnnotation]; ok {
+		httpCheck.RequestHeaders = make(map[string]string)
+		for k, v := range value.(map[string]interface{}) {
+			httpCheck.RequestHeaders[k] = v.(string)
+		}
+	}
 }
