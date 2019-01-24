@@ -45,6 +45,10 @@ spec:
 {{ toYaml .Values.ingressMonitorController.matchLabels | indent 8 }}
 {{- end }}
     spec:
+      {{- if .Values.ingressMonitorController.tolerations }}
+      tolerations:
+{{ toYaml .Values.ingressMonitorController.tolerations | indent 8 -}}
+      {{- end }}
       containers:
       - env:
       {{- if .Values.ingressMonitorController.watchNamespace }}
