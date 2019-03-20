@@ -21,6 +21,7 @@ type Provider struct {
 	AlertContacts string `yaml:"alertContacts"`
 	Username      string `yaml:"username"`
 	Password      string `yaml:"password"`
+	AccountEmail  string `yaml:"accountEmail"`
 }
 
 func ReadConfig(filePath string) Config {
