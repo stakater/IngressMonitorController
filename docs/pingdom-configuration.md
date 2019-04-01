@@ -12,6 +12,7 @@ in the [Configuration section of the README](../README.md#configuration):
 ## Optional
 The following optional property can be included for Pingdom accounts which require multi-user authentication.
 More information can be found [Here](https://www.pingdom.com/api/2.1/#multi-user+authentication)
+
 | Key          | Description                                              |
 |--------------|----------------------------------------------------------|
 | accountEmail | Email account for multi-user authentication with Pingdom |
