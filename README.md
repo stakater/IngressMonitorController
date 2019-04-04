@@ -101,3 +101,4 @@ or contact us in case of professional services and queries on <hello@stakater.co
 ## Contributers
 
 Stakater Team and the Open Source community! :trophy:
+
