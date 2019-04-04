@@ -1,5 +1,5 @@
 hash: f537ab66d84ffc888ec310d9619cf8d0919cf20ed349594c016f9ae2a9ddfd41
-updated: 2019-01-23T12:16:43.590781184Z
+updated: 2019-04-04T14:44:54.308372324+05:00
 imports:
 - name: github.com/davecgh/go-spew
   version: 782f4967f2dc4564575ca782fe2d04090b5faca8
@@ -61,7 +61,7 @@ imports:
 - name: github.com/juju/ratelimit
   version: 5b9ff866471762aa2ab2dced63c9fb6f53921342
 - name: github.com/konsorten/go-windows-terminal-sequences
-  version: 5c8c8bd35d3832f5d134ae1e1e375b69a4d25242
+  version: f55edac94c9bbba5d6182a4be46d86a2c9b5b50e
 - name: github.com/mailru/easyjson
   version: 2f5df55504ebc322e4d52d34df6a1f5b503bf26d
   subpackages:
@@ -90,7 +90,7 @@ imports:
   subpackages:
   - pingdom
 - name: github.com/sirupsen/logrus
-  version: 7d8d63893b994a654b3bc8d16ffd7fb6b9f884a4
+  version: 9b3cdde74fbe9443d704467498a7dcb61a79de9b
 - name: github.com/spf13/pflag
   version: 9ff6c6923cfffbcd502984b8e0c80539a94968b7
 - name: golang.org/x/crypto
