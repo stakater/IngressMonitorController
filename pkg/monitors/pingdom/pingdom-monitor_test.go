@@ -11,13 +11,13 @@ import (
 func TestAddMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
+
 	service := PingdomMonitorService{}
 	provider := util.GetProviderWithName(config, "Pingdom")
 	if provider == nil {
 		panic("Failed to find provider")
 	}
 	service.Setup(*provider)
-
 	m := models.Monitor{Name: "google-test", URL: "https://google1.com"}
 	service.Add(m)
 
@@ -30,7 +30,6 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		t.Error("URL and name should be the same")
 	}
 	service.Remove(*mRes)
-
 	monitor, err := service.GetByName(mRes.Name)
 
 	if monitor != nil {
