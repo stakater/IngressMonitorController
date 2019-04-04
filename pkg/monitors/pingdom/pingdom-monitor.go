@@ -1,6 +1,7 @@
 package pingdom
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
@@ -184,9 +185,11 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 	}
 
 	if value, ok := annotations[PingdomRequestHeadersAnnotation]; ok {
+
 		httpCheck.RequestHeaders = make(map[string]string)
-		for k, v := range value.(map[string]interface{}) {
-			httpCheck.RequestHeaders[k] = v.(string)
+		err := json.Unmarshal([]byte(value), &httpCheck.RequestHeaders)
+		if err != nil {
+			log.Println("Error Converting from string to JSON object")
 		}
 	}
 }
