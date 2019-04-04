@@ -1,5 +1,8 @@
 # Pingdom Configuration
 
+## Note
+Currently we do not have access to Pingdom account that's why Tests are not verified. Community members having Pingdom account are welcome to contribute in Test Cases.
+
 ## Basic
 The following properties need to be configured for Pingdom, in addition to the general properties listed 
 in the [Configuration section of the README](../README.md#configuration):

@@ -19,7 +19,7 @@ This controller will continuously watch ingresses/routes in specific or all name
 Currently we support the following monitors:
 
 - [UptimeRobot](https://uptimerobot.com)
-- [Pingdom](https://pingdom.com) ([Additional Config](docs/pingdom-configuration.md))
+- [Pingdom](https://pingdom.com) ([Additional Config](docs/pingdom-configuration.md)) (Not fully tested)
 - [StatusCake](https://www.statuscake.com) ([Additional Config](docs/statuscake-configuration.md))
 
 ## Usage
@@ -35,8 +35,8 @@ The following quickstart let's you set up Ingress Monitor Controller to register
     |---------------|---------------------------------------------------------------------------|
     | name          | Name of the provider (e.g. UptimeRobot)                                   |
     | apiKey        | ApiKey of the provider                                                    |
-    | apiURL        | Base url of the ApiProvider                                               |
-    | alertContacts | A `-` separated list of contact id's that you want to add to the monitors |
+    | apiURL        | Base url of the ApiProvider with trailing slash (e.g. https://api.uptimerobot.com/v2/)        |
+    | alertContacts | A `-` separated list of contact id's inside double quotes that you want to add to the monitors (e.g. "1234567_8_9-9876543_2_1" )|
 
     *Note:* Follow [this](docs/uptimerobot-configuration.md) guide to see how to fetch `alertContacts` from UptimeRobot.
 
