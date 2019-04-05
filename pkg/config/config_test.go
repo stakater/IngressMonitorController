@@ -12,12 +12,13 @@ const (
 	correctTestAPIURL                = "https://api.uptimerobot.com/v2/"
 	correctTestAlertContacts         = "0544483_0_0-2628365_0_0-2633263_0_0"
 	correctTestEnableMonitorDeletion = true
-	correctTestPingdomConfigName     = "Pingdom"
-	correctTestPingdomConfigMulti    = "PingdomMulti"
-	correctTestPingdomUsername       = "user@test.com"
-	correctTestPingDomAPIURL         = "https://api.pingdom.com"
-	correctTestPingdomPassword       = "SuperSecret"
-	correctTestPingdomAccountEmail   = "multi@test.com"
+
+	configFilePathPingdom          = "../../configs/testConfigs/test-config-pingdom.yaml"
+	correctTestPingdomConfigMulti  = "PingdomMulti"
+	correctTestPingdomUsername     = "user@test.com"
+	correctTestPingDomAPIURL       = "https://api.pingdom.com/v2/"
+	correctTestPingdomPassword     = "SuperSecret"
+	correctTestPingdomAccountEmail = "multi@test.com"
 )
 
 func TestConfigWithCorrectValues(t *testing.T) {
@@ -65,19 +66,9 @@ func TestConfigWithoutEnabledFlag(t *testing.T) {
 	}
 }
 
-func TestConfigWithPingdom(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestPingDomAPIURL, AlertContacts: correctTestAlertContacts, Username: correctTestPingdomUsername, Password: correctTestPingdomPassword}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
-	config := ReadConfig(configFilePath)
-
-	if !reflect.DeepEqual(config, correctConfig) {
-		t.Error("Marshalled config and correct config do not match")
-	}
-}
-
-func TestConfigWithPingdomMultiAuth(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestAPIKey, ApiURL: correctTestPingDomAPIURL, AlertContacts: correctTestAlertContacts, Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
-	config := ReadConfig(configFilePath)
-
+func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiURL: correctTestPingDomAPIURL, Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	config := ReadConfig(configFilePathPingdom)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")
 	}

@@ -1,0 +1,7 @@
+providers: 
+  - name: PingdomMulti
+    apiURL: "https://api.pingdom.com/v2/"
+    username: "user@test.com"
+    password: "SuperSecret"
+    accountEmail: "multi@test.com"
+enableMonitorDeletion: true
