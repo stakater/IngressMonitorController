@@ -16,7 +16,7 @@ const (
 	configFilePathPingdom          = "../../configs/testConfigs/test-config-pingdom.yaml"
 	correctTestPingdomConfigMulti  = "PingdomMulti"
 	correctTestPingdomUsername     = "user@test.com"
-	correctTestPingDomAPIURL       = "https://api.pingdom.com/v2/"
+	correctTestPingdomAPIURL       = "https://api.pingdom.com/v2/"
 	correctTestPingdomPassword     = "SuperSecret"
 	correctTestPingdomAccountEmail = "multi@test.com"
 )
@@ -67,7 +67,7 @@ func TestConfigWithoutEnabledFlag(t *testing.T) {
 }
 
 func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiURL: correctTestPingDomAPIURL, Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestAPIKey, ApiURL: correctTestPingdomAPIURL, AlertContacts: correctTestAlertContacts, Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePathPingdom)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")
