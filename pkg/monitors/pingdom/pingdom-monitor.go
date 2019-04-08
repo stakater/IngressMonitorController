@@ -63,7 +63,7 @@ func (service *PingdomMonitorService) GetAll() []models.Monitor {
 
 	checks, err := service.client.Checks.List()
 	if err != nil {
-		log.Println("Error recevied while listing checks: ", err.Error())
+		log.Println("Error received while listing checks: ", err.Error())
 		return nil
 	}
 	for _, mon := range checks {
