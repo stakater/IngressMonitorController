@@ -40,7 +40,7 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 		// populating a monitors slice using the updownChecks objects given in updownChecks slice
 		for _, updownCheck := range updownChecks {
 			newMonitor := models.Monitor{
-				URL:  updownCheck.url,
+				URL:  updownCheck.URL,
 				Name: updownCheck.Alias,
 				ID:   updownCheck.Token,
 			}
