@@ -29,6 +29,7 @@ type PingdomMonitorService struct {
 	alertContacts string
 	username      string
 	password      string
+	accountEmail  string
 	client        *pingdom.Client
 }
 
@@ -38,7 +39,14 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.alertContacts = p.AlertContacts
 	service.username = p.Username
 	service.password = p.Password
-	service.client = pingdom.NewClient(service.username, service.password, service.apiKey)
+
+	// Check if config file defines a multi-user config
+	if (p.AccountEmail != "") {
+		service.accountEmail = p.AccountEmail
+		service.client = pingdom.NewMultiUserClient(service.username, service.password, service.apiKey, service.accountEmail)
+	} else {
+		service.client = pingdom.NewClient(service.username, service.password, service.apiKey)
+	}
 }
 
 func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, error) {

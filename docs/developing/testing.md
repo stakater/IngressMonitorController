@@ -34,6 +34,12 @@ providers:
     apiURL: https://app.statuscake.com/API/
     username: <your-account-username>
     password: <your-account-password>
+  - name: Pingdom
+    apiKey: <your-api-key>
+    apiURL: https://api.pingdom.com
+    username: <your-account-username>
+    password: <your-account-password>
+    accountEmail: <multi-auth-account-email>
 enableMonitorDeletion: true
 monitorNameTemplate: "{{.IngressName}}-{{.Namespace}}"
 ```
