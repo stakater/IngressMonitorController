@@ -34,7 +34,7 @@ func TestConfigWithCorrectValues(t *testing.T) {
 	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
 		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations,
 		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
-		EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+		EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 0}
 
 	config := ReadConfig(configFilePathPingdom)
 	if !reflect.DeepEqual(config, correctConfig) {
@@ -90,7 +90,7 @@ func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
 }
 
 func TestConfigWithUptime(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestUptimeConfigName, ApiKey: correctTestUptimeAPIKey, ApiURL: correctTestUptimeAPIURL, AlertContacts: correctTestUptimeAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestUptimeConfigName, ApiKey: correctTestUptimeAPIKey, ApiURL: correctTestUptimeAPIURL, AlertContacts: correctTestUptimeAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 300}
 	config := ReadConfig(configFilePathUptime)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")
