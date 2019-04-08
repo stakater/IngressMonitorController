@@ -1,89 +1,89 @@
 package pingdom
 
-// import (
-// 	"testing"
+import (
+	"log"
+	"testing"
 
-// 	"github.com/stakater/IngressMonitorController/pkg/config"
-// 	"github.com/stakater/IngressMonitorController/pkg/models"
-// )
+	"github.com/stakater/IngressMonitorController/pkg/config"
+	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/pkg/util"
+)
 
-// func TestAddPingdomMonitorWithCorrectValues(t *testing.T) {
-// 	config := config.GetControllerConfig()
+func TestAddMonitorWithCorrectValues(t *testing.T) {
+	config := config.GetControllerConfig()
 
-// 	service := PingdomMonitorService{}
-// 	service.Setup(config.Providers[1])
+	service := PingdomMonitorService{}
+	provider := util.GetProviderWithName(config, "Pingdom")
+	if provider == nil {
+		// TODO: Currently forcing to pass the test as we dont have Pingdom account to test
+		//       Fail this case in future when have a valid Pingdom account
+		log.Println("Failed to find provider")
+		return
+	}
+	service.Setup(*provider)
+	m := models.Monitor{Name: "google-test", URL: "https://google1.com"}
+	service.Add(m)
 
-// 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
-// 	service.Add(m)
+	mRes, err := service.GetByName("google-test")
 
-// 	mRes, err := service.GetByName("google-test")
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name || mRes.URL != m.URL {
+		t.Error("URL and name should be the same")
+	}
+	service.Remove(*mRes)
+	monitor, err := service.GetByName(mRes.Name)
 
-// 	if err != nil {
-// 		t.Error("Error: " + err.Error())
-// 	}
-// 	if mRes != nil {
-// 		if mRes.Name != m.Name || mRes.URL != m.URL {
-// 			t.Error("URL and name should be the same")
-// 		}
-// 	}
-// 	if mRes != nil {
-// 		service.Remove(*mRes)
-// 	}
-// }
+	if monitor != nil {
+		t.Error("Monitor should've been deleted ", monitor, err)
+	}
+}
 
-// func TestUpdateMonitorWithCorrectValues(t *testing.T) {
-// 	config := config.GetControllerConfig()
+func TestUpdateMonitorWithCorrectValues(t *testing.T) {
+	config := config.GetControllerConfig()
 
-// 	service := PingdomMonitorService{}
-// 	service.Setup(config.Providers[1])
+	service := PingdomMonitorService{}
 
-// 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
-// 	service.Add(m)
+	provider := util.GetProviderWithName(config, "Pingdom")
+	if provider == nil {
+		// TODO: Currently forcing to pass the test as we dont have Pingdom account to test
+		//       Fail this case in future when have a valid Pingdom account
+		log.Println("Failed to find provider")
+		return
+	}
+	service.Setup(*provider)
 
-// 	mRes, err := service.GetByName("google-test")
+	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+	service.Add(m)
 
-// 	if err != nil {
-// 		t.Error("Error: " + err.Error())
-// 	}
-// 	if mRes != nil {
-// 		if mRes.Name != m.Name || mRes.URL != m.URL {
-// 			t.Error("URL and name should be the same")
-// 		}
+	mRes, err := service.GetByName("google-test")
 
-// 		mRes.URL = "https://facebook.com"
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name || mRes.URL != m.URL {
+		t.Error("URL and name should be the same")
+	}
 
-// 		service.Update(*mRes)
+	mRes.URL = "https://facebook.com"
 
-// 		mRes, err = service.GetByName("google-test")
+	service.Update(*mRes)
 
-// 		if err != nil {
-// 			t.Error("Error: " + err.Error())
-// 		}
-// 		if mRes.URL != "https://facebook.com" {
-// 			t.Error("URL and name should be the same")
-// 		}
-// 		service.Remove(*mRes)
-// 	}
-// }
+	mRes, err = service.GetByName("google-test")
 
-// func TestAddMonitorWithIncorrectValues(t *testing.T) {
-// 	config := config.GetControllerConfig()
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.URL != "https://facebook.com" {
+		t.Error("URL and name should be the same")
+	}
 
-// 	service := PingdomMonitorService{}
-// 	config.Providers[1].ApiKey = "dummy-api-key"
-// 	service.Setup(config.Providers[1])
+	service.Remove(*mRes)
 
-// 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
-// 	service.Add(m)
+	monitor, err := service.GetByName(mRes.Name)
 
-// 	mRes, err := service.GetByName("google-test")
-
-// 	if err != nil {
-// 		t.Error("Error: " + err.Error())
-// 	}
-
-// 	if mRes != nil {
-// 		t.Error("Monitor should not be added")
-// 	}
-// }
-
+	if monitor != nil {
+		t.Error("Monitor should've been deleted ", monitor, err)
+	}
+}
