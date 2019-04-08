@@ -7,7 +7,7 @@ import (
 
 	"github.com/antoineaugusti/updown"
 	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/constants"
+    "github.com/stakater/IngressMonitorController/pkg/constants"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
@@ -36,20 +36,21 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 	// getting all checks list
 	updownChecks, httpResponse, err := updownService.client.Check.List()
 
-	if (httpResponse.StatusCode == constants.HTTPStatusCodesMap.statusCodes.OK) && (err == nil) {
+	if (httpResponse.StatusCode == constants.StatusCodes["OK"]) && (err == nil) {
 
 		// populating a monitors slice using the updownChecks objects given in updownChecks slice
 		for _, updownCheck := range updownChecks {
 			newMonitor := models.Monitor{
-				URL:   updownCheck.URL,
-				NAME:  updownCheck.Alias,
-				TOKEN: updownCheck.Token,
+				URL:  updownCheck.URL,
+				Name: updownCheck.Alias,
+				ID:   updownCheck.Token,
 			}
 			monitors = append(monitors, newMonitor)
 		}
 		return monitors
 	} else {
 		log.Println("Unable to get updown provider checks")
+		return nil
 	}
 
 }
