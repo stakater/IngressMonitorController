@@ -14,7 +14,6 @@ import (
 // UpdownMonitorService struct contains parameters required by updown go client
 type UpdownMonitorService struct {
 	apiKey        string
-	url           string
 	alertContacts string
 	client        *updown.Client
 }
@@ -41,7 +40,7 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 		// populating a monitors slice using the updownChecks objects given in updownChecks slice
 		for _, updownCheck := range updownChecks {
 			newMonitor := models.Monitor{
-				URL:  updownCheck.URL,
+				URL:  updownCheck.url,
 				Name: updownCheck.Alias,
 				ID:   updownCheck.Token,
 			}
