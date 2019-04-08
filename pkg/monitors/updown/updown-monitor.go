@@ -17,7 +17,6 @@ type UpdownMonitorService struct {
 	url           string
 	alertContacts string
 	client        *updown.Client
-	statusCodes   constants.HTTPStatusCodesMap
 }
 
 // Setup function will create a updown's go client object by using the configuration parameters
@@ -26,7 +25,6 @@ func (updownService *UpdownMonitorService) Setup(confProvider config.Provider) {
 	updownService.apiKey = confProvider.ApiKey
 	updownService.alertContacts = confProvider.AlertContacts
 	// creating updown go client
-	httpDefaultClient := http.DefaultClient
 	updownService.client = updown.NewClient(updownService.apiKey, http.DefaultClient)
 }
 
@@ -38,9 +36,9 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 	// getting all checks list
 	updownChecks, httpResponse, err := updownService.client.Check.List()
 
-	if (httpResponse.StatusCode == updownService.statusCodes.OK) && (err == nil) {
+	if (httpResponse.StatusCode == constants.HTTPStatusCodesMap.statusCodes.OK) && (err == nil) {
 
-		// populating a monitors array using the updownChecks objects given in updownChecks slice
+		// populating a monitors slice using the updownChecks objects given in updownChecks slice
 		for _, updownCheck := range updownChecks {
 			newMonitor := models.Monitor{
 				URL:   updownCheck.URL,
