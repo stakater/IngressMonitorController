@@ -45,7 +45,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.password = p.Password
 
 	// Check if config file defines a multi-user config
-	if (p.AccountEmail != "") {
+	if p.AccountEmail != "" {
 		service.accountEmail = p.AccountEmail
 		service.client = pingdom.NewMultiUserClient(service.username, service.password, service.apiKey, service.accountEmail)
 	} else {
@@ -59,15 +59,11 @@ func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, e
 	monitors := service.GetAll()
 	for _, mon := range monitors {
 		if mon.Name == name {
-			match = &mon
+			return &mon, nil
 		}
 	}
 
-	if match == nil {
-		return match, fmt.Errorf("Unable to locate monitor with name %v", name)
-	}
-
-	return match, nil
+	return match, fmt.Errorf("Unable to locate monitor with name %v", name)
 }
 
 func (service *PingdomMonitorService) GetAll() []models.Monitor {
