@@ -726,9 +726,10 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 		if err != nil {
 			t.Error("An error occured while getting monitor")
 		}
-
-		if monitor.URL != "http://"+url {
-			t.Error("Monitor must not have /health appended to the url")
+		if monitor != nil {
+			if monitor.URL != "http://"+url {
+				t.Error("Monitor must not have /health appended to the url")
+			}
 		}
 	}
 

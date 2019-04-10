@@ -5,6 +5,7 @@ import (
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 )
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
@@ -71,7 +72,11 @@ func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	var annotations = map[string]string{
 		"uptime.monitor.stakater.com/interval": "600",
@@ -101,7 +106,11 @@ func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	var annotations = map[string]string{
 		"uptime.monitor.stakater.com/interval": "600",
@@ -150,7 +159,11 @@ func TestAddMonitorWithCheckTypeAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	var annotations = map[string]string{
 		"uptime.monitor.stakater.com/check_type": "HTTP",
@@ -178,7 +191,11 @@ func TestAddMonitorWithContactsAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	var annotations = map[string]string{
 		"uptime.monitor.stakater.com/contacts": "Default",
@@ -206,7 +223,11 @@ func TestAddMonitorWithLocationsAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	var annotations = map[string]string{
 		"uptime.monitor.stakater.com/locations": "US-East,US-Central",
@@ -234,7 +255,11 @@ func TestUpdateMonitorIntervalCheckTypeConatactsLocationAnnotations(t *testing.T
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
@@ -292,7 +317,11 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 	config.Providers[0].ApiKey = "dummy-api-key"
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
