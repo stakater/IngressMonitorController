@@ -38,13 +38,14 @@ func (updownService *UpdownMonitorService) Setup(confProvider config.Provider) {
 	updownService.client = updown.NewClient(updownService.apiKey, http.DefaultClient)
 }
 
-// GetAll function will return all checks object in an array
+// GetAll function will return all monitors (updown checks) object in an array
 func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 
 	var monitors []models.Monitor
 
-	// getting all checks list
+	// getting all monitors(check) list
 	updownChecks, httpResponse, err := updownService.client.Check.List()
+
 	if (httpResponse.StatusCode == constants.StatusCodes["OK"]) && (err == nil) {
 		// populating a monitors slice using the updownChecks objects given in updownChecks slice
 		for _, updownCheck := range updownChecks {
@@ -68,6 +69,7 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 func (updownService *UpdownMonitorService) GetByName(monitorName string) (*models.Monitor, error) {
 
 	updownMonitors := updownService.GetAll()
+
 	for _, updownMonitor := range updownMonitors {
 		if updownMonitor.Name == monitorName {
 			// Test the code below
@@ -83,6 +85,7 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 	updownCheckItemObj := service.createHttpCheck(updownMonitor)
 
 	_, httpResponse, err := service.client.Check.Add(updownCheckItemObj)
+
 	if (httpResponse.StatusCode == constants.StatusCodes["CREATED"]) && (err == nil) {
 		log.Printf("Monitor %s has been added.", updownMonitor.Name)
 
@@ -95,6 +98,7 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 
 }
 
+// Update function will update a check
 func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 	httpCheckItemObj := service.createHttpCheck(updownMonitor)
 
@@ -131,36 +135,33 @@ func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.
 	return updownCheckItemObj
 }
 
-func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(httpCheckItem *updown.CheckItem, annotations map[string]string) {
+// addAnnotationConfigToHttpCheck will populate Updown's CheckItem object attributes using the annotations map
+func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(updownCheckItemObj *updown.CheckItem, annotations map[string]string) {
 	// Read known annotations, try to map them to updown check configs
 	// set some default values if we can't find them
 
-	// updown check enabled not
 	if value, ok := annotations[UpdownEnableCheckAnnotation]; ok {
 		boolValue, err := strconv.ParseBool(value)
 		if err == nil {
-			httpCheckItem.Enabled = boolValue
+			updownCheckItemObj.Enabled = boolValue
 		}
 	}
 
-	// updown check interval aka period
-	// 15, 30, 60, 120, 300, 600, 1800 or 3600 recommended period values
 	if value, ok := annotations[UpdownPeriodAnnotation]; ok {
 		intValue, err := strconv.Atoi(value)
 		if err == nil {
-			httpCheckItem.Period = intValue
+			updownCheckItemObj.Period = intValue
 		} else {
 			log.Println("Error decoding input into an integer")
-			httpCheckItem.Period = UpdownPeriodAnnotationDefaultValue
+			updownCheckItemObj.Period = UpdownPeriodAnnotationDefaultValue
 		}
 	} else {
-		httpCheckItem.Period = UpdownPeriodAnnotationDefaultValue
+		updownCheckItemObj.Period = UpdownPeriodAnnotationDefaultValue
 	}
 
-	// updown check item request header
 	if value, ok := annotations[UpdownRequestHeadersAnnotation]; ok {
-		httpCheckItem.CustomHeaders = make(map[string]string)
-		err := json.Unmarshal([]byte(value), &httpCheckItem.CustomHeaders)
+		updownCheckItemObj.CustomHeaders = make(map[string]string)
+		err := json.Unmarshal([]byte(value), &updownCheckItemObj.CustomHeaders)
 		if err != nil {
 			log.Println("Error Converting from string to JSON object")
 		}
@@ -168,15 +169,11 @@ func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(httpCheckIte
 
 }
 
-// Remove function will remove a check
+// Remove function will remove a monitor (updown check)
 func (updownService *UpdownMonitorService) Remove(updownMonitor models.Monitor) {
 
-	// calling remove method it return 3 arguments
-	// arg-1  : [boolean] operation was successful or not
-	// arg-2  : [HTTP response object] response object
-	// arg-3  : [string] response description. nil in success scenario while error message for other
-	//                     scenarios
 	_, httpResponse, err := updownService.client.Check.Remove(updownMonitor.ID)
+
 	if (httpResponse.StatusCode == constants.StatusCodes["OK"]) && (err == nil) {
 		log.Printf("Monitor %v has been deleted.", updownMonitor.Name)
 
