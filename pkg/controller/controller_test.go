@@ -12,7 +12,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -485,15 +485,16 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 		monitor, err := service.GetByName(monitorName)
 		if err != nil {
 			t.Error("Cannot Fetch monitor")
+		} else {
+			if monitor.URL != "http://"+newURL {
+				t.Error("Monitor did not update")
+			}
 		}
 
 		if monitor == nil {
-			t.Error("Monitor with name" + monitorName + " does not exist")
+			t.Error("Monitor with name " + monitorName + " does not exist")
 		}
 
-		if monitor.URL != "http://"+newURL {
-			t.Error("Monitor did not update")
-		}
 	}
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
