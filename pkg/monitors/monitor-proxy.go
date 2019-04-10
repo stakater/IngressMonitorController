@@ -8,6 +8,8 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/monitors/pingdom"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/statuscake"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/uptimerobot"
+	"github.com/stakater/IngressMonitorController/pkg/monitors/updown"
+
 )
 
 type MonitorServiceProxy struct {
@@ -24,6 +26,8 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 		mp.monitor = &pingdom.PingdomMonitorService{}
 	case "StatusCake":
 		mp.monitor = &statuscake.StatusCakeMonitorService{}
+	case "Updown":
+		mp.monitor = &updown.UpdownMonitorService{}
 	default:
 		log.Panic("No such provider found: ", mType)
 	}

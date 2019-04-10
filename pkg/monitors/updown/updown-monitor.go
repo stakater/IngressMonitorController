@@ -29,7 +29,6 @@ const (
 // UpdownMonitorService struct contains parameters required by updown go client
 type UpdownMonitorService struct {
 	apiKey        string
-	alertContacts string
 	client        *updown.Client
 }
 
@@ -37,7 +36,6 @@ type UpdownMonitorService struct {
 func (updownService *UpdownMonitorService) Setup(confProvider config.Provider) {
 	// configuration parameters for creating a updown client
 	updownService.apiKey = confProvider.ApiKey
-	updownService.alertContacts = confProvider.AlertContacts
 	// creating updown go client
 	updownService.client = updown.NewClient(updownService.apiKey, http.DefaultClient)
 }
@@ -143,6 +141,7 @@ func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 // createHttpCheck it will create a httpCheck
 func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.Monitor) updown.CheckItem {
 	
+	// populating updownCheckItemObj object attributes using updownMonitor object
 	updownCheckItemObj := updown.CheckItem{}
 	_, err := url.Parse(updownMonitor.URL)
 
@@ -151,14 +150,9 @@ func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.
 		return updownCheckItemObj
 	}
 
-	// if parsedMonitorUrl.Scheme == "https" {
-    //     updownCheckObj.SSL.Valid = true
-	// } else {
-    //     updownCheckObj.SSL.Valid = false
-	// }
-
 	updownCheckItemObj.URL = updownMonitor.URL
-   
+	updownCheckItemObj.Alias = updownMonitor.Name
+	// populating updownCheckItemObj object attributes using 
 	updownService.addAnnotationConfigToHttpCheck(&updownCheckItemObj, updownMonitor.Annotations)
 
 	return updownCheckItemObj
