@@ -73,7 +73,6 @@ func (updownService *UpdownMonitorService) GetByName(monitorName string) (*model
 	for _, updownMonitor := range updownMonitors {
 		if updownMonitor.Name == monitorName {
 			// Test the code below
-			// match = &mon
 			return &updownMonitor, nil
 		}
 	}
@@ -98,30 +97,12 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 
 }
 
-// Update function will update a check
-func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
-	httpCheckItemObj := service.createHttpCheck(updownMonitor)
-
-	_, httpResponse, err := service.client.Check.Update(updownMonitor.ID, httpCheckItemObj)
-
-	if (httpResponse.StatusCode == constants.StatusCodes["OK"]) && (err == nil) {
-		marshaledConfig, _ := json.Marshal(httpCheckItemObj)
-		log.Printf("Monitor %s has been updated with following parameters: %s ", updownMonitor.Name, marshaledConfig)
-
-	} else {
-		log.Printf("Monitor %s is not updated because of %s", updownMonitor.Name, err.Error())
-
-	}
-
-}
-
 // createHttpCheck it will create a httpCheck
 func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.Monitor) updown.CheckItem {
 
 	// populating updownCheckItemObj object attributes using updownMonitor object
 	updownCheckItemObj := updown.CheckItem{}
 	_, err := url.Parse(updownMonitor.URL)
-
 	if err != nil {
 		log.Println("Unable to parse the URL : ", updownMonitor.URL)
 		return updownCheckItemObj
@@ -159,13 +140,31 @@ func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(updownCheckI
 		updownCheckItemObj.Period = UpdownPeriodAnnotationDefaultValue
 	}
 
-	// if value, ok := annotations[UpdownRequestHeadersAnnotation]; ok {
-	// 	updownCheckItemObj.CustomHeaders = make(map[string]string)
-	// 	err := json.Unmarshal([]byte(value), &updownCheckItemObj.CustomHeaders)
-	// 	if err != nil {
-	// 		log.Println("Error Converting from string to JSON object")
-	// 	}
-	// }
+	if value, ok := annotations[UpdownRequestHeadersAnnotation]; ok {
+		updownCheckItemObj.CustomHeaders = make(map[string]string)
+		err := json.Unmarshal([]byte(value), &updownCheckItemObj.CustomHeaders)
+		if err != nil {
+			log.Println("Error Converting from string to JSON object")
+		}
+	}
+
+}
+
+// Update function will update a check
+func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
+	httpCheckItemObj := service.createHttpCheck(updownMonitor)
+
+	_, httpResponse, err := service.client.Check.Update(updownMonitor.ID, httpCheckItemObj)
+
+	if (httpResponse.StatusCode == constants.StatusCodes["OK"]) && (err == nil) {
+		marshaledConfig, _ := json.Marshal(httpCheckItemObj)
+		log.Printf("Monitor %s has been updated with following parameters: %s ", updownMonitor.Name, marshaledConfig)
+
+	} else {
+		log.Println(httpResponse)
+		log.Printf("Monitor %s is not updated because of %s", updownMonitor.Name, err.Error())
+
+	}
 
 }
 
