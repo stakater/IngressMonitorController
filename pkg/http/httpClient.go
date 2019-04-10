@@ -20,14 +20,18 @@ func CreateHttpClient(url string) *HttpClient {
 	return &client
 }
 
-func (client *HttpClient) post(body string) HttpResponse {
-	return client.postWithHeaders(body, nil)
+func (client *HttpClient) addHeaders(request *http.Request, headers map[string]string) {
+	if headers != nil {
+		for key, value := range headers {
+			request.Header.Add(key, value)
+		}
+	}
 }
 
-func (client *HttpClient) postWithHeaders(body string, headers map[string]string) HttpResponse {
+func (client *HttpClient) RequestWithHeaders(requestType string, body string, headers map[string]string) HttpResponse {
 	payload := strings.NewReader(body)
 
-	request, _ := http.NewRequest("POST", client.url, payload)
+	request, _ := http.NewRequest(requestType, client.url, payload)
 
 	client.addHeaders(request, headers)
 
@@ -42,18 +46,28 @@ func (client *HttpClient) postWithHeaders(body string, headers map[string]string
 	return httpResponse
 }
 
+func (client *HttpClient) DeleteUrl(requestHeaders map[string]string, body string) HttpResponse {
+	requestHeaders["Accepts"] = "application/json"
+
+	return client.RequestWithHeaders("DELETE", body, requestHeaders)
+}
+
+func (client *HttpClient) GetUrl(requestHeaders map[string]string, body string) HttpResponse {
+	requestHeaders["Accepts"] = "application/json"
+
+	return client.RequestWithHeaders("GET", body, requestHeaders)
+}
+
+func (client *HttpClient) PostUrl(requestHeaders map[string]string, body string) HttpResponse {
+	requestHeaders["Accepts"] = "application/json"
+
+	return client.RequestWithHeaders("POST", body, requestHeaders)
+}
+
 func (client *HttpClient) PostUrlEncodedFormBody(body string) HttpResponse {
 	requestHeaders := make(map[string]string)
 	requestHeaders["content-type"] = "application/x-www-form-urlencoded"
 	requestHeaders["cache-control"] = "no-cache"
 
-	return client.postWithHeaders(body, requestHeaders)
-}
-
-func (client *HttpClient) addHeaders(request *http.Request, headers map[string]string) {
-	if headers != nil {
-		for key, value := range headers {
-			request.Header.Add(key, value)
-		}
-	}
+	return client.RequestWithHeaders("POST", body, requestHeaders)
 }
