@@ -12,7 +12,11 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
@@ -35,7 +39,11 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
@@ -316,11 +324,13 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	config.Providers[0].ApiKey = "dummy-api-key"
-	provider := util.GetProviderWithName(config, "Uptime")
+
+	provider := util.GetProviderWithName(config, "UptimeRobot")
 	if provider == nil {
 		panic("Failed to find provider")
 	}
+
+	provider.ApiKey = "dummy-api-key"
 	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
