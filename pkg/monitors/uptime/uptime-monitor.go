@@ -145,8 +145,10 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 			if response.StatusCode == 200 {
 				var f UptimeMonitorStatusMonitorResponse
-				json.Unmarshal(response.Bytes, &f)
-
+				err := json.Unmarshal(response.Bytes, &f)
+				if err != nil {
+					log.Println("Failed to Unmarshal Response Json Object")
+				}
 				if f.Stat == "ok" {
 					log.Println("Monitor Updated: " + m.Name)
 				} else {
