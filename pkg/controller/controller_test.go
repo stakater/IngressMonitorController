@@ -485,14 +485,14 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 		monitor, err := service.GetByName(monitorName)
 		if err != nil {
 			t.Error("Cannot Fetch monitor")
-		} else {
-			if monitor.URL != "http://"+newURL {
-				t.Error("Monitor did not update")
-			}
 		}
 
 		if monitor == nil {
 			t.Error("Monitor with name " + monitorName + " does not exist")
+		} else {
+			if monitor.URL != "http://"+newURL {
+				t.Error("Monitor did not update")
+			}
 		}
 
 	}
