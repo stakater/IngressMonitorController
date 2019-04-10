@@ -159,13 +159,13 @@ func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(updownCheckI
 		updownCheckItemObj.Period = UpdownPeriodAnnotationDefaultValue
 	}
 
-	if value, ok := annotations[UpdownRequestHeadersAnnotation]; ok {
-		updownCheckItemObj.CustomHeaders = make(map[string]string)
-		err := json.Unmarshal([]byte(value), &updownCheckItemObj.CustomHeaders)
-		if err != nil {
-			log.Println("Error Converting from string to JSON object")
-		}
-	}
+	// if value, ok := annotations[UpdownRequestHeadersAnnotation]; ok {
+	// 	updownCheckItemObj.CustomHeaders = make(map[string]string)
+	// 	err := json.Unmarshal([]byte(value), &updownCheckItemObj.CustomHeaders)
+	// 	if err != nil {
+	// 		log.Println("Error Converting from string to JSON object")
+	// 	}
+	// }
 
 }
 
