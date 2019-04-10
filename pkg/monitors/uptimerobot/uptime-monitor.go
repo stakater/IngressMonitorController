@@ -38,7 +38,10 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Println("Could not Unmarshal Json Response")
+		}
 
 		if f.Monitors != nil {
 			for _, monitor := range f.Monitors {
@@ -70,7 +73,10 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 	if response.StatusCode == 200 {
 
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Println("Could not Unmarshal Json Response")
+		}
 
 		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
 
@@ -89,17 +95,20 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 	body := "api_key=" + monitor.apiKey + "&format=json&type=1&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name) + "&alert_contacts=" + monitor.alertContacts
 
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
-	    body += "&interval=" + val
+		body += "&interval=" + val
 	}
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
-	    body += "&mwindows=" + val
+		body += "&mwindows=" + val
 	}
 
 	response := client.PostUrlEncodedFormBody(body)
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorNewMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Println("Could not Unmarshal Json Response")
+		}
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Added: " + m.Name)
@@ -120,17 +129,20 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL + "&alert_contacts=" + monitor.alertContacts
 
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
-	    body += "&interval=" + val
+		body += "&interval=" + val
 	}
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
-	    body += "&mwindows=" + val
+		body += "&mwindows=" + val
 	}
 
 	response := client.PostUrlEncodedFormBody(body)
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorStatusMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Println("Could not Unmarshal Json Response")
+		}
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Updated: " + m.Name)
@@ -154,7 +166,10 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorStatusMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Println("Could not Unmarshal Json Response")
+		}
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Removed: " + m.Name)

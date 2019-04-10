@@ -55,7 +55,10 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 	if response.StatusCode == 200 {
 
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Println("Could not Unmarshal Json Response")
+		}
 
 		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
 
