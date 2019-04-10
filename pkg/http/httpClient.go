@@ -33,7 +33,9 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body string, he
 
 	request, _ := http.NewRequest(requestType, client.url, payload)
 
-	client.addHeaders(request, headers)
+	if headers != nil {
+		client.addHeaders(request, headers)
+	}
 
 	response, _ := http.DefaultClient.Do(request)
 

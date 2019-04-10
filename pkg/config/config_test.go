@@ -19,6 +19,12 @@ const (
 	correctTestPingdomAPIURL       = "https://api.pingdom.com/v2/"
 	correctTestPingdomPassword     = "SuperSecret"
 	correctTestPingdomAccountEmail = "multi@test.com"
+
+	configFilePathUptime           = "../../configs/testConfigs/test-config-uptime.yaml"
+	correctTestUptimeConfigName    = "Uptime"
+	correctTestUptimeAPIURL        = "https://uptime.com/api/v1/"
+	correctTestUptimeAPIKey        = "657a68d9ashdyasjdklkskuasd"
+	correctTestUptimeAlertContacts = "Default"
 )
 
 func TestConfigWithCorrectValues(t *testing.T) {
@@ -69,6 +75,14 @@ func TestConfigWithoutEnabledFlag(t *testing.T) {
 func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
 	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestAPIKey, ApiURL: correctTestPingdomAPIURL, AlertContacts: correctTestAlertContacts, Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePathPingdom)
+	if !reflect.DeepEqual(config, correctConfig) {
+		t.Error("Marshalled config and correct config do not match")
+	}
+}
+
+func TestConfigWithUptime(t *testing.T) {
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestUptimeConfigName, ApiKey: correctTestUptimeAPIKey, ApiURL: correctTestUptimeAPIURL, AlertContacts: correctTestUptimeAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	config := ReadConfig(configFilePathUptime)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")
 	}
