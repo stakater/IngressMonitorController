@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 
@@ -20,6 +21,9 @@ const (
 	PingdomPausedAnnotation                   = "pingdom.monitor.stakater.com/paused"
 	PingdomNotifyWhenBackUpAnnotation         = "pingdom.monitor.stakater.com/notify-when-back-up"
 	PingdomRequestHeadersAnnotation           = "pingdom.monitor.stakater.com/request-headers"
+	PingdomBasicAuthUser                      = "pingdom.monitor.stakater.com/basic-auth-user"
+	PingdomShouldContainString                = "pingdom.monitor.stakater.com/should-contain"
+	PingdomTags                               = "pingdom.monitor.stakater.com/tags"
 )
 
 // PingdomMonitorService interfaces with MonitorService
@@ -41,7 +45,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.password = p.Password
 
 	// Check if config file defines a multi-user config
-	if (p.AccountEmail != "") {
+	if p.AccountEmail != "" {
 		service.accountEmail = p.AccountEmail
 		service.client = pingdom.NewMultiUserClient(service.username, service.password, service.apiKey, service.accountEmail)
 	} else {
@@ -55,15 +59,11 @@ func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, e
 	monitors := service.GetAll()
 	for _, mon := range monitors {
 		if mon.Name == name {
-			match = &mon
+			return &mon, nil
 		}
 	}
 
-	if match == nil {
-		return match, fmt.Errorf("Unable to locate monitor with name %v", name)
-	}
-
-	return match, nil
+	return match, fmt.Errorf("Unable to locate monitor with name %v", name)
 }
 
 func (service *PingdomMonitorService) GetAll() []models.Monitor {
@@ -198,6 +198,41 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		err := json.Unmarshal([]byte(value), &httpCheck.RequestHeaders)
 		if err != nil {
 			log.Println("Error Converting from string to JSON object")
+		}
+	}
+
+	// Does an annotation want to use basic auth
+	if userValue, ok := annotations[PingdomBasicAuthUser]; ok {
+		// Annotation should be set to the username to set on the httpCheck
+		// Environment variable should define the password
+		// Mounted via a secret; key is the username, value the password
+		passwordValue := os.Getenv(userValue)
+		if passwordValue != "" {
+			// Env variable set, pass user/pass to httpCheck
+			httpCheck.Username = userValue
+			httpCheck.Password = passwordValue
+			log.Println("Basic auth requirement detected. Setting username and password for httpCheck")
+		} else {
+			log.Println("Error reading basic auth password from environment variable")
+		}
+	}
+
+	// Does an annotation want to set a "should contain" string
+	if containValue, ok := annotations[PingdomShouldContainString]; ok {
+		if containValue != "" {
+			httpCheck.ShouldContain = containValue
+			log.Println("Should contain annotation detected. Setting Should Contain string: ", containValue)
+		}
+	}
+
+	// Does an annotation want to set any "tags"
+	// Tags should be a single word or multiple comma-seperated words
+	if tagValue, ok := annotations[PingdomTags]; ok {
+		if tagValue != "" && !strings.Contains(tagValue, " ") {
+			httpCheck.Tags = tagValue
+			log.Println("Tags annotation detected. Setting Tags as: ", tagValue)
+		} else {
+			log.Println("Tag string should not contain spaces. Not applying tags.")
 		}
 	}
 }
