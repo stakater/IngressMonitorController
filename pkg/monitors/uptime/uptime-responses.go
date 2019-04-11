@@ -37,7 +37,7 @@ type UptimeMonitorMonitor struct {
 	MspAddress              string                     `json:"msp_address"`
 	MspSendString           string                     `json:"msp_send_string"`
 	MspUsername             string                     `json:"msp_username"`
-	MspExpectStringType     string                     `json:"msp_expect_string"`
+	MspExpectStringType     string                     `json:"msp_expect_string_type"`
 	MspPassword             string                     `json:"msp_password"`
 	MspThreshold            int                        `json:"msp_threshold"`
 	MspIncludeGlobalMetrics bool                       `json:"msp_include_global_metrics"`
