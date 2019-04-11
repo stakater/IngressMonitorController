@@ -2,6 +2,7 @@ package updown
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -77,6 +78,7 @@ func TestGetAllMonitorWhileNoCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
+
 	monitorSlice := UpdownService.GetAll()
 
 	assert.Equal(t, 0, len(monitorSlice))
@@ -90,8 +92,8 @@ func TestGetByNameMonitorWhileNoCheckExists(t *testing.T) {
 	UpdownService.Setup(*provider)
 
 	var nilMonitorModelObj *models.Monitor
-
 	monitorObject, _ := UpdownService.GetByName("NoExistingCheck")
+
 	assert.Equal(t, monitorObject, nilMonitorModelObj)
 
 }
@@ -108,7 +110,6 @@ func TestAddMonitorWhileNoCheckExists(t *testing.T) {
 	}
 
 	UpdownService.Add(newMonitor)
-
 }
 
 func TestAddMonitorWhileCheckExists(t *testing.T) {
@@ -121,6 +122,7 @@ func TestAddMonitorWhileCheckExists(t *testing.T) {
 		URL:  CheckURL,
 		Name: CheckName,
 	}
+
 	UpdownService.Add(newMonitor)
 }
 
@@ -129,13 +131,14 @@ func TestGetAllMonitorWhileCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
-	monitorSlice := UpdownService.GetAll()
 
+	time.Sleep(30 * time.Second)
+	monitorSlice2 := UpdownService.GetAll()
 	firstElement := 0
 
-	assert.Equal(t, 1, len(monitorSlice))
-	assert.Equal(t, monitorSlice[firstElement].Name, CheckName)
-	assert.Equal(t, monitorSlice[firstElement].URL, CheckURL)
+	assert.Equal(t, 1, len(monitorSlice2))
+	assert.Equal(t, monitorSlice2[firstElement].Name, CheckName)
+	assert.Equal(t, monitorSlice2[firstElement].URL, CheckURL)
 
 }
 
@@ -144,9 +147,9 @@ func TestGetByNameMonitorWhileCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
+
 	firstElement := 0
 	var nilMonitorModelObj *models.Monitor
-
 	monitorSlice := UpdownService.GetAll()
 	monitorObject, _ := UpdownService.GetByName(monitorSlice[firstElement].ID)
 
@@ -159,14 +162,28 @@ func TestUpdateMonitorWhileCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
-	firstElement := 0
 
+	firstElement := 0
+	monitorSlice := UpdownService.GetAll()
 	updatedMonitor := models.Monitor{
 		URL:  CheckURL,
 		Name: UpdatedCheckName,
-	}
+		ID:   monitorSlice[firstElement].ID}
+
 	UpdownService.Update(updatedMonitor)
+
+}
+
+func TestGetAllMonitorWhileCheckUpdated(t *testing.T) {
+	config := config.GetControllerConfig()
+	UpdownService := UpdownMonitorService{}
+	provider := util.GetProviderWithName(config, "Updown")
+	UpdownService.Setup(*provider)
+
+	time.Sleep(10 * time.Second)
 	monitorSlice := UpdownService.GetAll()
+	firstElement := 0
+
 	assert.NotEqual(t, monitorSlice[firstElement].Name, UpdatedCheckName)
 
 }
@@ -176,17 +193,27 @@ func TestRemoveMonitorWhileCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
+
 	firstElement := 0
-
 	monitorSlice := UpdownService.GetAll()
-
 	updatedMonitor := models.Monitor{
 		URL:  monitorSlice[firstElement].URL,
 		Name: monitorSlice[firstElement].Name,
 		ID:   monitorSlice[firstElement].ID}
 
 	UpdownService.Remove(updatedMonitor)
-	monitorSlice = UpdownService.GetAll()
-	assert.Equal(t, len(monitorSlice), 0)
+
+}
+
+func TestGetAllMonitorWhenCheckAreRemoved(t *testing.T) {
+	config := config.GetControllerConfig()
+	UpdownService := UpdownMonitorService{}
+	provider := util.GetProviderWithName(config, "Updown")
+	UpdownService.Setup(*provider)
+
+	time.Sleep(30 * time.Second)
+	monitorSlice1 := UpdownService.GetAll()
+
+	assert.Equal(t, 0, len(monitorSlice1))
 
 }
