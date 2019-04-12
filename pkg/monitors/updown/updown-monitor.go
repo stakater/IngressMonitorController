@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	UpdownEnableCheckAnnotation    = "updown.monitor.stakater.com/enable"
-	UpdownPeriodAnnotation         = "updown.monitor.stakater.com/period"
-	UpdownPublishPageAnnotation    = "updown.monitor.stakater.com/publish-page"
+	UpdownEnableCheckAnnotation = "updown.monitor.stakater.com/enable"
+	UpdownPeriodAnnotation      = "updown.monitor.stakater.com/period"
+	UpdownPublishPageAnnotation = "updown.monitor.stakater.com/publish-page"
+	// this annotation is not enabled
 	UpdownRequestHeadersAnnotation = "updown.monitor.stakater.com/request-headers"
 
 	// Default value for annotations
@@ -37,7 +38,7 @@ func setLogFlags() {
 	log.SetFlags(log.Ldate | log.Ltime | log.LUTC | log.Lshortfile)
 }
 
-// Setup function will initialize a updown's go client object by using the configuration parameters
+// Setup method will initialize a updown's go client object by using the configuration parameters
 func (updownService *UpdownMonitorService) Setup(confProvider config.Provider) {
 
 	setLogFlags()
@@ -60,7 +61,7 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 
 	var monitors []models.Monitor
 
-	// getting all monitors(check) list
+	// getting all monitors(checks) list
 	updownChecks, httpResponse, err := updownService.client.Check.List()
 	log.Println("Monitors (updown checks) object list has been pulled")
 
@@ -106,6 +107,7 @@ func (updownService *UpdownMonitorService) GetByName(monitorName string) (*model
 	return nil, fmt.Errorf("Unable to locate %v monitor", monitorName)
 }
 
+// Add function method will add a monitor (updown check)
 func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 
 	setLogFlags()
@@ -129,7 +131,8 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 
 }
 
-// createHttpCheck it will create a httpCheck
+// createHttpCheck method it will populate updown CheckItem object using updownMonitor's attributes
+// and annotations
 func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.Monitor) updown.CheckItem {
 
 	setLogFlags()
@@ -157,7 +160,7 @@ func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.
 	return updownCheckItemObj
 }
 
-// addAnnotationConfigToHttpCheck will populate Updown's CheckItem object attributes using the annotations map
+// addAnnotationConfigToHttpCheck method will populate Updown's CheckItem object attributes using the annotations map
 func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(updownCheckItemObj *updown.CheckItem, annotations map[string]string) {
 	// Read known annotations, try to map them to updown check configs
 	// set some default values if we can't find them
@@ -213,7 +216,7 @@ func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(updownCheckI
 
 }
 
-// Update function will update a check
+// Update method will update a monitor (updown check)
 func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 
 	setLogFlags()
@@ -233,7 +236,7 @@ func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 
 }
 
-// Remove function will remove a monitor (updown check)
+// Remove method will remove a monitor (updown check)
 func (updownService *UpdownMonitorService) Remove(updownMonitor models.Monitor) {
 
 	setLogFlags()
