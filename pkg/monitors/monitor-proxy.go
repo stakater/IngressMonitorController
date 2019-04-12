@@ -7,9 +7,8 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/pingdom"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/statuscake"
-	"github.com/stakater/IngressMonitorController/pkg/monitors/uptimerobot"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/updown"
-
+	"github.com/stakater/IngressMonitorController/pkg/monitors/uptimerobot"
 )
 
 type MonitorServiceProxy struct {

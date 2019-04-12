@@ -63,13 +63,34 @@ func TestSetupMonitorWithIncorrectValues(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 
 	provider := util.GetProviderWithName(config, "InvalidProviderName")
-
 	Block{
 		Try: func() {
 			UpdownService.Setup(*provider)
 		},
 		Catch: func(e Exception) {},
 	}.Do()
+
+}
+
+// TestRemoveCleanUp it will remove all the checks before any test executes
+func TestRemoveCleanUp(t *testing.T) {
+	config := config.GetControllerConfig()
+	UpdownService := UpdownMonitorService{}
+	provider := util.GetProviderWithName(config, "Updown")
+	UpdownService.Setup(*provider)
+
+	monitorSlice := UpdownService.GetAll()
+	for _, monitor := range monitorSlice {
+
+		monitorObj := models.Monitor{
+			ID:   monitor.ID,
+			Name: monitor.Name}
+		UpdownService.Remove(monitorObj)
+	}
+	time.Sleep(10 * time.Second)
+	monitorSlice = UpdownService.GetAll()
+
+	assert.Equal(t, 0, len(monitorSlice))
 
 }
 
@@ -104,10 +125,15 @@ func TestAddMonitorWhileNoCheckExists(t *testing.T) {
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
 
+	annotations := map[string]string{
+		"updown.monitor.stakater.com/publish-page": "false",
+		"updown.monitor.stakater.com/enable":       "false",
+		"updown.monitor.stakater.com/period":       "120"}
+
 	newMonitor := models.Monitor{
-		URL:  CheckURL,
-		Name: CheckName,
-	}
+		URL:         CheckURL,
+		Name:        CheckName,
+		Annotations: annotations}
 
 	UpdownService.Add(newMonitor)
 }
@@ -120,8 +146,7 @@ func TestAddMonitorWhileCheckExists(t *testing.T) {
 
 	newMonitor := models.Monitor{
 		URL:  CheckURL,
-		Name: CheckName,
-	}
+		Name: CheckName}
 
 	UpdownService.Add(newMonitor)
 }
@@ -133,12 +158,13 @@ func TestGetAllMonitorWhileCheckExists(t *testing.T) {
 	UpdownService.Setup(*provider)
 
 	time.Sleep(30 * time.Second)
-	monitorSlice2 := UpdownService.GetAll()
+	monitorSlice := UpdownService.GetAll()
 	firstElement := 0
+	oneElement := 1
 
-	assert.Equal(t, 1, len(monitorSlice2))
-	assert.Equal(t, monitorSlice2[firstElement].Name, CheckName)
-	assert.Equal(t, monitorSlice2[firstElement].URL, CheckURL)
+	assert.Equal(t, oneElement, len(monitorSlice))
+	assert.Equal(t, monitorSlice[firstElement].Name, CheckName)
+	assert.Equal(t, monitorSlice[firstElement].URL, CheckURL)
 
 }
 
@@ -165,10 +191,17 @@ func TestUpdateMonitorWhileCheckExists(t *testing.T) {
 
 	firstElement := 0
 	monitorSlice := UpdownService.GetAll()
+
+	annotations := map[string]string{
+		"updown.monitor.stakater.com/publish-page": "true",
+		"updown.monitor.stakater.com/enable":       "false",
+		"updown.monitor.stakater.com/period":       "60"}
+
 	updatedMonitor := models.Monitor{
-		URL:  CheckURL,
-		Name: UpdatedCheckName,
-		ID:   monitorSlice[firstElement].ID}
+		URL:         CheckURL,
+		Name:        UpdatedCheckName,
+		ID:          monitorSlice[firstElement].ID,
+		Annotations: annotations}
 
 	UpdownService.Update(updatedMonitor)
 
