@@ -23,7 +23,7 @@ func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 	statusPage.ID = ID
 
 	monitorService := UpTimeMonitorService{}
-	provider := util.GetProviderWithName(config, "UptimeRobot")
+	provider = util.GetProviderWithName(config, "UptimeRobot")
 	monitorService.Setup(*provider)
 
 	monitor := models.Monitor{Name: "google-test", URL: "https://google.com"}
