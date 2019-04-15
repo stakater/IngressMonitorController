@@ -1,6 +1,7 @@
 package uptimerobot
 
 import (
+	"log"
 	"strings"
 	"testing"
 
@@ -176,7 +177,11 @@ func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
 	service.Setup(*provider)
 
 	statusPageService := UpTimeStatusPageService{}
-	statusPageService.Setup(*provider)
+	mProvider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	statusPageService.Setup(*mProvider)
 
 	statusPage := UpTimeStatusPage{Name: "status-page-test"}
 	ID, err := statusPageService.Add(statusPage)
@@ -184,6 +189,7 @@ func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 	statusPage.ID = ID
+	log.Println("STATUSPAGE CREATED. ID: " + ID)
 
 	var annotations = map[string]string{
 		"uptimerobot.monitor.stakater.com/status-pages": statusPage.ID,

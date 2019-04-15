@@ -1,6 +1,7 @@
 package uptimerobot
 
 import (
+	"log"
 	"strings"
 	"testing"
 
@@ -91,7 +92,7 @@ func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 	if mProvider == nil {
 		panic("Failed to find provider")
 	}
-	service.Setup(*mProvider)
+	monitorService.Setup(*mProvider)
 	monitor1 := models.Monitor{Name: "google-test-1", URL: "https://google.com"}
 	monitorService.Add(monitor1)
 
@@ -170,7 +171,7 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 	if mProvider == nil {
 		panic("Failed to find provider")
 	}
-	service.Setup(*mProvider)
+	monitorService.Setup(*mProvider)
 	monitor := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	monitorService.Add(monitor)
 
@@ -179,17 +180,21 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
-	service.AddMonitorToStatusPage(statusPage1, *monitorRes)
+	id1, err := service.AddMonitorToStatusPage(statusPage1, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
 
-	service.AddMonitorToStatusPage(statusPage2, *monitorRes)
+	id2, err := service.AddMonitorToStatusPage(statusPage2, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
+
+	log.Println("ID1: " + id1 + "ID2: " + id2)
 
 	statusPageIds, err := service.GetStatusPagesForMonitor(monitorRes.ID)
+	log.Print("STATUSPAGEIDs:")
+	log.Println(statusPageIds)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -232,7 +237,7 @@ func TestRemoveMonitorFromStatusPage(t *testing.T) {
 	if mProvider == nil {
 		panic("Failed to find provider")
 	}
-	service.Setup(*mProvider)
+	monitorService.Setup(*mProvider)
 	monitor := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	monitorService.Add(monitor)
 

@@ -24,12 +24,12 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 	uptimeMonitorObject1 := UptimeMonitorMonitor{FriendlyName: "Test Monitor 1", ID: 124, URL: "https://stakater.com", Interval: 900}
 	uptimeMonitorObject2 := UptimeMonitorMonitor{FriendlyName: "Test Monitor 2", ID: 125, URL: "https://stackator.com", Interval: 600}
 
-    var annotations1 = map[string]string {
-        "uptimerobot.monitor.stakater.com/interval": "900",
-    }
-    var annotations2 = map[string]string {
-        "uptimerobot.monitor.stakater.com/interval": "600",
-    }
+	var annotations1 = map[string]string{
+		"uptimerobot.monitor.stakater.com/interval": "900",
+	}
+	var annotations2 = map[string]string{
+		"uptimerobot.monitor.stakater.com/interval": "600",
+	}
 
 	correctMonitors := []models.Monitor{models.Monitor{Name: "Test Monitor 1", ID: "124", URL: "https://stakater.com", Annotations: annotations1}, models.Monitor{Name: "Test Monitor 2", ID: "125", URL: "https://stackator.com", Annotations: annotations2}}
 
@@ -47,7 +47,7 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 }
 
 func TestUptimeStatusPageToBaseStatusPageMapper(t *testing.T) {
-	uptimePublicStatusPageObject := UptimePublicStatusPage{FriendlyName: "Test Status Page", ID: 124, Monitors: []int {1234, 5678} }
+	uptimePublicStatusPageObject := UptimePublicStatusPage{FriendlyName: "Test Status Page", ID: 124, Monitors: []int{1234, 5678}}
 
 	uptimeStatusPageObject := UptimeStatusPageToBaseStatusPageMapper(uptimePublicStatusPageObject)
 
@@ -57,7 +57,7 @@ func TestUptimeStatusPageToBaseStatusPageMapper(t *testing.T) {
 	if uptimeStatusPageObject.Name != uptimePublicStatusPageObject.FriendlyName {
 		t.Error("Mapper did not map the name correctly, expected: " + uptimePublicStatusPageObject.FriendlyName + ", but was: " + uptimeStatusPageObject.Name)
 	}
-	if ! util.ContainsString(uptimeStatusPageObject.Monitors, "1234") || ! util.ContainsString(uptimeStatusPageObject.Monitors, "5678") {
+	if !util.ContainsString(uptimeStatusPageObject.Monitors, "1234") || !util.ContainsString(uptimeStatusPageObject.Monitors, "5678") {
 		t.Error("Mapper the monitors array correctly, expected: 1234-5678, but got: " + strings.Join(uptimeStatusPageObject.Monitors, "-"))
 	}
 }

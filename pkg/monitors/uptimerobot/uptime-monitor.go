@@ -40,7 +40,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		var f UptimeMonitorGetMonitorsResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Println("Could not Unmarshal Json Response")
+			log.Println("Could not Unmarshal Json Response" + err.Error())
 		}
 
 		if f.Monitors != nil {
@@ -75,7 +75,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		var f UptimeMonitorGetMonitorsResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Println("Could not Unmarshal Json Response")
+			log.Println("Could not Unmarshal Json Response" + err.Error())
 		}
 
 		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
@@ -107,7 +107,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 		var f UptimeMonitorNewMonitorResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Println("Could not Unmarshal Json Response")
+			log.Println("Could not Unmarshal Json Response" + err.Error())
 		}
 
 		if f.Stat == "ok" {
@@ -141,7 +141,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 		var f UptimeMonitorStatusMonitorResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Println("Could not Unmarshal Json Response")
+			log.Println("Could not Unmarshal Json Response" + err.Error())
 		}
 
 		if f.Stat == "ok" {
@@ -168,7 +168,7 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 		var f UptimeMonitorStatusMonitorResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Println("Could not Unmarshal Json Response")
+			log.Println("Could not Unmarshal Json Response" + err.Error())
 		}
 
 		if f.Stat == "ok" {
