@@ -49,8 +49,9 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	headers := make(map[string]string)
 	headers["Authorization"] = "Token " + monitor.apiKey
+	headers["Content-Type"] = "application/json"
 
-	response := client.GetUrl(headers, "")
+	response := client.GetUrl(headers, []byte(""))
 
 	if response.StatusCode == 200 {
 
@@ -59,8 +60,11 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		if err != nil {
 			log.Println("Could not Unmarshal Json Response")
 		}
-
-		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
+		if f.Count == 0 {
+			return []models.Monitor{}
+		} else {
+			return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
+		}
 
 	}
 
@@ -71,19 +75,23 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
-	action := "checks/add-api/"
+	action := "checks/add-http/"
 	client := http.CreateHttpClient(monitor.url + action)
 
 	headers := make(map[string]string)
 	headers["Authorization"] = "Token " + monitor.apiKey
+	headers["Content-Type"] = "application/json"
+	headers["Accepts"] = "application/json"
 
 	body := make(map[string]interface{})
-	body["msp_script"] = ""
 	body["name"] = m.Name
 	body["msp_address"] = m.URL
 
 	if val, ok := m.Annotations["uptime.monitor.stakater.com/interval"]; ok {
-		body["msp_interval"] = val
+		interval, err := strconv.Atoi(val)
+		if nil == err {
+			body["msp_interval"] = interval
+		}
 	}
 
 	if val, ok := m.Annotations["uptime.monitor.stakater.com/locations"]; ok {
@@ -93,19 +101,25 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 	if val, ok := m.Annotations["uptime.monitor.stakater.com/contacts"]; ok {
 		body["contact_groups"] = strings.Split(val, ",")
 	}
-	bod, err := json.Marshal(body)
-	if err != nil {
-		jsonbody := string(bod)
-		response := client.PostUrl(headers, jsonbody)
+	jsonBody, err := json.Marshal(body)
+	if err == nil {
+		log.Println(string(jsonBody))
+		response := client.PostUrl(headers, jsonBody)
 
 		if response.StatusCode == 200 {
-			var f UptimeMonitorNewMonitorResponse
-			json.Unmarshal(response.Bytes, &f)
+			var f UptimeMonitorMonitorResponse
 
-			if f.Stat == "ok" {
+			err := json.Unmarshal(response.Bytes, &f)
+			if err != nil {
+				log.Println("Failed to Unmarshal Response Json Object")
+			}
+
+			if f.Errors == false {
 				log.Println("Monitor Added: " + m.Name)
 			} else {
-				log.Println("Monitor couldn't be added: " + m.Name)
+				log.Print("Monitor couldn't be added: " + m.Name +
+					"Response: ")
+				log.Println(string(response.Bytes))
 			}
 		} else {
 			log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
@@ -116,84 +130,77 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 }
 
 func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
-	targetmonitor, err := monitor.GetByName(m.Name)
 
-	action := "checks/" + targetmonitor.ID + "/"
-	if err != nil {
-		client := http.CreateHttpClient(monitor.url + action)
+	action := "checks/" + m.ID + "/"
+	client := http.CreateHttpClient(monitor.url + action)
 
-		headers := make(map[string]string)
-		headers["Authorization"] = "Token " + monitor.apiKey
+	headers := make(map[string]string)
+	headers["Authorization"] = "Token " + monitor.apiKey
+	headers["Content-Type"] = "application/json"
 
-		body := make(map[string]interface{})
-		body["msp_script"] = ""
-		body["name"] = m.Name
-		body["msp_address"] = m.URL
+	body := make(map[string]interface{})
+	body["name"] = m.Name
+	body["msp_address"] = m.URL
 
-		if val, ok := m.Annotations["uptime.monitor.stakater.com/interval"]; ok {
-			body["msp_interval"] = val
+	if val, ok := m.Annotations["uptime.monitor.stakater.com/interval"]; ok {
+		interval, err := strconv.Atoi(val)
+		if nil == err {
+			body["msp_interval"] = interval
 		}
+	}
 
-		if val, ok := m.Annotations["uptime.monitor.stakater.com/locations"]; ok {
-			body["locations"] = strings.Split(val, ",")
-		}
+	if val, ok := m.Annotations["uptime.monitor.stakater.com/locations"]; ok {
+		body["locations"] = strings.Split(val, ",")
+	}
 
-		if val, ok := m.Annotations["uptime.monitor.stakater.com/contacts"]; ok {
-			body["contact_groups"] = strings.Split(val, ",")
-		}
-		bod, err := json.Marshal(body)
-		if err != nil {
-			jsonbody := string(bod)
-			response := client.PostUrl(headers, jsonbody)
+	if val, ok := m.Annotations["uptime.monitor.stakater.com/contacts"]; ok {
+		body["contact_groups"] = strings.Split(val, ",")
+	}
+	jsonBody, err := json.Marshal(body)
+	log.Println(string(jsonBody))
+	if err == nil {
+		response := client.PutUrl(headers, jsonBody)
 
-			if response.StatusCode == 200 {
-				var f UptimeMonitorStatusMonitorResponse
-				err := json.Unmarshal(response.Bytes, &f)
-				if err != nil {
-					log.Println("Failed to Unmarshal Response Json Object")
-				}
-				if f.Stat == "ok" {
-					log.Println("Monitor Updated: " + m.Name)
-				} else {
-					log.Println("Monitor couldn't be updated: " + m.Name)
-				}
-			} else {
-				log.Println("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+		if response.StatusCode == 200 {
+			var f UptimeMonitorMonitorResponse
+			err := json.Unmarshal(response.Bytes, &f)
+			if err != nil {
+				log.Println("Failed to Unmarshal Response Json Object")
 			}
+			if f.Errors == false {
+				log.Println("Monitor Updated: " + m.Name)
+			} else {
+				log.Println("Monitor couldn't be updated: " + m.Name)
+			}
+		} else {
+			log.Println("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 		}
 	} else {
-		log.Println("Monitor " + m.Name + " does not exist. Create it first")
+		log.Println("Failed to Marshal JSON Object")
 	}
 }
 
 func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
-	targetmonitor, err := monitor.GetByName(m.Name)
+	action := "checks/" + m.ID + "/"
 
-	if err != nil {
+	client := http.CreateHttpClient(monitor.url + action)
 
-		action := "checks/" + targetmonitor.ID + "/"
+	headers := make(map[string]string)
+	headers["Authorization"] = "Token " + monitor.apiKey
+	headers["Content-Type"] = "application/json"
 
-		client := http.CreateHttpClient(monitor.url + action)
+	response := client.DeleteUrl(headers, []byte(""))
 
-		headers := make(map[string]string)
-		headers["Authorization"] = "Token " + monitor.apiKey
+	if response.StatusCode == 200 {
+		var f UptimeMonitorMonitorResponse
+		json.Unmarshal(response.Bytes, &f)
 
-		response := client.DeleteUrl(headers, "")
-
-		if response.StatusCode == 200 {
-			var f UptimeMonitorStatusMonitorResponse
-			json.Unmarshal(response.Bytes, &f)
-
-			if f.Stat == "ok" {
-				log.Println("Monitor Removed: " + m.Name)
-			} else {
-				log.Println("Monitor couldn't be removed: " + m.Name)
-			}
+		if f.Errors == false {
+			log.Println("Monitor Removed: " + m.Name)
 		} else {
-			log.Println("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+			log.Println("Monitor couldn't be removed: " + m.Name)
 		}
 	} else {
-
-		log.Println("Monitor " + m.Name + " does not exist. Hence cannot be deleted")
+		log.Println("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }

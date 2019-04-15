@@ -15,13 +15,13 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 	m.ID = strconv.Itoa(uptimeMonitor.PK)
 
 	var annotations = map[string]string{
-		"uptime.monitor.stakater.com/interval":   uptimeMonitor.MspInterval,
+		"uptime.monitor.stakater.com/interval":   strconv.Itoa(uptimeMonitor.MspInterval),
 		"uptime.monitor.stakater.com/check_type": uptimeMonitor.CheckType,
 		"uptime.monitor.stakater.com/contacts":   strings.Join(uptimeMonitor.ContactGroups, ","),
 		"uptime.monitor.stakater.com/locations":  strings.Join(uptimeMonitor.Locations, ","),
 	}
-	m.Annotations = annotations
 
+	m.Annotations = annotations
 	return &m
 }
 

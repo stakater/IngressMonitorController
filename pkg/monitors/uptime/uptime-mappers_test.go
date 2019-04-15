@@ -12,7 +12,7 @@ func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 	uptimeMonitorObject := UptimeMonitorMonitor{Name: "Test Monitor",
 		PK:          124,
 		MspAddress:  "https://stakater.com",
-		MspInterval: "900",
+		MspInterval: 5,
 		CheckType:   "HTTP"}
 
 	monitorObject := UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitorObject)
@@ -20,7 +20,7 @@ func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 	if monitorObject.ID != strconv.Itoa(uptimeMonitorObject.PK) ||
 		monitorObject.Name != uptimeMonitorObject.Name ||
 		monitorObject.URL != uptimeMonitorObject.MspAddress ||
-		"900" != monitorObject.Annotations["uptime.monitor.stakater.com/interval"] ||
+		"5" != monitorObject.Annotations["uptime.monitor.stakater.com/interval"] ||
 		"HTTP" != monitorObject.Annotations["uptime.monitor.stakater.com/check_type"] {
 		t.Error("Correct: \n",
 			uptimeMonitorObject.Name,
@@ -43,7 +43,7 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 		Name:          "Test Monitor",
 		PK:            124,
 		MspAddress:    "https://stakater.com",
-		MspInterval:   "900",
+		MspInterval:   5,
 		CheckType:     "HTTP",
 		Locations:     []string{"US-Central"},
 		ContactGroups: []string{"Default"}}
@@ -51,19 +51,19 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 		Name:          "Test Monitor 2",
 		PK:            125,
 		MspAddress:    "https://facebook.com",
-		MspInterval:   "950",
+		MspInterval:   10,
 		CheckType:     "ICMP",
 		Locations:     []string{"US-Central"},
 		ContactGroups: []string{"Default"}}
 
 	var annotations1 = map[string]string{
-		"uptime.monitor.stakater.com/interval":   "900",
+		"uptime.monitor.stakater.com/interval":   "5",
 		"uptime.monitor.stakater.com/check_type": "HTTP",
 		"uptime.monitor.stakater.com/locations":  "US-Central",
 		"uptime.monitor.stakater.com/contacts":   "Default",
 	}
 	var annotations2 = map[string]string{
-		"uptime.monitor.stakater.com/interval":   "950",
+		"uptime.monitor.stakater.com/interval":   "10",
 		"uptime.monitor.stakater.com/check_type": "ICMP",
 		"uptime.monitor.stakater.com/locations":  "US-Central",
 		"uptime.monitor.stakater.com/contacts":   "Default",

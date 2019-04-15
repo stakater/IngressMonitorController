@@ -1,9 +1,10 @@
 package uptime
 
 type UptimeMonitorGetMonitorsResponse struct {
-	Stat       string                  `json:"stat"`
-	Pagination UptimeMonitorPagination `json:"pagination"`
-	Monitors   []UptimeMonitorMonitor  `json:"monitors"`
+	Count    int                    `json:"count"`
+	Next     int                    `json:"next"`
+	Previous int                    `json:"previous"`
+	Monitors []UptimeMonitorMonitor `json:"results"`
 }
 
 type UptimeMonitorPagination struct {
@@ -13,37 +14,43 @@ type UptimeMonitorPagination struct {
 }
 
 type UptimeMonitorMonitor struct {
-	PK                      int                        `json:"pk"`
-	URL                     string                     `json:"url"`
-	Name                    string                     `json:"name"`
-	CachedRespTime          float64                    `json:"cached_response_time"`
-	CachedUptime            int                        `json:"cached_uptime"`
-	ContactGroups           []string                   `json:"contact_groups"`
-	CreatedAt               string                     `json:"created_at"`
-	ModifiedAt              string                     `json:"modified_at"`
-	Locations               []string                   `json:"locations"`
-	Tags                    []string                   `json:"tags"`
-	CheckType               string                     `json:"check_type"`
-	Escalations             []string                   `json:"escalations"`
-	Maintainance            []UptimeMonitorMaintenance `json:"monitoring_service_type"`
-	IsPaused                bool                       `json:"is_paused"`
-	StateIsUp               bool                       `json:"state_is_up"`
-	MspIPVersion            string                     `json:"msp_use_ip_version"`
-	MspSensitivity          string                     `json:"msp_sensitivity"`
-	MspInterval             string                     `json:"msp_interval"`
-	MspHeaders              string                     `json:"msp_headers"`
-	MspNotes                string                     `json:"msp_notes"`
-	MspExpectString         string                     `json:"msp_expect_string"`
-	MspAddress              string                     `json:"msp_address"`
-	MspSendString           string                     `json:"msp_send_string"`
-	MspUsername             string                     `json:"msp_username"`
-	MspExpectStringType     string                     `json:"msp_expect_string_type"`
-	MspPassword             string                     `json:"msp_password"`
-	MspThreshold            int                        `json:"msp_threshold"`
-	MspIncludeGlobalMetrics bool                       `json:"msp_include_global_metrics"`
-	MspPort                 int                        `json:"msp_port"`
-	StatsURL                string                     `json:"stats_url"`
-	AlertsURL               string                     `json:"alerts_url"`
+	PK                      int                      `json:"pk"`
+	URL                     string                   `json:"url"`
+	Name                    string                   `json:"name"`
+	CachedRespTime          float64                  `json:"cached_response_time"`
+	CachedUptime            float64                  `json:"cached_uptime"`
+	ContactGroups           []string                 `json:"contact_groups"`
+	CreatedAt               string                   `json:"created_at"`
+	ModifiedAt              string                   `json:"modified_at"`
+	Locations               []string                 `json:"locations"`
+	Tags                    []string                 `json:"tags"`
+	CheckType               string                   `json:"check_type"`
+	Escalations             []string                 `json:"escalations"`
+	Maintenance             UptimeMonitorMaintenance `json:"maintenance"`
+	MonitoringServiceType   string                   `json:"monitoring_service_type"`
+	IsPaused                bool                     `json:"is_paused"`
+	StateIsUp               bool                     `json:"state_is_up"`
+	MspScript               string                   `json:"msp_script"`
+	MspDNSRecordType        string                   `json:"msp_dns_record_type"`
+	MspIPVersion            string                   `json:"msp_use_ip_version"`
+	MspSensitivity          int                      `json:"msp_sensitivity"`
+	MspInterval             int                      `json:"msp_interval"`
+	MspHeaders              string                   `json:"msp_headers"`
+	MspNotes                string                   `json:"msp_notes"`
+	MspEncryption           string                   `json:"msp_encryption"`
+	MspExpectString         string                   `json:"msp_expect_string"`
+	MspAddress              string                   `json:"msp_address"`
+	MspProtocol             string                   `json:"msp_protocol"`
+	MspDNSServer            string                   `json:"msp_dns_server"`
+	MspSendString           string                   `json:"msp_send_string"`
+	MspUsername             string                   `json:"msp_username"`
+	MspExpectStringType     string                   `json:"msp_expect_string_type"`
+	MspPassword             string                   `json:"msp_password"`
+	MspThreshold            int                      `json:"msp_threshold"`
+	MspIncludeGlobalMetrics bool                     `json:"msp_include_global_metrics"`
+	MspPort                 int                      `json:"msp_port"`
+	StatsURL                string                   `json:"stats_url"`
+	AlertsURL               string                   `json:"alerts_url"`
 }
 
 type UptimeMonitorMaintenance struct {
@@ -58,9 +65,10 @@ type UptimeMonitorLogs struct {
 	Duration int `json:"duration"`
 }
 
-type UptimeMonitorNewMonitorResponse struct {
-	Stat    string                     `json:"stat"`
-	Monitor UptimeMonitorMonitorStatus `json:"monitor"`
+type UptimeMonitorMonitorResponse struct {
+	Errors  bool                 `json:"errors"`
+	Details string               `json:"details"`
+	Results UptimeMonitorMonitor `json:"results"`
 }
 
 type UptimeMonitorMonitorStatus struct {
