@@ -1,7 +1,6 @@
 package uptimerobot
 
 import (
-	"log"
 	"strings"
 	"testing"
 
@@ -13,11 +12,7 @@ import (
 func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 	config := config.GetControllerConfig()
 	service := UpTimeStatusPageService{}
-	provider := util.GetProviderWithName(config, "UptimeRobot")
-	if provider == nil {
-		panic("Failed to find provider")
-	}
-	service.Setup(*provider)
+	service.Setup(config.Providers[0])
 
 	statusPage := UpTimeStatusPage{Name: "status-page-test"}
 	ID, err := service.Add(statusPage)
@@ -27,11 +22,7 @@ func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 	statusPage.ID = ID
 
 	monitorService := UpTimeMonitorService{}
-	mProvider := util.GetProviderWithName(config, "UptimeRobot")
-	if mProvider == nil {
-		panic("Failed to find provider")
-	}
-	monitorService.Setup(*mProvider)
+	monitorService.Setup(config.Providers[0])
 	monitor := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	monitorService.Add(monitor)
 
@@ -74,11 +65,7 @@ func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 	config := config.GetControllerConfig()
 	service := UpTimeStatusPageService{}
-	provider := util.GetProviderWithName(config, "UptimeRobot")
-	if provider == nil {
-		panic("Failed to find provider")
-	}
-	service.Setup(*provider)
+	service.Setup(config.Providers[0])
 
 	statusPage := UpTimeStatusPage{Name: "status-page-test"}
 	ID, err := service.Add(statusPage)
@@ -88,11 +75,7 @@ func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 	statusPage.ID = ID
 
 	monitorService := UpTimeMonitorService{}
-	mProvider := util.GetProviderWithName(config, "UptimeRobot")
-	if mProvider == nil {
-		panic("Failed to find provider")
-	}
-	monitorService.Setup(*mProvider)
+	monitorService.Setup(config.Providers[0])
 	monitor1 := models.Monitor{Name: "google-test-1", URL: "https://google.com"}
 	monitorService.Add(monitor1)
 
@@ -139,11 +122,7 @@ func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 func TestGetStatusPagesForMonitor(t *testing.T) {
 	config := config.GetControllerConfig()
 	service := UpTimeStatusPageService{}
-	provider := util.GetProviderWithName(config, "UptimeRobot")
-	if provider == nil {
-		panic("Failed to find provider")
-	}
-	service.Setup(*provider)
+	service.Setup(config.Providers[0])
 
 	statusPage1 := UpTimeStatusPage{Name: "status-page-test-1"}
 	ID1, err := service.Add(statusPage1)
@@ -167,11 +146,7 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 	statusPage3.ID = ID3
 
 	monitorService := UpTimeMonitorService{}
-	mProvider := util.GetProviderWithName(config, "UptimeRobot")
-	if mProvider == nil {
-		panic("Failed to find provider")
-	}
-	monitorService.Setup(*mProvider)
+	monitorService.Setup(config.Providers[0])
 	monitor := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	monitorService.Add(monitor)
 
@@ -180,21 +155,17 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
-	id1, err := service.AddMonitorToStatusPage(statusPage1, *monitorRes)
+	service.AddMonitorToStatusPage(statusPage1, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
 
-	id2, err := service.AddMonitorToStatusPage(statusPage2, *monitorRes)
+	service.AddMonitorToStatusPage(statusPage2, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-
-	log.Println("ID1: " + id1 + "ID2: " + id2)
 
 	statusPageIds, err := service.GetStatusPagesForMonitor(monitorRes.ID)
-	log.Print("STATUSPAGEIDs:")
-	log.Println(statusPageIds)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -219,11 +190,7 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 func TestRemoveMonitorFromStatusPage(t *testing.T) {
 	config := config.GetControllerConfig()
 	service := UpTimeStatusPageService{}
-	provider := util.GetProviderWithName(config, "UptimeRobot")
-	if provider == nil {
-		panic("Failed to find provider")
-	}
-	service.Setup(*provider)
+	service.Setup(config.Providers[0])
 
 	statusPage := UpTimeStatusPage{Name: "status-page-test"}
 	ID, err := service.Add(statusPage)
@@ -233,11 +200,7 @@ func TestRemoveMonitorFromStatusPage(t *testing.T) {
 	statusPage.ID = ID
 
 	monitorService := UpTimeMonitorService{}
-	mProvider := util.GetProviderWithName(config, "UptimeRobot")
-	if mProvider == nil {
-		panic("Failed to find provider")
-	}
-	monitorService.Setup(*mProvider)
+	monitorService.Setup(config.Providers[0])
 	monitor := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	monitorService.Add(monitor)
 

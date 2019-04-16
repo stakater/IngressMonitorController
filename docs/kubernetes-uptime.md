@@ -28,5 +28,4 @@ IngressMonitorController (IMC) offers exactly these features:
 
 ## Free Monitoring of Apps Deployed to Kubernetes
 
-Uptime offers 2 FREE monitors; which is really awesome to get started! And with IngressMonitorController its even easier
-to get started and have free monitors for the services/apps/microservices deployed to Kubernetes.
+Uptime offers  21 day FREE trial; which is really awesome to get started! And with IngressMonitorController its even easier to get started and have free monitors for the services/apps/microservices deployed to Kubernetes.

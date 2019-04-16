@@ -35,7 +35,7 @@ func (statusPageService *UpTimeStatusPageService) Add(statusPage UpTimeStatusPag
 
 	client := http.CreateHttpClient(statusPageService.url + action)
 
-	body := "api_key=" + statusPageService.apiKey + "&type=1&friendly_name=" + url.QueryEscape(statusPage.Name)
+	body := "api_key=" + statusPageService.apiKey + "&format=json&friendly_name=" + url.QueryEscape(statusPage.Name)
 
 	if statusPage.Monitors != nil {
 		monitors := strings.Join(statusPage.Monitors, "-")
@@ -47,17 +47,12 @@ func (statusPageService *UpTimeStatusPageService) Add(statusPage UpTimeStatusPag
 	response := client.PostUrlEncodedFormBody(body)
 
 	if response.StatusCode == 200 {
-		var f UptimeNewStatusPageResponse
-		log.Println(string(response.Bytes))
-		err := json.Unmarshal(response.Bytes, &f)
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response" + err.Error())
-		}
-		//log.Println("ssssssss", f)
+		var f UptimeStatusPageResponse
+		json.Unmarshal(response.Bytes, &f)
+
 		if f.Stat == "ok" {
 			log.Println("Status Page Added: " + statusPage.Name)
-			return statusPage.ID, nil
-			//return f.statusPage, nil
+			return strconv.Itoa(f.UptimePublicStatusPage.ID), nil
 		} else {
 			errorString := "Status Page couldn't be added: " + statusPage.Name
 			log.Println(errorString)
@@ -81,10 +76,7 @@ func (statusPageService *UpTimeStatusPageService) Remove(statusPage UpTimeStatus
 
 	if response.StatusCode == 200 {
 		var f UptimeStatusPageResponse
-		err := json.Unmarshal(response.Bytes, &f)
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response")
-		}
+		json.Unmarshal(response.Bytes, &f)
 
 		if f.Stat == "ok" {
 			log.Println("Status Page Removed: " + statusPage.Name)
@@ -127,15 +119,11 @@ func (statusPageService *UpTimeStatusPageService) AddMonitorToStatusPage(statusP
 
 		if response.StatusCode == 200 {
 			var f UptimeStatusPageResponse
-			err := json.Unmarshal(response.Bytes, &f)
-			// log.Println(f)
-			if err != nil {
-				log.Println("Could not Unmarshal Json Response" + err.Error())
-			}
+			json.Unmarshal(response.Bytes, &f)
 
 			if f.Stat == "ok" {
 				log.Println("Status Page Updated: " + statusPage.Name)
-				return strconv.Itoa(f.statusPage.ID), nil
+				return strconv.Itoa(f.UptimePublicStatusPage.ID), nil
 			} else {
 				errorString := "Status Page couldn't be updated: " + statusPage.Name
 				log.Println(errorString)
@@ -175,14 +163,11 @@ func (statusPageService *UpTimeStatusPageService) RemoveMonitorFromStatusPage(st
 
 	if response.StatusCode == 200 {
 		var f UptimeStatusPageResponse
-		err := json.Unmarshal(response.Bytes, &f)
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response")
-		}
+		json.Unmarshal(response.Bytes, &f)
 
 		if f.Stat == "ok" {
 			log.Println("Status Page Updated: " + statusPage.Name)
-			return strconv.Itoa(f.statusPage.ID), nil
+			return strconv.Itoa(f.UptimePublicStatusPage.ID), nil
 		} else {
 			errorString := "Status Page couldn't be updated: " + statusPage.Name
 			log.Println(errorString)
@@ -206,10 +191,7 @@ func (statusPageService *UpTimeStatusPageService) Get(ID string) (*UpTimeStatusP
 
 	if response.StatusCode == 200 {
 		var f UptimeStatusPagesResponse
-		err := json.Unmarshal(response.Bytes, &f)
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response" + err.Error())
-		}
+		json.Unmarshal(response.Bytes, &f)
 
 		if f.StatusPages != nil {
 			for _, statusPage := range f.StatusPages {
@@ -241,13 +223,7 @@ func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID st
 
 	if response.StatusCode == 200 {
 		var f UptimeStatusPagesResponse
-		err := json.Unmarshal(response.Bytes, &f)
-		//log.Println("=======")
-		//log.Println(f)
-		//log.Println("=======")
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response" + err.Error())
-		}
+		json.Unmarshal(response.Bytes, &f)
 
 		if f.StatusPages != nil {
 			for _, statusPage := range f.StatusPages {

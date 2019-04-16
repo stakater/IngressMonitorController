@@ -38,10 +38,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorGetMonitorsResponse
-		err := json.Unmarshal(response.Bytes, &f)
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response" + err.Error())
-		}
+		json.Unmarshal(response.Bytes, &f)
 
 		if f.Monitors != nil {
 			for _, monitor := range f.Monitors {
@@ -73,10 +70,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 	if response.StatusCode == 200 {
 
 		var f UptimeMonitorGetMonitorsResponse
-		err := json.Unmarshal(response.Bytes, &f)
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response" + err.Error())
-		}
+		json.Unmarshal(response.Bytes, &f)
 
 		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
 
@@ -105,10 +99,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorNewMonitorResponse
-		err := json.Unmarshal(response.Bytes, &f)
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response" + err.Error())
-		}
+		json.Unmarshal(response.Bytes, &f)
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Added: " + m.Name)
@@ -139,10 +130,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorStatusMonitorResponse
-		err := json.Unmarshal(response.Bytes, &f)
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response" + err.Error())
-		}
+		json.Unmarshal(response.Bytes, &f)
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Updated: " + m.Name)
@@ -166,10 +154,7 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorStatusMonitorResponse
-		err := json.Unmarshal(response.Bytes, &f)
-		if err != nil {
-			log.Println("Could not Unmarshal Json Response" + err.Error())
-		}
+		json.Unmarshal(response.Bytes, &f)
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Removed: " + m.Name)
