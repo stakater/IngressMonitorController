@@ -1,6 +1,8 @@
-hash: f537ab66d84ffc888ec310d9619cf8d0919cf20ed349594c016f9ae2a9ddfd41
-updated: 2019-04-04T14:44:54.308372324+05:00
+hash: f9d8ce569a578efaabb8a00f774f6a9bc9be748ad73d143762075298d78d0a93
+updated: 2019-04-15T11:09:48.694405365Z
 imports:
+- name: github.com/antoineaugusti/updown
+  version: 9f067e15937f51321c400ad87f9d30f21a175481
 - name: github.com/davecgh/go-spew
   version: 782f4967f2dc4564575ca782fe2d04090b5faca8
   subpackages:
@@ -93,6 +95,10 @@ imports:
   version: 9b3cdde74fbe9443d704467498a7dcb61a79de9b
 - name: github.com/spf13/pflag
   version: 9ff6c6923cfffbcd502984b8e0c80539a94968b7
+- name: github.com/stretchr/testify
+  version: ffdc059bfe9ce6a4e144ba849dbedead332c6053
+  subpackages:
+  - assert
 - name: golang.org/x/crypto
   version: 81e90905daefcd6fd217b62423c0908922eadb30
   subpackages:
@@ -261,4 +267,8 @@ imports:
   subpackages:
   - pkg/common
   - pkg/util/proto
-testImports: []
+testImports:
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib

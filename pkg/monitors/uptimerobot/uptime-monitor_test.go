@@ -14,7 +14,9 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	// service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
@@ -37,7 +39,8 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
@@ -74,7 +77,8 @@ func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
 
 	var annotations = map[string]string{
 		"uptimerobot.monitor.stakater.com/interval": "600",
@@ -104,7 +108,8 @@ func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
 
 	var annotations = map[string]string{
 		"uptimerobot.monitor.stakater.com/interval": "600",
@@ -153,7 +158,8 @@ func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
 
 	statusPageService := UpTimeStatusPageService{}
 	statusPageService.Setup(config.Providers[0])
@@ -198,10 +204,11 @@ func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
 
 	statusPageService := UpTimeStatusPageService{}
-	statusPageService.Setup(config.Providers[0])
+	statusPageService.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
@@ -258,8 +265,9 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
 	service := UpTimeMonitorService{}
-	config.Providers[0].ApiKey = "dummy-api-key"
-	service.Setup(config.Providers[0])
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	provider.ApiKey = "dummy-api-key"
+	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
