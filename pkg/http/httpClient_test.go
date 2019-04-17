@@ -13,18 +13,6 @@ func TestCreateHttpClient(t *testing.T) {
 		t.Error("Client URL should match the assigned url")
 	}
 }
-
-func TestPostShouldReturn405Status(t *testing.T) {
-	url := "https://google.com"
-	client := CreateHttpClient(url)
-
-	response := client.post("")
-
-	if response.StatusCode != 405 {
-		t.Error("Status code mismatch")
-	}
-}
-
 func TestAddHeaders(t *testing.T) {
 	url := "https://google.com"
 	client := CreateHttpClient(url)
@@ -43,5 +31,38 @@ func TestAddHeaders(t *testing.T) {
 		}
 	} else {
 		t.Error("Request should have the header Accepts")
+	}
+}
+
+func TestGetUrlShouldReturn200Status(t *testing.T) {
+	url := "https://google.com"
+	client := CreateHttpClient(url)
+
+	response := client.GetUrl(make(map[string]string), []byte(""))
+
+	if response.StatusCode != 200 {
+		t.Error("Status code mismatch")
+	}
+}
+
+func TestPostUrlShouldReturn405Status(t *testing.T) {
+	url := "https://google.com"
+	client := CreateHttpClient(url)
+
+	response := client.PostUrl(make(map[string]string), []byte(""))
+
+	if response.StatusCode != 405 {
+		t.Error("Status code mismatch")
+	}
+}
+
+func TestDeleteUrlShouldReturn405Status(t *testing.T) {
+	url := "https://google.com"
+	client := CreateHttpClient(url)
+
+	response := client.DeleteUrl(make(map[string]string), []byte(""))
+
+	if response.StatusCode != 405 {
+		t.Error("Status code mismatch")
 	}
 }

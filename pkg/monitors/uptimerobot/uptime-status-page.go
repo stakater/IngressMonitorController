@@ -15,12 +15,12 @@ import (
 )
 
 type UpTimeStatusPageService struct {
-	apiKey   string
-	url      string
+	apiKey string
+	url    string
 }
 
 type UpTimeStatusPage struct {
-    ID       string
+	ID       string
 	Name     string
 	Monitors []string
 }
@@ -38,13 +38,13 @@ func (statusPageService *UpTimeStatusPageService) Add(statusPage UpTimeStatusPag
 	body := "api_key=" + statusPageService.apiKey + "&format=json&friendly_name=" + url.QueryEscape(statusPage.Name)
 
 	if statusPage.Monitors != nil {
-        monitors := strings.Join(statusPage.Monitors, "-")
-	    body += "&monitors=" + monitors
+		monitors := strings.Join(statusPage.Monitors, "-")
+		body += "&monitors=" + monitors
 	} else {
 		body += "&monitors=0"
 	}
 
-    response := client.PostUrlEncodedFormBody(body)
+	response := client.PostUrlEncodedFormBody(body)
 
 	if response.StatusCode == 200 {
 		var f UptimeStatusPageResponse
@@ -54,14 +54,14 @@ func (statusPageService *UpTimeStatusPageService) Add(statusPage UpTimeStatusPag
 			log.Println("Status Page Added: " + statusPage.Name)
 			return strconv.Itoa(f.UptimePublicStatusPage.ID), nil
 		} else {
-    		errorString := "Status Page couldn't be added: " + statusPage.Name
-	        log.Println(errorString)
-            return "", errors.New(errorString)
+			errorString := "Status Page couldn't be added: " + statusPage.Name
+			log.Println(errorString)
+			return "", errors.New(errorString)
 		}
 	} else {
 		errorString := "Add Status Page Request failed. Status Code: " + strconv.Itoa(response.StatusCode)
-	    log.Println(errorString)
-        return "", errors.New(errorString)
+		log.Println(errorString)
+		return "", errors.New(errorString)
 	}
 }
 
@@ -195,7 +195,7 @@ func (statusPageService *UpTimeStatusPageService) Get(ID string) (*UpTimeStatusP
 
 		if f.StatusPages != nil {
 			for _, statusPage := range f.StatusPages {
-        		return UptimeStatusPageToBaseStatusPageMapper(statusPage), nil
+				return UptimeStatusPageToBaseStatusPageMapper(statusPage), nil
 			}
 		}
 
@@ -209,9 +209,9 @@ func (statusPageService *UpTimeStatusPageService) Get(ID string) (*UpTimeStatusP
 }
 
 func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID string) ([]string, error) {
-    IDint, _ := strconv.Atoi(ID)
+	IDint, _ := strconv.Atoi(ID)
 
-    var matchingStatusPageIds []string
+	var matchingStatusPageIds []string
 
 	action := "getPsps"
 
@@ -227,13 +227,13 @@ func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID st
 
 		if f.StatusPages != nil {
 			for _, statusPage := range f.StatusPages {
-			    if util.ContainsInt(statusPage.Monitors, IDint) {
-                    matchingStatusPageIds = append(matchingStatusPageIds, strconv.Itoa(statusPage.ID))
-                }
+				if util.ContainsInt(statusPage.Monitors, IDint) {
+					matchingStatusPageIds = append(matchingStatusPageIds, strconv.Itoa(statusPage.ID))
+				}
 			}
 		}
 
-    	return matchingStatusPageIds, nil
+		return matchingStatusPageIds, nil
 	}
 
 	errorString := "GetStatusPagesForMonitor Request failed for ID: " + ID + ". Status Code: " + strconv.Itoa(response.StatusCode)

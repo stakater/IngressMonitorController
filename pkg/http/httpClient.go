@@ -1,9 +1,10 @@
 package http
 
 import (
+	"bytes"
 	"io/ioutil"
+	"log"
 	"net/http"
-	"strings"
 )
 
 type HttpClient struct {
@@ -20,18 +21,34 @@ func CreateHttpClient(url string) *HttpClient {
 	return &client
 }
 
-func (client *HttpClient) post(body string) HttpResponse {
-	return client.postWithHeaders(body, nil)
+func (client *HttpClient) addHeaders(request *http.Request, headers map[string]string) {
+	if headers != nil {
+		for key, value := range headers {
+			request.Header.Add(key, value)
+		}
+	}
 }
 
-func (client *HttpClient) postWithHeaders(body string, headers map[string]string) HttpResponse {
-	payload := strings.NewReader(body)
+func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, headers map[string]string) HttpResponse {
+	reader := bytes.NewReader(body)
 
-	request, _ := http.NewRequest("POST", client.url, payload)
+	//log.Println("NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
 
-	client.addHeaders(request, headers)
+	request, err := http.NewRequest(requestType, client.url, reader)
+	if err != nil {
+		log.Println("Failed to craft HTTP Request. METHOD: " + requestType +
+			" URL: " + client.url +
+			" PAYLOAD: " + string(body))
+	}
 
-	response, _ := http.DefaultClient.Do(request)
+	if headers != nil {
+		client.addHeaders(request, headers)
+	}
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	httpResponse := HttpResponse{StatusCode: response.StatusCode}
 
@@ -42,18 +59,27 @@ func (client *HttpClient) postWithHeaders(body string, headers map[string]string
 	return httpResponse
 }
 
+func (client *HttpClient) DeleteUrl(requestHeaders map[string]string, body []byte) HttpResponse {
+	return client.RequestWithHeaders("DELETE", body, requestHeaders)
+}
+
+func (client *HttpClient) GetUrl(requestHeaders map[string]string, body []byte) HttpResponse {
+
+	return client.RequestWithHeaders("GET", body, requestHeaders)
+}
+
+func (client *HttpClient) PostUrl(requestHeaders map[string]string, body []byte) HttpResponse {
+	return client.RequestWithHeaders("POST", body, requestHeaders)
+}
+
+func (client *HttpClient) PutUrl(requestHeaders map[string]string, body []byte) HttpResponse {
+	return client.RequestWithHeaders("PUT", body, requestHeaders)
+}
+
 func (client *HttpClient) PostUrlEncodedFormBody(body string) HttpResponse {
 	requestHeaders := make(map[string]string)
 	requestHeaders["content-type"] = "application/x-www-form-urlencoded"
 	requestHeaders["cache-control"] = "no-cache"
 
-	return client.postWithHeaders(body, requestHeaders)
-}
-
-func (client *HttpClient) addHeaders(request *http.Request, headers map[string]string) {
-	if headers != nil {
-		for key, value := range headers {
-			request.Header.Add(key, value)
-		}
-	}
+	return client.RequestWithHeaders("POST", []byte(body), requestHeaders)
 }

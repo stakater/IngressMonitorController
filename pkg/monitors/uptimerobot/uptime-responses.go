@@ -53,17 +53,17 @@ type UptimeMonitorStatusMonitorResponse struct {
 }
 
 type UptimePublicStatusPage struct {
-	ID             int                 `json:"id"`
-	FriendlyName   string              `json:"friendly_name"`
-	Monitors       []int               `json:"monitors"`
-	CustomDomain   string              `json:"custom_domain"`
-	Password       string              `json:"password"`
-	Sort           int                 `json:"sort"`
-	Status         int                 `json:"status"`
+	ID           int    `json:"id"`
+	FriendlyName string `json:"friendly_name"`
+	Monitors     []int  `json:"monitors"`
+	CustomDomain string `json:"custom_domain"`
+	Password     string `json:"password"`
+	Sort         int    `json:"sort"`
+	Status       int    `json:"status"`
 }
 
 type UptimeStatusPageResponse struct {
-	Stat    string `json:"stat"`
+	Stat                   string `json:"stat"`
 	UptimePublicStatusPage struct {
 		ID int `json:"id"`
 	} `json:"psp"`

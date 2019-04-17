@@ -177,10 +177,10 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 	if !util.ContainsString(statusPageIds, statusPage1.ID) {
-		t.Log("The first status page does not contain the monitor, expected: " + statusPage1.ID + ", but was: " + strings.Join(statusPageIds, "-"))
+		t.Error("The first status page does not contain the monitor, expected: " + statusPage1.ID + ", but was: " + strings.Join(statusPageIds, "-"))
 	}
 	if !util.ContainsString(statusPageIds, statusPage2.ID) {
-		t.Log("The second status page does not contain the monitor, expected: " + statusPage2.ID + ", but was: " + strings.Join(statusPageIds, "-"))
+		t.Error("The second status page does not contain the monitor, expected: " + statusPage2.ID + ", but was: " + strings.Join(statusPageIds, "-"))
 	}
 
 	if util.ContainsString(statusPageIds, statusPage3.ID) {

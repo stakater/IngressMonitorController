@@ -12,7 +12,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -488,12 +488,13 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 		}
 
 		if monitor == nil {
-			t.Error("Monitor with name" + monitorName + " does not exist")
+			t.Error("Monitor with name " + monitorName + " does not exist")
+		} else {
+			if monitor.URL != "http://"+newURL {
+				t.Error("Monitor did not update")
+			}
 		}
 
-		if monitor.URL != "http://"+newURL {
-			t.Error("Monitor did not update")
-		}
 	}
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
@@ -650,9 +651,10 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonit
 		if err != nil {
 			t.Error("An error occured while getting monitor")
 		}
-
-		if monitor.URL != "http://"+url+"/health" {
-			t.Error("Monitor must have /health appended to the url")
+		if monitor != nil {
+			if monitor.URL != "http://"+url+"/health" {
+				t.Error("Monitor must have /health appended to the url")
+			}
 		}
 	}
 
@@ -724,9 +726,10 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 		if err != nil {
 			t.Error("An error occured while getting monitor")
 		}
-
-		if monitor.URL != "http://"+url {
-			t.Error("Monitor must not have /health appended to the url")
+		if monitor != nil {
+			if monitor.URL != "http://"+url {
+				t.Error("Monitor must not have /health appended to the url")
+			}
 		}
 	}
 
