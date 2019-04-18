@@ -24,17 +24,19 @@ const (
 	PingdomBasicAuthUser                      = "pingdom.monitor.stakater.com/basic-auth-user"
 	PingdomShouldContainString                = "pingdom.monitor.stakater.com/should-contain"
 	PingdomTags                               = "pingdom.monitor.stakater.com/tags"
+	PingdomAlertIntegrations                  = "pingdom.monitor.stakater.com/alert-integrations"
 )
 
 // PingdomMonitorService interfaces with MonitorService
 type PingdomMonitorService struct {
-	apiKey        string
-	url           string
-	alertContacts string
-	username      string
-	password      string
-	accountEmail  string
-	client        *pingdom.Client
+	apiKey            string
+	url               string
+	alertContacts     string
+	alertIntegrations string
+	username          string
+	password          string
+	accountEmail      string
+	client            *pingdom.Client
 }
 
 func (service *PingdomMonitorService) Setup(p config.Provider) {
@@ -145,6 +147,14 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 		httpCheck.UserIds = userIds
 	}
 
+	integrationIdsStringArray := strings.Split(service.alertIntegrations, "-")
+
+	if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
+		log.Println(err.Error())
+	} else {
+		httpCheck.IntegrationIds = integrationIds
+	}
+
 	service.addAnnotationConfigToHttpCheck(&httpCheck, monitor.Annotations)
 
 	return httpCheck
@@ -153,6 +163,16 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *pingdom.HttpCheck, annotations map[string]string) {
 	// Read known annotations, try to map them to pingdom configs
 	// set some default values if we can't find them
+
+	if value, ok := annotations[PingdomAlertIntegrations]; ok {
+		integrationIdsStringArray := strings.Split(value, "-")
+
+		if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
+			log.Println("Error decoding integration ids annotation into integers", err.Error())
+		} else {
+			httpCheck.IntegrationIds = integrationIds
+		}
+	}
 
 	if value, ok := annotations[PingdomNotifyWhenBackUpAnnotation]; ok {
 		boolValue, err := strconv.ParseBool(value)
