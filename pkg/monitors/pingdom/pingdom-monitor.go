@@ -43,6 +43,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.apiKey = p.ApiKey
 	service.url = p.ApiURL
 	service.alertContacts = p.AlertContacts
+	service.alertIntegrations = p.AlertIntegrations
 	service.username = p.Username
 	service.password = p.Password
 

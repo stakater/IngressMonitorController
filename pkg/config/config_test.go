@@ -11,6 +11,7 @@ const (
 	correctTestAPIKey                = "657a68d9ashdyasjdklkskuasd"
 	correctTestAPIURL                = "https://api.uptimerobot.com/v2/"
 	correctTestAlertContacts         = "0544483_0_0-2628365_0_0-2633263_0_0"
+	correctTestAlertIntegrations     = "91166,10924"
 	correctTestEnableMonitorDeletion = true
 
 	configFilePathPingdom          = "../../configs/testConfigs/test-config-pingdom.yaml"
@@ -28,7 +29,7 @@ const (
 )
 
 func TestConfigWithCorrectValues(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts, AlertIntegrations: correctTestAlertIntegrations}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePath)
 
 	if !reflect.DeepEqual(config, correctConfig) {
