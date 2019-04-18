@@ -38,7 +38,8 @@ ingressMonitorController:
     apiKey: your-api-key
     apiURL: https://google.com
     alertContacts: some-alert-contacts
-  
+  secrets: {}
+
   enableMonitorDeletion: true
   configFilePath: /etc/IngressMonitorController/config.yaml
   monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
