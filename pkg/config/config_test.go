@@ -29,9 +29,13 @@ const (
 )
 
 func TestConfigWithCorrectValues(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts, AlertIntegrations: correctTestAlertIntegrations}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
-	config := ReadConfig(configFilePath)
-
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestAPIKey, ApiURL: correctTestPingdomAPIURL,
+		AlertContacts: correctTestAlertContacts, AlertIntegrations: correctTestAlertIntegrations,
+		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
+		EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	config := ReadConfig(configFilePathPingdom)
+	t.Log(config)
+	t.Log(correctConfig)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")
 	}
@@ -74,7 +78,10 @@ func TestConfigWithoutEnabledFlag(t *testing.T) {
 }
 
 func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestAPIKey, ApiURL: correctTestPingdomAPIURL, AlertContacts: correctTestAlertContacts, Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestAPIKey, ApiURL: correctTestPingdomAPIURL,
+		AlertContacts: correctTestAlertContacts, AlertIntegrations: correctTestAlertIntegrations,
+		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
+		EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePathPingdom)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")
