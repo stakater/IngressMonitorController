@@ -51,6 +51,13 @@ spec:
       {{- end }}
       containers:
       - env:
+      {{- range .Values.ingressMonitorController.secrets }}
+        - name: {{ .variable }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .name }}
+              key: {{ .key }}
+      {{- end }}
       {{- if .Values.ingressMonitorController.watchNamespace }}
         - name: KUBERNETES_NAMESPACE
           value: {{ .Values.ingressMonitorController.watchNamespace | quote }}
