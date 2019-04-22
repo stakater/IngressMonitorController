@@ -11,10 +11,10 @@ metadata:
     
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.63"
+    chart: "ingressmonitorcontroller-v1.0.64"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.63
+    version: v1.0.64
     
     group: com.stakater.platform
     provider: stakater
@@ -34,10 +34,10 @@ spec:
     metadata:
       labels:
         app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-v1.0.63"
+        chart: "ingressmonitorcontroller-v1.0.64"
         release: "RELEASE-NAME"
         heritage: "Tiller"
-        version: v1.0.63
+        version: v1.0.64
         
         group: com.stakater.platform
         provider: stakater
@@ -47,7 +47,7 @@ spec:
       - env:
         - name: CONFIG_FILE_PATH
           value: /etc/IngressMonitorController/config.yaml
-        image: "stakater/ingressmonitorcontroller:v1.0.63"
+        image: "stakater/ingressmonitorcontroller:v1.0.64"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
@@ -172,10 +172,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.63"
+    chart: "ingressmonitorcontroller-v1.0.64"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.63
+    version: v1.0.64
     
     group: com.stakater.platform
     provider: stakater
@@ -188,9 +188,11 @@ data:
       apiURL: https://google.com
       username: null
       password: null
+      accountEmail: null
       alertContacts: some-alert-contacts
     enableMonitorDeletion: true
     monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+
 ---
 # Source: ingressmonitorcontroller/templates/serviceaccount.yaml
 
@@ -199,10 +201,10 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.63"
+    chart: "ingressmonitorcontroller-v1.0.64"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.63
+    version: v1.0.64
     
     group: com.stakater.platform
     provider: stakater

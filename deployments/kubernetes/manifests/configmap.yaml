@@ -7,14 +7,14 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.63"
+    chart: "ingressmonitorcontroller-v1.0.64"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.63
-
+    version: v1.0.64
+    
     group: com.stakater.platform
     provider: stakater
-
+    
 data:
   config.yaml: |-
     providers:
@@ -27,3 +27,4 @@ data:
       alertContacts: some-alert-contacts
     enableMonitorDeletion: true
     monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+
