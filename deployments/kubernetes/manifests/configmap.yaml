@@ -11,10 +11,10 @@ metadata:
     release: "RELEASE-NAME"
     heritage: "Tiller"
     version: v1.0.63
-    
+
     group: com.stakater.platform
     provider: stakater
-    
+
 data:
   config.yaml: |-
     providers:
@@ -23,6 +23,7 @@ data:
       apiURL: https://google.com
       username: null
       password: null
+      accountEmail: null
       alertContacts: some-alert-contacts
     enableMonitorDeletion: true
     monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
