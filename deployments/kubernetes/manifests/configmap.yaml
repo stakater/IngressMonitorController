@@ -7,10 +7,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.63"
+    chart: "ingressmonitorcontroller-v1.0.65"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.63
+    version: v1.0.65
     
     group: com.stakater.platform
     provider: stakater
@@ -23,6 +23,8 @@ data:
       apiURL: https://google.com
       username: null
       password: null
+      accountEmail: null
       alertContacts: some-alert-contacts
     enableMonitorDeletion: true
     monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+
