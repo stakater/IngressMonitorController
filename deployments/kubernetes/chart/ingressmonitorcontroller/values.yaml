@@ -5,7 +5,8 @@ kubernetes:
 
 ingressMonitorController:
   tolerations: {}
-  watchNamespace: ""
+  watchNamespace: "test"
+  mount: "secret"
   useFullName: false
   matchLabels:
     group: com.stakater.platform
@@ -33,16 +34,14 @@ ingressMonitorController:
     name: stakater/ingressmonitorcontroller
     tag: "v1.0.67"
     pullPolicy: IfNotPresent
-  providers:
-  - name: UptimeRobot
-    apiKey: your-api-key
-    apiURL: https://google.com
-    alertContacts: some-alert-contacts
-  secrets: {}
-    # - variable: environment-variable-name
-    #   name: secret-name
-    #   key: secret-key
-  
-  enableMonitorDeletion: true
   configFilePath: /etc/IngressMonitorController/config.yaml
-  monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+  data:
+    config.yaml: |-
+      providers:
+      - name: UptimeRobot
+        apiKey: u673984-fd42aadaa63288101e169864
+        apiURL: https://api.uptimerobot.com/v2/
+        alertContacts: "0673984_0_0"
+      secrets: {}
+      enableMonitorDeletion: true
+      monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
