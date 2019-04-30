@@ -5,7 +5,7 @@ kubernetes:
 
 ingressMonitorController:
   tolerations: {}
-  watchNamespace: "test"
+  watchNamespace: ""
   mount: "secret"
   useFullName: false
   matchLabels:
@@ -39,9 +39,9 @@ ingressMonitorController:
     config.yaml: |-
       providers:
       - name: UptimeRobot
-        apiKey: u673984-fd42aadaa63288101e169864
-        apiURL: https://api.uptimerobot.com/v2/
-        alertContacts: "0673984_0_0"
+        apiKey: your-api-key
+        apiURL: https://google.com
+        alertContacts: some-alert-contacts
       secrets: {}
       enableMonitorDeletion: true
       monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"

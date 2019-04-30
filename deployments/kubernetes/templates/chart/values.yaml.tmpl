@@ -6,6 +6,7 @@ kubernetes:
 ingressMonitorController:
   tolerations: {}
   watchNamespace: ""
+  mount: "secret"
   useFullName: false
   matchLabels:
     group: com.stakater.platform
