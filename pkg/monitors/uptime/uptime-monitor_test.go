@@ -17,6 +17,10 @@ func TestGetAllMonitors(t *testing.T) {
 	if provider == nil {
 		panic("Failed to find provider")
 	}
+	// If test Config is passed skip the test
+	if provider.ApiKey == "API_KEY" {
+		return
+	}
 	service.Setup(*provider)
 	monitors := service.GetAll()
 	log.Println(monitors)
@@ -36,6 +40,10 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	provider := util.GetProviderWithName(config, "Uptime")
 	if nil == provider {
 		panic("Failed to find provider")
+	}
+	// If test Config is passed skip the test
+	if provider.ApiKey == "API_KEY" {
+		return
 	}
 	service.Setup(*provider)
 
@@ -68,6 +76,10 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	provider := util.GetProviderWithName(config, "Uptime")
 	if provider == nil {
 		panic("Failed to find provider")
+	}
+	// If test Config is passed skip the test
+	if provider.ApiKey == "API_KEY" {
+		return
 	}
 	service.Setup(*provider)
 	annotations := make(map[string]string)
@@ -125,11 +137,14 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 
-	provider := util.GetProviderWithName(config, "UptimeRobot")
+	provider := util.GetProviderWithName(config, "Uptime")
 	if provider == nil {
 		panic("Failed to find provider")
 	}
-
+	// If test Config is passed skip the test
+	if provider.ApiKey == "API_KEY" {
+		return
+	}
 	service.Setup(*provider)
 	annotations := make(map[string]string)
 	annotations["uptime.monitor.stakater.com/locations"] = "US-Central"
