@@ -16,9 +16,10 @@ in the [Configuration section of the README](../README.md#configuration):
 The following optional property can be included for Pingdom accounts which require multi-user authentication.
 More information can be found [Here](https://www.pingdom.com/api/2.1/#multi-user+authentication)
 
-| Key          | Description                                              |
-|--------------|----------------------------------------------------------|
-| accountEmail | Email account for multi-user authentication with Pingdom |
+| Key               | Description                                              |
+|-------------------|----------------------------------------------------------|
+| accountEmail      | Email account for multi-user authentication with Pingdom |
+| alertIntegrations | Comma separated list of integration ids                  |
 
 ## Advanced
 
@@ -32,8 +33,9 @@ Currently additional pingdom configurations can be added through a set of annota
 | pingdom.monitor.stakater.com/notify-when-back-up         | Set to "false" to disable recovery notifications |
 | pingdom.monitor.stakater.com/request-headers             | Custom pingdom request headers (e.g. {"Accept"="application/json"}) |
 | pingdom.monitor.stakater.com/basic-auth-user             | Required for basic-authentication checks - [see below](#basic-auth-checks) |
-| pingdom.monitor.stakater.com/should-contain              | Set to text string that has to be present in the HTML code of the page (configures "Should contain")|
-| pingdom.monitor.stakater.com/tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws")|
+| pingdom.monitor.stakater.com/should-contain              | Set to text string that has to be present in the HTML code of the page (configures "Should contain") |
+| pingdom.monitor.stakater.com/tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws") |
+| pingdom.monitor.stakater.com/alert-integrations                | Comma separated set list of integrations ids (e.g. "91166,12168") |
 
 ### Basic Auth checks
 

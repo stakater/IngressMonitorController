@@ -15,13 +15,14 @@ type Config struct {
 }
 
 type Provider struct {
-	Name          string `yaml:"name"`
-	ApiKey        string `yaml:"apiKey"`
-	ApiURL        string `yaml:"apiURL"`
-	AlertContacts string `yaml:"alertContacts"`
-	Username      string `yaml:"username"`
-	Password      string `yaml:"password"`
-	AccountEmail  string `yaml:"accountEmail"`
+	Name              string `yaml:"name"`
+	ApiKey            string `yaml:"apiKey"`
+	ApiURL            string `yaml:"apiURL"`
+	AlertContacts     string `yaml:"alertContacts"`
+	AlertIntegrations string `yaml:"alertIntegrations"`
+	Username          string `yaml:"username"`
+	Password          string `yaml:"password"`
+	AccountEmail      string `yaml:"accountEmail"`
 }
 
 func ReadConfig(filePath string) Config {
