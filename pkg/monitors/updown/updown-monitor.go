@@ -10,7 +10,6 @@ import (
 
 	"github.com/antoineaugusti/updown"
 	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
@@ -65,7 +64,7 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 	updownChecks, httpResponse, err := updownService.client.Check.List()
 	log.Println("Monitors (updown checks) object list has been pulled")
 
-	if (httpResponse.StatusCode == constants.StatusCodes["OK"]) && (err == nil) {
+	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
 		log.Println("Populating monitors list using the updownChecks object given in updownChecks list")
 
 		// populating a monitors slice using the updownChecks objects given in updownChecks slice
@@ -118,10 +117,10 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 	_, httpResponse, err := service.client.Check.Add(updownCheckItemObj)
 	log.Println("Monitor addition request has been completed")
 
-	if (httpResponse.StatusCode == constants.StatusCodes["CREATED"]) && (err == nil) {
+	if (httpResponse.StatusCode == http.StatusCreated) && (err == nil) {
 		log.Printf("Monitor %s has been added.", updownMonitor.Name)
 
-	} else if (httpResponse.StatusCode == constants.StatusCodes["BAD_REQUEST"]) && (err != nil) {
+	} else if (httpResponse.StatusCode == http.StatusBadRequest) && (err != nil) {
 		log.Printf("Monitor %s is not created because of invalid parameters or it exists.", updownMonitor.Name)
 
 	} else {
@@ -226,7 +225,7 @@ func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 	_, httpResponse, err := service.client.Check.Update(updownMonitor.ID, httpCheckItemObj)
 	log.Println("Updown's check Update request has been completed")
 
-	if (httpResponse.StatusCode == constants.StatusCodes["OK"]) && (err == nil) {
+	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
 		log.Printf("Monitor %s has been updated with following parameters", updownMonitor.Name)
 
 	} else {
@@ -245,10 +244,10 @@ func (updownService *UpdownMonitorService) Remove(updownMonitor models.Monitor) 
 	_, httpResponse, err := updownService.client.Check.Remove(updownMonitor.ID)
 	log.Println("Updown's check Remove request has been completed")
 
-	if (httpResponse.StatusCode == constants.StatusCodes["OK"]) && (err == nil) {
+	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
 		log.Printf("Monitor %v has been deleted.", updownMonitor.Name)
 
-	} else if (httpResponse.StatusCode == constants.StatusCodes["NOT_FOUND"]) && (err != nil) {
+	} else if (httpResponse.StatusCode == http.StatusNotFound) && (err != nil) {
 		log.Printf("Monitor %v is not found.", updownMonitor.Name)
 
 	} else {
