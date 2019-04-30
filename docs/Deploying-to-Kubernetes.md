@@ -28,6 +28,7 @@ Following are the available options that you can use to customize the controller
 | secrets               | An array of secrets that you want to mount to your controller                 |
 | enableMonitorDeletion | A safeguard flag that is used to enable or disable monitor deletion on ingress deletion (Useful for prod environments where you don't want to remove monitor on ingress deletion) |
 | watchNamespace        | Name of the namespace if you want to monitor ingresses only in that namespace. Defaults to null |
+| mount                 | `"secret"` or `"configMap"`. How to pass user credentials, API keys etc.          |  
 
 For the list of providers, there are a number of options that you need to specify. The table below lists them:
 
@@ -65,7 +66,31 @@ The Ingress Monitor Controller can be deployed with vanilla manifests or Helm Ch
 
 #### Configuring
 
-The configuration discussed in the above section needs to be done by modifying `config.yaml` data for the ConfigMap resource in the `ingressmonitorcontroller.yaml` file. 
+The configuration discussed in the above section needs to be done by modifying `config.yaml` data for the ConfigMap resource in the `ingressmonitorcontroller.yaml` file.
+
+##### Using Secrets
+
+To pass user credentials/ API keys in secrets:
+    
+  1. Open [values.yaml](https://github.com/stakater/IngressMonitorController/blob/master/deployments/kubernetes/chart/ingressmonitorcontroller/values.yaml) file by navigating to `deployments/kubernetes/chart/ingressmonitorcontroller/`
+  
+  2. Set `mount` equals to `"secret"` and pass the data in the data section at the bottom.
+  
+  3. Run `helm template . > file_to_generate.yaml`
+  
+  4. Deploy using the `Deploying` section below.
+
+##### Using ConfigMap
+
+To pass user credentials/ API keys in secrets:
+     
+  1. Open [values.yaml](https://github.com/stakater/IngressMonitorController/blob/master/deployments/kubernetes/chart/ingressmonitorcontroller/values.yaml) file by navigating to `deployments/kubernetes/chart/ingressmonitorcontroller/`
+  
+  2. Set `mount` equals to `"configMap"` and pass the data in the data section at the bottom.
+  
+  3. Run `helm template . > file_to_generate.yaml`
+  
+  4. Deploy using the `Deploying` section below.
 
 ##### Running for a single namespace
 

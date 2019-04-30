@@ -1,6 +1,94 @@
 ---
-# Source: ingressmonitorcontroller/templates/role.yaml
+# Source: ingressmonitorcontroller/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingressmonitorcontroller
+  annotations:
+  labels:
+    app: ingressmonitorcontroller
+    chart: "ingressmonitorcontroller-v1.0.67"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
+    version: v1.0.67
+    
+    group: com.stakater.platform
+    provider: stakater
+    
+data:
+  config.yaml: |-
+    providers:
+    - name: UptimeRobot
+      apiKey: your-api-key
+      apiURL: https://google.com
+      username: null
+      password: null
+      alertContacts: some-alert-contacts
+    enableMonitorDeletion: true
+    monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+---
+# Source: ingressmonitorcontroller/templates/serviceaccount.yaml
 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: ingressmonitorcontroller
+    chart: "ingressmonitorcontroller-v1.0.62"
+    release: "RELEASE-NAME"
+    heritage: "Tiller"
+    version: v1.0.62
+    
+    group: com.stakater.platform
+    provider: stakater
+    
+  name: ingressmonitorcontroller
+---
+# Source: ingressmonitorcontroller/templates/clusterrole.yaml
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: ingressmonitorcontroller-role
+rules:
+  - apiGroups:
+      - ""
+      - "extensions"
+      - "route.openshift.io"
+    resources:
+      - ingresses
+      - routes
+    verbs:
+      - list
+      - get
+      - update
+      - patch
+      - watch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - pods
+    verbs:
+      - list
+      - get
+      - watch
+---
+# Source: ingressmonitorcontroller/templates/clusterrolebinding.yaml
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: ingressmonitorcontroller-role-binding
+roleRef:
+  kind: ClusterRole
+  name: ingressmonitorcontroller-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: ingressmonitorcontroller
+  namespace: default
 ---
 # Source: ingressmonitorcontroller/templates/deployment.yaml
 apiVersion: extensions/v1beta1
@@ -34,10 +122,10 @@ spec:
     metadata:
       labels:
         app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-v1.0.67"
+        chart: "ingressmonitorcontroller-v1.0.62"
         release: "RELEASE-NAME"
         heritage: "Tiller"
-        version: v1.0.67
+        version: v1.0.62
         
         group: com.stakater.platform
         provider: stakater
@@ -47,7 +135,7 @@ spec:
       - env:
         - name: CONFIG_FILE_PATH
           value: /etc/IngressMonitorController/config.yaml
-        image: "stakater/ingressmonitorcontroller:v1.0.67"
+        image: "stakater/ingressmonitorcontroller:v1.0.62"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
@@ -58,100 +146,9 @@ spec:
       - configMap:
           name: ingressmonitorcontroller
         name: config-volume
-
 ---
-# Source: ingressmonitorcontroller/templates/clusterrole.yaml
+# Source: ingressmonitorcontroller/templates/role.yaml
 
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRole
-metadata:
-  name: ingressmonitorcontroller-role
-rules:
-  - apiGroups:
-      - ""
-      - "extensions"
-      - "route.openshift.io"
-    resources:
-      - ingresses
-      - routes
-    verbs:
-      - list
-      - get
-      - update
-      - patch
-      - watch
-      - delete
-  - apiGroups:
-      - ""
-    resources:
-      - services
-      - pods
-    verbs:
-      - list
-      - get
-      - watch
 ---
 # Source: ingressmonitorcontroller/templates/rolebinding.yaml
 
----
-# Source: ingressmonitorcontroller/templates/clusterrolebinding.yaml
-
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: ingressmonitorcontroller-role-binding
-roleRef:
-  kind: ClusterRole
-  name: ingressmonitorcontroller-role
-  apiGroup: rbac.authorization.k8s.io
-subjects:
-- kind: ServiceAccount
-  name: ingressmonitorcontroller
-  namespace: default
----
-# Source: ingressmonitorcontroller/templates/configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ingressmonitorcontroller
-  annotations:
-  labels:
-    app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.67"
-    release: "RELEASE-NAME"
-    heritage: "Tiller"
-    version: v1.0.67
-    
-    group: com.stakater.platform
-    provider: stakater
-    
-data:
-  config.yaml: |-
-    providers:
-    - name: UptimeRobot
-      apiKey: your-api-key
-      apiURL: https://google.com
-      username: null
-      password: null
-      accountEmail: null
-      alertContacts: some-alert-contacts
-    enableMonitorDeletion: true
-    monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
-
----
-# Source: ingressmonitorcontroller/templates/serviceaccount.yaml
-
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:
-    app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.67"
-    release: "RELEASE-NAME"
-    heritage: "Tiller"
-    version: v1.0.67
-    
-    group: com.stakater.platform
-    provider: stakater
-    
-  name: ingressmonitorcontroller
