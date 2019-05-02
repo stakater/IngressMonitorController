@@ -3,7 +3,7 @@ package uptimerobot
 import (
 	"encoding/json"
 	"errors"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/url"
 	"strconv"
 

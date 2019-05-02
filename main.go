@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 
 	routeClient "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
