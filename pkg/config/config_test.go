@@ -43,37 +43,37 @@ func TestConfigWithCorrectValues(t *testing.T) {
 }
 
 func TestConfigWithIncorrectProviderValues(t *testing.T) {
-	incorrectConifg := Config{Providers: []Provider{Provider{Name: "UptimeRobot2", ApiKey: "abc", ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	incorrectConfig := Config{Providers: []Provider{Provider{Name: "UptimeRobot2", ApiKey: "abc", ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePath)
 
-	if reflect.DeepEqual(config, incorrectConifg) {
+	if reflect.DeepEqual(config, incorrectConfig) {
 		t.Error("Marshalled config and incorrect config match, should not match")
 	}
 }
 
 func TestConfigWithIncorrectEnableFlag(t *testing.T) {
-	incorrectConifg := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: false}
+	incorrectConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: false}
 	config := ReadConfig(configFilePath)
 
-	if reflect.DeepEqual(config, incorrectConifg) {
+	if reflect.DeepEqual(config, incorrectConfig) {
 		t.Error("Marshalled config and incorrect config match, should not match")
 	}
 }
 
 func TestConfigWithoutProvider(t *testing.T) {
-	incorrectConifg := Config{Providers: []Provider{}, EnableMonitorDeletion: false}
+	incorrectConfig := Config{Providers: []Provider{}, EnableMonitorDeletion: false}
 	config := ReadConfig(configFilePath)
 
-	if reflect.DeepEqual(config, incorrectConifg) {
+	if reflect.DeepEqual(config, incorrectConfig) {
 		t.Error("Marshalled config and incorrect config match, should not match")
 	}
 }
 
 func TestConfigWithoutEnabledFlag(t *testing.T) {
-	incorrectConifg := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}}
+	incorrectConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}}
 	config := ReadConfig(configFilePath)
 
-	if reflect.DeepEqual(config, incorrectConifg) {
+	if reflect.DeepEqual(config, incorrectConfig) {
 		t.Error("Marshalled config and incorrect config match, should not match")
 	}
 }
@@ -98,10 +98,10 @@ func TestConfigWithUptime(t *testing.T) {
 }
 
 func TestConfigWithEmptyConfig(t *testing.T) {
-	incorrectConifg := Config{}
+	incorrectConfig := Config{}
 	config := ReadConfig(configFilePath)
 
-	if reflect.DeepEqual(config, incorrectConifg) {
+	if reflect.DeepEqual(config, incorrectConfig) {
 		t.Error("Marshalled config and incorrect config match, should not match")
 	}
 }
