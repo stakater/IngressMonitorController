@@ -16,5 +16,9 @@ import:
   version: v3.9.0
 - package: github.com/antoineaugusti/updown
   version: v0.3
-- package: github.com/stretchr/testify/assert
+- package: github.com/stretchr/testify
   version: v1.3.0
+  subpackages:
+  - assert
+- package: github.com/sirupsen/logrus
+  version: v1.4.1
