@@ -1,5 +1,5 @@
-hash: f9d8ce569a578efaabb8a00f774f6a9bc9be748ad73d143762075298d78d0a93
-updated: 2019-04-15T11:09:48.694405365Z
+hash: 4a732a4715d3b323b56e192657680aaee492d71517daef97b5b329dc1e795d92
+updated: 2019-05-01T20:55:04.074834-07:00
 imports:
 - name: github.com/antoineaugusti/updown
   version: 9f067e15937f51321c400ad87f9d30f21a175481
@@ -92,7 +92,7 @@ imports:
   subpackages:
   - pingdom
 - name: github.com/sirupsen/logrus
-  version: 9b3cdde74fbe9443d704467498a7dcb61a79de9b
+  version: 8bdbc7bcc01dcbb8ec23dc8a28e332258d25251f
 - name: github.com/spf13/pflag
   version: 9ff6c6923cfffbcd502984b8e0c80539a94968b7
 - name: github.com/stretchr/testify

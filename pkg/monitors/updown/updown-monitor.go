@@ -3,7 +3,7 @@ package updown
 
 import (
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -32,15 +32,9 @@ type UpdownMonitorService struct {
 	client *updown.Client
 }
 
-// setLogFlags method will set flags that will improve the log statements
-func setLogFlags() {
-	log.SetFlags(log.Ldate | log.Ltime | log.LUTC | log.Lshortfile)
-}
-
 // Setup method will initialize a updown's go client object by using the configuration parameters
 func (updownService *UpdownMonitorService) Setup(confProvider config.Provider) {
 
-	setLogFlags()
 	// initializeCustomLog(os.Stdout)
 	log.Println("Updown monitor's Setup has been called. Updown monitor initializing")
 
@@ -55,7 +49,6 @@ func (updownService *UpdownMonitorService) Setup(confProvider config.Provider) {
 // GetAll function will return all monitors (updown checks) object in an array
 func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 
-	setLogFlags()
 	log.Println("Updown monitor's GetAll method has been called")
 
 	var monitors []models.Monitor
@@ -89,7 +82,6 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 // GetByName function will return a monitor(updown check) object based on the name provided
 func (updownService *UpdownMonitorService) GetByName(monitorName string) (*models.Monitor, error) {
 
-	setLogFlags()
 	log.Println("Updown monitor's GetByName method has been called")
 
 	updownMonitors := updownService.GetAll()
@@ -109,7 +101,6 @@ func (updownService *UpdownMonitorService) GetByName(monitorName string) (*model
 // Add function method will add a monitor (updown check)
 func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 
-	setLogFlags()
 	log.Println("Updown monitor's Add method has been called")
 
 	updownCheckItemObj := service.createHttpCheck(updownMonitor)
@@ -134,7 +125,6 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 // and annotations
 func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.Monitor) updown.CheckItem {
 
-	setLogFlags()
 	log.Println("Updown monitor's createHttpCheck method has been called")
 
 	// populating updownCheckItemObj object attributes using updownMonitor object
@@ -164,7 +154,6 @@ func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(updownCheckI
 	// Read known annotations, try to map them to updown check configs
 	// set some default values if we can't find them
 
-	setLogFlags()
 	log.Println("Updown monitor's addAnnotationConfigToHttpCheck method has been called")
 
 	// Enable Annotation
@@ -218,7 +207,6 @@ func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(updownCheckI
 // Update method will update a monitor (updown check)
 func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 
-	setLogFlags()
 	log.Println("Updown's Update method has been called")
 
 	httpCheckItemObj := service.createHttpCheck(updownMonitor)
@@ -238,7 +226,6 @@ func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 // Remove method will remove a monitor (updown check)
 func (updownService *UpdownMonitorService) Remove(updownMonitor models.Monitor) {
 
-	setLogFlags()
 	log.Println("Updown's Remove method has been called")
 
 	_, httpResponse, err := updownService.client.Check.Remove(updownMonitor.ID)

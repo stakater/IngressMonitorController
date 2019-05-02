@@ -1,7 +1,7 @@
 package uptime
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"testing"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
