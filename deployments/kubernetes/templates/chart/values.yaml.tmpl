@@ -6,6 +6,7 @@ kubernetes:
 ingressMonitorController:
   tolerations: {}
   watchNamespace: ""
+  mount: "configMap"
   useFullName: false
   matchLabels:
     group: com.stakater.platform
@@ -33,16 +34,17 @@ ingressMonitorController:
     name: {{ getenv "DOCKER_IMAGE" }}
     tag: "{{ getenv "VERSION" }}"
     pullPolicy: IfNotPresent
-  providers:
-  - name: UptimeRobot
-    apiKey: your-api-key
-    apiURL: https://google.com
-    alertContacts: some-alert-contacts
-  secrets: {}
-    # - variable: environment-variable-name
-    #   name: secret-name
-    #   key: secret-key
-  
-  enableMonitorDeletion: true
   configFilePath: /etc/IngressMonitorController/config.yaml
-  monitorNameTemplate: "{{ `{{.Namespace}}-{{.IngressName}}` }}"
+  data:
+    config.yaml: |-
+      providers:
+      - name: UptimeRobot
+        apiKey: your-api-key
+        apiURL: https://google.com
+        alertContacts: some-alert-contacts
+      secrets: {}
+    # - variable: environment-variable-name	
+    #   name: secret-name	
+    #   key: secret-key
+      enableMonitorDeletion: true
+      monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
