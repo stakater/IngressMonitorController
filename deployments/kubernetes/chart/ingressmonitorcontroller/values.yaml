@@ -8,17 +8,19 @@ ingressMonitorController:
   watchNamespace: ""
   mount: "configMap"
   useFullName: false
+  logLevel: info
+  logFormat: text
   matchLabels:
     group: com.stakater.platform
     provider: stakater
   deployment:
     labels:
-      version: "v1.0.73"
+      version: "v1.0.74"
     annotations:
       configmap.reloader.stakater.com/reload: ingressmonitorcontroller
   config:
     labels:
-      version: "v1.0.73"
+      version: "v1.0.74"
   rbac:
     create: true
   # Service account config for the agent pods
@@ -26,13 +28,13 @@ ingressMonitorController:
     # Specifies whether a ServiceAccount should be created
     create: true
     labels:
-      version: "v1.0.73"
+      version: "v1.0.74"
     # The name of the ServiceAccount to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ingressmonitorcontroller
   image:
     name: stakater/ingressmonitorcontroller
-    tag: "v1.0.73"
+    tag: "v1.0.74"
     pullPolicy: IfNotPresent
   configFilePath: /etc/IngressMonitorController/config.yaml
   data:

@@ -11,10 +11,10 @@ metadata:
     
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.73"
+    chart: "ingressmonitorcontroller-v1.0.74"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.73
+    version: v1.0.74
     
     group: com.stakater.platform
     provider: stakater
@@ -34,10 +34,10 @@ spec:
     metadata:
       labels:
         app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-v1.0.73"
+        chart: "ingressmonitorcontroller-v1.0.74"
         release: "RELEASE-NAME"
         heritage: "Tiller"
-        version: v1.0.73
+        version: v1.0.74
         
         group: com.stakater.platform
         provider: stakater
@@ -47,7 +47,11 @@ spec:
       - env:
         - name: CONFIG_FILE_PATH
           value: /etc/IngressMonitorController/config.yaml
-        image: "stakater/ingressmonitorcontroller:v1.0.73"
+        - name: LOG_LEVEL
+          value: info
+        - name: LOG_FORMAT
+          value: text
+        image: "stakater/ingressmonitorcontroller:v1.0.74"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
@@ -121,10 +125,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.73"
+    chart: "ingressmonitorcontroller-v1.0.74"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.73
+    version: v1.0.74
     
     group: com.stakater.platform
     provider: stakater
@@ -144,10 +148,10 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.73"
+    chart: "ingressmonitorcontroller-v1.0.74"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.73
+    version: v1.0.74
     
     group: com.stakater.platform
     provider: stakater
