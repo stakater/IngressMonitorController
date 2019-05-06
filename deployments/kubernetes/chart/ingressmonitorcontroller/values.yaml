@@ -43,5 +43,8 @@ ingressMonitorController:
         apiURL: https://google.com
         alertContacts: some-alert-contacts
       secrets: {}
+      # - variable: environment-variable-name	
+      #   name: secret-name	
+      #   key: secret-key      
       enableMonitorDeletion: true
       monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
