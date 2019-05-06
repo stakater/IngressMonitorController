@@ -130,20 +130,6 @@ The Ingress Monitor Controller can be deployed with Helm Charts or vanilla manif
 Set `watchNamespace` to `<namespace-name>` in `ingressmonitorcontroller/values.yaml` before applying the helm chart
  and the controller will then watch in that namespace.
 
-## Extending
-
-If you'd like to extend the functionality of Ingress Monitor Controller, please refer to the documentation
- [here](developing/extension.md)
-
-## Testing
-
-For running tests, please refer to the documentation [here](developing/testing.md)
-
-## Contributing
-
-If you'd like to contribute any fixes or enhancements, please refer to the documentation
- [here](developing/contributing.md)
-
 ## Bug Reports & Feature Requests
 
 Please use the [issue tracker](https://github.com/stakater/IngressMonitorController/issues) to report any bugs or file feature requests.
