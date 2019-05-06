@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 
 	routeClient "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
@@ -11,7 +11,24 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"strings"
 )
+
+func init() {
+	if logLevel, ok := os.LookupEnv("LOG_LEVEL"); ok {
+		if level, err := log.ParseLevel(logLevel); err != nil {
+			log.SetLevel(level)
+		}
+	}
+	if logFormat, ok := os.LookupEnv("LOG_FORMAT"); ok {
+		switch strings.ToLower(logFormat) {
+		case "json":
+			log.SetFormatter(&log.JSONFormatter{})
+		default:
+			log.SetFormatter(&log.TextFormatter{})
+		}
+	}
+}
 
 func main() {
 	currentNamespace := os.Getenv("KUBERNETES_NAMESPACE")
