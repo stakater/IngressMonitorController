@@ -6,18 +6,19 @@ kubernetes:
 ingressMonitorController:
   tolerations: {}
   watchNamespace: ""
+  mount: "configMap"
   useFullName: false
   matchLabels:
     group: com.stakater.platform
     provider: stakater
   deployment:
     labels:
-      version: "v1.0.69"
+      version: "v1.0.72"
     annotations:
       configmap.reloader.stakater.com/reload: ingressmonitorcontroller
   config:
     labels:
-      version: "v1.0.69"
+      version: "v1.0.72"
   rbac:
     create: true
   # Service account config for the agent pods
@@ -25,24 +26,25 @@ ingressMonitorController:
     # Specifies whether a ServiceAccount should be created
     create: true
     labels:
-      version: "v1.0.69"
+      version: "v1.0.72"
     # The name of the ServiceAccount to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ingressmonitorcontroller
   image:
     name: stakater/ingressmonitorcontroller
-    tag: "v1.0.69"
+    tag: "v1.0.72"
     pullPolicy: IfNotPresent
-  providers:
-  - name: UptimeRobot
-    apiKey: your-api-key
-    apiURL: https://google.com
-    alertContacts: some-alert-contacts
-  secrets: {}
-    # - variable: environment-variable-name
-    #   name: secret-name
-    #   key: secret-key
-  
-  enableMonitorDeletion: true
   configFilePath: /etc/IngressMonitorController/config.yaml
-  monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+  data:
+    config.yaml: |-
+      providers:
+      - name: UptimeRobot
+        apiKey: your-api-key
+        apiURL: https://google.com
+        alertContacts: some-alert-contacts
+      secrets: {}
+      # - variable: environment-variable-name	
+      #   name: secret-name
+      #   key: secret-key
+      enableMonitorDeletion: true
+      monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"

@@ -7,10 +7,23 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+)
+
+const (
+	StatuscakeCheckRateAnnotation      = "statuscake.monitor.stakater.com/check-rate"
+	StatuscakeTestTypeAnnotation       = "statuscake.monitor.stakater.com/test-type"
+	StatuscakePausedAnnotation         = "statuscake.monitor.stakater.com/paused"
+	StatuscakePingURLAnnotation        = "statuscake.monitor.stakater.com/ping-url"
+	StatuscakeFollowRedirectAnnotation = "statuscake.monitor.stakater.com/follow-redirect"
+	StatuscakePortAnnotation           = "statuscake.monitor.stakater.com/port"
+	StatuscakeTriggerRateAnnotation    = "statuscake.monitor.stakater.com/trigger-rate"
+	StatuscakeContactGroupAnnotation   = "statuscake.monitor.stakater.com/contact-group"
+	StatuscakeBasicAuthUserAnnotation  = "statuscake.monitor.stakater.com/basic-auth-user"
 )
 
 // StatusCakeMonitorService is the service structure for StatusCake
@@ -30,40 +43,58 @@ type AnnotationInfo struct {
 
 // AnnotationMap holds all the enabled annotations for StatusCake
 var AnnotationMap = map[string]AnnotationInfo{
-	"statuscake.monitor.stakater.com/check-rate":      AnnotationInfo{"CheckRate", "int"},       // Int (0-24000)
-	"statuscake.monitor.stakater.com/test-type":       AnnotationInfo{"TestType", "string"},     // String (HTTP, TCP, PING)
-	"statuscake.monitor.stakater.com/paused":          AnnotationInfo{"Paused", "bool"},         // Int (0,1)
-	"statuscake.monitor.stakater.com/ping-url":        AnnotationInfo{"PingURL", "string"},      // String (url)
-	"statuscake.monitor.stakater.com/follow-redirect": AnnotationInfo{"FollowRedirect", "bool"}, // Int (0,1)
-	"statuscake.monitor.stakater.com/port":            AnnotationInfo{"Port", "int"},            // Int (TCP Port)
-	"statuscake.monitor.stakater.com/trigger-rate":    AnnotationInfo{"TriggerRate", "int"},     // Int (0-60)
-	"statuscake.monitor.stakater.com/contact-group":   AnnotationInfo{"ContactGroup", "string"}} // String (0-60)
+	StatuscakeCheckRateAnnotation:      AnnotationInfo{"CheckRate", "int"},       // Int (0-24000)
+	StatuscakeTestTypeAnnotation:       AnnotationInfo{"TestType", "string"},     // String (HTTP, TCP, PING)
+	StatuscakePausedAnnotation:         AnnotationInfo{"Paused", "bool"},         // Int (0,1)
+	StatuscakePingURLAnnotation:        AnnotationInfo{"PingURL", "string"},      // String (url)
+	StatuscakeFollowRedirectAnnotation: AnnotationInfo{"FollowRedirect", "bool"}, // Int (0,1)
+	StatuscakePortAnnotation:           AnnotationInfo{"Port", "int"},            // Int (TCP Port)
+	StatuscakeTriggerRateAnnotation:    AnnotationInfo{"TriggerRate", "int"},     // Int (0-60)
+	StatuscakeContactGroupAnnotation:   AnnotationInfo{"ContactGroup", "string"}, // String (0-60)
+	StatuscakeBasicAuthUserAnnotation:  AnnotationInfo{"BasicUser", "string"},    // String (0-60)
+}
 
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
 func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	f := url.Values{}
 	f.Add("WebsiteName", m.Name)
 	f.Add("WebsiteURL", m.URL)
-	if val, ok := m.Annotations["monitor.stakater.com/statuscake-check-rate"]; ok {
+	if val, ok := m.Annotations[StatuscakeCheckRateAnnotation]; ok {
 		f.Add("CheckRate", val)
-		delete(m.Annotations, "monitor.stakater.com/statuscake-check-rate")
+		delete(m.Annotations, StatuscakeCheckRateAnnotation)
 	} else {
 		f.Add("CheckRate", "300")
 	}
-	if val, ok := m.Annotations["monitor.stakater.com/statuscake-test-type"]; ok {
+	if val, ok := m.Annotations[StatuscakeTestTypeAnnotation]; ok {
 		f.Add("TestType", val)
-		delete(m.Annotations, "monitor.stakater.com/statuscake-test-type")
+		delete(m.Annotations, StatuscakeTestTypeAnnotation)
 	} else {
 		f.Add("TestType", "HTTP")
 	}
-	if val, ok := m.Annotations["monitor.stakater.com/statuscake-contact-group"]; ok {
+	if val, ok := m.Annotations[StatuscakeContactGroupAnnotation]; ok {
 		f.Add("ContactGroup", val)
-		delete(m.Annotations, "monitor.stakater.com/statuscake-contact-group")
+		delete(m.Annotations, StatuscakeContactGroupAnnotation)
 	} else {
 		if cgroup != "" {
 			f.Add("ContactGroup", cgroup)
 		}
 	}
+	// If a basic auth annotation is set
+	if val, ok := m.Annotations[StatuscakeBasicAuthUserAnnotation]; ok {
+		// Annotation should be set to the username
+		// Environment variable should define the password
+		// Mounted via a secret; key is the username, value is the password
+		basicPass := os.Getenv(val)
+		if basicPass != "" {
+			f.Add("BasicUser", val)
+			f.Add("BasicPass", basicPass)
+			log.Println("Basic auth requirement detected. Setting username and password")
+		} else {
+			log.Println("Error reading basic auth password from environment variable")
+		}
+		delete(m.Annotations, StatuscakeBasicAuthUserAnnotation)
+	}
+
 	for key, value := range m.Annotations {
 		if (AnnotationInfo{}) != AnnotationMap[key] {
 			meta := AnnotationMap[key]
