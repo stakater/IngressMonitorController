@@ -50,3 +50,5 @@ ingressMonitorController:
       #   key: secret-key
       enableMonitorDeletion: true
       monitorNameTemplate: "{{ `{{.Namespace}}-{{.IngressName}}` }}"
+      # how often (in seconds) monitors should be synced to their Kubernetes resources (0 = disabled)
+      resyncPeriod: 0
