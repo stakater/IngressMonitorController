@@ -11,10 +11,10 @@ metadata:
     
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.74"
+    chart: "ingressmonitorcontroller-v1.0.75"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.74
+    version: v1.0.75
     
     group: com.stakater.platform
     provider: stakater
@@ -34,10 +34,10 @@ spec:
     metadata:
       labels:
         app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-v1.0.74"
+        chart: "ingressmonitorcontroller-v1.0.75"
         release: "RELEASE-NAME"
         heritage: "Tiller"
-        version: v1.0.74
+        version: v1.0.75
         
         group: com.stakater.platform
         provider: stakater
@@ -51,7 +51,7 @@ spec:
           value: info
         - name: LOG_FORMAT
           value: text
-        image: "stakater/ingressmonitorcontroller:v1.0.74"
+        image: "stakater/ingressmonitorcontroller:v1.0.75"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
@@ -125,10 +125,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.74"
+    chart: "ingressmonitorcontroller-v1.0.75"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.74
+    version: v1.0.75
     
     group: com.stakater.platform
     provider: stakater
@@ -137,8 +137,9 @@ data:
   config.yaml: "providers:\n- name: UptimeRobot\n  apiKey: your-api-key\n  apiURL: https://google.com\n
     \ alertContacts: some-alert-contacts\nsecrets: {}\n# - variable: environment-variable-name\t\n#
     \  name: secret-name\n#   key: secret-key\nenableMonitorDeletion: true\nmonitorNameTemplate:
-    \"{{.Namespace}}-{{.IngressName}}\"# how often (in seconds) monitors should be
+    \"{{.Namespace}}-{{.IngressName}}\"\n# how often (in seconds) monitors should be
     synced to their Kubernetes resources (0 = disabled)\nresyncPeriod: 0"
+  
 
 ---
 # Source: ingressmonitorcontroller/templates/serviceaccount.yaml
@@ -148,10 +149,10 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.74"
+    chart: "ingressmonitorcontroller-v1.0.75"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.74
+    version: v1.0.75
     
     group: com.stakater.platform
     provider: stakater
