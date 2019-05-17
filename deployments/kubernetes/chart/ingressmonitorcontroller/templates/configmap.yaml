@@ -3,9 +3,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
 {{- if .Values.ingressMonitorController.useFullName }}
-  name: {{ template "fullname" . }}
+  name: {{ template "fullname" . }}-config
 {{- else }}
-  name: {{ template "name" . }}
+  name: {{ template "name" . }}-config
 {{- end }}
   annotations:
 {{- if .Values.ingressMonitorController.config.annotations }}
