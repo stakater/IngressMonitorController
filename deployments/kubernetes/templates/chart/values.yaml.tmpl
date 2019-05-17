@@ -8,6 +8,8 @@ ingressMonitorController:
   watchNamespace: ""
   mount: "configMap"
   useFullName: false
+  logLevel: info
+  logFormat: text
   matchLabels:
     group: com.stakater.platform
     provider: stakater
@@ -43,8 +45,10 @@ ingressMonitorController:
         apiURL: https://google.com
         alertContacts: some-alert-contacts
       secrets: {}
-    # - variable: environment-variable-name	
-    #   name: secret-name	
-    #   key: secret-key
+      # - variable: environment-variable-name	
+      #   name: secret-name
+      #   key: secret-key
       enableMonitorDeletion: true
-      monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+      monitorNameTemplate: "{{ `{{.Namespace}}-{{.IngressName}}` }}"
+      # how often (in seconds) monitors should be synced to their Kubernetes resources (0 = disabled)
+      resyncPeriod: 0

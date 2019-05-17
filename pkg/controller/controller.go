@@ -50,7 +50,7 @@ func NewMonitorController(namespace string, kubeClient kubernetes.Interface, con
 	// Create the Ingress Watcher
 	ingressListWatcher := cache.NewListWatchFromClient(restClient, resource, namespace, fields.Everything())
 
-	indexer, informer := cache.NewIndexerInformer(ingressListWatcher, kube.ResourceMap[resource], 0, cache.ResourceEventHandlerFuncs{
+	indexer, informer := cache.NewIndexerInformer(ingressListWatcher, kube.ResourceMap[resource], time.Duration(config.ResyncPeriod)*time.Second, cache.ResourceEventHandlerFuncs{
 		AddFunc:    controller.onResourceAdded,
 		UpdateFunc: controller.onResourceUpdated,
 		DeleteFunc: controller.onResourceDeleted,

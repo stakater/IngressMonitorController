@@ -1,5 +1,6 @@
 ---
 # Source: ingressmonitorcontroller/templates/configmap.yaml
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,24 +8,19 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.71"
+    chart: "ingressmonitorcontroller-v1.0.75"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.71
+    version: v1.0.75
     
     group: com.stakater.platform
     provider: stakater
     
 data:
-  config.yaml: |-
-    providers:
-    - name: UptimeRobot
-      apiKey: your-api-key
-      apiURL: https://google.com
-      username: null
-      password: null
-      accountEmail: null
-      alertContacts: some-alert-contacts
-    enableMonitorDeletion: true
-    monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+  config.yaml: "providers:\n- name: UptimeRobot\n  apiKey: your-api-key\n  apiURL: https://google.com\n
+    \ alertContacts: some-alert-contacts\nsecrets: {}\n# - variable: environment-variable-name\t\n#
+    \  name: secret-name\n#   key: secret-key\nenableMonitorDeletion: true\nmonitorNameTemplate:
+    \"{{.Namespace}}-{{.IngressName}}\"\n# how often (in seconds) monitors should be
+    synced to their Kubernetes resources (0 = disabled)\nresyncPeriod: 0"
+  
 

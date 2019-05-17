@@ -75,6 +75,10 @@ helm install stable/ingressmonitorcontroller
 ### Documentation
 You can find more detailed documentation for configuration, extension, and support for other Uptime checkers etc. [here](docs/Deploying-to-Kubernetes.md)
 
+### Contributig
+
+If you'd like to contribute any fixes or enhancements, please refer to the documentation [here](CONTRIBUTING.md)
+
 ### Have a question?
 File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](mailto:hello@stakater.com).
 

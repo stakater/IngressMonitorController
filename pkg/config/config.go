@@ -12,6 +12,7 @@ type Config struct {
 	Providers             []Provider `yaml:"providers"`
 	EnableMonitorDeletion bool       `yaml:"enableMonitorDeletion"`
 	MonitorNameTemplate   string     `yaml:"monitorNameTemplate"`
+	ResyncPeriod          int        `yaml:"resyncPeriod",omitempty`
 }
 
 type Provider struct {

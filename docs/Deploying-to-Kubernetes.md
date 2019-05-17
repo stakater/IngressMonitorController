@@ -27,6 +27,7 @@ Following are the available options that you can use to customize the controller
 | providers             | An array of uptime providers that you want to add to your controller          |
 | secrets               | An array of secrets that you want to mount to your controller                 |
 | enableMonitorDeletion | A safeguard flag that is used to enable or disable monitor deletion on ingress deletion (Useful for prod environments where you don't want to remove monitor on ingress deletion) |
+| resyncPeriod          | Resync period in seconds, allows to re-sync periodically the monitors with the Ingresses. Defaults to 0 (= disabled) |
 | watchNamespace        | Name of the namespace if you want to monitor ingresses only in that namespace. Defaults to null |
 | mount                 | `"secret"` or `"configMap"`. How to pass user credentials, API keys etc.          |  
 
@@ -129,20 +130,6 @@ The Ingress Monitor Controller can be deployed with Helm Charts or vanilla manif
 
 Set `watchNamespace` to `<namespace-name>` in `ingressmonitorcontroller/values.yaml` before applying the helm chart
  and the controller will then watch in that namespace.
-
-## Extending
-
-If you'd like to extend the functionality of Ingress Monitor Controller, please refer to the documentation
- [here](developing/extension.md)
-
-## Testing
-
-For running tests, please refer to the documentation [here](developing/testing.md)
-
-## Contributing
-
-If you'd like to contribute any fixes or enhancements, please refer to the documentation
- [here](developing/contributing.md)
 
 ## Bug Reports & Feature Requests
 

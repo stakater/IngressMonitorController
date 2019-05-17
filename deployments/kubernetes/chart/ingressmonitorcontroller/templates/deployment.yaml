@@ -64,6 +64,10 @@ spec:
       {{- end }}
         - name: CONFIG_FILE_PATH
           value: {{ .Values.ingressMonitorController.configFilePath }}
+        - name: LOG_LEVEL
+          value: {{ .Values.ingressMonitorController.logLevel }}
+        - name: LOG_FORMAT
+          value: {{ .Values.ingressMonitorController.logFormat }}
         image: "{{ .Values.ingressMonitorController.image.name }}:{{ .Values.ingressMonitorController.image.tag }}"
         imagePullPolicy: {{ .Values.ingressMonitorController.image.pullPolicy }}
       {{- if .Values.ingressMonitorController.useFullName }}

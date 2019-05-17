@@ -4,3 +4,4 @@ providers:
      apiURL: https://uptime.com/api/v1/
      alertContacts: "Default"
 enableMonitorDeletion: true
+resyncPeriod: 300
