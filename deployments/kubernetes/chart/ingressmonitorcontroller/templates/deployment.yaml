@@ -88,15 +88,15 @@ spec:
       {{- if eq .Values.ingressMonitorController.mount "secret" }}
           secret:
           {{- if .Values.ingressMonitorController.useFullName }}
-            secretName: {{ template "fullname" . }}-secret
+            secretName: {{ template "fullname" . }}
           {{- else }}
-            secretName: {{ template "name" . }}-secret
+            secretName: {{ template "name" . }}
           {{- end }}
       {{ else }}
           configMap:
           {{- if .Values.ingressMonitorController.useFullName }}
-            name: {{ template "fullname" . }}-config
+            name: {{ template "fullname" . }}
           {{- else }}
-            name: {{ template "name" . }}-config
+            name: {{ template "name" . }}
           {{- end }}
       {{- end }}
