@@ -30,15 +30,11 @@ func (c *Config) UnmarshalYAML(data []byte) error {
 		return err
 	}
 
-	if aux.CreationDelay != "" {
-		delay, err := time.ParseDuration(aux.CreationDelay)
-		if err != nil {
-			return err
-		}
-		c.CreationDelay = delay
-	} else {
-		c.CreationDelay = 0
+	delay, err := time.ParseDuration(aux.CreationDelay)
+	if err != nil {
+		return err
 	}
+	c.CreationDelay = delay
 
 	return nil
 }
