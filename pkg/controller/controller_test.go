@@ -894,6 +894,57 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMon
 
 }
 
+func TestAddIngressWithCreationDelayShouldCreateMonitorAndDelete(t *testing.T) {
+	namespace := randSeq(10)
+	url := generateRandomURL()
+	ingressName := ingressNamePrefix + randSeq(5)
+
+	delayDuration, _ := time.ParseDuration("30s")
+	configOverride := &config.Config{
+		CreationDelay: delayDuration,
+	}
+	option := func() Option {
+		return configOverride
+	}
+	controller := getControllerWithNamespace(namespace, true, option)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotationToIngress(ingress, true)
+
+	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should not exist
+	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
+
+	time.Sleep(30 * time.Second)
+	// Should exist
+
+	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
+
+	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(5 * time.Second)
+
+	// Should not exist
+	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
+}
+
 func addServiceToIngress(ingress *v1beta1.Ingress, serviceName string, servicePort int) *v1beta1.Ingress {
 	ingress.Spec.Rules[0].HTTP = &v1beta1.HTTPIngressRuleValue{
 		Paths: []v1beta1.HTTPIngressPath{
