@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/imdario/mergo"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
@@ -1054,8 +1055,18 @@ func removeMonitorAnnotationFromIngress(ingress *v1beta1.Ingress) *v1beta1.Ingre
 	return ingress
 }
 
-func getControllerWithNamespace(namespace string, enableDeletion bool) *MonitorController {
+type Option interface{}
+type ConfigOption func() *config.Config
+
+func getControllerWithNamespace(namespace string, enableDeletion bool, options ...Option) *MonitorController {
 	var kubeClient kubernetes.Interface
+	var configOverride *config.Config
+	for _, option := range options {
+		switch option.(type) {
+		case ConfigOption:
+			configOverride = option.(ConfigOption)()
+		}
+	}
 	_, err := rest.InClusterConfig()
 	if err != nil {
 		kubeClient = kube.GetClientOutOfCluster()
@@ -1065,6 +1076,9 @@ func getControllerWithNamespace(namespace string, enableDeletion bool) *MonitorC
 
 	// Fetch and create controller config from file
 	c := config.GetControllerConfig()
+	if configOverride != nil {
+		mergo.Merge(configOverride, &c)
+	}
 
 	provider := util.GetProviderWithName(c, "UptimeRobot")
 
