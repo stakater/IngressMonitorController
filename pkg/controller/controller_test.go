@@ -899,14 +899,11 @@ func TestAddIngressWithCreationDelayShouldCreateMonitorAndDelete(t *testing.T) {
 	url := generateRandomURL()
 	ingressName := ingressNamePrefix + randSeq(5)
 
-	delayDuration, _ := time.ParseDuration("30s")
+	delayDuration, _ := time.ParseDuration("10s")
 	configOverride := &config.Config{
 		CreationDelay: delayDuration,
 	}
-	option := func() Option {
-		return configOverride
-	}
-	controller := getControllerWithNamespace(namespace, true, option)
+	controller := getControllerWithNamespace(namespace, true, configOverride)
 	createNamespace(t, controller.kubeClient, namespace)
 	defer deleteNamespace(t, controller.kubeClient, namespace)
 
@@ -932,14 +929,14 @@ func TestAddIngressWithCreationDelayShouldCreateMonitorAndDelete(t *testing.T) {
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(10 * time.Second)
 	// Should exist
 
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
@@ -1107,15 +1104,14 @@ func removeMonitorAnnotationFromIngress(ingress *v1beta1.Ingress) *v1beta1.Ingre
 }
 
 type Option interface{}
-type ConfigOption func() *config.Config
 
 func getControllerWithNamespace(namespace string, enableDeletion bool, options ...Option) *MonitorController {
 	var kubeClient kubernetes.Interface
 	var configOverride *config.Config
 	for _, option := range options {
 		switch option.(type) {
-		case ConfigOption:
-			configOverride = option.(ConfigOption)()
+		case *config.Config:
+			configOverride = option.(*config.Config)
 		}
 	}
 	_, err := rest.InClusterConfig()
@@ -1128,7 +1124,7 @@ func getControllerWithNamespace(namespace string, enableDeletion bool, options .
 	// Fetch and create controller config from file
 	c := config.GetControllerConfig()
 	if configOverride != nil {
-		mergo.Merge(configOverride, &c)
+		mergo.Merge(&c, configOverride, mergo.WithOverride)
 	}
 
 	provider := util.GetProviderWithName(c, "UptimeRobot")
