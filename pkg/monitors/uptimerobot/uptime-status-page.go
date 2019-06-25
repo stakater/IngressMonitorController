@@ -3,10 +3,11 @@ package uptimerobot
 import (
 	"encoding/json"
 	"errors"
-	log "github.com/sirupsen/logrus"
 	"net/url"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
@@ -208,11 +209,8 @@ func (statusPageService *UpTimeStatusPageService) Get(ID string) (*UpTimeStatusP
 	return nil, errors.New(errorString)
 }
 
-func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID string) ([]string, error) {
-	IDint, _ := strconv.Atoi(ID)
-
-	var matchingStatusPageIds []string
-
+func (statusPageService *UpTimeStatusPageService) GetAllStatusPages(name string) ([]UpTimeStatusPage, error) {
+	statusPages := []UpTimeStatusPage{}
 	action := "getPsps"
 
 	client := http.CreateHttpClient(statusPageService.url + action)
@@ -225,18 +223,63 @@ func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID st
 		var f UptimeStatusPagesResponse
 		json.Unmarshal(response.Bytes, &f)
 
-		if f.StatusPages != nil {
+		if len(f.StatusPages) > 0 {
 			for _, statusPage := range f.StatusPages {
-				if util.ContainsInt(statusPage.Monitors, IDint) {
-					matchingStatusPageIds = append(matchingStatusPageIds, strconv.Itoa(statusPage.ID))
+				if statusPage.FriendlyName == name {
+					sp := UptimeStatusPageToBaseStatusPageMapper(statusPage)
+					statusPages = append(statusPages, *sp)
+				}
+			}
+			return statusPages, nil
+		}
+
+		return nil, nil
+	}
+
+	errorString := "GetAllStatusPages Request failed for: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
+
+	log.Println(errorString)
+	return nil, errors.New(errorString)
+}
+
+func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID string) ([]string, error) {
+	IDint, _ := strconv.Atoi(ID)
+
+	var matchingStatusPageIds []string
+	var f UptimeStatusPagesResponse
+
+	// Initial dummy values
+	f.Pagination.Limit = -1
+	f.Pagination.Total = 0
+	f.Pagination.Offset = 0
+	f.StatusPages = []UptimePublicStatusPage{}
+
+	action := "getPsps"
+
+	client := http.CreateHttpClient(statusPageService.url + action)
+
+	if f.StatusPages != nil {
+		for f.Pagination.Limit < f.Pagination.Total {
+
+			body := "api_key=" + statusPageService.apiKey + "&format=json&logs=1&offset=" + strconv.Itoa(f.Pagination.Offset)
+
+			response := client.PostUrlEncodedFormBody(body)
+
+			if response.StatusCode == 200 {
+
+				json.Unmarshal(response.Bytes, &f)
+
+				for _, statusPage := range f.StatusPages {
+					if util.ContainsInt(statusPage.Monitors, IDint) {
+						matchingStatusPageIds = append(matchingStatusPageIds, strconv.Itoa(statusPage.ID))
+					}
 				}
 			}
 		}
-
 		return matchingStatusPageIds, nil
 	}
 
-	errorString := "GetStatusPagesForMonitor Request failed for ID: " + ID + ". Status Code: " + strconv.Itoa(response.StatusCode)
+	errorString := "GetStatusPagesForMonitor Request failed for ID: " + ID
 
 	log.Println(errorString)
 	return nil, errors.New(errorString)
