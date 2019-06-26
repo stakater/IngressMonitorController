@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	Http "net/http"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
@@ -47,7 +49,7 @@ func (statusPageService *UpTimeStatusPageService) Add(statusPage UpTimeStatusPag
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeStatusPageResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -75,7 +77,7 @@ func (statusPageService *UpTimeStatusPageService) Remove(statusPage UpTimeStatus
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeStatusPageResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -118,7 +120,7 @@ func (statusPageService *UpTimeStatusPageService) AddMonitorToStatusPage(statusP
 
 		response := client.PostUrlEncodedFormBody(body)
 
-		if response.StatusCode == 200 {
+		if response.StatusCode == Http.StatusOK {
 			var f UptimeStatusPageResponse
 			json.Unmarshal(response.Bytes, &f)
 
@@ -162,7 +164,7 @@ func (statusPageService *UpTimeStatusPageService) RemoveMonitorFromStatusPage(st
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeStatusPageResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -190,7 +192,7 @@ func (statusPageService *UpTimeStatusPageService) Get(ID string) (*UpTimeStatusP
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeStatusPagesResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -219,11 +221,11 @@ func (statusPageService *UpTimeStatusPageService) GetAllStatusPages(name string)
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeStatusPagesResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
 
-		if len(f.StatusPages) > 0 {
+		if err == nil && len(f.StatusPages) > 0 {
 			for _, statusPage := range f.StatusPages {
 				if statusPage.FriendlyName == name {
 					sp := UptimeStatusPageToBaseStatusPageMapper(statusPage)
@@ -265,7 +267,7 @@ func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID st
 
 			response := client.PostUrlEncodedFormBody(body)
 
-			if response.StatusCode == 200 {
+			if response.StatusCode == Http.StatusOK {
 
 				json.Unmarshal(response.Bytes, &f)
 
