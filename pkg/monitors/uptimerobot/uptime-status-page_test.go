@@ -4,10 +4,64 @@ import (
 	"strings"
 	"testing"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 )
+
+// Not a test case. Cleanup to remove added dummy StatusPages
+func TestRemoveDanglingStatusPages(t *testing.T) {
+	config := config.GetControllerConfig()
+	service := UpTimeStatusPageService{}
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
+
+	statusPages, err := service.GetAllStatusPages("status-page-test")
+
+	if err == nil && statusPages == nil {
+		log.Println("No dangling StatusPages named: status-page-test")
+	}
+	if err != nil && statusPages != nil {
+		for _, statusPage := range statusPages {
+			service.Remove(statusPage)
+		}
+	}
+
+	statusPages1, err := service.GetAllStatusPages("status-page-test-1")
+
+	if err == nil && statusPages1 == nil {
+		log.Println("No dangling StatusPages named: status-page-test-1")
+	}
+	if err != nil && statusPages1 != nil {
+		for _, statusPage := range statusPages1 {
+			service.Remove(statusPage)
+		}
+	}
+
+	statusPages2, err := service.GetAllStatusPages("status-page-test-2")
+
+	if err == nil && statusPages2 == nil {
+		log.Println("No dangling StatusPages named: status-page-test-2")
+	}
+	if err != nil && statusPages2 != nil {
+		for _, statusPage := range statusPages2 {
+			service.Remove(statusPage)
+		}
+	}
+
+	statusPages3, err := service.GetAllStatusPages("status-page-test-3")
+
+	if err == nil && statusPages3 == nil {
+		log.Println("No dangling StatusPages named: status-page-test-3")
+	}
+	if err == nil && statusPages3 != nil {
+		for _, statusPage := range statusPages3 {
+			service.Remove(statusPage)
+		}
+	}
+
+}
 
 func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 	config := config.GetControllerConfig()
