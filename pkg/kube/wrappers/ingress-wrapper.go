@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/url"
 	"path"
-	"reflect"
 	"strings"
 
 	"github.com/stakater/IngressMonitorController/pkg/constants"
@@ -54,39 +53,6 @@ func (iw *IngressWrapper) rulesExist() bool {
 	return false
 }
 
-func (iw *IngressWrapper) getIngressSubPathWithPort() string {
-	port := iw.getIngressPort()
-	subPath := iw.getIngressSubPath()
-
-	if port != "" {
-		if subPath != "" {
-			return port + subPath
-		} else {
-			return port + "/"
-		}
-	} else {
-		if subPath != "" {
-			return subPath
-		} else {
-			return ""
-		}
-	}
-}
-
-func (iw *IngressWrapper) getIngressPort() string {
-	rule := iw.Ingress.Spec.Rules[0]
-	if rule.HTTP != nil {
-		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
-			if reflect.TypeOf(rule.HTTP.Paths[0].Backend.ServicePort).Kind() == reflect.String {
-				return ""
-			} else {
-				return rule.HTTP.Paths[0].Backend.ServicePort.StrVal
-			}
-		}
-	}
-	return ""
-}
-
 func (iw *IngressWrapper) getIngressSubPath() string {
 	rule := iw.Ingress.Spec.Rules[0]
 	if rule.HTTP != nil {
@@ -128,8 +94,9 @@ func (iw *IngressWrapper) GetURL() string {
 	if value, ok := annotations[constants.OverridePathAnnotation]; ok {
 		u.Path = value
 	} else {
-		// Append port + ingressSubPath
-		u.Path = path.Join(u.Path, iw.getIngressSubPathWithPort())
+		// ingressSubPath
+		ingressSubPath := iw.getIngressSubPath()
+		u.Path = path.Join(u.Path, ingressSubPath)
 
 		// Find pod by backtracking ingress -> service -> pod
 		healthEndpoint, exists := iw.tryGetHealthEndpointFromIngress()

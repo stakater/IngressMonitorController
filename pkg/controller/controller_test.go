@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/imdario/mergo"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
@@ -893,6 +894,54 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMon
 
 }
 
+func TestAddIngressWithCreationDelayShouldCreateMonitorAndDelete(t *testing.T) {
+	namespace := randSeq(10)
+	url := generateRandomURL()
+	ingressName := ingressNamePrefix + randSeq(5)
+
+	delayDuration, _ := time.ParseDuration("10s")
+	configOverride := &config.Config{
+		CreationDelay: delayDuration,
+	}
+	controller := getControllerWithNamespace(namespace, true, configOverride)
+	createNamespace(t, controller.kubeClient, namespace)
+	defer deleteNamespace(t, controller.kubeClient, namespace)
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go controller.Run(1, stop)
+
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
+
+	ingress = addMonitorAnnotationToIngress(ingress, true)
+
+	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(ingress)
+
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+
+	time.Sleep(5 * time.Second)
+
+	monitorName := ingressName + "-" + namespace
+
+	// Should not exist
+	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
+
+	time.Sleep(10 * time.Second)
+	// Should exist
+
+	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
+
+	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
+
+	time.Sleep(15 * time.Second)
+
+	// Should not exist
+	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
+}
+
 func addServiceToIngress(ingress *v1beta1.Ingress, serviceName string, servicePort int) *v1beta1.Ingress {
 	ingress.Spec.Rules[0].HTTP = &v1beta1.HTTPIngressRuleValue{
 		Paths: []v1beta1.HTTPIngressPath{
@@ -1054,8 +1103,17 @@ func removeMonitorAnnotationFromIngress(ingress *v1beta1.Ingress) *v1beta1.Ingre
 	return ingress
 }
 
-func getControllerWithNamespace(namespace string, enableDeletion bool) *MonitorController {
+type Option interface{}
+
+func getControllerWithNamespace(namespace string, enableDeletion bool, options ...Option) *MonitorController {
 	var kubeClient kubernetes.Interface
+	var configOverride *config.Config
+	for _, option := range options {
+		switch option.(type) {
+		case *config.Config:
+			configOverride = option.(*config.Config)
+		}
+	}
 	_, err := rest.InClusterConfig()
 	if err != nil {
 		kubeClient = kube.GetClientOutOfCluster()
@@ -1065,6 +1123,9 @@ func getControllerWithNamespace(namespace string, enableDeletion bool) *MonitorC
 
 	// Fetch and create controller config from file
 	c := config.GetControllerConfig()
+	if configOverride != nil {
+		mergo.Merge(&c, configOverride, mergo.WithOverride)
+	}
 
 	provider := util.GetProviderWithName(c, "UptimeRobot")
 

@@ -3,9 +3,12 @@ package uptime
 import (
 	"encoding/json"
 	"errors"
-	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
+
+	Http "net/http"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
@@ -53,7 +56,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	response := client.GetUrl(headers, []byte(""))
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 
 		var f UptimeMonitorGetMonitorsResponse
 		err := json.Unmarshal(response.Bytes, &f)
@@ -106,7 +109,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 		log.Println(string(jsonBody))
 		response := client.PostUrl(headers, jsonBody)
 
-		if response.StatusCode == 200 {
+		if response.StatusCode == Http.StatusOK {
 			var f UptimeMonitorMonitorResponse
 
 			err := json.Unmarshal(response.Bytes, &f)
@@ -161,7 +164,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 	if err == nil {
 		response := client.PutUrl(headers, jsonBody)
 
-		if response.StatusCode == 200 {
+		if response.StatusCode == Http.StatusOK {
 			var f UptimeMonitorMonitorResponse
 			err := json.Unmarshal(response.Bytes, &f)
 			if err != nil {
@@ -191,7 +194,7 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	response := client.DeleteUrl(headers, []byte(""))
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
 
