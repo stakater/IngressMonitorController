@@ -96,6 +96,8 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 	}
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/monitor-type"]; ok {
 		body += "&type=" + val 
+	} else {
+		body += "&type=1"
 	}
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-type"]; ok {
 		body += "&keyword_type=" + val 

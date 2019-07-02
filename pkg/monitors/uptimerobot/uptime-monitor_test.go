@@ -104,6 +104,37 @@ func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
 	service.Remove(*mRes)
 }
 
+func TestAddMonitorWithMonitorType(t *testing.T) {
+	config := config.GetControllerConfig()
+
+	service := UpTimeMonitorService{}
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
+
+	var annotations = map[string]string{
+		"uptimerobot.monitor.stakater.com/monitory-type": "1",
+	}
+
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	service.Add(m)
+
+	mRes, err := service.GetByName("google-test")
+
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name {
+		t.Error("The name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
+	}
+	if mRes.URL != m.URL {
+		t.Error("The URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
+	}
+	if (mRes.Annotations["uptimerobot.monitor.stakater.com/monitor-type"] != 1) || (mRes.Annotations["uptimerobot.monitor.stakater.com/monitor-type"] != 2) {
+		t.Error("The monitor type is incorrect, expected 1 or 2, but was: " + mRes.Annotations["uptimerobot.monitor.stakater.com/monitor-type"])
+	}
+	service.Remove(*mRes)
+}
+
 func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
 	config := config.GetControllerConfig()
 
