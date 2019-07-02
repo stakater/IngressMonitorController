@@ -10,7 +10,7 @@ type StatusCakeMonitorMonitor struct {
 	ContactGroup []string `json:"ContactGroup"`
 	ContactID    int      `json:"ContactID"`
 	Status       string   `json:"Status"`
-	Uptime       int      `json:"Uptime"`
+	Uptime       float64  `json:"Uptime"`
 	Tags         []string `json:"Tags"`
 	WebsiteHost  string   `json:"WebsiteHost"`
 }
