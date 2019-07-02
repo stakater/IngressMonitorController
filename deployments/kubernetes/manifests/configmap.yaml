@@ -8,10 +8,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.79"
+    chart: "ingressmonitorcontroller-v1.0.80"
     release: "RELEASE-NAME"
     heritage: "Tiller"
-    version: v1.0.79
+    version: v1.0.80
     
     group: com.stakater.platform
     provider: stakater
@@ -21,6 +21,9 @@ data:
     \ alertContacts: some-alert-contacts\nsecrets: {}\n# - variable: environment-variable-name\t\n#
     \  name: secret-name\n#   key: secret-key\nenableMonitorDeletion: true\nmonitorNameTemplate:
     \"{{.Namespace}}-{{.IngressName}}\"\n# how often (in seconds) monitors should be
-    synced to their Kubernetes resources (0 = disabled)\nresyncPeriod: 0"
+    synced to their Kubernetes resources (0 = disabled)\nresyncPeriod: 0\n# creationDelay
+    is a duration string to add a delay before creating new monitor (e.g., to allow
+    DNS to catch up first)\n# https://golang.org/pkg/time/#ParseDuration\ncreationDelay:
+    0"
   
 
