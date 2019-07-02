@@ -129,7 +129,7 @@ func TestAddMonitorWithMonitorType(t *testing.T) {
 	if mRes.URL != m.URL {
 		t.Error("The URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
 	}
-	if (mRes.Annotations["uptimerobot.monitor.stakater.com/monitor-type"] != 1) || (mRes.Annotations["uptimerobot.monitor.stakater.com/monitor-type"] != 2) {
+	if !((mRes.Annotations["uptimerobot.monitor.stakater.com/monitor-type"] == 1) || (mRes.Annotations["uptimerobot.monitor.stakater.com/monitor-type"] == 2)) {
 		t.Error("The monitor type is incorrect, expected 1 or 2, but was: " + mRes.Annotations["uptimerobot.monitor.stakater.com/monitor-type"])
 	}
 	service.Remove(*mRes)
