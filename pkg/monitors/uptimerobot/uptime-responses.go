@@ -70,6 +70,11 @@ type UptimeStatusPageResponse struct {
 }
 
 type UptimeStatusPagesResponse struct {
-	Stat        string                   `json:"stat"`
+	Stat       string `json:"stat"`
+	Pagination struct {
+		Offset int `json:"offset"`
+		Limit  int `json:"limit"`
+		Total  int `json:"total"`
+	} `json:"pagination"`
 	StatusPages []UptimePublicStatusPage `json:"psps"`
 }
