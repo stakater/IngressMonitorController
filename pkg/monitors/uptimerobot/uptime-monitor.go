@@ -3,6 +3,7 @@ package uptimerobot
 import (
 	"encoding/json"
 	"errors"
+	Http "net/http"
 	"net/url"
 	"strconv"
 
@@ -37,7 +38,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorGetMonitorsResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -93,7 +94,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 
 		var f UptimeMonitorGetMonitorsResponse
 		json.Unmarshal(response.Bytes, &f)
@@ -123,7 +124,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorNewMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -154,7 +155,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorStatusMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -179,7 +180,7 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorStatusMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
 

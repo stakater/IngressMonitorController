@@ -3,11 +3,10 @@ package uptimerobot
 import (
 	"encoding/json"
 	"errors"
+	Http "net/http"
 	"net/url"
 	"strconv"
 	"strings"
-
-	Http "net/http"
 
 	log "github.com/sirupsen/logrus"
 
