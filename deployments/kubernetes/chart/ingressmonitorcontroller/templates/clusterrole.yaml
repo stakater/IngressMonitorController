@@ -3,9 +3,9 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
 {{- if .Values.ingressMonitorController.useFullName }}
-  name: {{ template "fullname" . }}-role
+  name: {{ template "ingressmonitorcontroller.fullname" . }}-role
 {{- else }}
-  name: {{ template "name" . }}-role
+  name: {{ template "ingressmonitorcontroller.name" . }}-role
 {{- end }}
 rules:
   - apiGroups:
