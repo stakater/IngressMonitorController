@@ -22,3 +22,5 @@ import:
   - assert
 - package: github.com/sirupsen/logrus
   version: v1.4.1
+- package: github.com/imdario/mergo
+  version: v0.3.7

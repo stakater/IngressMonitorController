@@ -3,9 +3,11 @@ package uptimerobot
 import (
 	"encoding/json"
 	"errors"
-	log "github.com/sirupsen/logrus"
+	Http "net/http"
 	"net/url"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
@@ -36,7 +38,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorGetMonitorsResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -57,6 +59,31 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 	return nil, errors.New(errorString)
 }
 
+func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor, error) {
+	action := "getMonitors"
+
+	client := http.CreateHttpClient(monitor.url + action)
+
+	body := "api_key=" + monitor.apiKey + "&format=json&logs=1" + "&search=" + name
+
+	response := client.PostUrlEncodedFormBody(body)
+
+	if response.StatusCode == 200 {
+		var f UptimeMonitorGetMonitorsResponse
+		json.Unmarshal(response.Bytes, &f)
+
+		if len(f.Monitors) > 0 {
+			return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors), nil
+		}
+		return nil, nil
+	}
+
+	errorString := "GetAllByName Request failed for name: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
+
+	log.Println(errorString)
+	return nil, errors.New(errorString)
+}
+
 func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	action := "getMonitors"
@@ -67,7 +94,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 
 		var f UptimeMonitorGetMonitorsResponse
 		json.Unmarshal(response.Bytes, &f)
@@ -108,7 +135,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorNewMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -139,7 +166,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorStatusMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
 
@@ -159,11 +186,12 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
+	log.Println(m.ID)
 	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == 200 {
+	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorStatusMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
 

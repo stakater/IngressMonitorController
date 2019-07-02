@@ -225,9 +225,9 @@ func (c *MonitorController) handleErr(err error, key interface{}) {
 }
 
 func (c *MonitorController) onResourceAdded(obj interface{}) {
-	c.queue.Add(ResourceUpdatedAction{
+	c.queue.AddAfter(ResourceUpdatedAction{
 		resource: obj,
-	})
+	}, c.config.CreationDelay)
 }
 
 func (c *MonitorController) onResourceUpdated(old interface{}, new interface{}) {

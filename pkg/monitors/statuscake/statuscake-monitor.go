@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -158,7 +159,7 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 		log.Println(err)
 		return nil
 	}
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		f := make([]StatusCakeMonitorMonitor, 0)
 		err := json.NewDecoder(resp.Body).Decode(&f)
 		if err != nil {
@@ -194,7 +195,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		log.Println(err)
 		return
 	}
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		var fa StatusCakeUpsertResponse
 		err := json.NewDecoder(resp.Body).Decode(&fa)
 		if err != nil {
@@ -236,7 +237,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		log.Println(err)
 		return
 	}
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		var fa StatusCakeUpsertResponse
 		err := json.NewDecoder(resp.Body).Decode(&fa)
 		if err != nil {
@@ -279,7 +280,7 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 		log.Println(err)
 		return
 	}
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		var fa StatusCakeUpsertResponse
 		err := json.NewDecoder(resp.Body).Decode(&fa)
 		if err != nil {

@@ -4,15 +4,39 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	yaml "gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	Providers             []Provider `yaml:"providers"`
-	EnableMonitorDeletion bool       `yaml:"enableMonitorDeletion"`
-	MonitorNameTemplate   string     `yaml:"monitorNameTemplate"`
-	ResyncPeriod          int        `yaml:"resyncPeriod",omitempty`
+	Providers             []Provider    `yaml:"providers"`
+	EnableMonitorDeletion bool          `yaml:"enableMonitorDeletion"`
+	MonitorNameTemplate   string        `yaml:"monitorNameTemplate"`
+	ResyncPeriod          int           `yaml:"resyncPeriod,omitempty"`
+	CreationDelay         time.Duration `yaml:"creationDelay,omitempty"`
+}
+
+// UnmarshalYAML interface to deserialize specific types
+func (c *Config) UnmarshalYAML(data []byte) error {
+	type Alias Config
+	aux := struct {
+		CreationDelay string `yaml:"creationDelay,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(c),
+	}
+	if err := yaml.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	delay, err := time.ParseDuration(aux.CreationDelay)
+	if err != nil {
+		return err
+	}
+	c.CreationDelay = delay
+
+	return nil
 }
 
 type Provider struct {

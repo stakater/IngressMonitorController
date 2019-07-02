@@ -4,11 +4,33 @@ import (
 	"strings"
 	"testing"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
+
+// Not a test case. Cleanup to remove added dummy Monitors
+func TestRemoveDanglingMonitors(t *testing.T) {
+	config := config.GetControllerConfig()
+
+	service := UpTimeMonitorService{}
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
+
+	mons, err := service.GetAllByName("google-test")
+
+	log.Println(mons)
+	if err == nil && mons == nil {
+		log.Println("No Dangling Monitors")
+	}
+	if err == nil && mons != nil {
+		for _, mon := range mons {
+			service.Remove(mon)
+		}
+	}
+}
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()

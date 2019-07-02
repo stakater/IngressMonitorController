@@ -40,7 +40,7 @@ func TestGetUrlShouldReturn200Status(t *testing.T) {
 
 	response := client.GetUrl(make(map[string]string), []byte(""))
 
-	if response.StatusCode != 200 {
+	if response.StatusCode != http.StatusOK {
 		t.Error("Status code mismatch")
 	}
 }
@@ -51,7 +51,7 @@ func TestPostUrlShouldReturn405Status(t *testing.T) {
 
 	response := client.PostUrl(make(map[string]string), []byte(""))
 
-	if response.StatusCode != 405 {
+	if response.StatusCode != http.StatusMethodNotAllowed {
 		t.Error("Status code mismatch")
 	}
 }
@@ -62,7 +62,7 @@ func TestDeleteUrlShouldReturn405Status(t *testing.T) {
 
 	response := client.DeleteUrl(make(map[string]string), []byte(""))
 
-	if response.StatusCode != 405 {
+	if response.StatusCode != http.StatusMethodNotAllowed {
 		t.Error("Status code mismatch")
 	}
 }
