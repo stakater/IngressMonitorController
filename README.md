@@ -31,12 +31,13 @@ The following quickstart let's you set up Ingress Monitor Controller to register
 
 2. Open the downloaded file in a text editor. Configure the uptime checker in the `config.yaml` data for the ConfigMap resource, and set the following properties
 
-    | Key           | Description                                                               |
-    |---------------|---------------------------------------------------------------------------|
-    | name          | Name of the provider (e.g. UptimeRobot)                                   |
-    | apiKey        | ApiKey of the provider                                                    |
-    | apiURL        | Base url of the ApiProvider with trailing slash (e.g. https://api.uptimerobot.com/v2/)        |
-    | alertContacts | A `-` separated list of contact id's inside double quotes that you want to add to the monitors (e.g. "1234567_8_9-9876543_2_1" )|
+   | Key           | Description                                                                                                                      |
+   | ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+   | name          | Name of the provider (e.g. UptimeRobot)                                                                                          |
+   | apiKey        | ApiKey of the provider                                                                                                           |
+   | apiURL        | Base url of the ApiProvider with trailing slash (e.g. https://api.uptimerobot.com/v2/)                                           |
+   | alertContacts | A `-` separated list of contact id's inside double quotes that you want to add to the monitors (e.g. "1234567_8_9-9876543_2_1" ) |
+   | creationDelay | A duration string (e.g., "300ms", "1h50s") to delay the creation of a monitor. (default: 0)                                      |
 
     *Note:* Follow [this](docs/uptimerobot-configuration.md) guide to see how to fetch `alertContacts` from UptimeRobot.
 

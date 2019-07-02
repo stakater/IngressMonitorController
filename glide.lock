@@ -1,5 +1,5 @@
-hash: 4a732a4715d3b323b56e192657680aaee492d71517daef97b5b329dc1e795d92
-updated: 2019-05-01T20:55:04.074834-07:00
+hash: 4630d2679132ec9c192a812a081fe3d2d2d4ba70589b44774e5b8a12933df57a
+updated: 2019-06-05T07:17:52.852497-07:00
 imports:
 - name: github.com/antoineaugusti/updown
   version: 9f067e15937f51321c400ad87f9d30f21a175481
@@ -57,7 +57,7 @@ imports:
 - name: github.com/howeyc/gopass
   version: bf9dde6d0d2c004a008c27aaee91170c786f6db8
 - name: github.com/imdario/mergo
-  version: 6633656539c1639d9d78127b7d47c622b5d7b6dc
+  version: 7c29201646fa3de8506f701213473dd407f19646
 - name: github.com/json-iterator/go
   version: 36b14963da70d11297d313183d7e6388c8510e1e
 - name: github.com/juju/ratelimit
