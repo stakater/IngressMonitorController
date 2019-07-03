@@ -20,7 +20,7 @@ Create the name of the service account to use
 */}}
 {{- define "ingressmonitorcontroller.serviceAccountName" -}}
 {{- if .Values.ingressMonitorController.serviceAccount.create -}}
-    {{ default (include "fullname" .) .Values.ingressMonitorController.serviceAccount.name }}
+    {{ default (include "ingressmonitorcontroller.fullname" .) .Values.ingressMonitorController.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.ingressMonitorController.serviceAccount.name }}
 {{- end -}}
