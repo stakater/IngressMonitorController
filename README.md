@@ -18,9 +18,11 @@ This controller will continuously watch ingresses/routes in specific or all name
 
 Currently we support the following monitors:
 
-- [UptimeRobot](https://uptimerobot.com)
+- [UptimeRobot](https://uptimerobot.com) ([Additional Config](docs/uptimerobot-configuration.md))
 - [Pingdom](https://pingdom.com) ([Additional Config](docs/pingdom-configuration.md)) (Not fully tested)
 - [StatusCake](https://www.statuscake.com) ([Additional Config](docs/statuscake-configuration.md))
+- [Uptime](http://uptime.com) ([Additional Config](docs/uptime-configurations.md))
+- [Updown](https://updown.io/)([Additional Config](docs/updown-configuration.md))
 
 ## Usage
 
@@ -40,6 +42,9 @@ The following quickstart let's you set up Ingress Monitor Controller to register
    | creationDelay | A duration string (e.g., "300ms", "1h50s") to delay the creation of a monitor. (default: 0)                                      |
 
     *Note:* Follow [this](docs/uptimerobot-configuration.md) guide to see how to fetch `alertContacts` from UptimeRobot.
+
+    *Note 1:* See the section `Using Secrets` [here](docs/Deploying-to-Kubernetes.md) if you do not want to use                  ConfigMap (because API-Key in plain text) and want to use Secrets to hide API keys 
+             
 
 3. Enable for your Ingress/Route
 
