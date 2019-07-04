@@ -6,6 +6,7 @@ import (
 	Http "net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -122,15 +123,33 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 		body += "&mwindows=" + val
 	}
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/monitor-type"]; ok {
-		body += "&type=" + val 
+		if strings.Contains(strings.ToLower(val), "http") {
+			body += "&type=1"
+		} else if strings.Contains(strings.ToLower(val), "keyword") {
+			body += "&type=2"
+
+			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-exists"]; ok {
+
+				if strings.Contains(strings.ToLower(val), "yes") {
+					body += "&keyword_type=1"
+				} else if strings.Contains(strings.ToLower(val), "no") {
+					body += "&keyword_type=2"
+				}
+
+			} else {
+				body += "&keyword_type=1" // By default 1 (check if keyword exists)
+			}
+
+			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-value"]; ok {
+				body += "&keyword_value=" + val
+			} else {
+				log.Println("Monitor is of type Keyword but the `keyword-value` annotation is missing")
+				log.Println("Monitor couldn't be added: " + m.Name)
+				return
+			}
+		}
 	} else {
-		body += "&type=1"
-	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-type"]; ok {
-		body += "&keyword_type=" + val 
-	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-value"]; ok {
-		body += "&keyword_value=" + val 
+		body += "&type=1" // By default monitor is of type HTTP
 	}
 
 	response := client.PostUrlEncodedFormBody(body)

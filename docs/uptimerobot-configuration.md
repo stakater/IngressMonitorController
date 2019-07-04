@@ -40,9 +40,9 @@ Additional uptime robot configurations can be added through a set of annotations
 | uptimerobot.monitor.stakater.com/interval            | The uptimerobot check interval in seconds                    |
 | uptimerobot.monitor.stakater.com/status-pages        | The uptimerobot public status page ID to add this monitor to |
 | uptimerobot.monitor.stakater.com/maintenance-windows | Add a maintenance windows to this check (Pro Plan only)      |
-| uptimerobot.monitor.stakater.com/monitor-type        | The uptimerobot monitor type (1 for http, 2 for keyword)     |
-| uptimerobot.monitor.stakater.com/keyword-type        | The uptimerobot keyword type (1 exists, 2 not exists)        |
-| uptimerobot.monitor.stakater.com/keyword-value       | The uptimerobot keyword value (for example, true or false)   |
+| uptimerobot.monitor.stakater.com/monitor-type        | The uptimerobot monitor type (http or keyword)               |
+| uptimerobot.monitor.stakater.com/keyword-exists      | Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)|
+| uptimerobot.monitor.stakater.com/keyword-value       | keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)|
 
 ### Fetching public status page ids from UpTime Robot
 
