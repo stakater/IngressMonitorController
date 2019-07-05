@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	Http "net/http"
+	"net/url"
 
 	log "github.com/sirupsen/logrus"
 
@@ -88,21 +89,28 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	body := make(map[string]interface{})
 	body["name"] = m.Name
-	body["msp_address"] = m.URL
+	unEscapedURL, _ := url.QueryUnescape(m.URL)
+	body["msp_address"] = unEscapedURL
 
 	if val, ok := m.Annotations["uptime.monitor.stakater.com/interval"]; ok {
 		interval, err := strconv.Atoi(val)
 		if nil == err {
 			body["msp_interval"] = interval
 		}
+	} else {
+		body["msp_interval"] = 5 // by default interval check is 5 minutes
 	}
 
 	if val, ok := m.Annotations["uptime.monitor.stakater.com/locations"]; ok {
 		body["locations"] = strings.Split(val, ",")
+	} else {
+		body["locations"] = strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
 	}
 
 	if val, ok := m.Annotations["uptime.monitor.stakater.com/contacts"]; ok {
 		body["contact_groups"] = strings.Split(val, ",")
+	} else {
+		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
 	}
 	jsonBody, err := json.Marshal(body)
 	if err == nil {
@@ -125,7 +133,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 				log.Println(string(response.Bytes))
 			}
 		} else {
-			log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+			log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode) + string(response.Bytes))
 		}
 	} else {
 		log.Println(err.Error())
@@ -143,21 +151,28 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	body := make(map[string]interface{})
 	body["name"] = m.Name
-	body["msp_address"] = m.URL
+	unEscapedURL, _ := url.QueryUnescape(m.URL)
+	body["msp_address"] = unEscapedURL
 
 	if val, ok := m.Annotations["uptime.monitor.stakater.com/interval"]; ok {
 		interval, err := strconv.Atoi(val)
 		if nil == err {
 			body["msp_interval"] = interval
 		}
+	} else {
+		body["msp_interval"] = 5 // by default interval check is 5 minutes
 	}
 
 	if val, ok := m.Annotations["uptime.monitor.stakater.com/locations"]; ok {
 		body["locations"] = strings.Split(val, ",")
+	} else {
+		body["locations"] = strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
 	}
 
 	if val, ok := m.Annotations["uptime.monitor.stakater.com/contacts"]; ok {
 		body["contact_groups"] = strings.Split(val, ",")
+	} else {
+		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
 	}
 	jsonBody, err := json.Marshal(body)
 	log.Println(string(jsonBody))

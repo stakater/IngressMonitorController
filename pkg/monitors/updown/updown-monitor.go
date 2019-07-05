@@ -3,10 +3,11 @@ package updown
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/antoineaugusti/updown"
 	"github.com/stakater/IngressMonitorController/pkg/config"
@@ -139,7 +140,8 @@ func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.
 		return updownCheckItemObj
 	}
 
-	updownCheckItemObj.URL = updownMonitor.URL
+	unEscapedURL, _ := url.QueryUnescape(updownMonitor.URL)
+	updownCheckItemObj.URL = unEscapedURL
 	updownCheckItemObj.Alias = updownMonitor.Name
 
 	// populating updownCheckItemObj object attributes using

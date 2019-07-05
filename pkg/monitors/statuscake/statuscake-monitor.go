@@ -59,7 +59,8 @@ var AnnotationMap = map[string]AnnotationInfo{
 func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	f := url.Values{}
 	f.Add("WebsiteName", m.Name)
-	f.Add("WebsiteURL", m.URL)
+	unEscapedURL, _ := url.QueryUnescape(m.URL)
+	f.Add("WebsiteURL", unEscapedURL)
 	if val, ok := m.Annotations[StatuscakeCheckRateAnnotation]; ok {
 		f.Add("CheckRate", val)
 		delete(m.Annotations, StatuscakeCheckRateAnnotation)
