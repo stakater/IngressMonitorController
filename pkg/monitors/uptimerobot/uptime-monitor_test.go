@@ -283,6 +283,54 @@ func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
 	statusPageService.Remove(statusPage)
 }
 
+func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
+	config := config.GetControllerConfig()
+
+	service := UpTimeMonitorService{}
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
+
+	// Check for monitor type 'keyword'
+	var annotations = map[string]string{
+		"uptimerobot.monitor.stakater.com/monitor-type":   "keyword",
+		"uptimerobot.monitor.stakater.com/keyword-exists": "yes",
+		"uptimerobot.monitor.stakater.com/keyword-value":  "google",
+	}
+
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	service.Add(m)
+
+	mRes, err := service.GetByName("google-test")
+
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name {
+		t.Error("The name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
+	}
+
+	service.Remove(*mRes)
+
+	// Check for monitor type 'http'
+	annotations = map[string]string{
+		"uptimerobot.monitor.stakater.com/monitor-type": "http",
+	}
+
+	m = models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	service.Add(m)
+
+	mRes, err = service.GetByName("google-test")
+
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name {
+		t.Error("The name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
+	}
+
+	service.Remove(*mRes)
+}
+
 func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	config := config.GetControllerConfig()
 
