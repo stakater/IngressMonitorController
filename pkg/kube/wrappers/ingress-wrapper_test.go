@@ -36,6 +36,18 @@ func createIngressObjectWithAnnotations(ingressName string, namespace string, ur
 	return ingress
 }
 
+func createIngressObjectWithTLS(ingressName string, namespace string, url string, tlsHostname string) *v1beta1.Ingress {
+  ingress := util.CreateIngressObject(ingressName, namespace, url)
+  ingress.Spec.TLS = []v1beta1.IngressTLS{
+    v1beta1.IngressTLS{
+      Hosts: []string{
+        tlsHostname,
+      },
+    },
+  }
+  return ingress
+}
+
 func TestIngressWrapper_getURL(t *testing.T) {
 	type fields struct {
 		ingress    *v1beta1.Ingress
@@ -108,7 +120,24 @@ func TestIngressWrapper_getURL(t *testing.T) {
 				kubeClient: getTestKubeClient(),
 			},
 			want: "http://testurl.stackator.com/",
+		}, {
+			name: "TestGetUrlWithTLS",
+			fields: fields{
+				ingress:    createIngressObjectWithTLS("testIngress", "test", testUrl, "customtls.stackator.com"),
+				namespace:  "test",
+				kubeClient: getTestKubeClient(),
+			},
+			want: "https://customtls.stackator.com",
+		}, {
+			name: "TestGetUrlWithEmptyTLS",
+			fields: fields{
+				ingress:    createIngressObjectWithTLS("testIngress", "test", testUrl, ""),
+				namespace:  "test",
+				kubeClient: getTestKubeClient(),
+			},
+			want: "http://testurl.stackator.com",
 		},
+
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

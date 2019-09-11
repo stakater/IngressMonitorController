@@ -20,7 +20,7 @@ type IngressWrapper struct {
 }
 
 func (iw *IngressWrapper) supportsTLS() bool {
-	if iw.Ingress.Spec.TLS != nil && len(iw.Ingress.Spec.TLS) > 0 {
+	if iw.Ingress.Spec.TLS != nil && len(iw.Ingress.Spec.TLS) > 0 && iw.Ingress.Spec.TLS[0].Hosts != nil && len(iw.Ingress.Spec.TLS[0].Hosts) > 0 && len(iw.Ingress.Spec.TLS[0].Hosts[0]) > 0 {
 		return true
 	}
 	return false
