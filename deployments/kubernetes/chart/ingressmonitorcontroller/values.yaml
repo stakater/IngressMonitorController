@@ -44,10 +44,6 @@ ingressMonitorController:
         apiKey: your-api-key
         apiURL: https://google.com
         alertContacts: some-alert-contacts
-      secrets: {}
-      # - variable: environment-variable-name	
-      #   name: secret-name
-      #   key: secret-key
       enableMonitorDeletion: true
       monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
       # how often (in seconds) monitors should be synced to their Kubernetes resources (0 = disabled)

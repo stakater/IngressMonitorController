@@ -135,8 +135,7 @@ metadata:
     
 data:
   config.yaml: "providers:\n- name: UptimeRobot\n  apiKey: your-api-key\n  apiURL: https://google.com\n
-    \ alertContacts: some-alert-contacts\nsecrets: {}\n# - variable: environment-variable-name\t\n#
-    \  name: secret-name\n#   key: secret-key\nenableMonitorDeletion: true\nmonitorNameTemplate:
+    \ alertContacts: some-alert-contacts\nenableMonitorDeletion: true\nmonitorNameTemplate:
     \"{{.Namespace}}-{{.IngressName}}\"\n# how often (in seconds) monitors should be
     synced to their Kubernetes resources (0 = disabled)\nresyncPeriod: 0\n# creationDelay
     is a duration string to add a delay before creating new monitor (e.g., to allow
