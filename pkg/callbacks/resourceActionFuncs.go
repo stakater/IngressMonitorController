@@ -3,6 +3,7 @@ package callbacks
 import (
 	routev1 "github.com/openshift/api/route/v1"
 	"k8s.io/api/extensions/v1beta1"
+	"time"
 )
 
 // AnnotationFunc is a generic function to return annotations for resource
@@ -14,11 +15,15 @@ type NameFunc func(interface{}) string
 // NamespaceFunc is a generic function to return namespace of resource
 type NamespaceFunc func(interface{}) string
 
+// NamespaceFunc is a generic function to return namespace of resource
+type CreationTimestampFunc func(interface{}) time.Time
+
 // ResourceActionFuncs provides generic functions to return name, namespace and annotations etc.
 type ResourceActionFuncs struct {
-	AnnotationFunc AnnotationFunc
-	NameFunc       NameFunc
-	NamespaceFunc  NamespaceFunc
+	AnnotationFunc        AnnotationFunc
+	NameFunc              NameFunc
+	NamespaceFunc         NamespaceFunc
+	CreationTimestampFunc CreationTimestampFunc
 }
 
 // GetIngressAnnotation returns the ingress annotations
@@ -36,6 +41,11 @@ func GetIngressNamespace(resource interface{}) string {
 	return resource.(*v1beta1.Ingress).GetNamespace()
 }
 
+// GetIngressCreationTimestamp returns the ingress CreationTimestamp
+func GetIngressCreationTimestamp(resource interface{}) time.Time {
+	return resource.(*v1beta1.Ingress).CreationTimestamp.Time
+}
+
 // GetRouteAnnotation returns the route annotations
 func GetRouteAnnotation(resource interface{}) map[string]string {
 	return resource.(*routev1.Route).GetAnnotations()
@@ -49,4 +59,9 @@ func GetRouteName(resource interface{}) string {
 // GetRouteNamespace returns the route namespace
 func GetRouteNamespace(resource interface{}) string {
 	return resource.(*routev1.Route).GetNamespace()
+}
+
+// GetRouteCreationTimestamp returns the route CreationTimestamp
+func GetRouteCreationTimestamp(resource interface{}) time.Time {
+	return resource.(*routev1.Route).CreationTimestamp.Time
 }

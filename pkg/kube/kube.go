@@ -80,15 +80,17 @@ func IsOpenShift(c *kubernetes.Clientset) bool {
 func GetResourceActionFuncs(resource interface{}) callbacks.ResourceActionFuncs {
 	if IsRoute(resource) {
 		return callbacks.ResourceActionFuncs{
-			AnnotationFunc: callbacks.GetRouteAnnotation,
-			NameFunc:       callbacks.GetRouteName,
-			NamespaceFunc:  callbacks.GetRouteNamespace,
+			AnnotationFunc:        callbacks.GetRouteAnnotation,
+			NameFunc:              callbacks.GetRouteName,
+			NamespaceFunc:         callbacks.GetRouteNamespace,
+			CreationTimestampFunc: callbacks.GetRouteCreationTimestamp,
 		}
 	}
 
 	return callbacks.ResourceActionFuncs{
-		AnnotationFunc: callbacks.GetIngressAnnotation,
-		NameFunc:       callbacks.GetIngressName,
-		NamespaceFunc:  callbacks.GetIngressNamespace,
+		AnnotationFunc:        callbacks.GetIngressAnnotation,
+		NameFunc:              callbacks.GetIngressName,
+		NamespaceFunc:         callbacks.GetIngressNamespace,
+		CreationTimestampFunc: callbacks.GetIngressCreationTimestamp,
 	}
 }
