@@ -1,4 +1,4 @@
-FROM stakater/go-glide:1.9.3
+FROM golang:1.13.1-alpine3.10
 MAINTAINER "Stakater Team"
 
 RUN apk update
@@ -11,7 +11,6 @@ RUN apk -v --update \
 ADD . "$GOPATH/src/github.com/stakater/IngressMonitorController"
 
 RUN cd "$GOPATH/src/github.com/stakater/IngressMonitorController" && \
-    glide update --strip-vendor && \
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --installsuffix cgo --ldflags="-s" -o /IngressMonitorController
 
 COPY build/package/Dockerfile.run /
