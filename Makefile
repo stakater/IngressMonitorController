@@ -23,6 +23,9 @@ HELMNAME = IMC
 
 default: build test
 
+install:
+	"$(GOCMD)" mod download
+
 build:
 	"$(GOCMD)" build ${GOFLAGS} ${LDFLAGS} -o "${BINARY}"
 
