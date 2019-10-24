@@ -104,10 +104,6 @@ monitor.stakater.com/keep-on-delete
 Tests require a Kubernetes instance to talk to with a `test` namespace created, and a config with a valid UptimeRobot `apiKey` and `alertContacts`. For example, on MacOS with Homebrew and Minikube, you could accomplish this like
 
 ```bash
-# install dependencies
-$ brew install glide
-$ glide update
-
 # while still in the root folder, configure test setup
 $ export CONFIG_FILE_PATH=$(pwd)/configs/testConfigs/test-config.yaml
 # update the apikey and alertContacts in this file and the config_test.go file (`correctTestAPIKey` and `correctTestAlertContacts` contstants)

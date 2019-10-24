@@ -3,3 +3,4 @@ vendor
 \.vscode/
 build/package/ingressmonitorcontroller
 out
+IngressMonitorController

@@ -14,7 +14,6 @@ VERSION=$(shell cat .version)
 BUILD=
 
 GOCMD = go
-GLIDECMD = glide
 GOFLAGS ?= $(GOFLAGS:)
 LDFLAGS =
 
@@ -25,7 +24,7 @@ HELMNAME = IMC
 default: build test
 
 install:
-	"$(GLIDECMD)" update --strip-vendor
+	"$(GOCMD)" mod download
 
 build:
 	"$(GOCMD)" build ${GOFLAGS} ${LDFLAGS} -o "${BINARY}"
