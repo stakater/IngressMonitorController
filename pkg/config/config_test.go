@@ -28,6 +28,9 @@ const (
 	correctTestUptimeAPIURL        = "https://uptime.com/api/v1/"
 	correctTestUptimeAPIKey        = "657a68d9ashdyasjdklkskuasd"
 	correctTestUptimeAlertContacts = "Default"
+
+	configFilePathAppInsights        = "../../configs/testConfigs/test-config-appinsights.yaml"
+	correctTestAppInsightsConfigName = "AppInsights"
 )
 
 func TestConfigWithCorrectValues(t *testing.T) {
@@ -92,6 +95,29 @@ func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
 func TestConfigWithUptime(t *testing.T) {
 	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestUptimeConfigName, ApiKey: correctTestUptimeAPIKey, ApiURL: correctTestUptimeAPIURL, AlertContacts: correctTestUptimeAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 300}
 	config := ReadConfig(configFilePathUptime)
+	if !reflect.DeepEqual(config, correctConfig) {
+		t.Error("Marshalled config and correct config do not match")
+	}
+}
+
+func TestConfigWithAppinsights(t *testing.T) {
+
+	appinsightConfig := AppInsights{
+		Name:          "demo-appinsights",
+		Location:      "westeurope",
+		GeoLocation:   []interface{}{"us-tx-sn1-azr", "emea-nl-ams-azr", "us-fl-mia-edge", "latam-br-gru-edge"},
+		ResourceGroup: "demoRG",
+		EmailAction: EmailAction{
+			SendToServiceOwners: false,
+			CustomEmails:        []string{"mail@cizer.dev"},
+		},
+		WebhookAction: WebhookAction{
+			ServiceURI: "https://webhook.io",
+		},
+	}
+
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestAppInsightsConfigName, AppInsightsConfig: appinsightConfig}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	config := ReadConfig(configFilePathAppInsights)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")
 	}
