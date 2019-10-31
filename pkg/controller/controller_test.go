@@ -68,7 +68,7 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
@@ -79,7 +79,7 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 
@@ -105,7 +105,7 @@ func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
@@ -116,7 +116,7 @@ func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	nameFormat, _ := util.GetNameTemplateFormat(monitorTemplate)
 	monitorName := fmt.Sprintf(nameFormat, ingressName, namespace)
@@ -161,7 +161,7 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 
@@ -170,7 +170,7 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
@@ -200,7 +200,7 @@ func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 
@@ -228,7 +228,7 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 	}
 	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -277,14 +277,14 @@ func TestAddIngressWithNameAnnotationShouldCreateMonitorAndDelete(t *testing.T) 
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
@@ -322,7 +322,7 @@ func TestUpdateIngressNameAnnotationShouldUpdateMonitorAndDelete(t *testing.T) {
 	}
 	log.Printf("Updated ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
@@ -331,7 +331,7 @@ func TestUpdateIngressNameAnnotationShouldUpdateMonitorAndDelete(t *testing.T) {
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
@@ -356,7 +356,7 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 	}
 	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -372,14 +372,14 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 
 	monitorName := ingressName + "-" + namespace
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
@@ -405,13 +405,13 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 	}
 	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	stop := make(chan struct{})
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 
@@ -426,7 +426,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 	}
 	log.Printf("Updated ingress %q.\n", ingress.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
@@ -455,13 +455,13 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 	}
 	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	stop := make(chan struct{})
 	defer close(stop)
 	go controller.Run(1, stop)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 
@@ -477,7 +477,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 	}
 	log.Printf("Updated ingress %q.\n", ingress.GetObjectMeta().GetName())
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
@@ -500,7 +500,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
@@ -526,7 +526,7 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 	}
 	log.Printf("Created ingress %q.\n", ingress.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -542,14 +542,14 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 
 	monitorName := ingressName + "-" + namespace
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
@@ -579,7 +579,7 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 
@@ -588,7 +588,7 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(ingressName, &meta_v1.DeleteOptions{})
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
@@ -639,7 +639,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonit
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 
@@ -714,7 +714,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 
@@ -792,7 +792,7 @@ func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreat
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 
@@ -861,7 +861,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMon
 	}
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	monitorName := ingressName + "-" + namespace
 

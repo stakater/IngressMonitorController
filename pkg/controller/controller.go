@@ -225,16 +225,28 @@ func (c *MonitorController) handleErr(err error, key interface{}) {
 }
 
 func (c *MonitorController) onResourceAdded(obj interface{}) {
+	rAFuncs := kube.GetResourceActionFuncs(obj)
+	createTime := rAFuncs.CreationTimestampFunc(obj)
+	delay := time.Until(createTime.Add(c.config.CreationDelay))
+	if delay.Nanoseconds() < 0 {
+		delay = time.Duration(0)
+	}
 	c.queue.AddAfter(ResourceUpdatedAction{
 		resource: obj,
-	}, c.config.CreationDelay)
+	}, delay)
 }
 
 func (c *MonitorController) onResourceUpdated(old interface{}, new interface{}) {
-	c.queue.Add(ResourceUpdatedAction{
+	rAFuncs := kube.GetResourceActionFuncs(new)
+	createTime := rAFuncs.CreationTimestampFunc(new)
+	delay := time.Until(createTime.Add(c.config.CreationDelay))
+	if delay.Nanoseconds() < 0 {
+		delay = time.Duration(0)
+	}
+	c.queue.AddAfter(ResourceUpdatedAction{
 		resource:    new,
 		oldResource: old,
-	})
+	}, delay)
 }
 
 func (c *MonitorController) onResourceDeleted(obj interface{}) {
