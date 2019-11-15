@@ -45,13 +45,6 @@ func (rw *RouteWrapper) getHost() string {
 	return "http://" + rw.Route.Spec.Host
 }
 
-func (rw *RouteWrapper) getRouteSubPathWithPort() string {
-	port := rw.getRoutePort()
-	subPath := rw.getRouteSubPath()
-
-	return port + subPath
-}
-
 func (rw *RouteWrapper) getRoutePort() string {
 	if rw.Route.Spec.Port != nil && rw.Route.Spec.Port.TargetPort.String() != "" {
 		return rw.Route.Spec.Port.TargetPort.String()
@@ -127,8 +120,8 @@ func (rw *RouteWrapper) GetURL() string {
 	if value, ok := annotations[constants.OverridePathAnnotation]; ok {
 		u.Path = value
 	} else {
-		// Append port + path
-		u.Path = path.Join(u.Path, rw.getRouteSubPathWithPort())
+		// Append port
+		u.Path = path.Join(u.Path, rw.getRouteSubPath())
 
 		// Find pod by backtracking route -> service -> pod
 		healthEndpoint, exists := rw.tryGetHealthEndpointFromRoute()
