@@ -120,7 +120,7 @@ func (rw *RouteWrapper) GetURL() string {
 	if value, ok := annotations[constants.OverridePathAnnotation]; ok {
 		u.Path = value
 	} else {
-		// Append port
+		// Append subpath
 		u.Path = path.Join(u.Path, rw.getRouteSubPath())
 
 		// Find pod by backtracking route -> service -> pod
