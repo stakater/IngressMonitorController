@@ -57,14 +57,14 @@ var AnnotationMap = map[string]AnnotationInfo{
 	StatuscakeFollowRedirectAnnotation: AnnotationInfo{"FollowRedirect", "bool"},  // Int (0,1)
 	StatuscakePortAnnotation:           AnnotationInfo{"Port", "int"},             // Int (TCP Port)
 	StatuscakeTriggerRateAnnotation:    AnnotationInfo{"TriggerRate", "int"},      // Int (0-60)
-	StatuscakeContactGroupAnnotation:   AnnotationInfo{"ContactGroup", "string"},  // String (0-60)
+	StatuscakeContactGroupAnnotation:   AnnotationInfo{"ContactGroup", "string"},  // String (0-60) (comma separated list of contact group IDs)
 	StatuscakeBasicAuthUserAnnotation:  AnnotationInfo{"BasicUser", "string"},     // String (0-60)
 	StatuscakeNodeLocations:            AnnotationInfo{"NodeLocations", "string"}, // String (seperated by a comma using the Node Location IDs)
 	StatuscakeStatusCodes:              AnnotationInfo{"StatusCodes", "string"},   // String (comma seperated list of HTTP codes to trigger error on.
 	StatuscakeConfirmation:             AnnotationInfo{"Confirmation", "int"},     // Int (0,10)
-	StatuscakeEnableSSLAlert:           AnnotationInfo{"EnableSSLAlert", "int"},   // Int (0, 1)
+	StatuscakeEnableSSLAlert:           AnnotationInfo{"EnableSSLAlert", "bool"},  // Int (0, 1)
 	StatuscakeTestTags:                 AnnotationInfo{"TestTags", "string"},      // String (Tags should be seperated by a comma - no spacing between tags (this,is,a set,of,tags)
-	StatuscakeRealBrowser:              AnnotationInfo{"RealBrowser", "int"},      // Int (0, 1)
+	StatuscakeRealBrowser:              AnnotationInfo{"RealBrowser", "bool"},     // Int (0, 1)
 }
 
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
