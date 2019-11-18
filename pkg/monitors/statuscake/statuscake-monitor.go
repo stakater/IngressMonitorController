@@ -25,6 +25,12 @@ const (
 	StatuscakeTriggerRateAnnotation    = "statuscake.monitor.stakater.com/trigger-rate"
 	StatuscakeContactGroupAnnotation   = "statuscake.monitor.stakater.com/contact-group"
 	StatuscakeBasicAuthUserAnnotation  = "statuscake.monitor.stakater.com/basic-auth-user"
+	StatuscakeNodeLocations            = "statuscake.monitor.stakater.com/node-locations"
+	StatuscakeStatusCodes              = "statuscake.monitor.stakater.com/status-codes"
+	StatuscakeConfirmation             = "statuscake.monitor.stakater.com/confirmation"
+	StatuscakeEnableSSLAlert           = "statuscake.monitor.stakater.com/enable-ssl-alert"
+	StatuscakeTestTags                 = "statuscake.monitor.stakater.com/test-tags"
+	StatuscakeRealBrowser              = "statuscake.monitor.stakater.com/real-browser"
 )
 
 // StatusCakeMonitorService is the service structure for StatusCake
@@ -44,15 +50,21 @@ type AnnotationInfo struct {
 
 // AnnotationMap holds all the enabled annotations for StatusCake
 var AnnotationMap = map[string]AnnotationInfo{
-	StatuscakeCheckRateAnnotation:      AnnotationInfo{"CheckRate", "int"},       // Int (0-24000)
-	StatuscakeTestTypeAnnotation:       AnnotationInfo{"TestType", "string"},     // String (HTTP, TCP, PING)
-	StatuscakePausedAnnotation:         AnnotationInfo{"Paused", "bool"},         // Int (0,1)
-	StatuscakePingURLAnnotation:        AnnotationInfo{"PingURL", "string"},      // String (url)
-	StatuscakeFollowRedirectAnnotation: AnnotationInfo{"FollowRedirect", "bool"}, // Int (0,1)
-	StatuscakePortAnnotation:           AnnotationInfo{"Port", "int"},            // Int (TCP Port)
-	StatuscakeTriggerRateAnnotation:    AnnotationInfo{"TriggerRate", "int"},     // Int (0-60)
-	StatuscakeContactGroupAnnotation:   AnnotationInfo{"ContactGroup", "string"}, // String (0-60)
-	StatuscakeBasicAuthUserAnnotation:  AnnotationInfo{"BasicUser", "string"},    // String (0-60)
+	StatuscakeCheckRateAnnotation:      AnnotationInfo{"CheckRate", "int"},        // Int (0-24000)
+	StatuscakeTestTypeAnnotation:       AnnotationInfo{"TestType", "string"},      // String (HTTP, TCP, PING)
+	StatuscakePausedAnnotation:         AnnotationInfo{"Paused", "bool"},          // Int (0,1)
+	StatuscakePingURLAnnotation:        AnnotationInfo{"PingURL", "string"},       // String (url)
+	StatuscakeFollowRedirectAnnotation: AnnotationInfo{"FollowRedirect", "bool"},  // Int (0,1)
+	StatuscakePortAnnotation:           AnnotationInfo{"Port", "int"},             // Int (TCP Port)
+	StatuscakeTriggerRateAnnotation:    AnnotationInfo{"TriggerRate", "int"},      // Int (0-60)
+	StatuscakeContactGroupAnnotation:   AnnotationInfo{"ContactGroup", "string"},  // String (0-60)
+	StatuscakeBasicAuthUserAnnotation:  AnnotationInfo{"BasicUser", "string"},     // String (0-60)
+	StatuscakeNodeLocations:            AnnotationInfo{"NodeLocations", "string"}, // String (seperated by a comma using the Node Location IDs)
+	StatuscakeStatusCodes:              AnnotationInfo{"StatusCodes", "string"},   // String (comma seperated list of HTTP codes to trigger error on.
+	StatuscakeConfirmation:             AnnotationInfo{"Confirmation", "int"},     // Int (0,10)
+	StatuscakeEnableSSLAlert:           AnnotationInfo{"EnableSSLAlert", "int"},   // Int (0, 1)
+	StatuscakeTestTags:                 AnnotationInfo{"TestTags", "string"},      // String (Tags should be seperated by a comma - no spacing between tags (this,is,a set,of,tags)
+	StatuscakeRealBrowser:              AnnotationInfo{"RealBrowser", "int"},      // Int (0, 1)
 }
 
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
@@ -95,6 +107,74 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 			log.Println("Error reading basic auth password from environment variable")
 		}
 		delete(m.Annotations, StatuscakeBasicAuthUserAnnotation)
+	}
+	if _, ok := m.Annotations[StatuscakeStatusCodes]; !ok {
+		statusCodes := []string{
+			"204", // No content
+			"205", // Reset content
+			"206", // Partial content
+			"303", // See other
+			"305", // Use proxy
+			// https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_errors
+			// https://support.cloudflare.com/hc/en-us/articles/115003014512/
+			"400",
+			"401",
+			"402",
+			"403",
+			"404",
+			"405",
+			"406",
+			"407",
+			"408",
+			"409",
+			"410",
+			"411",
+			"412",
+			"413",
+			"414",
+			"415",
+			"416",
+			"417",
+			"418",
+			"421",
+			"422",
+			"423",
+			"424",
+			"425",
+			"426",
+			"428",
+			"429",
+			"431",
+			"444",
+			"451",
+			"499",
+			// https://support.cloudflare.com/hc/en-us/articles/115003011431/
+			"500",
+			"501",
+			"502",
+			"503",
+			"504",
+			"505",
+			"506",
+			"507",
+			"508",
+			"509",
+			"510",
+			"511",
+			"520",
+			"521",
+			"522",
+			"523",
+			"524",
+			"525",
+			"526",
+			"527",
+			"530",
+			"598",
+			"599",
+		}
+		f.Add("StatusCodes", strings.Join(statusCodes, ","))
+		delete(m.Annotations, StatuscakeStatusCodes)
 	}
 
 	for key, value := range m.Annotations {
