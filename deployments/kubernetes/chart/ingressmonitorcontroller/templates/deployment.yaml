@@ -90,11 +90,16 @@ spec:
         - name: {{ template "ingressmonitorcontroller.name" . }}-vol
       {{- end }}
       {{- if eq .Values.ingressMonitorController.mount "secret" }}
+          {{- if .Values.ingressMonitorController.existingSecret }}
           secret:
-          {{- if .Values.ingressMonitorController.useFullName }}
+            secretName: {{ .Values.ingressMonitorController.existingSecret }}
+          {{ else }}
+          secret:
+            {{- if .Values.ingressMonitorController.useFullName }}
             secretName: {{ template "ingressmonitorcontroller.fullname" . }}
-          {{- else }}
+            {{- else }}
             secretName: {{ template "ingressmonitorcontroller.name" . }}
+            {{- end }}
           {{- end }}
       {{ else }}
           configMap:
