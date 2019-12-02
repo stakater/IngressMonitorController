@@ -8,10 +8,10 @@ metadata:
     
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.89"
+    chart: "ingressmonitorcontroller-v1.0.91"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.89
+    version: v1.0.91
     
     group: com.stakater.platform
     provider: stakater
@@ -31,10 +31,10 @@ spec:
     metadata:
       labels:
         app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-v1.0.89"
+        chart: "ingressmonitorcontroller-v1.0.91"
         release: "ingressmonitorcontroller"
         heritage: "Tiller"
-        version: v1.0.89
+        version: v1.0.91
         
         group: com.stakater.platform
         provider: stakater
@@ -48,7 +48,7 @@ spec:
           value: info
         - name: LOG_FORMAT
           value: text
-        image: "stakater/ingressmonitorcontroller:v1.0.89"
+        image: "stakater/ingressmonitorcontroller:v1.0.91"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:

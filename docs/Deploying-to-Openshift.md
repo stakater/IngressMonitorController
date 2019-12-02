@@ -67,6 +67,39 @@ The Ingress Monitor Controller can be deployed with vanilla manifests or Helm Ch
 
 The configuration discussed in the above section needs to be done by modifying `config.yaml` data for the ConfigMap resource in the `ingressmonitorcontroller.yaml` file. 
 
+##### Using Secrets
+
+To pass user credentials/ API keys in secrets:
+    
+  1. Open [values.yaml](https://github.com/stakater/IngressMonitorController/blob/master/deployments/kubernetes/chart/ingressmonitorcontroller/values.yaml) file by navigating to `deployments/kubernetes/chart/ingressmonitorcontroller/`
+  
+  2. Set `mount` equals to `"secret"` and pass the data in the data section at the bottom.
+  
+  3. Run `helm template . > file_to_generate.yaml`
+  
+  4. Deploy using the `Deploying` section below.
+
+To use existing Secrets:
+
+  1. Open [values.yaml](https://github.com/stakater/IngressMonitorController/blob/master/deployments/kubernetes/chart/ingressmonitorcontroller/values.yaml) file by navigating to `deployments/kubernetes/chart/ingressmonitorcontroller/`
+
+  2. Set `mount` equals to `"secret"` and pass the data in the data section at the bottom.
+
+  3. Set `existingSecret` to `EXISTING_SECRET_NAME`
+
+
+##### Using ConfigMap
+
+To pass user credentials/ API keys in secrets:
+     
+  1. Open [values.yaml](https://github.com/stakater/IngressMonitorController/blob/master/deployments/kubernetes/chart/ingressmonitorcontroller/values.yaml) file by navigating to `deployments/kubernetes/chart/ingressmonitorcontroller/`
+  
+  2. Set `mount` equals to `"configMap"` and pass the data in the data section at the bottom.
+  
+  3. Run `helm template . > file_to_generate.yaml`
+  
+  4. Deploy using the `Deploying` section below.
+
 ##### Running for a single namespace
 
 Add environment variable `KUBERNETES_NAMESPACE` in `ingressmonitorcontroller.yaml` for the Deployment resource and set its value

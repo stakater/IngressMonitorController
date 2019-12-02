@@ -81,6 +81,15 @@ To pass user credentials/ API keys in secrets:
   
   4. Deploy using the `Deploying` section below.
 
+To use existing Secrets:
+
+  1. Open [values.yaml](https://github.com/stakater/IngressMonitorController/blob/master/deployments/kubernetes/chart/ingressmonitorcontroller/values.yaml) file by navigating to `deployments/kubernetes/chart/ingressmonitorcontroller/`
+
+  2. Set `mount` equals to `"secret"` and pass the data in the data section at the bottom.
+
+  3. Set `existingSecret` to `EXISTING_SECRET_NAME`
+
+
 ##### Using ConfigMap
 
 To pass user credentials/ API keys in secrets:
