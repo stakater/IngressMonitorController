@@ -1,0 +1,6 @@
+providers: 
+  - name: UptimeRobot
+    apiKey: 657a68d9ashdyasjdklkskuasd
+    apiURL: https://api.uptimerobot.com/v2/
+    alertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"
+enableMonitorDeletion: true

@@ -40,14 +40,34 @@ func (c *Config) UnmarshalYAML(data []byte) error {
 }
 
 type Provider struct {
-	Name              string `yaml:"name"`
-	ApiKey            string `yaml:"apiKey"`
-	ApiURL            string `yaml:"apiURL"`
-	AlertContacts     string `yaml:"alertContacts"`
-	AlertIntegrations string `yaml:"alertIntegrations"`
-	Username          string `yaml:"username"`
-	Password          string `yaml:"password"`
-	AccountEmail      string `yaml:"accountEmail"`
+	Name              string      `yaml:"name"`
+	ApiKey            string      `yaml:"apiKey"`
+	ApiURL            string      `yaml:"apiURL"`
+	AlertContacts     string      `yaml:"alertContacts"`
+	AlertIntegrations string      `yaml:"alertIntegrations"`
+	Username          string      `yaml:"username"`
+	Password          string      `yaml:"password"`
+	AccountEmail      string      `yaml:"accountEmail"`
+	AppInsightsConfig AppInsights `yaml:"appInsightsConfig"`
+}
+
+type AppInsights struct {
+	Name          string        `yaml:"name"`
+	Location      string        `yaml:"location"`
+	ResourceGroup string        `yaml:"resourceGroup"`
+	Frequency     int32         `yaml:"frequency"`
+	GeoLocation   []interface{} `yaml:"geoLocation"`
+	EmailAction   EmailAction   `yaml:"emailAction"`
+	WebhookAction WebhookAction `yaml:"webhookAction"`
+}
+
+type EmailAction struct {
+	SendToServiceOwners bool     `yaml:"send_to_service_owners"`
+	CustomEmails        []string `yaml:"custom_emails"`
+}
+
+type WebhookAction struct {
+	ServiceURI string `yaml:"service_uri"`
 }
 
 func ReadConfig(filePath string) Config {

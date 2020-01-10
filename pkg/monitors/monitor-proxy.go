@@ -2,9 +2,9 @@ package monitors
 
 import (
 	log "github.com/sirupsen/logrus"
-
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/pkg/monitors/appinsights"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/pingdom"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/statuscake"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/updown"
@@ -30,6 +30,8 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 		mp.monitor = &uptime.UpTimeMonitorService{}
 	case "Updown":
 		mp.monitor = &updown.UpdownMonitorService{}
+	case "AppInsights":
+		mp.monitor = &appinsights.AppinsightsMonitorService{}
 	default:
 		log.Panic("No such provider found: ", mType)
 	}
