@@ -25,7 +25,7 @@ const (
 	PingdomShouldContainString                = "pingdom.monitor.stakater.com/should-contain"
 	PingdomTags                               = "pingdom.monitor.stakater.com/tags"
 	PingdomAlertIntegrations                  = "pingdom.monitor.stakater.com/alert-integrations"
-  PingdomAlertContacts                      = "pingdom.monitor.stakater.com/alert-contacts"
+	PingdomAlertContacts                      = "pingdom.monitor.stakater.com/alert-contacts"
 )
 
 // PingdomMonitorService interfaces with MonitorService
@@ -166,14 +166,14 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 	// Read known annotations, try to map them to pingdom configs
 	// set some default values if we can't find them
 
-  if value, ok := annotations[PingdomAlertContacts]; ok {
-    userIdsStringArray := strings.Split(value, "-")
+	if value, ok := annotations[PingdomAlertContacts]; ok {
+		userIdsStringArray := strings.Split(value, "-")
 
-  	if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-  		log.Println("Error decoding user ids annotation", err.Error())
-  	} else {
-  		httpCheck.UserIds = userIds
-  	}
+		if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
+			log.Println("Error decoding user ids annotation", err.Error())
+		} else {
+			httpCheck.UserIds = userIds
+		}
 	}
 
 	if value, ok := annotations[PingdomAlertIntegrations]; ok {
