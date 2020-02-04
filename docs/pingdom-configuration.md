@@ -36,7 +36,7 @@ Currently additional pingdom configurations can be added through a set of annota
 | pingdom.monitor.stakater.com/should-contain              | Set to text string that has to be present in the HTML code of the page (configures "Should contain") |
 | pingdom.monitor.stakater.com/tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws") |
 | pingdom.monitor.stakater.com/alert-integrations                | `-` separated set list of integrations ids (e.g. "91166-12168") |
-| pingdom.monitor.stakater.com/alert-contacts                | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1" ) to override the default alertContacts configured in https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage|
+| pingdom.monitor.stakater.com/alert-contacts                | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1") to override the [default alertContacts](https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage)|
 
 ### Basic Auth checks
 
