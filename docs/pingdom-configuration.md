@@ -4,7 +4,7 @@
 Currently we do not have access to Pingdom account that's why Tests are not verified. Community members having Pingdom account are welcome to contribute in Test Cases.
 
 ## Basic
-The following properties need to be configured for Pingdom, in addition to the general properties listed 
+The following properties need to be configured for Pingdom, in addition to the general properties listed
 in the [Configuration section of the README](../README.md#configuration):
 
 | Key      | Description                                      |
@@ -35,7 +35,8 @@ Currently additional pingdom configurations can be added through a set of annota
 | pingdom.monitor.stakater.com/basic-auth-user             | Required for basic-authentication checks - [see below](#basic-auth-checks) |
 | pingdom.monitor.stakater.com/should-contain              | Set to text string that has to be present in the HTML code of the page (configures "Should contain") |
 | pingdom.monitor.stakater.com/tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws") |
-| pingdom.monitor.stakater.com/alert-integrations                | Comma separated set list of integrations ids (e.g. "91166,12168") |
+| pingdom.monitor.stakater.com/alert-integrations                | `-` separated set list of integrations ids (e.g. "91166-12168") |
+| pingdom.monitor.stakater.com/alert-contacts                | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1" ) to override the default alertContacts configured in https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage|
 
 ### Basic Auth checks
 
