@@ -8,10 +8,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.97"
+    chart: "ingressmonitorcontroller-v1.0.95"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.97
+    version: v1.0.95
     
     group: com.stakater.platform
     provider: stakater
