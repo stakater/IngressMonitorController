@@ -1,68 +1,4 @@
 ---
-# Source: ingressmonitorcontroller/templates/role.yaml
-
----
-# Source: ingressmonitorcontroller/templates/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  annotations:
-    configmap.reloader.stakater.com/reload: ingressmonitorcontroller
-    
-  labels:
-    app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.94"
-    release: "ingressmonitorcontroller"
-    heritage: "Tiller"
-    version: v1.0.94
-    
-    group: com.stakater.platform
-    provider: stakater
-    
-  name: ingressmonitorcontroller
-spec:
-  replicas: 1
-  revisionHistoryLimit: 2
-  selector:
-    matchLabels:
-      app: ingressmonitorcontroller
-      release: "ingressmonitorcontroller"
-      group: com.stakater.platform
-      provider: stakater
-      
-  template:
-    metadata:
-      labels:
-        app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-v1.0.94"
-        release: "ingressmonitorcontroller"
-        heritage: "Tiller"
-        version: v1.0.94
-        
-        group: com.stakater.platform
-        provider: stakater
-        
-    spec:
-      containers:
-      - env:
-        - name: CONFIG_FILE_PATH
-          value: /etc/IngressMonitorController/config.yaml
-        - name: LOG_LEVEL
-          value: info
-        - name: LOG_FORMAT
-          value: text
-        image: "stakater/ingressmonitorcontroller:v1.0.94"
-        imagePullPolicy: IfNotPresent
-        name: ingressmonitorcontroller
-        volumeMounts:
-        - mountPath: /etc/IngressMonitorController
-          name: ingressmonitorcontroller-vol
-      serviceAccountName: ingressmonitorcontroller
-      volumes:
-        - name: ingressmonitorcontroller-vol
-          configMap:
-            name: ingressmonitorcontroller
----
 # Source: ingressmonitorcontroller/templates/clusterrole.yaml
 
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -94,13 +30,6 @@ rules:
       - get
       - watch
 ---
-# Source: ingressmonitorcontroller/templates/rolebinding.yaml
-
----
-# Source: ingressmonitorcontroller/templates/secrets.yaml
-
-
----
 # Source: ingressmonitorcontroller/templates/clusterrolebinding.yaml
 
 kind: ClusterRoleBinding
@@ -125,10 +54,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.94"
+    chart: "ingressmonitorcontroller-v1.0.95"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.94
+    version: v1.0.95
     
     group: com.stakater.platform
     provider: stakater
@@ -150,6 +79,77 @@ data:
   
 
 ---
+# Source: ingressmonitorcontroller/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    configmap.reloader.stakater.com/reload: ingressmonitorcontroller
+    
+  labels:
+    app: ingressmonitorcontroller
+    chart: "ingressmonitorcontroller-v1.0.95"
+    release: "ingressmonitorcontroller"
+    heritage: "Tiller"
+    version: v1.0.95
+    
+    group: com.stakater.platform
+    provider: stakater
+    
+  name: ingressmonitorcontroller
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: ingressmonitorcontroller
+      release: "ingressmonitorcontroller"
+      group: com.stakater.platform
+      provider: stakater
+      
+  template:
+    metadata:
+      labels:
+        app: ingressmonitorcontroller
+        chart: "ingressmonitorcontroller-v1.0.95"
+        release: "ingressmonitorcontroller"
+        heritage: "Tiller"
+        version: v1.0.95
+        
+        group: com.stakater.platform
+        provider: stakater
+        
+    spec:
+      containers:
+      - env:
+        - name: CONFIG_FILE_PATH
+          value: /etc/IngressMonitorController/config.yaml
+        - name: LOG_LEVEL
+          value: info
+        - name: LOG_FORMAT
+          value: text
+        image: "stakater/ingressmonitorcontroller:v1.0.95"
+        imagePullPolicy: IfNotPresent
+        name: ingressmonitorcontroller
+        volumeMounts:
+        - mountPath: /etc/IngressMonitorController
+          name: ingressmonitorcontroller-vol
+      serviceAccountName: ingressmonitorcontroller
+      volumes:
+        - name: ingressmonitorcontroller-vol
+          configMap:
+            name: ingressmonitorcontroller
+---
+# Source: ingressmonitorcontroller/templates/role.yaml
+
+---
+# Source: ingressmonitorcontroller/templates/rolebinding.yaml
+
+---
+# Source: ingressmonitorcontroller/templates/secrets.yaml
+
+
+---
 # Source: ingressmonitorcontroller/templates/serviceaccount.yaml
 
 apiVersion: v1
@@ -157,10 +157,10 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.94"
+    chart: "ingressmonitorcontroller-v1.0.95"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.94
+    version: v1.0.95
     
     group: com.stakater.platform
     provider: stakater
