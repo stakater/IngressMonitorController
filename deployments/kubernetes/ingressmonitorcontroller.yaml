@@ -54,10 +54,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.96"
+    chart: "ingressmonitorcontroller-v1.0.97"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.96
+    version: v1.0.97
     
     group: com.stakater.platform
     provider: stakater
@@ -88,10 +88,10 @@ metadata:
     
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.96"
+    chart: "ingressmonitorcontroller-v1.0.97"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.96
+    version: v1.0.97
     
     group: com.stakater.platform
     provider: stakater
@@ -111,10 +111,10 @@ spec:
     metadata:
       labels:
         app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-v1.0.96"
+        chart: "ingressmonitorcontroller-v1.0.97"
         release: "ingressmonitorcontroller"
         heritage: "Tiller"
-        version: v1.0.96
+        version: v1.0.97
         
         group: com.stakater.platform
         provider: stakater
@@ -128,7 +128,7 @@ spec:
           value: info
         - name: LOG_FORMAT
           value: text
-        image: "stakater/ingressmonitorcontroller:v1.0.96"
+        image: "stakater/ingressmonitorcontroller:v1.0.97"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
@@ -157,10 +157,10 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.96"
+    chart: "ingressmonitorcontroller-v1.0.97"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.96
+    version: v1.0.97
     
     group: com.stakater.platform
     provider: stakater
