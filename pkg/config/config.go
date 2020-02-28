@@ -1,8 +1,8 @@
 package config
 
 import (
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"log"
 	"os"
 	"time"
 
@@ -73,7 +73,7 @@ type WebhookAction struct {
 func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML
-	log.Info("Reading YAML Configuration", filePath)
+	log.Println("Reading YAML Configuration", filePath)
 	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Panic(err)

@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -225,34 +223,34 @@ func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor
 func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 	u, err := url.Parse(service.url)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return nil
 	}
 	u.Path = "/API/Tests/"
 	u.Scheme = "https"
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return nil
 	}
 	req.Header.Add("API", service.apiKey)
 	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return nil
 	}
 	if resp.StatusCode == http.StatusOK {
 		f := make([]StatusCakeMonitorMonitor, 0)
 		err := json.NewDecoder(resp.Body).Decode(&f)
 		if err != nil {
-			log.Error(err)
+			log.Println(err)
 			return nil
 		}
 		return StatusCakeMonitorMonitorsToBaseMonitorsMapper(f)
 	}
 	errorString := "GetAll Request failed"
-	log.Error(errorString)
+	log.Println(errorString)
 	return nil
 }
 
@@ -260,7 +258,7 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 	u, err := url.Parse(service.url)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return
 	}
 	u.Path = "/API/Tests/Update"
@@ -268,21 +266,21 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 	data := buildUpsertForm(m, service.cgroup)
 	req, err := http.NewRequest("PUT", u.String(), bytes.NewBufferString(data.Encode()))
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return
 	}
 	req.Header.Add("API", service.apiKey)
 	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return
 	}
 	if resp.StatusCode == http.StatusOK {
 		var fa StatusCakeUpsertResponse
 		err := json.NewDecoder(resp.Body).Decode(&fa)
 		if err != nil {
-			log.Error(err)
+			log.Println(err)
 			return
 		}
 		if fa.Success {
@@ -292,14 +290,8 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 			log.Println(fa.Message)
 		}
 	} else {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-		bodyString := string(bodyBytes)
-		errorString := "Insert Request failed for name: " + m.Name + " with status code " + strconv.Itoa(resp.StatusCode)
-		log.Error(errorString)
-		log.Error(bodyString)
+		errorString := "Insert Request failed for name: " + m.Name
+		log.Println(errorString)
 	}
 }
 
@@ -307,7 +299,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 	u, err := url.Parse(service.url)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return
 	}
 	u.Path = "/API/Tests/Update"
@@ -316,32 +308,32 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 	data.Add("TestID", m.ID)
 	req, err := http.NewRequest("PUT", u.String(), bytes.NewBufferString(data.Encode()))
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return
 	}
 	req.Header.Add("API", service.apiKey)
 	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return
 	}
 	if resp.StatusCode == http.StatusOK {
 		var fa StatusCakeUpsertResponse
 		err := json.NewDecoder(resp.Body).Decode(&fa)
 		if err != nil {
-			log.Error(err)
+			log.Println(err)
 			return
 		}
 		if fa.Success {
 			log.Println("Monitor Updated:", m.Name)
 		} else {
-			log.Warn("Monitor couldn't be updated: " + m.Name)
-			log.Warn(fa.Message)
+			log.Println("Monitor couldn't be updated: " + m.Name)
+			log.Println(fa.Message)
 		}
 	} else {
 		errorString := "Update Request failed for name: " + m.Name
-		log.Error(errorString)
+		log.Println(errorString)
 	}
 }
 
@@ -349,7 +341,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 	u, err := url.Parse(service.url)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return
 	}
 	u.Path = "/API/Tests/Details"
@@ -359,31 +351,31 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 	u.RawQuery = query.Encode()
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return
 	}
 	req.Header.Add("API", service.apiKey)
 	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return
 	}
 	if resp.StatusCode == http.StatusOK {
 		var fa StatusCakeUpsertResponse
 		err := json.NewDecoder(resp.Body).Decode(&fa)
 		if err != nil {
-			log.Error(err)
+			log.Println(err)
 			return
 		}
 		if fa.Success {
-			log.Info("Monitor Deleted:", m.ID)
+			log.Println("Monitor Deleted:", m.ID)
 		} else {
-			log.Warn("Monitor couldn't be deleted: " + m.Name)
-			log.Warn(fa.Message)
+			log.Println("Monitor couldn't be deleted: " + m.Name)
+			log.Println(fa.Message)
 		}
 	} else {
 		errorString := "Delete Request failed for name: " + m.Name
-		log.Error(errorString)
+		log.Println(errorString)
 	}
 }
