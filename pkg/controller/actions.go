@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
@@ -41,8 +41,8 @@ func (r ResourceUpdatedAction) handle(c *MonitorController) error {
 	monitorName, oldMonitorName := r.getNames(c)
 	monitorURL := c.getMonitorURL(r.resource)
 
-	log.Println("Monitor Name: " + monitorName)
-	log.Println("Monitor URL: " + monitorURL)
+	log.Info("Monitor Name: " + monitorName)
+	log.Info("Monitor URL: " + monitorURL)
 
 	annotations := rAFuncs.AnnotationFunc(r.resource)
 	if value, ok := annotations[constants.MonitorEnabledAnnotation]; ok {
@@ -56,7 +56,7 @@ func (r ResourceUpdatedAction) handle(c *MonitorController) error {
 
 	} else {
 		c.removeMonitorsIfExist(oldMonitorName)
-		log.Println("Not doing anything with this ingress because no annotation exists with name: " + constants.MonitorEnabledAnnotation)
+		log.Info("Not doing anything with this ingress because no annotation exists with name: " + constants.MonitorEnabledAnnotation)
 	}
 
 	return nil

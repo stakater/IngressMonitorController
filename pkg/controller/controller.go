@@ -2,10 +2,8 @@ package controller
 
 import (
 	"fmt"
-	"log"
-	"time"
-
 	routev1 "github.com/openshift/api/route/v1"
+	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/callbacks"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/constants"
@@ -22,6 +20,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
+	"time"
 )
 
 // MonitorController which can be used for monitoring ingresses
@@ -83,7 +82,7 @@ func (c *MonitorController) Run(threadiness int, stopCh chan struct{}) {
 
 	// Let the workers stop when we are done
 	defer c.queue.ShutDown()
-	log.Println("Starting Ingress Monitor controller")
+	log.Info("Starting Ingress Monitor controller")
 
 	go c.informer.Run(stopCh)
 
@@ -98,7 +97,7 @@ func (c *MonitorController) Run(threadiness int, stopCh chan struct{}) {
 	}
 
 	<-stopCh
-	log.Println("Stopping Ingress Monitor controller")
+	log.Info("Stopping Ingress Monitor controller")
 }
 
 func (c *MonitorController) runWorker() {
@@ -167,7 +166,7 @@ func (c *MonitorController) removeMonitorIfExists(monitorService monitors.Monito
 	if m != nil { // Monitor Exists
 		monitorService.Remove(*m) // Remove the monitor
 	} else {
-		log.Println("Cannot find monitor with name: " + monitorName)
+		log.Warn("Cannot find monitor with name: " + monitorName)
 	}
 }
 
@@ -182,7 +181,7 @@ func (c *MonitorController) createOrUpdateMonitor(monitorService monitors.Monito
 	m, _ := monitorService.GetByName(oldMonitorName)
 
 	if m != nil { // Monitor Already Exists
-		log.Println("Monitor already exists for ingress: " + monitorName)
+		log.Info("Monitor already exists for ingress: " + monitorName)
 		m.URL = monitorURL
 		m.Annotations = annotations
 		m.Name = monitorName
