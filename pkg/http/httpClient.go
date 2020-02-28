@@ -2,8 +2,8 @@ package http
 
 import (
 	"bytes"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -36,7 +36,7 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 
 	request, err := http.NewRequest(requestType, client.url, reader)
 	if err != nil {
-		log.Println("Failed to craft HTTP Request. METHOD: " + requestType +
+		log.Error("Failed to craft HTTP Request. METHOD: " + requestType +
 			" URL: " + client.url +
 			" PAYLOAD: " + string(body))
 	}
@@ -47,7 +47,7 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 	}
 
 	httpResponse := HttpResponse{StatusCode: response.StatusCode}
