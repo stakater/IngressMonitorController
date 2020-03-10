@@ -22,6 +22,7 @@ Currently additional Statuscake configurations can be added through a set of ann
 | statuscake.monitor.stakater.com/port                     | TCP Port                                         |
 | statuscake.monitor.stakater.com/trigger-rate             | Minutes to wait before sending an alert          |
 | statuscake.monitor.stakater.com/contact-group            | Contact Group to be alerted.                     |
+| statuscake.monitor.stakater.com/test-tags                | Comma separated list of tags                     |
 | statuscake.monitor.stakater.com/basic-auth-user          | Required for [basic-authenticationchecks](#basic-auth-checks)  |
 
 

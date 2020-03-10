@@ -95,6 +95,10 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 			f.Add("ContactGroup", cgroup)
 		}
 	}
+	if val, ok := m.Annotations[StatuscakeTestTags]; ok {
+		f.Add("TestTags", val)
+		delete(m.Annotations, StatuscakeTestTags)
+	}
 	// If a basic auth annotation is set
 	if val, ok := m.Annotations[StatuscakeBasicAuthUserAnnotation]; ok {
 		// Annotation should be set to the username
