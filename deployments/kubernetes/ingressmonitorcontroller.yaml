@@ -54,7 +54,7 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.97"
+    chart: "ingressmonitorcontroller-v1.0.96"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
     version: v1.0.97
