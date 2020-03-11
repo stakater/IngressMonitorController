@@ -55,7 +55,7 @@ metadata:
   labels:
     app: ingressmonitorcontroller
     chart: "ingressmonitosadrasdaasdasdsdcontroller-v1.0.96"
-    release: "ingressmonitorcontrolaasdasdler"
+    release: "ingressmonitasdorcontrolaasdasdler"
     heritage: "Tiller"
     version: v1.0.97
     
