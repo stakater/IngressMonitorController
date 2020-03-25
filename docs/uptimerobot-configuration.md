@@ -37,6 +37,7 @@ Additional uptime robot configurations can be added through a set of annotations
 
 |                        Annotation                    |                    Description                               |
 |:----------------------------------------------------:|:------------------------------------------------------------:|
+| uptimerobot.monitor.stakater.com/alert-contacts       | The uptimerobot alertContacts to be associated with this monitor. Overrides the value of `alertContacts` from the Controller's ConfigMap. See [Fetching alert contacts from UpTime Robot](https://github.com/stakater/IngressMonitorController/blob/master/docs/uptimerobot-configuration.md) |
 | uptimerobot.monitor.stakater.com/interval            | The uptimerobot check interval in seconds                    |
 | uptimerobot.monitor.stakater.com/status-pages        | The uptimerobot public status page ID to add this monitor to |
 | uptimerobot.monitor.stakater.com/maintenance-windows | Add a maintenance windows to this check (Pro Plan only)      |
