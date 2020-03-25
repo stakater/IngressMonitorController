@@ -13,20 +13,27 @@ type UptimeMonitorPagination struct {
 }
 
 type UptimeMonitorMonitor struct {
-	ID             int                 `json:"id"`
-	FriendlyName   string              `json:"friendly_name"`
-	URL            string              `json:"url"`
-	Type           int                 `json:"type"`
-	SubType        string              `json:"sub_type"`
-	KeywordType    int                 `json:"keyword_type"`
-	KeywordValue   string              `json:"keyword_value"`
-	HTTPUsername   string              `json:"http_username"`
-	HTTPPassword   string              `json:"http_password"`
-	Port           string              `json:"port"`
-	Interval       int                 `json:"interval"`
-	Status         int                 `json:"status"`
-	CreateDatetime int                 `json:"create_datetime"`
-	Logs           []UptimeMonitorLogs `json:"logs"`
+	ID             int                          `json:"id"`
+	FriendlyName   string                       `json:"friendly_name"`
+	URL            string                       `json:"url"`
+	Type           int                          `json:"type"`
+	SubType        string                       `json:"sub_type"`
+	KeywordType    int                          `json:"keyword_type"`
+	KeywordValue   string                       `json:"keyword_value"`
+	HTTPUsername   string                       `json:"http_username"`
+	HTTPPassword   string                       `json:"http_password"`
+	Port           string                       `json:"port"`
+	Interval       int                          `json:"interval"`
+	Status         int                          `json:"status"`
+	CreateDatetime int                          `json:"create_datetime"`
+	Logs           []UptimeMonitorLogs          `json:"logs"`
+	AlertContacts  []UptimeMonitorAlertContacts `json:"alert_contacts"`
+}
+
+type UptimeMonitorAlertContacts struct {
+	ID         string `json:"id"`
+	threshold  int    `json:"threshold"`
+	recurrence int    `json:"recurrence"`
 }
 
 type UptimeMonitorLogs struct {
