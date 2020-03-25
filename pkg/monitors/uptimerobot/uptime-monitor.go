@@ -114,7 +114,13 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name) + "&alert_contacts=" + monitor.alertContacts
+	body := "api_key=" + monitor.apiKey + "&format=json&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name)
+
+	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"]; ok {
+		body += "&alert_contacts=" + val
+	} else {
+		body += "&alert_contacts=" + monitor.alertContacts
+	}
 
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
 		body += "&interval=" + val
@@ -174,7 +180,13 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL + "&alert_contacts=" + monitor.alertContacts
+	body := "api_key=" + monitor.apiKey + "&format=json&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name)
+	
+	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"]; ok {
+		body += "&alert_contacts=" + val
+	} else {
+		body += "&alert_contacts=" + monitor.alertContacts
+	}
 
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
 		body += "&interval=" + val
