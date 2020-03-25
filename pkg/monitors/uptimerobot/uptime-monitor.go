@@ -35,7 +35,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&logs=1" + "&search=" + name
+	body := "api_key=" + monitor.apiKey + "&format=json&logs=1&alert_contacts=1&search=" + name
 
 	response := client.PostUrlEncodedFormBody(body)
 
