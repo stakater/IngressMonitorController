@@ -32,8 +32,8 @@ type UptimeMonitorMonitor struct {
 
 type UptimeMonitorAlertContacts struct {
 	ID         string `json:"id"`
-	threshold  int    `json:"threshold"`
-	recurrence int    `json:"recurrence"`
+	Threshold  int    `json:"threshold"`
+	Recurrence int    `json:"recurrence"`
 }
 
 type UptimeMonitorLogs struct {
