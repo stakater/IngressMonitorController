@@ -180,8 +180,8 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name)
-	
+	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL
+
 	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"]; ok {
 		body += "&alert_contacts=" + val
 	} else {
