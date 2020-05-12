@@ -352,3 +352,34 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 		t.Error("Monitor should not be added")
 	}
 }
+
+func TestAddMonitorWithAlertContactsAnnotations(t *testing.T) {
+	config := config.GetControllerConfig()
+
+	service := UpTimeMonitorService{}
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	service.Setup(*provider)
+
+	var annotations = map[string]string{
+		"uptimerobot.monitor.stakater.com/alert-contacts": "2628365_0_0",
+	}
+
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	service.Add(m)
+
+	mRes, err := service.GetByName("google-test")
+
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name {
+		t.Error("The name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
+	}
+	if mRes.URL != m.URL {
+		t.Error("The URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
+	}
+	if "2628365_0_0" != mRes.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"] {
+		t.Error("The alert-contacts is incorrect, expected: 2628365_0_0, but was: " + mRes.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"])
+	}
+	service.Remove(*mRes)
+}
