@@ -16,9 +16,10 @@ require (
 	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/groupcache v0.0.0-20191002201903-404acd9df4cc // indirect
+	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/btree v1.0.0 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
-	github.com/googleapis/gnostic v0.4.2 // indirect
+	github.com/googleapis/gnostic v0.4.0 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c // indirect
@@ -26,6 +27,7 @@ require (
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/juju/ratelimit v1.0.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/onsi/ginkgo v1.11.0 // indirect
 	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
@@ -46,6 +48,7 @@ require (
 	gonum.org/v1/netlib v0.0.0-20190331212654-76723241ea4e // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.18.5
 	k8s.io/apimachinery v0.18.5
