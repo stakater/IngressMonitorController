@@ -1,6 +1,7 @@
 package wrappers
 
 import (
+	"context"
 	"log"
 	"net/url"
 	"path"
@@ -71,7 +72,7 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 		return "", false
 	}
 
-	service, err := rw.KubeClient.Core().Services(rw.Route.Namespace).Get(serviceName, meta_v1.GetOptions{})
+	service, err := rw.KubeClient.CoreV1().Services(rw.Route.Namespace).Get(context.TODO(), serviceName, meta_v1.GetOptions{})
 	if err != nil {
 		log.Printf("Get service from kubernetes cluster error:%v", err)
 		return "", false
@@ -79,7 +80,7 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 
 	set := labels.Set(service.Spec.Selector)
 
-	if pods, err := rw.KubeClient.Core().Pods(rw.Route.Namespace).List(meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
+	if pods, err := rw.KubeClient.CoreV1().Pods(rw.Route.Namespace).List(context.TODO(), meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
 		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
 	} else if len(pods.Items) > 0 {
 		pod := pods.Items[0]
