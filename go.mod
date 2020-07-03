@@ -53,7 +53,6 @@ require (
 	k8s.io/code-generator v0.18.5 // indirect
 	k8s.io/gengo v0.0.0-20200630090205-15d76db0a9e6 // indirect
 	k8s.io/klog/v2 v2.3.0 // indirect
-	k8s.io/kube-openapi v0.0.0-20200615155156-dffdd1682719 // indirect
 	k8s.io/utils v0.0.0-20200619165400-6e3d28b6ed19 // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 	sigs.k8s.io/structured-merge-diff/v3 v3.0.0 // indirect
