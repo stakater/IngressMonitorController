@@ -739,7 +739,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 
 	controller.kubeClient.CoreV1().Pods(namespace).Delete(context.TODO(), podName, meta_v1.DeleteOptions{})
 
-	controller.kubeClient.CoreV1().Services(namespace).Delete(context.TODO(), podName, meta_v1.DeleteOptions{})
+	controller.kubeClient.CoreV1().Services(namespace).Delete(context.TODO(), serviceName, meta_v1.DeleteOptions{})
 
 	time.Sleep(15 * time.Second)
 
@@ -816,7 +816,7 @@ func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreat
 
 	controller.kubeClient.CoreV1().Pods(namespace).Delete(context.TODO(), podName, meta_v1.DeleteOptions{})
 
-	controller.kubeClient.CoreV1().Services(namespace).Delete(context.TODO(), podName, meta_v1.DeleteOptions{})
+	controller.kubeClient.CoreV1().Services(namespace).Delete(context.TODO(), serviceName, meta_v1.DeleteOptions{})
 
 	time.Sleep(15 * time.Second)
 
@@ -883,7 +883,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMon
 
 	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
-	controller.kubeClient.CoreV1().Services(namespace).Delete(context.TODO(), podName, meta_v1.DeleteOptions{})
+	controller.kubeClient.CoreV1().Services(namespace).Delete(context.TODO(), serviceName, meta_v1.DeleteOptions{})
 
 	time.Sleep(15 * time.Second)
 
