@@ -64,7 +64,6 @@ func main() {
 		if err != nil {
 			log.Panic(err.Error())
 		}
-
 		restClient = osClient.RESTClient()
 	} else {
 		restClient = kubeClient.ExtensionsV1beta1().RESTClient()

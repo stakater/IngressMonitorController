@@ -74,7 +74,6 @@ func IsOpenShift(c *kubernetes.Clientset) bool {
 			return true
 		}
 	}
-
 	return false
 }
 
