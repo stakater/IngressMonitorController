@@ -3,7 +3,6 @@ package kube
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"os"
 
 	routev1 "github.com/openshift/api/route/v1"
