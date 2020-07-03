@@ -71,13 +71,11 @@ func IsOpenShift(c *kubernetes.Clientset) bool {
 		return false
 	}
 	for _, p := range rp.Paths {
-		log.Printf("Debug - path: %s", p)
-		if p == "/oapi" {
+		if p == "/apis/route.openshift.io" {
 			return true
 		}
 	}
 
-	log.Printf("Debug - Returning false for IsOpenShift")
 	return false
 }
 

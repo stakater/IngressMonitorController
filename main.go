@@ -65,10 +65,8 @@ func main() {
 			log.Panic(err.Error())
 		}
 
-		log.Printf("Debug - return OS client")
 		restClient = osClient.RESTClient()
 	} else {
-		log.Printf("Debug - return kube client")
 		restClient = kubeClient.ExtensionsV1beta1().RESTClient()
 	}
 
