@@ -1,22 +1,28 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
+
+	log "github.com/sirupsen/logrus"
+
+	"strings"
 
 	routeClient "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/controller"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"strings"
 )
 
 func init() {
 	if logLevel, ok := os.LookupEnv("LOG_LEVEL"); ok {
-		if level, err := log.ParseLevel(logLevel); err != nil {
+		level, err := log.ParseLevel(logLevel)
+
+		if err != nil {
+			log.Error("Parse log level error: ", err.Error())
+		} else {
 			log.SetLevel(level)
 		}
 	}
