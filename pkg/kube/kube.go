@@ -3,6 +3,7 @@ package kube
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"os"
 
 	routev1 "github.com/openshift/api/route/v1"
@@ -70,10 +71,13 @@ func IsOpenShift(c *kubernetes.Clientset) bool {
 		return false
 	}
 	for _, p := range rp.Paths {
+		log.Printf("Debug - path: %s", p)
 		if p == "/oapi" {
 			return true
 		}
 	}
+
+	log.Printf("Debug - Returning false for IsOpenShift")
 	return false
 }
 
