@@ -1,6 +1,7 @@
 package wrappers
 
 import (
+	"context"
 	"log"
 	"net/url"
 	"path"
@@ -135,7 +136,7 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 		return "", false
 	}
 
-	service, err := iw.KubeClient.Core().Services(iw.Ingress.Namespace).Get(serviceName, meta_v1.GetOptions{})
+	service, err := iw.KubeClient.CoreV1().Services(iw.Ingress.Namespace).Get(context.TODO(), serviceName, meta_v1.GetOptions{})
 	if err != nil {
 		log.Printf("Get service from kubernetes cluster error:%v", err)
 		return "", false
@@ -143,7 +144,7 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 
 	set := labels.Set(service.Spec.Selector)
 
-	if pods, err := iw.KubeClient.Core().Pods(iw.Ingress.Namespace).List(meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
+	if pods, err := iw.KubeClient.CoreV1().Pods(iw.Ingress.Namespace).List(context.TODO(), meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
 		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
 	} else if len(pods.Items) > 0 {
 		pod := pods.Items[0]

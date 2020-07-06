@@ -1,13 +1,14 @@
 package kube
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/callbacks"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -58,7 +59,7 @@ func IsRoute(resource interface{}) bool {
 
 // IsOpenShift returns true if cluster is openshift based
 func IsOpenShift(c *kubernetes.Clientset) bool {
-	res, err := c.RESTClient().Get().AbsPath("").DoRaw()
+	res, err := c.RESTClient().Get().AbsPath("").DoRaw(context.TODO())
 	if err != nil {
 		return false
 	}
@@ -69,7 +70,7 @@ func IsOpenShift(c *kubernetes.Clientset) bool {
 		return false
 	}
 	for _, p := range rp.Paths {
-		if p == "/oapi" {
+		if p == "/apis/route.openshift.io" {
 			return true
 		}
 	}
