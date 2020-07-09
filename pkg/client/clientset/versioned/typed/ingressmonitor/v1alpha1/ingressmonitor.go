@@ -40,6 +40,7 @@ type IngressMonitorsGetter interface {
 type IngressMonitorInterface interface {
 	Create(ctx context.Context, ingressMonitor *v1alpha1.IngressMonitor, opts v1.CreateOptions) (*v1alpha1.IngressMonitor, error)
 	Update(ctx context.Context, ingressMonitor *v1alpha1.IngressMonitor, opts v1.UpdateOptions) (*v1alpha1.IngressMonitor, error)
+	UpdateStatus(ctx context.Context, ingressMonitor *v1alpha1.IngressMonitor, opts v1.UpdateOptions) (*v1alpha1.IngressMonitor, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
 	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.IngressMonitor, error)
@@ -128,6 +129,22 @@ func (c *ingressMonitors) Update(ctx context.Context, ingressMonitor *v1alpha1.I
 		Namespace(c.ns).
 		Resource("ingressmonitors").
 		Name(ingressMonitor.Name).
+		VersionedParams(&opts, scheme.ParameterCodec).
+		Body(ingressMonitor).
+		Do(ctx).
+		Into(result)
+	return
+}
+
+// UpdateStatus was generated because the type contains a Status member.
+// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+func (c *ingressMonitors) UpdateStatus(ctx context.Context, ingressMonitor *v1alpha1.IngressMonitor, opts v1.UpdateOptions) (result *v1alpha1.IngressMonitor, err error) {
+	result = &v1alpha1.IngressMonitor{}
+	err = c.client.Put().
+		Namespace(c.ns).
+		Resource("ingressmonitors").
+		Name(ingressMonitor.Name).
+		SubResource("status").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(ingressMonitor).
 		Do(ctx).

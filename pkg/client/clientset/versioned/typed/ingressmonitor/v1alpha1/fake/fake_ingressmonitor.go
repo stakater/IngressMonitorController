@@ -102,6 +102,18 @@ func (c *FakeIngressMonitors) Update(ctx context.Context, ingressMonitor *v1alph
 	return obj.(*v1alpha1.IngressMonitor), err
 }
 
+// UpdateStatus was generated because the type contains a Status member.
+// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+func (c *FakeIngressMonitors) UpdateStatus(ctx context.Context, ingressMonitor *v1alpha1.IngressMonitor, opts v1.UpdateOptions) (*v1alpha1.IngressMonitor, error) {
+	obj, err := c.Fake.
+		Invokes(testing.NewUpdateSubresourceAction(ingressmonitorsResource, "status", c.ns, ingressMonitor), &v1alpha1.IngressMonitor{})
+
+	if obj == nil {
+		return nil, err
+	}
+	return obj.(*v1alpha1.IngressMonitor), err
+}
+
 // Delete takes name of the ingressMonitor and deletes it. Returns an error if one occurs.
 func (c *FakeIngressMonitors) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.

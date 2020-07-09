@@ -5,6 +5,7 @@ import (
 )
 
 // IngressMonitor defines the desired state of IngressMonitor
+// +k8s:openapi-gen=true
 type IngressMonitorSpec struct {
 	// Name of service monitor
 	Name     string `json:"name"`
@@ -40,14 +41,15 @@ type LocalObjectReference struct {
 
 
 // IngressMonitorStatus is the observed state of a IngressMonitor resource
+// +k8s:openapi-gen=true
 type IngressMonitorStatus struct {
-	AvailableReplicas int32 `json:"availableReplicas"`
 }
 
 // IngressMonitor is a specification for a IngressMonitor resource
 // +genclient
-// +genclient:noStatus
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:openapi-gen=true
+// +kubebuilder:subresource:status
 type IngressMonitor struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
