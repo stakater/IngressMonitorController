@@ -30,6 +30,37 @@ spec:
           type: object
         spec:
           description: IngressMonitorSpec defines the desired state of IngressMonitor
+          properties:
+            name:
+              description: Name of service monitor
+              type: string
+            url:
+              description: URL to monitor
+              type: string
+            urlFrom:
+              description: URL to monitor from either an ingress or route reference
+              properties:
+                ingressRef:
+                  description: IngressURLSource selects an Ingress to populate the
+                    URL with
+                  properties:
+                    name:
+                      type: string
+                  required:
+                  - name
+                  type: object
+                routeRef:
+                  description: RouteURLSource selects a Route to populate the URL
+                    with
+                  properties:
+                    name:
+                      type: string
+                  required:
+                  - name
+                  type: object
+              type: object
+          required:
+          - name
           type: object
         status:
           description: IngressMonitorStatus defines the observed state of IngressMonitor

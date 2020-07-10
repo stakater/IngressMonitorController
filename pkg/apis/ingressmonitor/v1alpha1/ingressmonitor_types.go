@@ -9,16 +9,40 @@ import (
 
 // IngressMonitorSpec defines the desired state of IngressMonitor
 type IngressMonitorSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
+	// Name of service monitor
+	Name     string `json:"name"`
+	// URL to monitor
+	URL      string `json:"url,omitempty"`
+	// URL to monitor from either an ingress or route reference
+	// +optional
+	URLFrom *URLSource `json:"urlFrom,omitempty"`
+}
+
+// URLSource represents the set of resources to fetch the URL from
+type URLSource struct {
+	// +optional
+	IngressRef *IngressURLSource `json:"ingressRef,omitempty"`
+	// +optional
+	RouteRef *RouteURLSource `json:"routeRef,omitempty"`
+}
+
+// IngressURLSource selects an Ingress to populate the URL with
+type IngressURLSource struct {
+	LocalObjectReference string `json:"name"`
+}
+
+// RouteURLSource selects a Route to populate the URL with
+type RouteURLSource struct {
+	LocalObjectReference string `json:"name"`
+}
+
+// LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+type LocalObjectReference struct {
+	Name string `json:"name"`
 }
 
 // IngressMonitorStatus defines the observed state of IngressMonitor
 type IngressMonitorStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
