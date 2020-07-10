@@ -1,6 +1,7 @@
-kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
+  creationTimestamp: null
   name: ingressmonitorcontroller
 rules:
 - apiGroups:
@@ -42,16 +43,16 @@ rules:
   resources:
   - servicemonitors
   verbs:
-  - "get"
-  - "create"
+  - get
+  - create
 - apiGroups:
   - apps
-  resources:
-  - deployments/finalizers
   resourceNames:
   - ingressmonitorcontroller
+  resources:
+  - deployments/finalizers
   verbs:
-  - "update"
+  - update
 - apiGroups:
   - ""
   resources:
@@ -65,3 +66,15 @@ rules:
   - deployments
   verbs:
   - get
+- apiGroups:
+  - ingressmonitor.stakater.com
+  resources:
+  - '*'
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

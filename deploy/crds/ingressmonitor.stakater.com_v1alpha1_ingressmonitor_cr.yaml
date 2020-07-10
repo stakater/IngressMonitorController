@@ -1,0 +1,7 @@
+apiVersion: ingressmonitor.stakater.com/v1alpha1
+kind: IngressMonitor
+metadata:
+  name: example-ingressmonitor
+spec:
+  # Add fields here
+  size: 3
