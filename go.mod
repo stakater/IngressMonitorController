@@ -21,6 +21,10 @@ require (
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.18.5
 	k8s.io/apimachinery v0.18.5
-	k8s.io/client-go v0.18.5
+	k8s.io/client-go v12.0.0+incompatible
 	sigs.k8s.io/controller-runtime v0.6.1
+)
+
+replace (
+    k8s.io/client-go => k8s.io/client-go v0.18.2
 )
