@@ -19,7 +19,7 @@ func createIngressObjectWithPath(ingressName string, namespace string, url strin
 	ingress.Spec.Rules[0].IngressRuleValue = v1beta1.IngressRuleValue{
 		HTTP: &v1beta1.HTTPIngressRuleValue{
 			Paths: []v1beta1.HTTPIngressPath{
-				v1beta1.HTTPIngressPath{
+				{
 					Path: path,
 				},
 			},
@@ -37,15 +37,15 @@ func createIngressObjectWithAnnotations(ingressName string, namespace string, ur
 }
 
 func createIngressObjectWithTLS(ingressName string, namespace string, url string, tlsHostname string) *v1beta1.Ingress {
-  ingress := util.CreateIngressObject(ingressName, namespace, url)
-  ingress.Spec.TLS = []v1beta1.IngressTLS{
-    v1beta1.IngressTLS{
-      Hosts: []string{
-        tlsHostname,
-      },
-    },
-  }
-  return ingress
+	ingress := util.CreateIngressObject(ingressName, namespace, url)
+	ingress.Spec.TLS = []v1beta1.IngressTLS{
+		{
+			Hosts: []string{
+				tlsHostname,
+			},
+		},
+	}
+	return ingress
 }
 
 func TestIngressWrapper_getURL(t *testing.T) {
@@ -137,7 +137,6 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			},
 			want: "http://testurl.stackator.com",
 		},
-
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

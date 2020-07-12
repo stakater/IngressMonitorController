@@ -19,13 +19,13 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 		"uptimerobot.monitor.stakater.com/interval": strconv.Itoa(uptimeMonitor.Interval),
 	}
 
-	alertContacts := make([]string,0)
+	alertContacts := make([]string, 0)
 	if uptimeMonitor.AlertContacts != nil {
 		for _, alertContact := range uptimeMonitor.AlertContacts {
 			contact := alertContact.ID + "_" + strconv.Itoa(alertContact.Threshold) + "_" + strconv.Itoa(alertContact.Recurrence)
 			alertContacts = append(alertContacts, contact)
 		}
-		annotations["uptimerobot.monitor.stakater.com/alert-contacts"] = strings.Join(alertContacts,"-")
+		annotations["uptimerobot.monitor.stakater.com/alert-contacts"] = strings.Join(alertContacts, "-")
 	}
 
 	m.Annotations = annotations

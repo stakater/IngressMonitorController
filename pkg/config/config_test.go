@@ -34,7 +34,7 @@ const (
 )
 
 func TestConfigWithCorrectValues(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
+	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
 		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations,
 		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 0}
@@ -46,7 +46,7 @@ func TestConfigWithCorrectValues(t *testing.T) {
 }
 
 func TestConfigWithIncorrectProviderValues(t *testing.T) {
-	incorrectConfig := Config{Providers: []Provider{Provider{Name: "UptimeRobot2", ApiKey: "abc", ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	incorrectConfig := Config{Providers: []Provider{{Name: "UptimeRobot2", ApiKey: "abc", ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConfig) {
@@ -55,7 +55,7 @@ func TestConfigWithIncorrectProviderValues(t *testing.T) {
 }
 
 func TestConfigWithIncorrectEnableFlag(t *testing.T) {
-	incorrectConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: false}
+	incorrectConfig := Config{Providers: []Provider{{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: false}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConfig) {
@@ -73,7 +73,7 @@ func TestConfigWithoutProvider(t *testing.T) {
 }
 
 func TestConfigWithoutEnabledFlag(t *testing.T) {
-	incorrectConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}}
+	incorrectConfig := Config{Providers: []Provider{{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConfig) {
@@ -82,7 +82,7 @@ func TestConfigWithoutEnabledFlag(t *testing.T) {
 }
 
 func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
+	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
 		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations,
 		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion}
@@ -93,7 +93,7 @@ func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
 }
 
 func TestConfigWithUptime(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestUptimeConfigName, ApiKey: correctTestUptimeAPIKey, ApiURL: correctTestUptimeAPIURL, AlertContacts: correctTestUptimeAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 300}
+	correctConfig := Config{Providers: []Provider{{Name: correctTestUptimeConfigName, ApiKey: correctTestUptimeAPIKey, ApiURL: correctTestUptimeAPIURL, AlertContacts: correctTestUptimeAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 300}
 	config := ReadConfig(configFilePathUptime)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")
@@ -116,7 +116,7 @@ func TestConfigWithAppinsights(t *testing.T) {
 		},
 	}
 
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestAppInsightsConfigName, AppInsightsConfig: appinsightConfig}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	correctConfig := Config{Providers: []Provider{{Name: correctTestAppInsightsConfigName, AppInsightsConfig: appinsightConfig}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePathAppInsights)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")

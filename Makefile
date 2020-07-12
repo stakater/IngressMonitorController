@@ -1,10 +1,15 @@
 # note: call scripts from /scripts
 
-.PHONY: default build builder-image binary-image test stop clean-images clean push apply deploy helm-template helm-install
+.PHONY: default verify build builder-image binary-image test stop clean-images clean push apply deploy helm-template helm-install
 
 BUILDER ?= ingressmonitorcontroller-builder
 BINARY ?= IngressMonitorController
 DOCKER_IMAGE ?= stakater/ingressmonitorcontroller
+
+# GOLANGCI_LINT env
+GOLANGCI_LINT = _output/tools/golangci-lint
+GOLANGCI_LINT_CACHE = $(PWD)/_output/golangci-lint-cache
+GOLANGCI_LINT_VERSION = v1.24
 
 # Default value "dev"
 DOCKER_TAG ?= dev
@@ -28,6 +33,17 @@ install:
 
 build:
 	"$(GOCMD)" build ${GOFLAGS} ${LDFLAGS} -o "${BINARY}"
+
+verify-fmt:
+	./hack/verify-gofmt.sh
+
+$(GOLANGCI_LINT):
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(dir $@) v1.24.0
+
+verify-golangci-lint: $(GOLANGCI_LINT)
+	GOLANGCI_LINT_CACHE=$(GOLANGCI_LINT_CACHE) $(GOLANGCI_LINT) run --timeout=300s ./cmd/... ./pkg/... ./test/...
+
+verify: verify-fmt verify-golangci-lint
 
 builder-image:
 	@docker build --network host -t "${BUILDER}" -f build/package/Dockerfile.build .

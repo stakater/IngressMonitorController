@@ -70,12 +70,12 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 	}
 
 	correctMonitors := []models.Monitor{
-		models.Monitor{
+		{
 			Name:        "Test Monitor",
 			ID:          "124",
 			URL:         "https://stakater.com",
 			Annotations: annotations1},
-		models.Monitor{
+		{
 			Name:        "Test Monitor 2",
 			ID:          "125",
 			URL:         "https://facebook.com",

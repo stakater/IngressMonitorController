@@ -31,7 +31,7 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 		"uptimerobot.monitor.stakater.com/interval": "600",
 	}
 
-	correctMonitors := []models.Monitor{models.Monitor{Name: "Test Monitor 1", ID: "124", URL: "https://stakater.com", Annotations: annotations1}, models.Monitor{Name: "Test Monitor 2", ID: "125", URL: "https://stackator.com", Annotations: annotations2}}
+	correctMonitors := []models.Monitor{{Name: "Test Monitor 1", ID: "124", URL: "https://stakater.com", Annotations: annotations1}, {Name: "Test Monitor 2", ID: "125", URL: "https://stackator.com", Annotations: annotations2}}
 
 	var uptimeMonitors []UptimeMonitorMonitor
 	uptimeMonitors = append(uptimeMonitors, uptimeMonitorObject1)

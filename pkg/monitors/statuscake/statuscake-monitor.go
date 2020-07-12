@@ -52,21 +52,21 @@ type AnnotationInfo struct {
 
 // AnnotationMap holds all the enabled annotations for StatusCake
 var AnnotationMap = map[string]AnnotationInfo{
-	StatuscakeCheckRateAnnotation:      AnnotationInfo{"CheckRate", "int"},        // Int (0-24000)
-	StatuscakeTestTypeAnnotation:       AnnotationInfo{"TestType", "string"},      // String (HTTP, TCP, PING)
-	StatuscakePausedAnnotation:         AnnotationInfo{"Paused", "bool"},          // Int (0,1)
-	StatuscakePingURLAnnotation:        AnnotationInfo{"PingURL", "string"},       // String (url)
-	StatuscakeFollowRedirectAnnotation: AnnotationInfo{"FollowRedirect", "bool"},  // Int (0,1)
-	StatuscakePortAnnotation:           AnnotationInfo{"Port", "int"},             // Int (TCP Port)
-	StatuscakeTriggerRateAnnotation:    AnnotationInfo{"TriggerRate", "int"},      // Int (0-60)
-	StatuscakeContactGroupAnnotation:   AnnotationInfo{"ContactGroup", "string"},  // String (0-60) (comma separated list of contact group IDs)
-	StatuscakeBasicAuthUserAnnotation:  AnnotationInfo{"BasicUser", "string"},     // String (0-60)
-	StatuscakeNodeLocations:            AnnotationInfo{"NodeLocations", "string"}, // String (seperated by a comma using the Node Location IDs)
-	StatuscakeStatusCodes:              AnnotationInfo{"StatusCodes", "string"},   // String (comma seperated list of HTTP codes to trigger error on.
-	StatuscakeConfirmation:             AnnotationInfo{"Confirmation", "int"},     // Int (0,10)
-	StatuscakeEnableSSLAlert:           AnnotationInfo{"EnableSSLAlert", "bool"},  // Int (0, 1)
-	StatuscakeTestTags:                 AnnotationInfo{"TestTags", "string"},      // String (Tags should be seperated by a comma - no spacing between tags (this,is,a set,of,tags)
-	StatuscakeRealBrowser:              AnnotationInfo{"RealBrowser", "bool"},     // Int (0, 1)
+	StatuscakeCheckRateAnnotation:      {"CheckRate", "int"},        // Int (0-24000)
+	StatuscakeTestTypeAnnotation:       {"TestType", "string"},      // String (HTTP, TCP, PING)
+	StatuscakePausedAnnotation:         {"Paused", "bool"},          // Int (0,1)
+	StatuscakePingURLAnnotation:        {"PingURL", "string"},       // String (url)
+	StatuscakeFollowRedirectAnnotation: {"FollowRedirect", "bool"},  // Int (0,1)
+	StatuscakePortAnnotation:           {"Port", "int"},             // Int (TCP Port)
+	StatuscakeTriggerRateAnnotation:    {"TriggerRate", "int"},      // Int (0-60)
+	StatuscakeContactGroupAnnotation:   {"ContactGroup", "string"},  // String (0-60) (comma separated list of contact group IDs)
+	StatuscakeBasicAuthUserAnnotation:  {"BasicUser", "string"},     // String (0-60)
+	StatuscakeNodeLocations:            {"NodeLocations", "string"}, // String (seperated by a comma using the Node Location IDs)
+	StatuscakeStatusCodes:              {"StatusCodes", "string"},   // String (comma seperated list of HTTP codes to trigger error on.
+	StatuscakeConfirmation:             {"Confirmation", "int"},     // Int (0,10)
+	StatuscakeEnableSSLAlert:           {"EnableSSLAlert", "bool"},  // Int (0, 1)
+	StatuscakeTestTags:                 {"TestTags", "string"},      // String (Tags should be seperated by a comma - no spacing between tags (this,is,a set,of,tags)
+	StatuscakeRealBrowser:              {"RealBrowser", "bool"},     // Int (0, 1)
 }
 
 // buildUpsertForm function is used to create the form needed to Add or update a monitor

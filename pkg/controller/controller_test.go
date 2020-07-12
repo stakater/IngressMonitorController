@@ -946,7 +946,7 @@ func TestAddIngressWithCreationDelayShouldCreateMonitorAndDelete(t *testing.T) {
 func addServiceToIngress(ingress *v1beta1.Ingress, serviceName string, servicePort int) *v1beta1.Ingress {
 	ingress.Spec.Rules[0].HTTP = &v1beta1.HTTPIngressRuleValue{
 		Paths: []v1beta1.HTTPIngressPath{
-			v1beta1.HTTPIngressPath{
+			{
 				Backend: v1beta1.IngressBackend{
 					ServiceName: serviceName,
 					ServicePort: intstr.FromInt(servicePort),
@@ -1019,7 +1019,7 @@ func createServiceObject(serviceName string, podName string, namespace string) *
 		},
 		Spec: v1.ServiceSpec{
 			Ports: []v1.ServicePort{
-				v1.ServicePort{
+				{
 					Name:       "http",
 					Protocol:   "TCP",
 					Port:       80,
@@ -1048,7 +1048,7 @@ func createPodObject(podName string, namespace string) *v1.Pod {
 		},
 		Spec: v1.PodSpec{
 			Containers: []v1.Container{
-				v1.Container{
+				{
 					Name:  "test",
 					Image: "tutum/hello-world",
 				},
