@@ -3,7 +3,7 @@ module github.com/stakater/IngressMonitorController
 go 1.14
 
 require (
-	github.com/Azure/azure-sdk-for-go v44.0.0
+	github.com/Azure/azure-sdk-for-go v44.0.0+incompatible
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.0
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/Azure/go-autorest/autorest/validation v0.3.0 // indirect
@@ -25,6 +25,4 @@ require (
 	sigs.k8s.io/controller-runtime v0.6.1
 )
 
-replace (
-    k8s.io/client-go => k8s.io/client-go v0.18.2
-)
+replace k8s.io/client-go => k8s.io/client-go v0.18.2
