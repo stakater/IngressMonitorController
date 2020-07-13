@@ -3,5 +3,5 @@ kind: IngressMonitor
 metadata:
   name: example-ingressmonitor
 spec:
-  # Add fields here
-  size: 3
+  name: stakater-monitor
+  url: https://www.stakater.com

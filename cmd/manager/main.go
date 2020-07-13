@@ -8,6 +8,8 @@ import (
 	"os"
 	"runtime"
 
+	routev1 "github.com/openshift/api/route/v1"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
@@ -74,6 +76,11 @@ func main() {
 		log.Error(err, "Failed to get watch namespace")
 		os.Exit(1)
 	}
+	if len(namespace) == 0 {
+		log.Info("Warning: WATCH_NAMESPACE is set to empty string, will monitor ingresses in all namespaces.")
+	} else {
+		log.Info("Watching Namespace: " + namespace)
+	}
 
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
@@ -105,6 +112,11 @@ func main() {
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
 		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	if err := routev1.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Error(err, "error registering route objects")
 		os.Exit(1)
 	}
 

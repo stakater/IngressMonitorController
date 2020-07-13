@@ -19,7 +19,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-var log = logf.Log.WithName("controller_ingressmonitor")
+const controllerName = "ingressmonitor-controller"
+var log = logf.Log.WithName(controllerName)
 
 // Add creates a new IngressMonitor Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
@@ -35,22 +36,13 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
 func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Create a new controller
-	c, err := controller.New("ingressmonitor-controller", mgr, controller.Options{Reconciler: r})
+	c, err := controller.New(controllerName, mgr, controller.Options{Reconciler: r})
 	if err != nil {
 		return err
 	}
 
 	// Watch for changes to primary resource IngressMonitor
 	err = c.Watch(&source.Kind{Type: &ingressmonitorv1alpha1.IngressMonitor{}}, &handler.EnqueueRequestForObject{})
-	if err != nil {
-		return err
-	}
-
-	// Watch for changes to secondary resource Pods and requeue the owner IngressMonitor
-	err = c.Watch(&source.Kind{Type: &corev1.Pod{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &ingressmonitorv1alpha1.IngressMonitor{},
-	})
 	if err != nil {
 		return err
 	}
