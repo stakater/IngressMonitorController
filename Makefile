@@ -1,6 +1,6 @@
 # note: call scripts from /scripts
-
-.PHONY: default verify build builder-image binary-image test stop clean-images clean push apply deploy helm-template helm-install
+# TODO: Fix and enable tests here
+.PHONY: default verify build builder-image binary-image stop clean-images clean push apply deploy helm-template helm-install
 
 BUILDER ?= ingressmonitorcontroller-builder
 BINARY ?= IngressMonitorController
