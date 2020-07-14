@@ -130,14 +130,7 @@ func (rw *RouteWrapper) GetURL() string {
 		// Health endpoint from pod successful
 		if exists {
 			u.Path = path.Join(u.Path, healthEndpoint)
-		} else { // Try to get annotation and set
-
-			// Annotation for health Endpoint exists
-			if value, ok := annotations[constants.MonitorHealthAnnotation]; ok {
-				u.Path = path.Join(u.Path, value)
 			}
 		}
-	}
-
 	return u.String()
 }

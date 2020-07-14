@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"os"
 
+	log "github.com/sirupsen/logrus"
+
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/callbacks"
@@ -57,23 +59,39 @@ func IsRoute(resource interface{}) bool {
 	return false
 }
 
+func IsOpenshift() bool {
+		var kubeClient kubernetes.Interface
+  	_, err := rest.InClusterConfig()
+  	if err != nil {
+  		kubeClient = GetClientOutOfCluster()
+  	} else {
+  		kubeClient = GetClient()
+  	}
+
+  	return IsOpenShift(kubeClient.(*kubernetes.Clientset))
+}
+
 // IsOpenShift returns true if cluster is openshift based
 func IsOpenShift(c *kubernetes.Clientset) bool {
 	res, err := c.RESTClient().Get().AbsPath("").DoRaw(context.TODO())
 	if err != nil {
+		log.Info("Failed to determine Environment, will try kubernetes")
 		return false
 	}
 
 	var rp v1.RootPaths
 	err = json.Unmarshal(res, &rp)
 	if err != nil {
+		log.Info("Failed to determine Environment, will try kubernetes")
 		return false
 	}
 	for _, p := range rp.Paths {
 		if p == "/apis/route.openshift.io" {
+			log.Info("Environment is OpenShift")
 			return true
 		}
 	}
+	log.Info("Enviornment is Vanilla Kubernetes")
 	return false
 }
 

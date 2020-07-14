@@ -17,6 +17,8 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/apis"
 	"github.com/stakater/IngressMonitorController/pkg/controller"
 	"github.com/stakater/IngressMonitorController/version"
+	"github.com/stakater/IngressMonitorController/pkg/kube"
+
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	kubemetrics "github.com/operator-framework/operator-sdk/pkg/kube-metrics"
@@ -31,6 +33,12 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
+)
+
+// TODO: use same logger everywhere
+const (
+	defaultLogLevel               = "info"
+	defaultLogFormat              = "text"
 )
 
 // Change below variables to serve metrics on different host or port.
@@ -136,6 +144,9 @@ func main() {
 		log.Error(err, "Manager exited non-zero")
 		os.Exit(1)
 	}
+
+	// TODO: Persist this flag
+	kube.IsOpenshift()
 }
 
 // addMetrics will create the Services and Service Monitors to allow the operator export the metrics by using

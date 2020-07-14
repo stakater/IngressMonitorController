@@ -11,6 +11,11 @@ import (
 type IngressMonitorSpec struct {
 	// URL to monitor
 	URL string `json:"url,omitempty"`
+
+	// Force monitor endpoint to use HTTPS
+	// +optional
+	ForceHTTPS bool `json:"forceHttps,omitempty"`
+
 	// URL to monitor from either an ingress or route reference
 	// +optional
 	URLFrom *URLSource `json:"urlFrom,omitempty"`
@@ -22,6 +27,8 @@ type URLSource struct {
 	IngressRef *IngressURLSource `json:"ingressRef,omitempty"`
 	// +optional
 	RouteRef *RouteURLSource `json:"routeRef,omitempty"`
+	// +optional
+	OverridePath string `json:"overridePath,omitempty"`
 }
 
 // IngressURLSource selects an Ingress to populate the URL with

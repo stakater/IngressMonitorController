@@ -31,6 +31,9 @@ spec:
         spec:
           description: IngressMonitorSpec defines the desired state of IngressMonitor
           properties:
+            forceHttps:
+              description: Force monitor endpoint to use HTTPS
+              type: boolean
             url:
               description: URL to monitor
               type: string
@@ -46,6 +49,8 @@ spec:
                   required:
                   - name
                   type: object
+                overridePath:
+                  type: string
                 routeRef:
                   description: RouteURLSource selects a Route to populate the URL
                     with
