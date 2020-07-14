@@ -35,7 +35,6 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	return &ReconcileIngressMonitor{
 		client: mgr.GetClient(),
 		scheme: mgr.GetScheme(),
-		config: config,
 		monitorServices: monitors.SetupMonitorServicesForProviders(config.Providers),
 // 		ingressMonitorClient: ingressmonitorclient.NewClient()
 		}
@@ -67,7 +66,6 @@ type ReconcileIngressMonitor struct {
 	// that reads objects from the cache and writes to the apiserver
 	client client.Client
 	scheme *runtime.Scheme
-	config  config.Config
 	monitorServices []monitors.MonitorServiceProxy
 	// TODO: Should we use client instead ?
 // 	ingressMonitorClient ingressmonitorclient.Client
@@ -105,15 +103,20 @@ func (r *ReconcileIngressMonitor) Reconcile(request reconcile.Request) (reconcil
 			if monitor != nil {
 					// Monitor already exists, Update if required
 					r.handleUpdate(request, instance, *monitor, r.monitorServices[index])
+			} else {
+					// Monitor doesn't exist, create monitor
+					r.handleCreate(request, instance, monitorName, r.monitorServices[index])
 			}
-			// Monitor doesn't exist, create monitor
-			r.handleCreate(request, instance, monitorName, r.monitorServices[index])
 	}
 
 	return reconcile.Result{}, nil
 }
 
 func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) (*models.Monitor) {
+
+	log.Info("DEBUG: monitorService ", "monitorService", monitorService)
+	log.Info("DEBUG: monitorName ", "monitorName", monitorName)
+
 	monitor, _ := monitorService.GetByName(monitorName)
 	// Monitor Exists
 	if monitor != nil {
