@@ -9,8 +9,6 @@ import (
 
 // IngressMonitorSpec defines the desired state of IngressMonitor
 type IngressMonitorSpec struct {
-	// Name of service monitor
-	Name string `json:"name"`
 	// URL to monitor
 	URL string `json:"url,omitempty"`
 	// URL to monitor from either an ingress or route reference
