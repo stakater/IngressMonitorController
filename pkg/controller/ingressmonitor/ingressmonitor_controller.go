@@ -4,14 +4,15 @@ import (
 	"context"
 
 	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
+// 	ingressmonitorclient "github.com/stakater/IngressMonitorController/pkg/client/ingressmonitor"
+	"github.com/stakater/IngressMonitorController/pkg/monitors"
+	"github.com/stakater/IngressMonitorController/pkg/config"
+	"github.com/stakater/IngressMonitorController/pkg/models"
+
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -30,7 +31,14 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileIngressMonitor{client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	config := config.GetControllerConfig()
+	return &ReconcileIngressMonitor{
+		client: mgr.GetClient(),
+		scheme: mgr.GetScheme(),
+		config: config,
+		monitorServices: monitors.SetupMonitorServicesForProviders(config.Providers),
+// 		ingressMonitorClient: ingressmonitorclient.NewClient()
+		}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -59,6 +67,10 @@ type ReconcileIngressMonitor struct {
 	// that reads objects from the cache and writes to the apiserver
 	client client.Client
 	scheme *runtime.Scheme
+	config  config.Config
+	monitorServices []monitors.MonitorServiceProxy
+	// TODO: Should we use client instead ?
+// 	ingressMonitorClient ingressmonitorclient.Client
 }
 
 // Reconcile reads that state of the cluster for a IngressMonitor object and makes changes based on the state read
@@ -72,66 +84,40 @@ func (r *ReconcileIngressMonitor) Reconcile(request reconcile.Request) (reconcil
 
 	// Fetch the IngressMonitor instance
 	instance := &ingressmonitorv1alpha1.IngressMonitor{}
+
+	monitorName := request.Name + "-" + request.Namespace
+
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			return reconcile.Result{}, nil
+			return r.handleDelete(request, instance, monitorName)
 		}
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
 	}
 
-	// Define a new Pod object
-	pod := newPodForCR(instance)
-
-	// Set IngressMonitor instance as the owner and controller
-	if err := controllerutil.SetControllerReference(instance, pod, r.scheme); err != nil {
-		return reconcile.Result{}, err
+	for index := 0; index < len(r.monitorServices); index++ {
+			log.Info("DEBUG: Iterating through monitorServices ", "monitorServices[index]", r.monitorServices[index])
+			monitor := findMonitorByName(r.monitorServices[index], monitorName)
+			if monitor != nil {
+					// Monitor already exists, Update if required
+					r.handleUpdate(request, instance, *monitor, r.monitorServices[index])
+			}
+			// Monitor doesn't exist, create monitor
+			r.handleCreate(request, instance, monitorName, r.monitorServices[index])
 	}
 
-	// Check if this Pod already exists
-	found := &corev1.Pod{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}, found)
-	if err != nil && errors.IsNotFound(err) {
-		reqLogger.Info("Creating a new Pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
-		err = r.client.Create(context.TODO(), pod)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
-
-		// Pod created successfully - don't requeue
-		return reconcile.Result{}, nil
-	} else if err != nil {
-		return reconcile.Result{}, err
-	}
-
-	// Pod already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
 	return reconcile.Result{}, nil
 }
 
-// newPodForCR returns a busybox pod with the same name/namespace as the cr
-func newPodForCR(cr *ingressmonitorv1alpha1.IngressMonitor) *corev1.Pod {
-	labels := map[string]string{
-		"app": cr.Name,
+func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) (*models.Monitor) {
+	monitor, _ := monitorService.GetByName(monitorName)
+	// Monitor Exists
+	if monitor != nil {
+		return monitor
 	}
-	return &corev1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name + "-pod",
-			Namespace: cr.Namespace,
-			Labels:    labels,
-		},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{
-				{
-					Name:    "busybox",
-					Image:   "busybox",
-					Command: []string{"sleep", "3600"},
-				},
-			},
-		},
-	}
+	return nil
 }
