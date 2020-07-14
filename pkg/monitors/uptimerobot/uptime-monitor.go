@@ -160,6 +160,8 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	response := client.PostUrlEncodedFormBody(body)
 
+	log.Info("DEBUG: RESPONE", "response.Bytes", string(response.Bytes))
+
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorNewMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
@@ -168,7 +170,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 			log.Println("Monitor Added: " + m.Name)
 			monitor.handleStatusPagesAnnotations(m, strconv.Itoa(f.Monitor.ID))
 		} else {
-			log.Println("Monitor couldn't be added: " + m.Name)
+			log.Println("Monitor couldn't be added: " + m.Name + ". Error: " + f.Error.Message)
 		}
 	} else {
 		log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
