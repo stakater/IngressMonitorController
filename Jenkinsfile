@@ -6,5 +6,5 @@ goBuildViaGoReleaser {
     publicChartGitURL = 'git@github.com:stakater/stakater-charts.git'
     toolsImage = 'stakater/pipeline-tools:v2.0.18'
     // Temporarily skip tests
-    skipTest = true
+    skipTests = true
 }
