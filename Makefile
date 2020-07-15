@@ -20,6 +20,8 @@ BUILD=
 
 GOCMD = go
 GOFLAGS ?= $(GOFLAGS:)
+GOMAINPACKAGE=./cmd/manager
+
 LDFLAGS =
 
 HELMPATH= deployments/kubernetes/chart/ingressmonitorcontroller
@@ -32,7 +34,7 @@ install:
 	"$(GOCMD)" mod download
 
 build:
-	"$(GOCMD)" build ${GOFLAGS} ${LDFLAGS} -o "${BINARY}"
+	"$(GOCMD)" build ${GOFLAGS} ${LDFLAGS} -o "${BINARY}" $(GOMAINPACKAGE)
 
 verify-fmt:
 	./hack/verify-gofmt.sh
