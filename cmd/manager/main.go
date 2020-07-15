@@ -17,8 +17,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/apis"
 	"github.com/stakater/IngressMonitorController/pkg/controller"
 	"github.com/stakater/IngressMonitorController/version"
-	"github.com/stakater/IngressMonitorController/pkg/kube"
-
+	ingressmonitorcontrollerconfig "github.com/stakater/IngressMonitorController/pkg/config"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	kubemetrics "github.com/operator-framework/operator-sdk/pkg/kube-metrics"
@@ -30,12 +29,14 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 )
 
-// TODO: use same logger everywhere
+// TODO: use same logger and logger settings
+// TODO: Pick these values from env variables
 const (
 	defaultLogLevel               = "info"
 	defaultLogFormat              = "text"
@@ -90,6 +91,11 @@ func main() {
 		log.Info("Watching Namespace: " + namespace)
 	}
 
+	// TODO: REMOVE this
+	for _, pair := range os.Environ() {
+      fmt.Println(pair)
+    }
+
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if err != nil {
@@ -114,6 +120,14 @@ func main() {
 		log.Error(err, "")
 		os.Exit(1)
 	}
+
+	// TODO: Move this to controller
+	tempClient, err := client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
+	if err != nil {
+		log.Error(err, "")
+		os.Exit(1)
+	}
+	ingressmonitorcontrollerconfig.LoadControllerConfig(tempClient)
 
 	log.Info("Registering Components.")
 
@@ -144,9 +158,6 @@ func main() {
 		log.Error(err, "Manager exited non-zero")
 		os.Exit(1)
 	}
-
-	// TODO: Persist this flag
-	kube.IsOpenshift()
 }
 
 // addMetrics will create the Services and Service Monitors to allow the operator export the metrics by using

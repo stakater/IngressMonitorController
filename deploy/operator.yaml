@@ -31,9 +31,8 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: "ingressmonitorcontroller"
-              # TODO: Remove this and use a secret
-            - name: CONFIG_FILE_PATH
-              value: /etc/IngressMonitorController/config.yaml
+            - name: CONFIG_SECRET_NAME
+              value: imc-config
             - name: LOG_LEVEL
               value: info
             - name: LOG_FORMAT
