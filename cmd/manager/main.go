@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 
 	routev1 "github.com/openshift/api/route/v1"
+	log "github.com/sirupsen/logrus"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -48,13 +50,31 @@ var (
 	metricsPort         int32 = 8383
 	operatorMetricsPort int32 = 8686
 )
-var log = logf.Log.WithName("cmd")
 
 func printVersion() {
 	log.Info(fmt.Sprintf("Operator Version: %s", version.Version))
 	log.Info(fmt.Sprintf("Go Version: %s", runtime.Version()))
 	log.Info(fmt.Sprintf("Go OS/Arch: %s/%s", runtime.GOOS, runtime.GOARCH))
 	log.Info(fmt.Sprintf("Version of operator-sdk: %v", sdkVersion.Version))
+}
+
+func init() {
+	if logLevel, ok := os.LookupEnv("LOG_LEVEL"); ok {
+		level, err := log.ParseLevel(logLevel)
+		if err != nil {
+			log.Error("Parse log level error: ", err.Error())
+		} else {
+			log.SetLevel(level)
+		}
+	}
+	if logFormat, ok := os.LookupEnv("LOG_FORMAT"); ok {
+		switch strings.ToLower(logFormat) {
+		case "json":
+			log.SetFormatter(&log.JSONFormatter{})
+		default:
+			log.SetFormatter(&log.TextFormatter{})
+		}
+	}
 }
 
 func main() {
