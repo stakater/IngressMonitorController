@@ -91,11 +91,6 @@ func main() {
 		log.Info("Watching Namespace: " + namespace)
 	}
 
-	// TODO: REMOVE this
-	for _, pair := range os.Environ() {
-      fmt.Println(pair)
-    }
-
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if err != nil {
@@ -121,13 +116,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: Move this to controller
+	// Load IngressMonitorController config from secret
 	tempClient, err := client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)
 	}
 	ingressmonitorcontrollerconfig.LoadControllerConfig(tempClient)
+
+	// TODO: Don't create tempClient fix and use mgr.GetClient()
+  // ingressmonitorcontrollerconfig.LoadControllerConfig(mgr.GetClient())
 
 	log.Info("Registering Components.")
 

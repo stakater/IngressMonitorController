@@ -86,17 +86,18 @@ func LoadControllerConfig(client client.Client) {
 	log.Info("Loading YAML Configuration from secret")
 
 	// Retrieve operator namespace
-	operatorNs, err := k8sutil.GetOperatorNamespace()
-	if err != nil {
-		if err == k8sutil.ErrNoNamespace {
-			log.Info("Skipping leader election; not running in a cluster.")
-		}
-// 		log.Panic(err)
-		//TODO: FIX THIS
-		operatorNs = "imc-test"
+	operatorNamespace, _ := os.LookupEnv("OPERATOR_NAMESPACE")
+	if len(operatorNamespace) == 0 {
+			log.Info("DEBUG: test")
+			operatorNamespaceTemp, err := k8sutil.GetOperatorNamespace()
+			if err != nil {
+				if err == k8sutil.ErrNoNamespace {
+					log.Info("Skipping leader election; not running in a cluster.")
+				}
+				log.Panic(err)
+			}
+			operatorNamespace = operatorNamespaceTemp
 	}
-
-	log.Info("DEBUG: operatorNs", "operatorNs", operatorNs)
 
 	configSecretName, _ := os.LookupEnv("CONFIG_SECRET_NAME")
 	if len(configSecretName) == 0 {
@@ -105,7 +106,7 @@ func LoadControllerConfig(client client.Client) {
 	}
 
 	// Retrieve config key from secret
-	configKey, err := secret.LoadSecretData(client, configSecretName, operatorNs, IngressMonitorControllerSecretConfigKey)
+	configKey, err := secret.LoadSecretData(client, configSecretName, operatorNamespace, IngressMonitorControllerSecretConfigKey)
 
 	// Unmarshall
 	err = yaml.Unmarshal([]byte(configKey), &config)
