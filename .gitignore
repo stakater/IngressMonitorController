@@ -4,3 +4,4 @@ vendor
 build/package/ingressmonitorcontroller
 out
 IngressMonitorController
+/build/_output/bin/
