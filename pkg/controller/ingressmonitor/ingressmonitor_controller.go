@@ -2,9 +2,9 @@ package ingressmonitor
 
 import (
 	"context"
+	"time"
 
 	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
-// 	ingressmonitorclient "github.com/stakater/IngressMonitorController/pkg/client/ingressmonitor"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -20,7 +20,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-const controllerName = "ingressmonitor-controller"
+const (
+	controllerName = "ingressmonitor-controller"
+	defaultRequeueTime = 60 * time.Second
+)
+
 var log = logf.Log.WithName(controllerName)
 
 // Add creates a new IngressMonitor Controller and adds it to the Manager. The Manager will set fields on the Controller
@@ -36,7 +40,6 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 		client: mgr.GetClient(),
 		scheme: mgr.GetScheme(),
 		monitorServices: monitors.SetupMonitorServicesForProviders(config.Providers),
-// 		ingressMonitorClient: ingressmonitorclient.NewClient()
 		}
 }
 
@@ -67,8 +70,6 @@ type ReconcileIngressMonitor struct {
 	client client.Client
 	scheme *runtime.Scheme
 	monitorServices []monitors.MonitorServiceProxy
-	// TODO: Should we use client instead ?
-// 	ingressMonitorClient ingressmonitorclient.Client
 }
 
 // Reconcile reads that state of the cluster for a IngressMonitor object and makes changes based on the state read
@@ -101,7 +102,7 @@ func (r *ReconcileIngressMonitor) Reconcile(request reconcile.Request) (reconcil
 			log.Info("DEBUG: Iterating through monitorServices ", "monitorServices[index]", r.monitorServices[index])
 			monitor := findMonitorByName(r.monitorServices[index], monitorName)
 			if monitor != nil {
-					// Monitor already exists, Update if required
+					// Monitor already exists, update if required
 					r.handleUpdate(request, instance, *monitor, r.monitorServices[index])
 			} else {
 					// Monitor doesn't exist, create monitor

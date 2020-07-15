@@ -25,5 +25,5 @@ func (r *ReconcileIngressMonitor) handleCreate(request reconcile.Request, instan
 	// TODO: Generate error in case of proper and handle it
 	monitorService.Add(m)
 
-	return reconcile.Result{}, nil
+	return reconcile.Result{RequeueAfter: defaultRequeueTime}, nil
 }
