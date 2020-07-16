@@ -12,7 +12,7 @@ ADD . "$GOPATH/src/github.com/stakater/IngressMonitorController"
 
 RUN cd "$GOPATH/src/github.com/stakater/IngressMonitorController" && \
     go mod download && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --installsuffix cgo --ldflags="-s" -o /IngressMonitorController
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --installsuffix cgo --ldflags="-s" -o /IngressMonitorController ./cmd/manager
 
 COPY build/package/Dockerfile.run /
 
