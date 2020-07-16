@@ -12,11 +12,16 @@ import (
 )
 
 func (r *ReconcileIngressMonitor) handleUpdate(request reconcile.Request, instance *ingressmonitorv1alpha1.IngressMonitor, monitor models.Monitor, monitorService monitors.MonitorServiceProxy) (reconcile.Result, error) {
-	log.Info("Updating Monitor: " + monitor.Name + " for provider: " + monitorService.monitorType)
+	log.Info("Updating Monitor: " + monitor.Name)
 
 	fmt.Printf("%+v\n", instance.Spec)
 
-	updatedMonitor := models.NewMonitor(monitor.Name, instance.Spec)
+	url, err := util.GetMonitorURL(r.client, instance)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	updatedMonitor := models.NewMonitor(monitor.Name, url)
 
 	// TODO: Pass existingMonitor and instance.spec. Retrieve config and add that to object comparison as well
 	monitorService.Update(updatedMonitor)

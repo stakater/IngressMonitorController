@@ -2,22 +2,31 @@ package wrappers
 
 import (
 	"context"
-	"log"
 	"net/url"
 	"path"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"k8s.io/api/extensions/v1beta1"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type IngressWrapper struct {
 	Ingress    *v1beta1.Ingress
 	Namespace  string
-	KubeClient kubernetes.Interface
+	client client.Client
+}
+
+func NewIngressWrapper(ingress *v1beta1.Ingress, namespace string, client client.Client) *IngressWrapper {
+	return &IngressWrapper{
+		Ingress: ingress,
+		Namespace: namespace,
+		client: client,
+	}
 }
 
 func (iw *IngressWrapper) supportsTLS() bool {
@@ -122,25 +131,31 @@ func (iw *IngressWrapper) hasService() (string, bool) {
 }
 
 func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
-
 	serviceName, exists := iw.hasService()
 
 	if !exists {
 		return "", false
 	}
 
-	service, err := iw.KubeClient.CoreV1().Services(iw.Ingress.Namespace).Get(context.TODO(), serviceName, meta_v1.GetOptions{})
+	service := &corev1.Service{}
+	err := iw.client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: iw.Ingress.Namespace}, service)
 	if err != nil {
 		log.Printf("Get service from kubernetes cluster error:%v", err)
 		return "", false
 	}
 
-	set := labels.Set(service.Spec.Selector)
+	labels := labels.Set(service.Spec.Selector)
 
-	if pods, err := iw.KubeClient.CoreV1().Pods(iw.Ingress.Namespace).List(context.TODO(), meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
+	podList := &corev1.PodList{}
+	listOps := &client.ListOptions{
+		Namespace:     iw.Ingress.Namespace,
+		LabelSelector: labels.AsSelector(),
+	}
+	err = iw.client.List(context.TODO(), podList, listOps)
+	if err != nil {
 		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
-	} else if len(pods.Items) > 0 {
-		pod := pods.Items[0]
+	} else if len(podList.Items) > 0 {
+		pod := podList.Items[0]
 
 		podContainers := pod.Spec.Containers
 

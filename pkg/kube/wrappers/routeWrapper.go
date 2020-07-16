@@ -2,21 +2,30 @@ package wrappers
 
 import (
 	"context"
-	"log"
 	"net/url"
 	"path"
 
+	log "github.com/sirupsen/logrus"
 	routev1 "github.com/openshift/api/route/v1"
+	corev1 "k8s.io/api/core/v1"
 	"github.com/stakater/IngressMonitorController/pkg/constants"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type RouteWrapper struct {
 	Route      *routev1.Route
 	Namespace  string
-	KubeClient kubernetes.Interface
+	client client.Client
+}
+
+func NewRouteWrapper(route *routev1.Route, namespace string, client client.Client) *RouteWrapper {
+	return &RouteWrapper{
+		Route: route,
+		Namespace: namespace,
+		client: client,
+	}
 }
 
 func (rw *RouteWrapper) supportsTLS() bool {
@@ -65,26 +74,30 @@ func (rw *RouteWrapper) hasService() (string, bool) {
 }
 
 func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
-
 	serviceName, exists := rw.hasService()
-
 	if !exists {
 		return "", false
 	}
 
-	service, err := rw.KubeClient.CoreV1().Services(rw.Route.Namespace).Get(context.TODO(), serviceName, meta_v1.GetOptions{})
+	service := &corev1.Service{}
+	err := rw.client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: rw.Route.Namespace}, service)
 	if err != nil {
 		log.Printf("Get service from kubernetes cluster error:%v", err)
 		return "", false
 	}
 
-	set := labels.Set(service.Spec.Selector)
+	labels := labels.Set(service.Spec.Selector)
 
-	if pods, err := rw.KubeClient.CoreV1().Pods(rw.Route.Namespace).List(context.TODO(), meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
+	podList := &corev1.PodList{}
+	listOps := &client.ListOptions{
+		Namespace:     rw.Route.Namespace,
+		LabelSelector: labels.AsSelector(),
+	}
+	err = rw.client.List(context.TODO(), podList, listOps)
+	if err != nil {
 		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
-	} else if len(pods.Items) > 0 {
-		pod := pods.Items[0]
-
+	} else if len(podList.Items) > 0 {
+		pod := podList.Items[0]
 		podContainers := pod.Spec.Containers
 
 		if len(podContainers) == 1 {

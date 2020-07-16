@@ -2,17 +2,14 @@ package controller
 
 import (
 	"fmt"
-	routev1 "github.com/openshift/api/route/v1"
 	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/callbacks"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
-	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -137,21 +134,22 @@ func (c *MonitorController) getMonitorName(rAFuncs callbacks.ResourceActionFuncs
 }
 
 func (c *MonitorController) getMonitorURL(resource interface{}) string {
-	if kube.IsRoute(resource) {
-		routeWrapper := wrappers.RouteWrapper{
-			Route:      resource.(*routev1.Route),
-			Namespace:  resource.(*routev1.Route).Namespace,
-			KubeClient: c.kubeClient,
-		}
-		return routeWrapper.GetURL()
-	}
-
-	ingressWrapper := wrappers.IngressWrapper{
-		Ingress:    resource.(*v1beta1.Ingress),
-		Namespace:  resource.(*v1beta1.Ingress).Namespace,
-		KubeClient: c.kubeClient,
-	}
-	return ingressWrapper.GetURL()
+// 	if kube.IsRoute(resource) {
+// 		routeWrapper := wrappers.RouteWrapper{
+// 			Route:      resource.(*routev1.Route),
+// 			Namespace:  resource.(*routev1.Route).Namespace,
+// 			KubeClient: c.kubeClient,
+// 		}
+// 		return routeWrapper.GetURL()
+// 	}
+//
+// 	ingressWrapper := wrappers.IngressWrapper{
+// 		Ingress:    resource.(*v1beta1.Ingress),
+// 		Namespace:  resource.(*v1beta1.Ingress).Namespace,
+// 		KubeClient: c.kubeClient,
+// 	}
+// 	return ingressWrapper.GetURL()
+	return "nil"
 }
 
 func (c *MonitorController) removeMonitorsIfExist(monitorName string) {

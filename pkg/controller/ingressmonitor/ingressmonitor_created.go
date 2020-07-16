@@ -12,16 +12,19 @@ import (
 )
 
 func (r *ReconcileIngressMonitor) handleCreate(request reconcile.Request, instance *ingressmonitorv1alpha1.IngressMonitor, monitorName string, monitorService monitors.MonitorServiceProxy) (reconcile.Result, error) {
-	log.Info("Creating Monitor: " + monitorName + " for provider: " + monitorService.monitorType)
+	log.Info("Creating Monitor: " + monitorName)
 
 	// TODO: REMOVE THIS
 	fmt.Printf("%+v\n", instance.Spec)
 
  	// TODO:
- 	// Fetch URL
  	// Replace annotations with provider specific configuration IF ANY
+	url, err := util.GetMonitorURL(r.client, instance)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
 
-	monitor := models.NewMonitor(monitorName, instance.Spec)
+	monitor := models.NewMonitor(monitorName, url)
 
 	// TODO: Generate error and handle it
 	// Add monitor

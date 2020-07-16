@@ -2,9 +2,9 @@ package config
 
 import (
 	log "github.com/sirupsen/logrus"
+	yaml "gopkg.in/yaml.v2"
 	"os"
 	"time"
-	yaml "gopkg.in/yaml.v2"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/stakater/IngressMonitorController/pkg/secret"
@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	IngressMonitorControllerSecretConfigKey               = "config.yaml"
-	IngressMonitorControllerSecretDefaultName							= "imc-config"
+	IngressMonitorControllerSecretConfigKey   = "config.yaml"
+	IngressMonitorControllerSecretDefaultName = "imc-config"
 )
 
 var (
@@ -88,21 +88,20 @@ func LoadControllerConfig(client client.Client) {
 	// Retrieve operator namespace
 	operatorNamespace, _ := os.LookupEnv("OPERATOR_NAMESPACE")
 	if len(operatorNamespace) == 0 {
-			log.Info("DEBUG: test")
-			operatorNamespaceTemp, err := k8sutil.GetOperatorNamespace()
-			if err != nil {
-				if err == k8sutil.ErrNoNamespace {
-					log.Info("Skipping leader election; not running in a cluster.")
-				}
-				log.Panic(err)
+		operatorNamespaceTemp, err := k8sutil.GetOperatorNamespace()
+		if err != nil {
+			if err == k8sutil.ErrNoNamespace {
+				log.Info("Skipping leader election; not running in a cluster.")
 			}
-			operatorNamespace = operatorNamespaceTemp
+			log.Panic(err)
+		}
+		operatorNamespace = operatorNamespaceTemp
 	}
 
 	configSecretName, _ := os.LookupEnv("CONFIG_SECRET_NAME")
 	if len(configSecretName) == 0 {
-			configSecretName = IngressMonitorControllerSecretDefaultName
-			log.Warn("CONFIG_SECRET_NAME is unset, using default value: imc-config")
+		configSecretName = IngressMonitorControllerSecretDefaultName
+		log.Warn("CONFIG_SECRET_NAME is unset, using default value: imc-config")
 	}
 
 	// Retrieve config key from secret

@@ -27,13 +27,11 @@ func SetupMonitorServicesForProviders(providers []config.Provider) []MonitorServ
 		log.Panic("Cannot Instantiate controller with no providers")
 	}
 
-	log.Info("DEBUG: setupMonitorServicesForProviders providers", "providers", providers)
-
 	monitorServices := []MonitorServiceProxy{}
 
 	for index := 0; index < len(providers); index++ {
 		monitorServices = append(monitorServices, CreateMonitorService(&providers[index]))
-		log.Info("DEBUG: setupMonitorServicesForProviders added monitorServices", "monitorServices", monitorServices)
+		log.Info("Configuration added for " + providers[index].Name)
 	}
 
 	return monitorServices

@@ -38,16 +38,11 @@ type URLSource struct {
 
 // IngressURLSource selects an Ingress to populate the URL with
 type IngressURLSource struct {
-	LocalObjectReference string `json:"name"`
+	Name string `json:"name"`
 }
 
 // RouteURLSource selects a Route to populate the URL with
 type RouteURLSource struct {
-	LocalObjectReference string `json:"name"`
-}
-
-// LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
-type LocalObjectReference struct {
 	Name string `json:"name"`
 }
 

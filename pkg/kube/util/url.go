@@ -2,54 +2,67 @@ package util
 
 import (
 	"errors"
+	"context"
 
-	routes "github.com/openshift/client-go/route/clientset/versioned"
+	log "github.com/sirupsen/logrus"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/api/extensions/v1beta1"
+	routev1 "github.com/openshift/api/route/v1"
+	"github.com/stakater/IngressMonitorController/pkg/kube"
+	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
+
 	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
-func GetURL(kubeClient kubernetes.Interface, ingressMonitor ingressmonitorv1alpha1.IngressMonitor) (string, error) {
+func GetMonitorURL(client client.Client, ingressMonitor *ingressmonitorv1alpha1.IngressMonitor) (string, error) {
 	if len(ingressMonitor.Spec.URL) == 0 {
-		return discoverURLFromRefs(clients, ingressMonitor)
+		return discoverURLFromRefs(client, ingressMonitor)
+	}
+	if ingressMonitor.Spec.URLFrom != nil {
+		log.Warn("Both url and urlFrom fields are specified. Using url over urlFrom")
 	}
 	return ingressMonitor.Spec.URL, nil
 }
 
-func discoverURLFromIngressRef(kubeClient kubernetes.Interface, ingressRef *v1alpha1.IngressURLSource, namespace string) (string, error) {
-	ingress, err := kubeClient.ExtensionsV1beta1().Ingresses(namespace).Get(ingressRef.Name, metav1.GetOptions{})
+func discoverURLFromIngressRef(client client.Client, ingressRef *ingressmonitorv1alpha1.IngressURLSource, namespace string) (string, error) {
+	ingressObject := &v1beta1.Ingress{}
+	err := client.Get(context.TODO(), types.NamespacedName{Name: ingressRef.Name, Namespace: namespace}, ingressObject)
 	if err != nil {
-		logger.Warn("Ingress not found with name " + ingressRef.Name)
-		return "", err
-	}
-	return wrappers.NewIngressWrapper(ingress).GetURL(), nil
-}
-
-func discoverURLFromRouteRef(routesClient routes.Interface, routeRef *v1alpha1.RouteURLSource, namespace string) (string, error) {
-	route, err := routesClient.RouteV1().Routes(namespace).Get(routeRef.Name, metav1.GetOptions{})
-	if err != nil {
-		logger.Warn("Route not found with name " + routeRef.Name)
+		log.Warn("Ingress not found with name " + ingressRef.Name)
 		return "", err
 	}
 
-	return wrappers.NewRouteWrapper(route).GetURL(), nil
+	ingressWrapper := wrappers.NewIngressWrapper(ingressObject, namespace, client)
+	return ingressWrapper.GetURL(), nil
 }
 
-func discoverURLFromRefs(clients kube.Clients, ingressMonitor ingressmonitorv1alpha1.IngressMonitor) (string, error) {
+func discoverURLFromRouteRef(client client.Client, routeRef *ingressmonitorv1alpha1.RouteURLSource, namespace string) (string, error) {
+	routeObject := &routev1.Route{}
+	err := client.Get(context.TODO(), types.NamespacedName{Name: routeRef.Name, Namespace: namespace}, routeObject)
+	if err != nil {
+		log.Warn("Route not found with name " + routeRef.Name)
+		return "", err
+	}
+
+	routeWrapper := wrappers.NewRouteWrapper(routeObject, namespace, client)
+	return routeWrapper.GetURL(), nil
+}
+
+func discoverURLFromRefs(client client.Client, ingressMonitor *ingressmonitorv1alpha1.IngressMonitor) (string, error) {
 	urlFrom := ingressMonitor.Spec.URLFrom
 	if urlFrom == nil {
-		logger.Warn("No URL sources set for ingressMonitor: " + ingressMonitor.Name)
+		log.Warn("No URL sources set for ingressMonitor: " + ingressMonitor.Name)
 		return "", errors.New("No URL sources set for ingressMonitor: " + ingressMonitor.Name)
 	}
 
 	if urlFrom.IngressRef != nil && !kube.IsOpenshift {
-		return discoverURLFromIngressRef(clients.KubernetesClient, urlFrom.IngressRef, ingressMonitor.Namespace)
+		return discoverURLFromIngressRef(client, urlFrom.IngressRef, ingressMonitor.Namespace)
 	}
-
 	if urlFrom.RouteRef != nil && kube.IsOpenshift  {
-		return discoverURLFromRouteRef(clients.RoutesClient, urlFrom.RouteRef, ingressMonitor.Namespace)
+		return discoverURLFromRouteRef(client, urlFrom.RouteRef, ingressMonitor.Namespace)
 	}
 
-	logger.Warn("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
+	log.Warn("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
 	return "", errors.New("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
 }
