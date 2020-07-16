@@ -96,7 +96,6 @@ func (r *ReconcileIngressMonitor) Reconcile(request reconcile.Request) (reconcil
 	}
 
 	for index := 0; index < len(r.monitorServices); index++ {
-		log.Info("DEBUG: Iterating through monitorServices ", "monitorServices[index]", r.monitorServices[index])
 		monitor := findMonitorByName(r.monitorServices[index], monitorName)
 		if monitor != nil {
 			// Monitor already exists, update if required
@@ -111,9 +110,6 @@ func (r *ReconcileIngressMonitor) Reconcile(request reconcile.Request) (reconcil
 }
 
 func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) *models.Monitor {
-
-	log.Info("DEBUG: monitorService ", "monitorService", monitorService)
-	log.Info("DEBUG: monitorName ", "monitorName", monitorName)
 
 	monitor, _ := monitorService.GetByName(monitorName)
 	// Monitor Exists

@@ -25,7 +25,7 @@ func GetMonitorURL(client client.Client, ingressMonitor *ingressmonitorv1alpha1.
 	return ingressMonitor.Spec.URL, nil
 }
 
-func discoverURLFromIngressRef(client client.Client, ingressRef *ingressmonitorv1alpha1.IngressURLSource, namespace string) (string, error) {
+func discoverURLFromIngressRef(client client.Client, ingressRef *ingressmonitorv1alpha1.IngressURLSource, namespace string, forceHttps bool, healthEndpoint string) (string, error) {
 	ingressObject := &v1beta1.Ingress{}
 	err := client.Get(context.TODO(), types.NamespacedName{Name: ingressRef.Name, Namespace: namespace}, ingressObject)
 	if err != nil {
@@ -33,11 +33,11 @@ func discoverURLFromIngressRef(client client.Client, ingressRef *ingressmonitorv
 		return "", err
 	}
 
-	ingressWrapper := wrappers.NewIngressWrapper(ingressObject, namespace, client)
-	return ingressWrapper.GetURL(), nil
+	ingressWrapper := wrappers.NewIngressWrapper(ingressObject, client)
+	return ingressWrapper.GetURL(forceHttps, healthEndpoint), nil
 }
 
-func discoverURLFromRouteRef(client client.Client, routeRef *ingressmonitorv1alpha1.RouteURLSource, namespace string) (string, error) {
+func discoverURLFromRouteRef(client client.Client, routeRef *ingressmonitorv1alpha1.RouteURLSource, namespace string, forceHttps bool, healthEndpoint string) (string, error) {
 	routeObject := &routev1.Route{}
 	err := client.Get(context.TODO(), types.NamespacedName{Name: routeRef.Name, Namespace: namespace}, routeObject)
 	if err != nil {
@@ -45,8 +45,8 @@ func discoverURLFromRouteRef(client client.Client, routeRef *ingressmonitorv1alp
 		return "", err
 	}
 
-	routeWrapper := wrappers.NewRouteWrapper(routeObject, namespace, client)
-	return routeWrapper.GetURL(), nil
+	routeWrapper := wrappers.NewRouteWrapper(routeObject, client)
+	return routeWrapper.GetURL(forceHttps, healthEndpoint), nil
 }
 
 func discoverURLFromRefs(client client.Client, ingressMonitor *ingressmonitorv1alpha1.IngressMonitor) (string, error) {
@@ -57,10 +57,10 @@ func discoverURLFromRefs(client client.Client, ingressMonitor *ingressmonitorv1a
 	}
 
 	if urlFrom.IngressRef != nil && !kube.IsOpenshift {
-		return discoverURLFromIngressRef(client, urlFrom.IngressRef, ingressMonitor.Namespace)
+		return discoverURLFromIngressRef(client, urlFrom.IngressRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS ,ingressMonitor.Spec.HealthEndpoint)
 	}
 	if urlFrom.RouteRef != nil && kube.IsOpenshift {
-		return discoverURLFromRouteRef(client, urlFrom.RouteRef, ingressMonitor.Namespace)
+		return discoverURLFromRouteRef(client, urlFrom.RouteRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS ,ingressMonitor.Spec.HealthEndpoint)
 	}
 
 	log.Warn("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)

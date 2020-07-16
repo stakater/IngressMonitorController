@@ -25,10 +25,7 @@ func (r *ReconcileIngressMonitor) handleCreate(request reconcile.Request, instan
 	}
 
 	monitor := models.NewMonitor(monitorName, url)
-
-	// TODO: Generate error and handle it
-	// Add monitor
-	monitorService.Add(monitor)
+ 	monitorService.Add(monitor)
 
 	return reconcile.Result{RequeueAfter: defaultRequeueTime}, nil
 }

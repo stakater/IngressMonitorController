@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/stakater/IngressMonitorController/pkg/constants"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -17,14 +16,12 @@ import (
 
 type IngressWrapper struct {
 	Ingress   *v1beta1.Ingress
-	Namespace string
 	client    client.Client
 }
 
-func NewIngressWrapper(ingress *v1beta1.Ingress, namespace string, client client.Client) *IngressWrapper {
+func NewIngressWrapper(ingress *v1beta1.Ingress, client client.Client) *IngressWrapper {
 	return &IngressWrapper{
 		Ingress:   ingress,
-		Namespace: namespace,
 		client:    client,
 	}
 }
@@ -36,17 +33,13 @@ func (iw *IngressWrapper) supportsTLS() bool {
 	return false
 }
 
-func (iw *IngressWrapper) tryGetTLSHost() (string, bool) {
+func (iw *IngressWrapper) tryGetTLSHost(forceHttps bool) (string, bool) {
 	if iw.supportsTLS() {
 		return "https://" + iw.Ingress.Spec.TLS[0].Hosts[0], true
 	}
 
-	annotations := iw.Ingress.GetAnnotations()
-	if value, ok := annotations[constants.ForceHTTPSAnnotation]; ok {
-		if value == "true" {
-			// Annotation exists and is enabled
-			return "https://" + iw.Ingress.Spec.Rules[0].Host, true
-		}
+	if forceHttps == true {
+		return "https://" + iw.Ingress.Spec.Rules[0].Host, true
 	}
 
 	return "", false
@@ -77,7 +70,7 @@ func (iw *IngressWrapper) getIngressSubPath() string {
 	return ""
 }
 
-func (iw *IngressWrapper) GetURL() string {
+func (iw *IngressWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	if !iw.rulesExist() {
 		log.Println("No rules exist in ingress: " + iw.Ingress.GetName())
 		return ""
@@ -85,7 +78,7 @@ func (iw *IngressWrapper) GetURL() string {
 
 	var URL string
 
-	if host, exists := iw.tryGetTLSHost(); exists { // Get TLS Host if it exists
+	if host, exists := iw.tryGetTLSHost(forceHttps); exists { // Get TLS Host if it exists
 		URL = host
 	} else {
 		URL = iw.getHost() // Fallback for normal Host
@@ -99,10 +92,8 @@ func (iw *IngressWrapper) GetURL() string {
 		return ""
 	}
 
-	annotations := iw.Ingress.GetAnnotations()
-
-	if value, ok := annotations[constants.OverridePathAnnotation]; ok {
-		u.Path = value
+	if len(healthEndpoint) != 0 {
+		u.Path = healthEndpoint
 	} else {
 		// ingressSubPath
 		ingressSubPath := iw.getIngressSubPath()

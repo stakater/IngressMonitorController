@@ -7,7 +7,6 @@ import (
 
 	routev1 "github.com/openshift/api/route/v1"
 	log "github.com/sirupsen/logrus"
-	"github.com/stakater/IngressMonitorController/pkg/constants"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
@@ -16,14 +15,12 @@ import (
 
 type RouteWrapper struct {
 	Route     *routev1.Route
-	Namespace string
 	client    client.Client
 }
 
-func NewRouteWrapper(route *routev1.Route, namespace string, client client.Client) *RouteWrapper {
+func NewRouteWrapper(route *routev1.Route, client client.Client) *RouteWrapper {
 	return &RouteWrapper{
 		Route:     route,
-		Namespace: namespace,
 		client:    client,
 	}
 }
@@ -35,17 +32,13 @@ func (rw *RouteWrapper) supportsTLS() bool {
 	return false
 }
 
-func (rw *RouteWrapper) tryGetTLSHost() (string, bool) {
+func (rw *RouteWrapper) tryGetTLSHost(forceHttps bool) (string, bool) {
 	if rw.supportsTLS() {
 		return "https://" + rw.Route.Spec.Host, true
 	}
 
-	annotations := rw.Route.GetAnnotations()
-	if value, ok := annotations[constants.ForceHTTPSAnnotation]; ok {
-		if value == "true" {
-			// Annotation exists and is enabled
-			return "https://" + rw.Route.Spec.Host, true
-		}
+	if forceHttps == true {
+		return "https://" + rw.Route.Spec.Host, true
 	}
 
 	return "", false
@@ -112,10 +105,10 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 	return "", false
 }
 
-func (rw *RouteWrapper) GetURL() string {
+func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	var URL string
 
-	if host, exists := rw.tryGetTLSHost(); exists { // Get TLS Host if it exists
+	if host, exists := rw.tryGetTLSHost(forceHttps); exists { // Get TLS Host if it exists
 		URL = host
 	} else {
 		URL = rw.getHost() // Fallback for normal Host
@@ -129,10 +122,8 @@ func (rw *RouteWrapper) GetURL() string {
 		return ""
 	}
 
-	annotations := rw.Route.GetAnnotations()
-
-	if value, ok := annotations[constants.OverridePathAnnotation]; ok {
-		u.Path = value
+	if len(healthEndpoint) != 0 {
+		u.Path = healthEndpoint
 	} else {
 		// Append subpath
 		u.Path = path.Join(u.Path, rw.getRouteSubPath())

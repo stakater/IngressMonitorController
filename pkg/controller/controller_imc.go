@@ -5,7 +5,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/callbacks"
 	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
@@ -121,10 +120,10 @@ func (c *MonitorController) processNextItem() bool {
 }
 
 func (c *MonitorController) getMonitorName(rAFuncs callbacks.ResourceActionFuncs, resource interface{}) string {
-	annotations := rAFuncs.AnnotationFunc(resource)
-	if value, ok := annotations[constants.MonitorNameAnnotation]; ok {
-		return value
-	}
+// 	annotations := rAFuncs.AnnotationFunc(resource)
+// 	if value, ok := annotations[constants.MonitorNameAnnotation]; ok {
+// 		return value
+// 	}
 
 	format, err := util.GetNameTemplateFormat(c.config.MonitorNameTemplate)
 	if err != nil {

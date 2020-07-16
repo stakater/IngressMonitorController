@@ -1,9 +1,7 @@
 package controller
 
 import (
-	log "github.com/sirupsen/logrus"
 
-	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
 )
 
@@ -36,28 +34,28 @@ func (r ResourceUpdatedAction) getNames(c *MonitorController) (string, string) {
 }
 
 func (r ResourceUpdatedAction) handle(c *MonitorController) error {
-	rAFuncs := kube.GetResourceActionFuncs(r.resource)
-
-	monitorName, oldMonitorName := r.getNames(c)
-	monitorURL := c.getMonitorURL(r.resource)
-
-	log.Info("Monitor Name: " + monitorName)
-	log.Info("Monitor URL: " + monitorURL)
-
-	annotations := rAFuncs.AnnotationFunc(r.resource)
-	if value, ok := annotations[constants.MonitorEnabledAnnotation]; ok {
-		if value == "true" {
-			// Annotation exists and is enabled
-			c.createOrUpdateMonitors(monitorName, oldMonitorName, monitorURL, annotations)
-		} else {
-			// Annotation exists but is disabled
-			c.removeMonitorsIfExist(oldMonitorName)
-		}
-
-	} else {
-		c.removeMonitorsIfExist(oldMonitorName)
-		log.Info("Not doing anything with this ingress because no annotation exists with name: " + constants.MonitorEnabledAnnotation)
-	}
+// 	rAFuncs := kube.GetResourceActionFuncs(r.resource)
+//
+// 	monitorName, oldMonitorName := r.getNames(c)
+// 	monitorURL := c.getMonitorURL(r.resource)
+//
+// 	log.Info("Monitor Name: " + monitorName)
+// 	log.Info("Monitor URL: " + monitorURL)
+//
+// 	annotations := rAFuncs.AnnotationFunc(r.resource)
+// 	if value, ok := annotations[constants.MonitorEnabledAnnotation]; ok {
+// 		if value == "true" {
+// 			// Annotation exists and is enabled
+// 			c.createOrUpdateMonitors(monitorName, oldMonitorName, monitorURL, annotations)
+// 		} else {
+// 			// Annotation exists but is disabled
+// 			c.removeMonitorsIfExist(oldMonitorName)
+// 		}
+//
+// 	} else {
+// 		c.removeMonitorsIfExist(oldMonitorName)
+// 		log.Info("Not doing anything with this ingress because no annotation exists with name: " + constants.MonitorEnabledAnnotation)
+// 	}
 
 	return nil
 }
