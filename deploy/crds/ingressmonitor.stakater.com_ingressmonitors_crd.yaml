@@ -34,6 +34,11 @@ spec:
             forceHttps:
               description: Force monitor endpoint to use HTTPS
               type: boolean
+            healthEndpoint:
+              type: string
+            providers:
+              description: Comma separated list of providers
+              type: string
             url:
               description: URL to monitor
               type: string
@@ -49,8 +54,6 @@ spec:
                   required:
                   - name
                   type: object
-                overridePath:
-                  type: string
                 routeRef:
                   description: RouteURLSource selects a Route to populate the URL
                     with
@@ -61,6 +64,8 @@ spec:
                   - name
                   type: object
               type: object
+          required:
+          - providers
           type: object
         status:
           description: IngressMonitorStatus defines the observed state of IngressMonitor

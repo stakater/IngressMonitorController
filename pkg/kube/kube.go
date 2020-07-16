@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	IsOpenshiftEnvironment = isOpenshift()
+	IsOpenshift = isOpenshift()
 )
 
 func getConfig() (*rest.Config, error) {

@@ -16,6 +16,13 @@ type IngressMonitorSpec struct {
 	// +optional
 	ForceHTTPS bool `json:"forceHttps,omitempty"`
 
+	// Comma separated list of providers
+	// +required
+	Providers string `json:"providers"`
+
+	// +optional
+	HealthEndpoint string `json:"healthEndpoint,omitempty"`
+
 	// URL to monitor from either an ingress or route reference
 	// +optional
 	URLFrom *URLSource `json:"urlFrom,omitempty"`
@@ -27,8 +34,6 @@ type URLSource struct {
 	IngressRef *IngressURLSource `json:"ingressRef,omitempty"`
 	// +optional
 	RouteRef *RouteURLSource `json:"routeRef,omitempty"`
-	// +optional
-	OverridePath string `json:"overridePath,omitempty"`
 }
 
 // IngressURLSource selects an Ingress to populate the URL with

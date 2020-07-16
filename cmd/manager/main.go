@@ -17,9 +17,9 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/stakater/IngressMonitorController/pkg/apis"
+	ingressmonitorcontrollerconfig "github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/controller"
 	"github.com/stakater/IngressMonitorController/version"
-	ingressmonitorcontrollerconfig "github.com/stakater/IngressMonitorController/pkg/config"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	kubemetrics "github.com/operator-framework/operator-sdk/pkg/kube-metrics"
@@ -30,8 +30,8 @@ import (
 	"github.com/spf13/pflag"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
@@ -40,8 +40,8 @@ import (
 // TODO: use same logger and logger settings
 // TODO: Pick these values from env variables
 const (
-	defaultLogLevel               = "info"
-	defaultLogFormat              = "text"
+	defaultLogLevel  = "info"
+	defaultLogFormat = "text"
 )
 
 // Change below variables to serve metrics on different host or port.
@@ -96,6 +96,7 @@ func main() {
 	// implementing the logr.Logger interface. This logger will
 	// be propagated through the whole operator, generating
 	// uniform and structured logs.
+	// TODO: Remove this to ignore controller runtime logs
 	logf.SetLogger(zap.Logger())
 
 	printVersion()
@@ -145,7 +146,7 @@ func main() {
 	ingressmonitorcontrollerconfig.LoadControllerConfig(tempClient)
 
 	// TODO: Don't create tempClient fix and use mgr.GetClient()
-  // ingressmonitorcontrollerconfig.LoadControllerConfig(mgr.GetClient())
+	// ingressmonitorcontrollerconfig.LoadControllerConfig(mgr.GetClient())
 
 	log.Info("Registering Components.")
 

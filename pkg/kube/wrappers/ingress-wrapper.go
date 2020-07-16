@@ -105,8 +105,8 @@ func (iw *IngressWrapper) GetURL() string {
 		// Health endpoint from pod successful
 		if exists {
 			u.Path = path.Join(u.Path, healthEndpoint)
-			}
 		}
+	}
 	return u.String()
 }
 

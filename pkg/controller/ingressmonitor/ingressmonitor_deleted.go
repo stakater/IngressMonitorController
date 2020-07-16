@@ -4,6 +4,7 @@ import (
 	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 
+	log "github.com/sirupsen/logrus"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -17,8 +18,8 @@ func (r *ReconcileIngressMonitor) handleDelete(request reconcile.Request, instan
 
 	// Remove monitor if it exists
 	for index := 0; index < len(r.monitorServices); index++ {
-			log.Info("DEBUG: Iterating through monitorServices ", "monitorServices[index]", r.monitorServices[index])
-			removeMonitorIfExists(r.monitorServices[index], monitorName)
+		log.Info("DEBUG: Iterating through monitorServices ", "monitorServices[index]", r.monitorServices[index])
+		removeMonitorIfExists(r.monitorServices[index], monitorName)
 	}
 	return reconcile.Result{}, nil
 }
