@@ -3,9 +3,9 @@ package ingressmonitor
 import (
 	"fmt"
 	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	"github.com/stakater/IngressMonitorController/pkg/kube/util"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
-	"github.com/stakater/IngressMonitorController/pkg/kube/util"
 
 	log "github.com/sirupsen/logrus"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"

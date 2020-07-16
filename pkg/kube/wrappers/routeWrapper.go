@@ -5,26 +5,26 @@ import (
 	"net/url"
 	"path"
 
-	log "github.com/sirupsen/logrus"
 	routev1 "github.com/openshift/api/route/v1"
-	corev1 "k8s.io/api/core/v1"
+	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/constants"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type RouteWrapper struct {
-	Route      *routev1.Route
-	Namespace  string
-	client client.Client
+	Route     *routev1.Route
+	Namespace string
+	client    client.Client
 }
 
 func NewRouteWrapper(route *routev1.Route, namespace string, client client.Client) *RouteWrapper {
 	return &RouteWrapper{
-		Route: route,
+		Route:     route,
 		Namespace: namespace,
-		client: client,
+		client:    client,
 	}
 }
 

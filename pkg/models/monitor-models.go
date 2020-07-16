@@ -7,7 +7,7 @@ type Monitor struct {
 	Annotations map[string]string
 }
 
-func NewMonitor(monitorName string, monitorUrl string) (Monitor) {
+func NewMonitor(monitorName string, monitorUrl string) Monitor {
 	return Monitor{
 		Name: monitorName,
 		URL:  monitorUrl,

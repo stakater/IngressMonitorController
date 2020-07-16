@@ -1,16 +1,16 @@
 package util
 
 import (
-	"errors"
 	"context"
+	"errors"
 
-	log "github.com/sirupsen/logrus"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/api/extensions/v1beta1"
 	routev1 "github.com/openshift/api/route/v1"
+	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
+	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 )
@@ -59,7 +59,7 @@ func discoverURLFromRefs(client client.Client, ingressMonitor *ingressmonitorv1a
 	if urlFrom.IngressRef != nil && !kube.IsOpenshift {
 		return discoverURLFromIngressRef(client, urlFrom.IngressRef, ingressMonitor.Namespace)
 	}
-	if urlFrom.RouteRef != nil && kube.IsOpenshift  {
+	if urlFrom.RouteRef != nil && kube.IsOpenshift {
 		return discoverURLFromRouteRef(client, urlFrom.RouteRef, ingressMonitor.Namespace)
 	}
 

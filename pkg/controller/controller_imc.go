@@ -134,21 +134,21 @@ func (c *MonitorController) getMonitorName(rAFuncs callbacks.ResourceActionFuncs
 }
 
 func (c *MonitorController) getMonitorURL(resource interface{}) string {
-// 	if kube.IsRoute(resource) {
-// 		routeWrapper := wrappers.RouteWrapper{
-// 			Route:      resource.(*routev1.Route),
-// 			Namespace:  resource.(*routev1.Route).Namespace,
-// 			KubeClient: c.kubeClient,
-// 		}
-// 		return routeWrapper.GetURL()
-// 	}
-//
-// 	ingressWrapper := wrappers.IngressWrapper{
-// 		Ingress:    resource.(*v1beta1.Ingress),
-// 		Namespace:  resource.(*v1beta1.Ingress).Namespace,
-// 		KubeClient: c.kubeClient,
-// 	}
-// 	return ingressWrapper.GetURL()
+	// 	if kube.IsRoute(resource) {
+	// 		routeWrapper := wrappers.RouteWrapper{
+	// 			Route:      resource.(*routev1.Route),
+	// 			Namespace:  resource.(*routev1.Route).Namespace,
+	// 			KubeClient: c.kubeClient,
+	// 		}
+	// 		return routeWrapper.GetURL()
+	// 	}
+	//
+	// 	ingressWrapper := wrappers.IngressWrapper{
+	// 		Ingress:    resource.(*v1beta1.Ingress),
+	// 		Namespace:  resource.(*v1beta1.Ingress).Namespace,
+	// 		KubeClient: c.kubeClient,
+	// 	}
+	// 	return ingressWrapper.GetURL()
 	return "nil"
 }
 

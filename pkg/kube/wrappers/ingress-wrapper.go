@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-	corev1 "k8s.io/api/core/v1"
 	"github.com/stakater/IngressMonitorController/pkg/constants"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
@@ -16,16 +16,16 @@ import (
 )
 
 type IngressWrapper struct {
-	Ingress    *v1beta1.Ingress
-	Namespace  string
-	client client.Client
+	Ingress   *v1beta1.Ingress
+	Namespace string
+	client    client.Client
 }
 
 func NewIngressWrapper(ingress *v1beta1.Ingress, namespace string, client client.Client) *IngressWrapper {
 	return &IngressWrapper{
-		Ingress: ingress,
+		Ingress:   ingress,
 		Namespace: namespace,
-		client: client,
+		client:    client,
 	}
 }
 
