@@ -44,6 +44,8 @@ spec:
 {{- if .Values.ingressMonitorController.matchLabels }}
 {{ toYaml .Values.ingressMonitorController.matchLabels | indent 8 }}
 {{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       {{- if .Values.ingressMonitorController.tolerations }}
       tolerations:

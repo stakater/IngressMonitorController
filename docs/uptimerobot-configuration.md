@@ -39,7 +39,7 @@ Additional uptime robot configurations can be added through a set of annotations
 |:----------------------------------------------------:|:------------------------------------------------------------:|
 | uptimerobot.monitor.stakater.com/alert-contacts       | The uptimerobot alertContacts to be associated with this monitor. Overrides the value of `alertContacts` from the Controller's ConfigMap. See [Fetching alert contacts from UpTime Robot](https://github.com/stakater/IngressMonitorController/blob/master/docs/uptimerobot-configuration.md) |
 | uptimerobot.monitor.stakater.com/interval            | The uptimerobot check interval in seconds                    |
-| uptimerobot.monitor.stakater.com/status-pages        | The uptimerobot public status page ID to add this monitor to |
+| uptimerobot.monitor.stakater.com/status-pages        | The uptimerobot public status page ID to add this monitor to. Multiple values can be given as a dash delimited string, e.g. 12345-32135-490923|
 | uptimerobot.monitor.stakater.com/maintenance-windows | Add a maintenance windows to this check (Pro Plan only)      |
 | uptimerobot.monitor.stakater.com/monitor-type        | The uptimerobot monitor type (http or keyword)               |
 | uptimerobot.monitor.stakater.com/keyword-exists      | Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)|
