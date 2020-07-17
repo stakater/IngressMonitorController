@@ -11,6 +11,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -87,31 +88,8 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 	headers["Content-Type"] = "application/json"
 	headers["Accepts"] = "application/json"
 
-	body := make(map[string]interface{})
-	body["name"] = m.Name
-	unEscapedURL, _ := url.QueryUnescape(m.URL)
-	body["msp_address"] = unEscapedURL
+	body := processProviderConfig(m)
 
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/interval"]; ok {
-		interval, err := strconv.Atoi(val)
-		if nil == err {
-			body["msp_interval"] = interval
-		}
-	} else {
-		body["msp_interval"] = 5 // by default interval check is 5 minutes
-	}
-
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/locations"]; ok {
-		body["locations"] = strings.Split(val, ",")
-	} else {
-		body["locations"] = strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
-	}
-
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/contacts"]; ok {
-		body["contact_groups"] = strings.Split(val, ",")
-	} else {
-		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
-	}
 	jsonBody, err := json.Marshal(body)
 	if err == nil {
 		log.Println(string(jsonBody))
@@ -149,31 +127,8 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 	headers["Authorization"] = "Token " + monitor.apiKey
 	headers["Content-Type"] = "application/json"
 
-	body := make(map[string]interface{})
-	body["name"] = m.Name
-	unEscapedURL, _ := url.QueryUnescape(m.URL)
-	body["msp_address"] = unEscapedURL
+	body := processProviderConfig(m)
 
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/interval"]; ok {
-		interval, err := strconv.Atoi(val)
-		if nil == err {
-			body["msp_interval"] = interval
-		}
-	} else {
-		body["msp_interval"] = 5 // by default interval check is 5 minutes
-	}
-
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/locations"]; ok {
-		body["locations"] = strings.Split(val, ",")
-	} else {
-		body["locations"] = strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
-	}
-
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/contacts"]; ok {
-		body["contact_groups"] = strings.Split(val, ",")
-	} else {
-		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
-	}
 	jsonBody, err := json.Marshal(body)
 	log.Println(string(jsonBody))
 	if err == nil {
@@ -221,4 +176,35 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 	} else {
 		log.Println("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
+}
+
+func processProviderConfig(m models.Monitor) map[string]interface{} {
+
+	// Retrieve provider configuration
+	providerConfig, _ := m.Config.(*ingressmonitorv1alpha1.UptimeConfig)
+
+	body := make(map[string]interface{})
+	body["name"] = m.Name
+	unEscapedURL, _ := url.QueryUnescape(m.URL)
+	body["msp_address"] = unEscapedURL
+
+	if providerConfig != nil && providerConfig.Interval > 0 {
+		body["msp_interval"] = strconv.Itoa(providerConfig.Interval)
+	} else {
+		body["msp_interval"] = 5 // by default interval check is 5 minutes
+	}
+
+	if providerConfig != nil && len(providerConfig.Locations) != 0 {
+		body["locations"] = strings.Split(providerConfig.Locations, ",")
+	} else {
+		body["locations"] = strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
+	}
+
+	if providerConfig != nil && len(providerConfig.Contacts) != 0 {
+		body["contact_groups"] = strings.Split(providerConfig.Contacts, ",")
+	} else {
+		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
+	}
+
+	return body
 }

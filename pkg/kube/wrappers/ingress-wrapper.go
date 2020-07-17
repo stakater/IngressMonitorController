@@ -15,14 +15,14 @@ import (
 )
 
 type IngressWrapper struct {
-	Ingress   *v1beta1.Ingress
-	client    client.Client
+	Ingress *v1beta1.Ingress
+	client  client.Client
 }
 
 func NewIngressWrapper(ingress *v1beta1.Ingress, client client.Client) *IngressWrapper {
 	return &IngressWrapper{
-		Ingress:   ingress,
-		client:    client,
+		Ingress: ingress,
+		client:  client,
 	}
 }
 

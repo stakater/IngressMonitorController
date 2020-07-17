@@ -5,13 +5,13 @@ type Monitor struct {
 	Name        string
 	ID          string
 	Annotations map[string]string
-	Config interface{}
+	Config      interface{}
 }
 
 func NewMonitor(monitorName string, monitorUrl string, config interface{}) Monitor {
 	return Monitor{
-		Name: monitorName,
-		URL:  monitorUrl,
+		Name:   monitorName,
+		URL:    monitorUrl,
 		Config: config,
 	}
 }

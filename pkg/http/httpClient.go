@@ -32,7 +32,8 @@ func (client *HttpClient) addHeaders(request *http.Request, headers map[string]s
 func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, headers map[string]string) HttpResponse {
 	reader := bytes.NewReader(body)
 
-	//log.Println("NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
+	//   log.Println("NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
+	log.Println("DEBUG: NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
 
 	request, err := http.NewRequest(requestType, client.url, reader)
 	if err != nil {

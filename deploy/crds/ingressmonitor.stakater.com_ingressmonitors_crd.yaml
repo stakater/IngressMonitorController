@@ -39,6 +39,22 @@ spec:
             providers:
               description: Comma separated list of providers
               type: string
+            uptimeConfig:
+              description: Configuration for Uptime Monitor Provider
+              properties:
+                checkType:
+                  description: The uptime check type that can be HTTP/DNS/ICMP etc.
+                  type: string
+                contacts:
+                  description: Add one or more contact groups separated by `,`
+                  type: string
+                interval:
+                  description: The uptime check interval in seconds
+                  type: integer
+                locations:
+                  description: Add different locations for the check
+                  type: string
+              type: object
             uptimeRobotConfig:
               description: Configuration for UptimeRobot Monitor Provider
               properties:

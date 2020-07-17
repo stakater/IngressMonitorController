@@ -120,10 +120,10 @@ func (c *MonitorController) processNextItem() bool {
 }
 
 func (c *MonitorController) getMonitorName(rAFuncs callbacks.ResourceActionFuncs, resource interface{}) string {
-// 	annotations := rAFuncs.AnnotationFunc(resource)
-// 	if value, ok := annotations[constants.MonitorNameAnnotation]; ok {
-// 		return value
-// 	}
+	// 	annotations := rAFuncs.AnnotationFunc(resource)
+	// 	if value, ok := annotations[constants.MonitorNameAnnotation]; ok {
+	// 		return value
+	// 	}
 
 	format, err := util.GetNameTemplateFormat(c.config.MonitorNameTemplate)
 	if err != nil {

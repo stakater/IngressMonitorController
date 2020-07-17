@@ -30,6 +30,10 @@ type IngressMonitorSpec struct {
 	// Configuration for UptimeRobot Monitor Provider
 	// +optional
 	UptimeRobotConfig *UptimeRobotConfig `json:"uptimeRobotConfig,omitempty"`
+
+	// Configuration for Uptime Monitor Provider
+	// +optional
+	UptimeConfig *UptimeConfig `json:"uptimeConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -61,6 +65,25 @@ type UptimeRobotConfig struct {
 	// The uptimerobot public status page ID to add this monitor to
 	// +optional
 	StatusPages string `json:"statusPages,omitempty"`
+}
+
+// UptimeConfig defines the configuration for Uptime Monitor Provider
+type UptimeConfig struct {
+	// The uptime check interval in seconds
+	// +optional
+	Interval int `json:"interval,omitempty"`
+
+	// The uptime check type that can be HTTP/DNS/ICMP etc.
+	// +optional
+	CheckType string `json:"checkType,omitempty"`
+
+	// Add one or more contact groups separated by `,`
+	// +optional
+	Contacts string `json:"contacts,omitempty"`
+
+	// Add different locations for the check
+	// +optional
+	Locations string `json:"locations,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from

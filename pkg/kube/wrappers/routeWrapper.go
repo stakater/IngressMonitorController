@@ -14,14 +14,14 @@ import (
 )
 
 type RouteWrapper struct {
-	Route     *routev1.Route
-	client    client.Client
+	Route  *routev1.Route
+	client client.Client
 }
 
 func NewRouteWrapper(route *routev1.Route, client client.Client) *RouteWrapper {
 	return &RouteWrapper{
-		Route:     route,
-		client:    client,
+		Route:  route,
+		client: client,
 	}
 }
 

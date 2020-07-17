@@ -57,10 +57,10 @@ func discoverURLFromRefs(client client.Client, ingressMonitor *ingressmonitorv1a
 	}
 
 	if urlFrom.IngressRef != nil && !kube.IsOpenshift {
-		return discoverURLFromIngressRef(client, urlFrom.IngressRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS ,ingressMonitor.Spec.HealthEndpoint)
+		return discoverURLFromIngressRef(client, urlFrom.IngressRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS, ingressMonitor.Spec.HealthEndpoint)
 	}
 	if urlFrom.RouteRef != nil && kube.IsOpenshift {
-		return discoverURLFromRouteRef(client, urlFrom.RouteRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS ,ingressMonitor.Spec.HealthEndpoint)
+		return discoverURLFromRouteRef(client, urlFrom.RouteRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS, ingressMonitor.Spec.HealthEndpoint)
 	}
 
 	log.Warn("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)

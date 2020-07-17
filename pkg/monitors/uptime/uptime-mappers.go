@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
@@ -14,14 +15,13 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 	m.URL = uptimeMonitor.MspAddress
 	m.ID = strconv.Itoa(uptimeMonitor.PK)
 
-	var annotations = map[string]string{
-		"uptime.monitor.stakater.com/interval":   strconv.Itoa(uptimeMonitor.MspInterval),
-		"uptime.monitor.stakater.com/check_type": uptimeMonitor.CheckType,
-		"uptime.monitor.stakater.com/contacts":   strings.Join(uptimeMonitor.ContactGroups, ","),
-		"uptime.monitor.stakater.com/locations":  strings.Join(uptimeMonitor.Locations, ","),
-	}
+	var providerConfig ingressmonitorv1alpha1.UptimeConfig
+	providerConfig.Interval = uptimeMonitor.MspInterval
+	providerConfig.CheckType = uptimeMonitor.CheckType
+	providerConfig.Contacts = strings.Join(uptimeMonitor.ContactGroups, ",")
+	providerConfig.Locations = strings.Join(uptimeMonitor.Locations, ",")
 
-	m.Annotations = annotations
+	m.Config = providerConfig
 	return &m
 }
 

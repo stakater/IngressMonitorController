@@ -2,6 +2,7 @@ package monitors
 
 import (
 	log "github.com/sirupsen/logrus"
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/appinsights"
@@ -10,7 +11,6 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/monitors/updown"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/uptime"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/uptimerobot"
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 )
 
 type MonitorServiceProxy struct {
@@ -18,7 +18,7 @@ type MonitorServiceProxy struct {
 	monitor     MonitorService
 }
 
-func (mp *MonitorServiceProxy) GetType() (string) {
+func (mp *MonitorServiceProxy) GetType() string {
 	return mp.monitorType
 }
 

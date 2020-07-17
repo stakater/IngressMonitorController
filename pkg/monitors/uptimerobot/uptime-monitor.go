@@ -10,10 +10,10 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 )
 
 type UpTimeMonitorService struct {
@@ -115,7 +115,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body:= monitor.processProviderConfig(m, true)
+	body := monitor.processProviderConfig(m, true)
 
 	response := client.PostUrlEncodedFormBody(body)
 
@@ -141,7 +141,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body:= monitor.processProviderConfig(m, true)
+	body := monitor.processProviderConfig(m, true)
 
 	response := client.PostUrlEncodedFormBody(body)
 
@@ -160,11 +160,11 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 	}
 }
 
-func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, createMonitorRequest bool) (string) {
+func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, createMonitorRequest bool) string {
 	var body string
 
 	// if createFunction is true, generate query for create else for update
-	if (createMonitorRequest) {
+	if createMonitorRequest {
 		body = "api_key=" + monitor.apiKey + "&format=json&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name)
 	} else {
 		body = "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL
@@ -173,48 +173,48 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 	// Retrieve provider configuration
 	providerConfig, _ := m.Config.(*ingressmonitorv1alpha1.UptimeRobotConfig)
 
-	if (providerConfig != nil && len(providerConfig.AlertContacts) != 0) {
-  		body += "&alert_contacts=" + providerConfig.AlertContacts
-  	} else {
-  		body += "&alert_contacts=" + monitor.alertContacts
-  	}
+	if providerConfig != nil && len(providerConfig.AlertContacts) != 0 {
+		body += "&alert_contacts=" + providerConfig.AlertContacts
+	} else {
+		body += "&alert_contacts=" + monitor.alertContacts
+	}
 
-  	if (providerConfig != nil && providerConfig.Interval > 0) {
-  		body += "&interval=" + strconv.Itoa(providerConfig.Interval)
-  	}
+	if providerConfig != nil && providerConfig.Interval > 0 {
+		body += "&interval=" + strconv.Itoa(providerConfig.Interval)
+	}
 
-  	if (providerConfig != nil && len(providerConfig.MaintenanceWindows) != 0) {
-  		body += "&mwindows=" + providerConfig.MaintenanceWindows
-  	}
+	if providerConfig != nil && len(providerConfig.MaintenanceWindows) != 0 {
+		body += "&mwindows=" + providerConfig.MaintenanceWindows
+	}
 
-  	if (providerConfig != nil && len(providerConfig.MonitorType) != 0) {
-  		if strings.Contains(strings.ToLower(providerConfig.MonitorType), "http") {
-  			body += "&type=1"
-  		} else if strings.Contains(strings.ToLower(providerConfig.MonitorType), "keyword") {
-  			body += "&type=2"
+	if providerConfig != nil && len(providerConfig.MonitorType) != 0 {
+		if strings.Contains(strings.ToLower(providerConfig.MonitorType), "http") {
+			body += "&type=1"
+		} else if strings.Contains(strings.ToLower(providerConfig.MonitorType), "keyword") {
+			body += "&type=2"
 
-  			if (providerConfig != nil && len(providerConfig.KeywordExists) != 0) {
+			if providerConfig != nil && len(providerConfig.KeywordExists) != 0 {
 
-  				if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "yes") {
-  					body += "&keyword_type=1"
-  				} else if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "no") {
-  					body += "&keyword_type=2"
-  				}
+				if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "yes") {
+					body += "&keyword_type=1"
+				} else if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "no") {
+					body += "&keyword_type=2"
+				}
 
-  			} else {
-  				body += "&keyword_type=1" // By default 1 (check if keyword exists)
-  			}
+			} else {
+				body += "&keyword_type=1" // By default 1 (check if keyword exists)
+			}
 
-  			if (providerConfig != nil && len(providerConfig.KeywordValue) != 0){
-  				body += "&keyword_value=" + providerConfig.KeywordValue
-  			} else {
-  				log.Error("Monitor is of type Keyword but the `keyword-value` annotation is missing")
-  			}
-  		}
-  	} else {
-  		body += "&type=1" // By default monitor is of type HTTP
-  	}
-  	return body
+			if providerConfig != nil && len(providerConfig.KeywordValue) != 0 {
+				body += "&keyword_value=" + providerConfig.KeywordValue
+			} else {
+				log.Error("Monitor is of type Keyword but the `keyword-value` annotation is missing")
+			}
+		}
+	} else {
+		body += "&type=1" // By default monitor is of type HTTP
+	}
+	return body
 }
 
 func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
@@ -246,7 +246,7 @@ func (monitor *UpTimeMonitorService) handleStatusPagesConfig(monitorToAdd models
 	// Retrieve provider configuration
 	providerConfig, _ := monitorToAdd.Config.(*ingressmonitorv1alpha1.UptimeRobotConfig)
 
-	if (providerConfig != nil && len(providerConfig.StatusPages) != 0) {
+	if providerConfig != nil && len(providerConfig.StatusPages) != 0 {
 		monitor.updateStatusPages(providerConfig.StatusPages, models.Monitor{ID: monitorId})
 	}
 }
