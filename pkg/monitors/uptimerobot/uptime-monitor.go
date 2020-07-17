@@ -13,6 +13,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 )
 
 type UpTimeMonitorService struct {
@@ -114,49 +115,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name)
-
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"]; ok {
-		body += "&alert_contacts=" + val
-	} else {
-		body += "&alert_contacts=" + monitor.alertContacts
-	}
-
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
-		body += "&interval=" + val
-	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
-		body += "&mwindows=" + val
-	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/monitor-type"]; ok {
-		if strings.Contains(strings.ToLower(val), "http") {
-			body += "&type=1"
-		} else if strings.Contains(strings.ToLower(val), "keyword") {
-			body += "&type=2"
-
-			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-exists"]; ok {
-
-				if strings.Contains(strings.ToLower(val), "yes") {
-					body += "&keyword_type=1"
-				} else if strings.Contains(strings.ToLower(val), "no") {
-					body += "&keyword_type=2"
-				}
-
-			} else {
-				body += "&keyword_type=1" // By default 1 (check if keyword exists)
-			}
-
-			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-value"]; ok {
-				body += "&keyword_value=" + val
-			} else {
-				log.Println("Monitor is of type Keyword but the `keyword-value` annotation is missing")
-				log.Println("Monitor couldn't be added: " + m.Name)
-				return
-			}
-		}
-	} else {
-		body += "&type=1" // By default monitor is of type HTTP
-	}
+	body:= monitor.processProviderConfig(m, true)
 
 	response := client.PostUrlEncodedFormBody(body)
 
@@ -168,7 +127,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Added: " + m.Name)
-			monitor.handleStatusPagesAnnotations(m, strconv.Itoa(f.Monitor.ID))
+			monitor.handleStatusPagesConfig(m, strconv.Itoa(f.Monitor.ID))
 		} else {
 			log.Println("Monitor couldn't be added: " + m.Name + ". Error: " + f.Error.Message)
 		}
@@ -182,49 +141,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL
-
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"]; ok {
-		body += "&alert_contacts=" + val
-	} else {
-		body += "&alert_contacts=" + monitor.alertContacts
-	}
-
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
-		body += "&interval=" + val
-	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
-		body += "&mwindows=" + val
-	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/monitor-type"]; ok {
-		if strings.Contains(strings.ToLower(val), "http") {
-			body += "&type=1"
-		} else if strings.Contains(strings.ToLower(val), "keyword") {
-			body += "&type=2"
-
-			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-exists"]; ok {
-
-				if strings.Contains(strings.ToLower(val), "yes") {
-					body += "&keyword_type=1"
-				} else if strings.Contains(strings.ToLower(val), "no") {
-					body += "&keyword_type=2"
-				}
-
-			} else {
-				body += "&keyword_type=1" // By default 1 (check if keyword exists)
-			}
-
-			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-value"]; ok {
-				body += "&keyword_value=" + val
-			} else {
-				log.Println("Monitor is of type Keyword but the `keyword-value` annotation is missing")
-				log.Println("Monitor couldn't be updated: " + m.Name)
-				return
-			}
-		}
-	} else {
-		body += "&type=1" // By default monitor is of type HTTP
-	}
+	body:= monitor.processProviderConfig(m, true)
 
 	response := client.PostUrlEncodedFormBody(body)
 
@@ -234,13 +151,70 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Updated: " + m.Name)
-			monitor.handleStatusPagesAnnotations(m, strconv.Itoa(f.Monitor.ID))
+			monitor.handleStatusPagesConfig(m, strconv.Itoa(f.Monitor.ID))
 		} else {
 			log.Println("Monitor couldn't be updated: " + m.Name)
 		}
 	} else {
 		log.Println("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
+}
+
+func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, createMonitorRequest bool) (string) {
+	var body string
+
+	// if createFunction is true, generate query for create else for update
+	if (createMonitorRequest) {
+		body = "api_key=" + monitor.apiKey + "&format=json&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name)
+	} else {
+		body = "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL
+	}
+
+	// Retrieve provider configuration
+	providerConfig, _ := m.Config.(*ingressmonitorv1alpha1.UptimeRobotConfig)
+
+	if (providerConfig != nil && len(providerConfig.AlertContacts) != 0) {
+  		body += "&alert_contacts=" + providerConfig.AlertContacts
+  	} else {
+  		body += "&alert_contacts=" + monitor.alertContacts
+  	}
+
+  	if (providerConfig != nil && providerConfig.Interval > 0) {
+  		body += "&interval=" + strconv.Itoa(providerConfig.Interval)
+  	}
+
+  	if (providerConfig != nil && len(providerConfig.MaintenanceWindows) != 0) {
+  		body += "&mwindows=" + providerConfig.MaintenanceWindows
+  	}
+
+  	if (providerConfig != nil && len(providerConfig.MonitorType) != 0) {
+  		if strings.Contains(strings.ToLower(providerConfig.MonitorType), "http") {
+  			body += "&type=1"
+  		} else if strings.Contains(strings.ToLower(providerConfig.MonitorType), "keyword") {
+  			body += "&type=2"
+
+  			if (providerConfig != nil && len(providerConfig.KeywordExists) != 0) {
+
+  				if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "yes") {
+  					body += "&keyword_type=1"
+  				} else if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "no") {
+  					body += "&keyword_type=2"
+  				}
+
+  			} else {
+  				body += "&keyword_type=1" // By default 1 (check if keyword exists)
+  			}
+
+  			if (providerConfig != nil && len(providerConfig.KeywordValue) != 0){
+  				body += "&keyword_value=" + providerConfig.KeywordValue
+  			} else {
+  				log.Error("Monitor is of type Keyword but the `keyword-value` annotation is missing")
+  			}
+  		}
+  	} else {
+  		body += "&type=1" // By default monitor is of type HTTP
+  	}
+  	return body
 }
 
 func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
@@ -268,9 +242,12 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 	}
 }
 
-func (monitor *UpTimeMonitorService) handleStatusPagesAnnotations(monitorToAdd models.Monitor, monitorId string) {
-	if val, ok := monitorToAdd.Annotations["uptimerobot.monitor.stakater.com/status-pages"]; ok {
-		monitor.updateStatusPages(val, models.Monitor{ID: monitorId})
+func (monitor *UpTimeMonitorService) handleStatusPagesConfig(monitorToAdd models.Monitor, monitorId string) {
+	// Retrieve provider configuration
+	providerConfig, _ := monitorToAdd.Config.(*ingressmonitorv1alpha1.UptimeRobotConfig)
+
+	if (providerConfig != nil && len(providerConfig.StatusPages) != 0) {
+		monitor.updateStatusPages(providerConfig.StatusPages, models.Monitor{ID: monitorId})
 	}
 }
 

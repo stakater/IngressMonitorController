@@ -6,6 +6,7 @@ import (
 
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 )
 
 func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor) *models.Monitor {
@@ -15,9 +16,8 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 	m.URL = uptimeMonitor.URL
 	m.ID = strconv.Itoa(uptimeMonitor.ID)
 
-	var annotations = map[string]string{
-		"uptimerobot.monitor.stakater.com/interval": strconv.Itoa(uptimeMonitor.Interval),
-	}
+	var providerConfig ingressmonitorv1alpha1.UptimeRobotConfig
+	providerConfig.Interval = uptimeMonitor.Interval
 
 	alertContacts := make([]string, 0)
 	if uptimeMonitor.AlertContacts != nil {
@@ -25,10 +25,10 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 			contact := alertContact.ID + "_" + strconv.Itoa(alertContact.Threshold) + "_" + strconv.Itoa(alertContact.Recurrence)
 			alertContacts = append(alertContacts, contact)
 		}
-		annotations["uptimerobot.monitor.stakater.com/alert-contacts"] = strings.Join(alertContacts, "-")
+		providerConfig.AlertContacts = strings.Join(alertContacts, "-")
 	}
 
-	m.Annotations = annotations
+	m.Config = providerConfig
 
 	return &m
 }
