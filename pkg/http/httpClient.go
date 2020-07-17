@@ -33,7 +33,6 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 	reader := bytes.NewReader(body)
 
 	//   log.Println("NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
-	log.Println("DEBUG: NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
 
 	request, err := http.NewRequest(requestType, client.url, reader)
 	if err != nil {

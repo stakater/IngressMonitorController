@@ -119,8 +119,6 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	log.Info("DEBUG: RESPONE", "response.Bytes", string(response.Bytes))
-
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorNewMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
