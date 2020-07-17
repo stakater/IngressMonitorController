@@ -247,7 +247,7 @@ func (monitor *UpTimeMonitorService) handleStatusPagesConfig(monitorToAdd models
 	providerConfig, _ := monitorToAdd.Config.(*ingressmonitorv1alpha1.UptimeRobotConfig)
 
 	if providerConfig != nil && len(providerConfig.StatusPages) != 0 {
-		IDs := strings.Split(val, "-")
+		IDs := strings.Split(providerConfig.StatusPages, "-")
 		for i := range IDs {
 			monitor.updateStatusPages(IDs[i], models.Monitor{ID: monitorId})
 		}
