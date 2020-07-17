@@ -38,6 +38,10 @@ type IngressMonitorSpec struct {
 	// Configuration for Updown Monitor Provider
 	// +optional
 	UpdownConfig *UpdownConfig `json:"updownConfig,omitempty"`
+
+	// Configuration for StatusCake Monitor Provider
+	// +optional
+	StatusCakeConfig *StatusCakeConfig `json:"statusCakeConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -107,6 +111,69 @@ type UpdownConfig struct {
 	// Additional request headers for API calls
 	// +optional
 	RequestHeaders string `json:"requestHeaders,omitempty"`
+}
+
+// StatusCakeConfig defines the configuration for StatusCake Monitor Provider
+type StatusCakeConfig struct {
+	// Basic Auth User
+	// +optional
+	BasicAuthUser string `json:"basicAuthUser,omitempty"`
+
+	// Set Check Rate for the monitor
+	// +optional
+	CheckRate int `json:"checkRate,omitempty"`
+
+	// Set Test type - HTTP, TCP, PING
+	// +optional
+	TestType string `json:"testType,omitempty"`
+
+	// Pause the service
+	// +optional
+	Paused bool `json:"paused,omitempty"`
+
+	// Webhook for alerts
+	// +optional
+	PingURL string `json:"pingUrl,omitempty"`
+
+	// Enable ingress redirects
+	// +optional
+	FollowRedirect bool `json:"followRedirect,omitempty"`
+
+	// TCP Port
+	// +optional
+	Port int `json:"port,omitempty"`
+
+	// Minutes to wait before sending an alert
+	// +optional
+	TriggerRate int `json:"triggerRate,omitempty"`
+
+	// Contact Group to be alerted.
+	// +optional
+	ContactGroup string `json:"contactGroup,omitempty"`
+
+	// Comma separated list of tags
+	// +optional
+	TestTags string `json:"testTags,omitempty"`
+
+	// Comma separated list of Node Location IDs
+	// +optional
+	NodeLocations string `json:"nodeLocations,omitempty"`
+
+	// Comma seperated list of HTTP codes to trigger error on
+	// +optional
+	StatusCodes string `json:"statusCodes,omitempty"`
+
+	// Confirmation value ranges from (0,10)
+	// +optional
+	Confirmation int `json:"confirmation,omitempty"`
+
+	// Enable SSL Alert
+	// +optional
+	EnableSSLAlert bool `json:"enableSslAlert,omitempty"`
+
+	// Enable Real Browser
+	// +optional
+	RealBrowser bool `json:"realBrowser,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from

@@ -39,6 +39,56 @@ spec:
             providers:
               description: Comma separated list of providers
               type: string
+            statusCakeConfig:
+              description: Configuration for StatusCake Monitor Provider
+              properties:
+                basicAuthUser:
+                  description: Basic Auth User
+                  type: string
+                checkRate:
+                  description: Set Check Rate for the monitor
+                  type: integer
+                confirmation:
+                  description: Confirmation value ranges from (0,10)
+                  type: integer
+                contactGroup:
+                  description: Contact Group to be alerted.
+                  type: string
+                enableSslAlert:
+                  description: Enable SSL Alert
+                  type: boolean
+                followRedirect:
+                  description: Enable ingress redirects
+                  type: string
+                nodeLocations:
+                  description: Comma separated list of Node Location IDs
+                  type: string
+                paused:
+                  description: Pause the service
+                  type: boolean
+                pingUrl:
+                  description: Webhook for alerts
+                  type: string
+                port:
+                  description: TCP Port
+                  type: integer
+                realBrowser:
+                  description: Enable Real Browser
+                  type: boolean
+                statusCodes:
+                  description: Comma seperated list of HTTP codes to trigger error
+                    on
+                  type: string
+                testTags:
+                  description: Comma separated list of tags
+                  type: string
+                testType:
+                  description: Set Test type - HTTP, TCP, PING
+                  type: string
+                triggerRate:
+                  description: Minutes to wait before sending an alert
+                  type: integer
+              type: object
             updownConfig:
               description: Configuration for Updown Monitor Provider
               properties:

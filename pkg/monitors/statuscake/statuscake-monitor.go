@@ -13,26 +13,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
-)
-
-const (
-	StatuscakeCheckRateAnnotation      = "statuscake.monitor.stakater.com/check-rate"
-	StatuscakeTestTypeAnnotation       = "statuscake.monitor.stakater.com/test-type"
-	StatuscakePausedAnnotation         = "statuscake.monitor.stakater.com/paused"
-	StatuscakePingURLAnnotation        = "statuscake.monitor.stakater.com/ping-url"
-	StatuscakeFollowRedirectAnnotation = "statuscake.monitor.stakater.com/follow-redirect"
-	StatuscakePortAnnotation           = "statuscake.monitor.stakater.com/port"
-	StatuscakeTriggerRateAnnotation    = "statuscake.monitor.stakater.com/trigger-rate"
-	StatuscakeContactGroupAnnotation   = "statuscake.monitor.stakater.com/contact-group"
-	StatuscakeBasicAuthUserAnnotation  = "statuscake.monitor.stakater.com/basic-auth-user"
-	StatuscakeNodeLocations            = "statuscake.monitor.stakater.com/node-locations"
-	StatuscakeStatusCodes              = "statuscake.monitor.stakater.com/status-codes"
-	StatuscakeConfirmation             = "statuscake.monitor.stakater.com/confirmation"
-	StatuscakeEnableSSLAlert           = "statuscake.monitor.stakater.com/enable-ssl-alert"
-	StatuscakeTestTags                 = "statuscake.monitor.stakater.com/test-tags"
-	StatuscakeRealBrowser              = "statuscake.monitor.stakater.com/real-browser"
 )
 
 // StatusCakeMonitorService is the service structure for StatusCake
@@ -44,77 +27,55 @@ type StatusCakeMonitorService struct {
 	client   *http.Client
 }
 
-// AnnotationInfo is the annotation information structure for AnnotationMap
-type AnnotationInfo struct {
-	name     string
-	dataType string
-}
-
-// AnnotationMap holds all the enabled annotations for StatusCake
-var AnnotationMap = map[string]AnnotationInfo{
-	StatuscakeCheckRateAnnotation:      {"CheckRate", "int"},        // Int (0-24000)
-	StatuscakeTestTypeAnnotation:       {"TestType", "string"},      // String (HTTP, TCP, PING)
-	StatuscakePausedAnnotation:         {"Paused", "bool"},          // Int (0,1)
-	StatuscakePingURLAnnotation:        {"PingURL", "string"},       // String (url)
-	StatuscakeFollowRedirectAnnotation: {"FollowRedirect", "bool"},  // Int (0,1)
-	StatuscakePortAnnotation:           {"Port", "int"},             // Int (TCP Port)
-	StatuscakeTriggerRateAnnotation:    {"TriggerRate", "int"},      // Int (0-60)
-	StatuscakeContactGroupAnnotation:   {"ContactGroup", "string"},  // String (0-60) (comma separated list of contact group IDs)
-	StatuscakeBasicAuthUserAnnotation:  {"BasicUser", "string"},     // String (0-60)
-	StatuscakeNodeLocations:            {"NodeLocations", "string"}, // String (seperated by a comma using the Node Location IDs)
-	StatuscakeStatusCodes:              {"StatusCodes", "string"},   // String (comma seperated list of HTTP codes to trigger error on.
-	StatuscakeConfirmation:             {"Confirmation", "int"},     // Int (0,10)
-	StatuscakeEnableSSLAlert:           {"EnableSSLAlert", "bool"},  // Int (0, 1)
-	StatuscakeTestTags:                 {"TestTags", "string"},      // String (Tags should be seperated by a comma - no spacing between tags (this,is,a set,of,tags)
-	StatuscakeRealBrowser:              {"RealBrowser", "bool"},     // Int (0, 1)
-}
-
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
 func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	f := url.Values{}
 	f.Add("WebsiteName", m.Name)
 	unEscapedURL, _ := url.QueryUnescape(m.URL)
 	f.Add("WebsiteURL", unEscapedURL)
-	if val, ok := m.Annotations[StatuscakeCheckRateAnnotation]; ok {
-		f.Add("CheckRate", val)
-		delete(m.Annotations, StatuscakeCheckRateAnnotation)
+
+	// Retrieve provider configuration
+	providerConfig, _ := m.Config.(*ingressmonitorv1alpha1.StatusCakeConfig)
+
+	if providerConfig != nil && providerConfig.CheckRate > 0 {
+		f.Add("CheckRate", strconv.Itoa(providerConfig.CheckRate))
 	} else {
 		f.Add("CheckRate", "300")
 	}
-	if val, ok := m.Annotations[StatuscakeTestTypeAnnotation]; ok {
-		f.Add("TestType", val)
-		delete(m.Annotations, StatuscakeTestTypeAnnotation)
+
+	if providerConfig != nil && len(providerConfig.TestType) > 0 {
+		f.Add("TestType", providerConfig.TestType)
 	} else {
 		f.Add("TestType", "HTTP")
 	}
-	if val, ok := m.Annotations[StatuscakeContactGroupAnnotation]; ok {
-		f.Add("ContactGroup", val)
-		delete(m.Annotations, StatuscakeContactGroupAnnotation)
+
+	if providerConfig != nil && len(providerConfig.ContactGroup) > 0 {
+		f.Add("ContactGroup", providerConfig.ContactGroup)
 	} else {
 		if cgroup != "" {
 			f.Add("ContactGroup", cgroup)
 		}
 	}
-	if val, ok := m.Annotations[StatuscakeTestTags]; ok {
-		f.Add("TestTags", val)
-		delete(m.Annotations, StatuscakeTestTags)
+
+	if providerConfig != nil && len(providerConfig.TestTags) > 0 {
+		f.Add("TestTags", providerConfig.TestTags)
 	}
-	// If a basic auth annotation is set
-	if val, ok := m.Annotations[StatuscakeBasicAuthUserAnnotation]; ok {
-		// Annotation should be set to the username
+
+	if providerConfig != nil && len(providerConfig.BasicAuthUser) > 0 {
+		// This value is mandatory
 		// Environment variable should define the password
 		// Mounted via a secret; key is the username, value is the password
-		basicPass := os.Getenv(val)
+		basicPass := os.Getenv(providerConfig.BasicAuthUser)
 		if basicPass != "" {
-			f.Add("BasicUser", val)
+			f.Add("BasicUser", providerConfig.BasicAuthUser)
 			f.Add("BasicPass", basicPass)
 			log.Println("Basic auth requirement detected. Setting username and password")
 		} else {
 			log.Println("Error reading basic auth password from environment variable")
 		}
-		delete(m.Annotations, StatuscakeBasicAuthUserAnnotation)
 	}
-	if _, ok := m.Annotations[StatuscakeStatusCodes]; !ok {
+
+	if providerConfig != nil && len(providerConfig.StatusCodes) > 0 {
 		statusCodes := []string{
 			"204", // No content
 			"205", // Reset content
@@ -180,26 +141,37 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 			"599",
 		}
 		f.Add("StatusCodes", strings.Join(statusCodes, ","))
-		delete(m.Annotations, StatuscakeStatusCodes)
 	}
 
-	for key, value := range m.Annotations {
-		if (AnnotationInfo{}) != AnnotationMap[key] {
-			meta := AnnotationMap[key]
-			switch strings.ToLower(meta.dataType) {
-			case "int":
-				f.Add(meta.name, value)
-			case "string":
-				f.Add(meta.name, value)
-			case "bool":
-				value = strings.ToLower(value)
-				if value == "true" {
-					f.Add(meta.name, "1")
-				} else {
-					f.Add(meta.name, "0")
-				}
-			}
+	if providerConfig != nil {
+		if providerConfig.Paused == true {
+			f.Add("Paused", "1")
 		}
+		if providerConfig.FollowRedirect == true {
+			f.Add("FollowRedirect", "1")
+		}
+		if providerConfig.EnableSSLAlert == true {
+			f.Add("EnableSSLAlert", "1")
+		}
+		if providerConfig.RealBrowser == true {
+			f.Add("RealBrowser", "1")
+		}
+	}
+
+	if providerConfig != nil && len(providerConfig.PingURL) > 0 {
+		f.Add("PingURL", providerConfig.PingURL)
+	}
+
+	if providerConfig != nil && len(providerConfig.NodeLocations) > 0 {
+		f.Add("NodeLocations", providerConfig.NodeLocations)
+	}
+
+	if providerConfig != nil && providerConfig.TriggerRate > 0 {
+		f.Add("TriggerRate", strconv.Itoa(providerConfig.TriggerRate))
+	}
+
+	if providerConfig != nil && providerConfig.Confirmation > 0 {
+		f.Add("TriggerRate", strconv.Itoa(providerConfig.Confirmation))
 	}
 	return f
 }

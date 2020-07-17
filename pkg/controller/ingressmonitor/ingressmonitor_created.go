@@ -1,7 +1,6 @@
 package ingressmonitor
 
 import (
-	"fmt"
 	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/kube/util"
 	"github.com/stakater/IngressMonitorController/pkg/models"
