@@ -17,17 +17,14 @@ import (
 )
 
 const (
-	AppInsightsStatusCodeAnnotation   = "appinsights.monitor.stakater.com/statuscode"  // Allowed httpStatusCodes,
-	AppInsightsRetryEnabledAnnotation = "appinsights.monitor.stakater.com/retryenable" // Only Boolen values
-	AppInsightsFrequency              = "appinsights.monitor.stakater.com/frequency"   // Allowed Values 300,600,900,
-	// Default value for annotations
-	AppInsightsStatusCodeAnnotationDefaultValue   = http.StatusOK
-	AppInsightsRetryEnabledAnnotationDefaultValue = true
-	AppInsightsFrequencyDefaultValue              = 300
+	// Default value for monitor configuration
+	AppInsightsStatusCodeDefaultValue   = http.StatusOK
+	AppInsightsRetryEnabledDefaultValue = true
+	AppInsightsFrequencyDefaultValue    = 300
 )
 
-// Annotation holds appinsights specific annotations provided from ingress object
-type Annotation struct {
+// Configuration holds appinsights specific configuration
+type Configuration struct {
 	isRetryEnabled     bool
 	expectedStatusCode int
 	frequency          int32
@@ -283,11 +280,11 @@ func (aiService *AppinsightsMonitorService) createWebTest(monitor models.Monitor
 
 	isEnabled := true
 	webtest := NewWebTest()
-	annotations := getAnnotation(monitor)
+	configs := getConfiguration(monitor)
 
 	webtest.Description = fmt.Sprintf("%s webtest is created by Ingress Monitor controller", monitor.Name)
 	webtest.Items.Request.URL = monitor.URL
-	webtest.Items.Request.ExpectedHttpStatusCode = annotations.expectedStatusCode
+	webtest.Items.Request.ExpectedHttpStatusCode = configs.expectedStatusCode
 
 	xmlByte, err := xml.Marshal(webtest)
 	if err != nil {
@@ -302,9 +299,9 @@ func (aiService *AppinsightsMonitorService) createWebTest(monitor models.Monitor
 			SyntheticMonitorID: &monitor.Name,
 			WebTestName:        &monitor.Name,
 			WebTestKind:        insights.Ping,
-			RetryEnabled:       &annotations.isRetryEnabled,
+			RetryEnabled:       &configs.isRetryEnabled,
 			Enabled:            &isEnabled,
-			Frequency:          &annotations.frequency,
+			Frequency:          &configs.frequency,
 			Locations:          getGeoLocation(aiService.geoLocation),
 			Configuration: &insights.WebTestPropertiesConfiguration{
 				WebTest: &webtestConfig,

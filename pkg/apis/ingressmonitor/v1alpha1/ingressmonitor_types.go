@@ -4,9 +4,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // IngressMonitorSpec defines the desired state of IngressMonitor
 type IngressMonitorSpec struct {
 	// URL to monitor
@@ -46,6 +43,10 @@ type IngressMonitorSpec struct {
 	// Configuration for Pingdom Monitor Provider
 	// +optional
 	PingdomConfig *PingdomConfig `json:"pingdomConfig,omitempty"`
+
+	// Configuration for AppInsights Monitor Provider
+	// +optional
+	AppInsightsConfig *AppInsightsConfig `json:"appInsightsConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -221,6 +222,21 @@ type PingdomConfig struct {
 	// `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1")
 	// +optional
 	AlertContacts string `json:"alertContacts,omitempty"`
+}
+
+// AppInsightsConfig defines the configuration for AppInsights Monitor Provider
+type AppInsightsConfig struct {
+	// Returned status code that is counted as a success
+	// +optional
+	StatusCode int `json:"statusCode,omitempty"`
+
+	// If its `true`, falied test will be retry after a short interval. Possible values: `true, false`
+	// +optional
+	RetryEnable bool `json:"retryEnable,retryEnable"`
+
+	// Sets how often the test should run from each test location. Possible values: `300,600,900` seconds
+	// +optional
+	Frequency int `json:"frequency,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from
