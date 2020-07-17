@@ -34,6 +34,10 @@ type IngressMonitorSpec struct {
 	// Configuration for Uptime Monitor Provider
 	// +optional
 	UptimeConfig *UptimeConfig `json:"uptimeConfig,omitempty"`
+
+	// Configuration for Updown Monitor Provider
+	// +optional
+	UpdownConfig *UpdownConfig `json:"updownConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -84,6 +88,25 @@ type UptimeConfig struct {
 	// Add different locations for the check
 	// +optional
 	Locations string `json:"locations,omitempty"`
+}
+
+// UpdownConfig defines the configuration for Updown Monitor Provider
+type UpdownConfig struct {
+	// Enable or disable checks
+	// +optional
+	Enable bool `json:"enable,omitempty"`
+
+	// The pingdom check interval in seconds
+	// +optional
+	Period int `json:"period,omitempty"`
+
+	// Make status page public or not
+	// +optional
+	PublishPage bool `json:"publishPage,omitempty"`
+
+	// Additional request headers for API calls
+	// +optional
+	RequestHeaders string `json:"requestHeaders,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from

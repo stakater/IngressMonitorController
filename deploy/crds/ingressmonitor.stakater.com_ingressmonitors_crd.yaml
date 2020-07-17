@@ -39,6 +39,22 @@ spec:
             providers:
               description: Comma separated list of providers
               type: string
+            updownConfig:
+              description: Configuration for Updown Monitor Provider
+              properties:
+                enable:
+                  description: Enable or disable checks
+                  type: boolean
+                period:
+                  description: The pingdom check interval in seconds
+                  type: integer
+                publishPage:
+                  description: Make status page public or not
+                  type: boolean
+                requestHeaders:
+                  description: Additional request headers for API calls
+                  type: string
+              type: object
             uptimeConfig:
               description: Configuration for Uptime Monitor Provider
               properties:

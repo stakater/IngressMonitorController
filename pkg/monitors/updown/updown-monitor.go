@@ -5,26 +5,20 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/antoineaugusti/updown"
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
 const (
-	UpdownEnableCheckAnnotation = "updown.monitor.stakater.com/enable"
-	UpdownPeriodAnnotation      = "updown.monitor.stakater.com/period"
-	UpdownPublishPageAnnotation = "updown.monitor.stakater.com/publish-page"
-	// this annotation is not enabled
-	UpdownRequestHeadersAnnotation = "updown.monitor.stakater.com/request-headers"
-
-	// Default value for annotations
-	UpdownPeriodAnnotationDefaultValue    = 15
-	UpdownPublishedAnnotationDefaultValue = true
-	UpdownEnableAnnotationDefaultValue    = true
+	// Default value for updown monitor
+	UpdownPeriodDefaultValue    = 15
+	UpdownPublishedDefaultValue = true
+	UpdownEnableDefaultValue    = true
 )
 
 // UpdownMonitorService struct contains parameters required by updown go client
@@ -123,7 +117,7 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 }
 
 // createHttpCheck method it will populate updown CheckItem object using updownMonitor's attributes
-// and annotations
+// and config
 func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.Monitor) updown.CheckItem {
 
 	log.Println("Updown monitor's createHttpCheck method has been called")
@@ -144,66 +138,40 @@ func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.
 	updownCheckItemObj.URL = unEscapedURL
 	updownCheckItemObj.Alias = updownMonitor.Name
 
-	// populating updownCheckItemObj object attributes using
-	log.Println("Populating updownCheckItemObj object attributes using annotations")
-	updownService.addAnnotationConfigToHttpCheck(&updownCheckItemObj, updownMonitor.Annotations)
+	// populating updownCheckItemObj object attributes using Provider Config
+	updownService.addConfigToHttpCheck(&updownCheckItemObj, updownMonitor.Config)
 
 	return updownCheckItemObj
 }
 
-// addAnnotationConfigToHttpCheck method will populate Updown's CheckItem object attributes using the annotations map
-func (service *UpdownMonitorService) addAnnotationConfigToHttpCheck(updownCheckItemObj *updown.CheckItem, annotations map[string]string) {
-	// Read known annotations, try to map them to updown check configs
+// addConfigToHttpCheck method will populate Updown's CheckItem object attributes using provider config
+func (service *UpdownMonitorService) addConfigToHttpCheck(updownCheckItemObj *updown.CheckItem, config interface{}) {
+	// Read provider config, try to map them to updown check configs
 	// set some default values if we can't find them
 
-	log.Println("Updown monitor's addAnnotationConfigToHttpCheck method has been called")
+	// Retrieve provider configuration
+	providerConfig, _ := config.(*ingressmonitorv1alpha1.UpdownConfig)
 
-	// Enable Annotation
-	if value, ok := annotations[UpdownEnableCheckAnnotation]; ok {
-		boolValue, err := strconv.ParseBool(value)
-
-		if err == nil {
-			updownCheckItemObj.Enabled = boolValue
-
-		} else {
-			log.Println("Error decoding input into an boolean")
-			updownCheckItemObj.Enabled = UpdownEnableAnnotationDefaultValue
-
-		}
-	}
-
-	// Published Annotation
-	if value, ok := annotations[UpdownPublishPageAnnotation]; ok {
-		boolValue, err := strconv.ParseBool(value)
-
-		if err == nil {
-			updownCheckItemObj.Published = boolValue
-
-		} else {
-			log.Println("Error decoding input into an boolean")
-			updownCheckItemObj.Published = UpdownPublishedAnnotationDefaultValue
-
-		}
-	}
-
-	// Period Annotation
-	if value, ok := annotations[UpdownPeriodAnnotation]; ok {
-		intValue, err := strconv.Atoi(value)
-
-		if err == nil {
-			updownCheckItemObj.Period = intValue
-
-		} else {
-			log.Println("Error decoding input into an integer")
-			updownCheckItemObj.Period = UpdownPeriodAnnotationDefaultValue
-
-		}
-
+	if providerConfig != nil {
+		updownCheckItemObj.Enabled = providerConfig.Enable
 	} else {
-		updownCheckItemObj.Period = UpdownPeriodAnnotationDefaultValue
-
+		log.Println("Using default value `true` for enable")
+		updownCheckItemObj.Enabled = UpdownEnableDefaultValue
 	}
 
+	if providerConfig != nil {
+		updownCheckItemObj.Published = providerConfig.PublishPage
+	} else {
+		log.Println("Using default value `true` for publish-page")
+		updownCheckItemObj.Published = UpdownPublishedDefaultValue
+	}
+
+	if providerConfig != nil && providerConfig.Period > 0 {
+		updownCheckItemObj.Period = providerConfig.Period
+	} else {
+		log.Println("Using default value `15` for period")
+		updownCheckItemObj.Period = UpdownPeriodDefaultValue
+	}
 }
 
 // Update method will update a monitor (updown check)
