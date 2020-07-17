@@ -3,6 +3,7 @@ module github.com/stakater/IngressMonitorController
 go 1.14
 
 require (
+	cloud.google.com/go v0.38.0
 	github.com/Azure/azure-sdk-for-go v44.0.0+incompatible
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.0
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
@@ -16,6 +17,8 @@ require (
 	github.com/russellcardullo/go-pingdom v1.0.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.4.0
+	google.golang.org/api v0.4.0
+	google.golang.org/genproto v0.0.0-20190418145605-e7d98fc518a7
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.18.5
 	k8s.io/apimachinery v0.18.5
