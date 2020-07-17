@@ -268,7 +268,10 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 func (monitor *UpTimeMonitorService) handleStatusPagesAnnotations(monitorToAdd models.Monitor, monitorId string) {
 	if val, ok := monitorToAdd.Annotations["uptimerobot.monitor.stakater.com/status-pages"]; ok {
-		monitor.updateStatusPages(val, models.Monitor{ID: monitorId})
+		IDs := strings.Split(val, "-")
+		for i := range IDs {
+			monitor.updateStatusPages(IDs[i], models.Monitor{ID: monitorId})
+		}
 	}
 }
 
