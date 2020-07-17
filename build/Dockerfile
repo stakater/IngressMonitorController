@@ -1,7 +1,7 @@
 FROM registry.svc.ci.openshift.org/openshift/release:golang-1.10 AS builder
 COPY . /go/src/github.com/stakater/IngressMonitorController
 WORKDIR /go/src/github.com/stakater/IngressMonitorController
-RUN make gobuild
+RUN make build
 
 FROM registry.svc.ci.openshift.org/openshift/origin-v4.0:base
 ENV OPERATOR_BIN=IngressMonitorController-operator

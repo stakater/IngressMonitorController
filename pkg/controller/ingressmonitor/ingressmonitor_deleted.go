@@ -18,7 +18,6 @@ func (r *ReconcileIngressMonitor) handleDelete(request reconcile.Request, instan
 
 	// Remove monitor if it exists
 	for index := 0; index < len(r.monitorServices); index++ {
-		log.Info("DEBUG: Iterating through monitorServices ", "monitorServices[index]", r.monitorServices[index])
 		removeMonitorIfExists(r.monitorServices[index], monitorName)
 	}
 	return reconcile.Result{}, nil
@@ -31,8 +30,6 @@ func removeMonitorIfExists(monitorService monitors.MonitorServiceProxy, monitorN
 		// Monitor Exists, remove the monitor
 		monitorService.Remove(*monitor)
 	} else {
-		log.Info("Cannot find monitor with name: " + monitorName)
-		// TODO : Handle this with an error
-		// return reconcile.Result{}, err
+		log.Info("Cannot find monitor with name: " + monitorName + " for provider: " + monitorService.GetType())
 	}
 }

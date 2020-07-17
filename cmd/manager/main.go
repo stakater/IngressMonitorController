@@ -37,8 +37,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 )
 
-// TODO: use same logger and logger settings
-// TODO: Pick these values from env variables
 const (
 	defaultLogLevel  = "info"
 	defaultLogFormat = "text"

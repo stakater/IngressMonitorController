@@ -16,16 +16,51 @@ type IngressMonitorSpec struct {
 	// +optional
 	ForceHTTPS bool `json:"forceHttps,omitempty"`
 
+	// +optional
+	HealthEndpoint string `json:"healthEndpoint,omitempty"`
+
 	// Comma separated list of providers
 	// +required
 	Providers string `json:"providers"`
 
-	// +optional
-	HealthEndpoint string `json:"healthEndpoint,omitempty"`
-
 	// URL to monitor from either an ingress or route reference
 	// +optional
 	URLFrom *URLSource `json:"urlFrom,omitempty"`
+
+	// Configuration for UptimeRobot Monitor Provider
+	// +optional
+	UptimeRobotConfig *UptimeRobotConfig `json:"uptimeRobotConfig,omitempty"`
+}
+
+// UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
+type UptimeRobotConfig struct {
+	// The uptimerobot alertContacts to be associated with this monitor
+	// +optional
+	AlertContacts string `json:"alertContacts,omitempty"`
+
+	// The uptimerobot check interval in seconds
+	// +optional
+	Interval int `json:"interval,omitempty"`
+
+	// Specify maintenanceWindows i.e. once or recurring “do-not-monitor periods”
+	// +optional
+	MaintenanceWindows string `json:"maintenanceWindows,omitempty"`
+
+	// The uptimerobot monitor type (http or keyword)
+	// +optional
+	MonitorType string `json:"monitorType,omitempty"`
+
+	// Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)
+	// +optional
+	KeywordExists string `json:"keywordExists,omitempty"`
+
+	// keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)
+	// +optional
+	KeywordValue string `json:"keywordExists,omitempty"`
+
+	// The uptimerobot public status page ID to add this monitor to
+	// +optional
+	StatusPages string `json:"statusPages,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from

@@ -39,6 +39,32 @@ spec:
             providers:
               description: Comma separated list of providers
               type: string
+            uptimeRobotConfig:
+              description: Configuration for UptimeRobot Monitor Provider
+              properties:
+                alertContacts:
+                  description: The uptimerobot alertContacts to be associated with
+                    this monitor
+                  type: string
+                interval:
+                  description: The uptimerobot check interval in seconds
+                  type: integer
+                keywordExists:
+                  description: keyword to check on URL (e.g.'search' or '404') (Only
+                    if monitor-type is keyword)
+                  type: string
+                maintenanceWindows:
+                  description: Specify maintenanceWindows i.e. once or recurring “do-not-monitor
+                    periods”
+                  type: string
+                monitorType:
+                  description: The uptimerobot monitor type (http or keyword)
+                  type: string
+                statusPages:
+                  description: The uptimerobot public status page ID to add this monitor
+                    to
+                  type: string
+              type: object
             url:
               description: URL to monitor
               type: string

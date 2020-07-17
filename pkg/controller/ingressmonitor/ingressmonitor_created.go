@@ -24,7 +24,13 @@ func (r *ReconcileIngressMonitor) handleCreate(request reconcile.Request, instan
 		return reconcile.Result{}, err
 	}
 
-	monitor := models.NewMonitor(monitorName, url)
+	// Extract provider specific configuration
+	config := monitorService.ExtractConfig(instance.Spec)
+
+	// Create monitor Model
+	monitor := models.NewMonitor(monitorName, url, config)
+
+	// Add monitor for provider
  	monitorService.Add(monitor)
 
 	return reconcile.Result{RequeueAfter: defaultRequeueTime}, nil

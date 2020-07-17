@@ -21,9 +21,13 @@ func (r *ReconcileIngressMonitor) handleUpdate(request reconcile.Request, instan
 		return reconcile.Result{}, err
 	}
 
-	updatedMonitor := models.NewMonitor(monitor.Name, url)
+	// Extract provider specific configuration
+	config := monitorService.ExtractConfig(instance.Spec)
 
-	// TODO: Pass existingMonitor and instance.spec. Retrieve config and add that to object comparison as well
+	// Create monitor Model
+	updatedMonitor := models.NewMonitor(monitor.Name, url, config)
+
+	// Update monitor for provider
 	monitorService.Update(updatedMonitor)
 	return reconcile.Result{RequeueAfter: defaultRequeueTime}, nil
 }

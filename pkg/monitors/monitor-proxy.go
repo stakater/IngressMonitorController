@@ -10,11 +10,16 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/monitors/updown"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/uptime"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/uptimerobot"
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 )
 
 type MonitorServiceProxy struct {
 	monitorType string
 	monitor     MonitorService
+}
+
+func (mp *MonitorServiceProxy) GetType() (string) {
+	return mp.monitorType
 }
 
 func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
@@ -36,6 +41,28 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 		log.Panic("No such provider found: ", mType)
 	}
 	return *mp
+}
+
+func (mp *MonitorServiceProxy) ExtractConfig(spec ingressmonitorv1alpha1.IngressMonitorSpec) interface{} {
+	var config interface{}
+
+	switch mp.monitorType {
+	case "UptimeRobot":
+		config = spec.UptimeRobotConfig
+	case "Pingdom":
+		config = spec.UptimeRobotConfig
+	case "StatusCake":
+		config = spec.UptimeRobotConfig
+	case "Uptime":
+		config = spec.UptimeRobotConfig
+	case "Updown":
+		config = spec.UptimeRobotConfig
+	case "AppInsights":
+		config = spec.UptimeRobotConfig
+	default:
+		return config
+	}
+	return config
 }
 
 func (mp *MonitorServiceProxy) Setup(p config.Provider) {
