@@ -42,6 +42,10 @@ type IngressMonitorSpec struct {
 	// Configuration for StatusCake Monitor Provider
 	// +optional
 	StatusCakeConfig *StatusCakeConfig `json:"statusCakeConfig,omitempty"`
+
+	// Configuration for Pingdom Monitor Provider
+	// +optional
+	PingdomConfig *PingdomConfig `json:"pingdomConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -174,6 +178,49 @@ type StatusCakeConfig struct {
 	// Enable Real Browser
 	// +optional
 	RealBrowser bool `json:"realBrowser,omitempty"`
+}
+
+// PingdomConfig defines the configuration for Pingdom Monitor Provider
+type PingdomConfig struct {
+	// The pingdom check interval in minutes
+	// +optional
+	Resolution int `json:"resolution,omitempty"`
+
+	// How many failed check attempts before notifying
+	// +optional
+	SendNotificationWhenDown int `json:"sendNotificationWhenDown,omitempty"`
+
+	// Set to "true" to pause checks
+	// +optional
+	Paused bool `json:"resolution,paused"`
+
+	// Set to "false" to disable recovery notifications
+	// +optional
+	NotifyWhenBackUp bool `json:"notifyWhenBackUp,omitempty"`
+
+	// Custom pingdom request headers
+	// +optional
+	RequestHeaders string `json:"requestHeaders,omitempty"`
+
+	// Required for basic-authentication
+	// +optional
+	BasicAuthUser string `json:"basicAuthUser,omitempty"`
+
+	// Set to text string that has to be present in the HTML code of the page
+	// +optional
+	ShouldContain string `json:"shouldContain,omitempty"`
+
+	// Comma separated set of tags to apply to check (e.g. "testing,aws")
+	// +optional
+	Tags string `json:"tags,omitempty"`
+
+	// `-` separated set list of integrations ids (e.g. "91166-12168")
+	// +optional
+	AlertIntegrations string `json:"alertIntegrations,omitempty"`
+
+	// `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1")
+	// +optional
+	AlertContacts string `json:"alertContacts,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from

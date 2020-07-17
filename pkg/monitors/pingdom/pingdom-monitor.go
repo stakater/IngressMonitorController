@@ -10,22 +10,10 @@ import (
 	"strings"
 
 	"github.com/russellcardullo/go-pingdom/pingdom"
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-)
-
-const (
-	PingdomResolutionAnnotation               = "pingdom.monitor.stakater.com/resolution"
-	PingdomSendNotificationWhenDownAnnotation = "pingdom.monitor.stakater.com/send-notification-when-down"
-	PingdomPausedAnnotation                   = "pingdom.monitor.stakater.com/paused"
-	PingdomNotifyWhenBackUpAnnotation         = "pingdom.monitor.stakater.com/notify-when-back-up"
-	PingdomRequestHeadersAnnotation           = "pingdom.monitor.stakater.com/request-headers"
-	PingdomBasicAuthUser                      = "pingdom.monitor.stakater.com/basic-auth-user"
-	PingdomShouldContainString                = "pingdom.monitor.stakater.com/should-contain"
-	PingdomTags                               = "pingdom.monitor.stakater.com/tags"
-	PingdomAlertIntegrations                  = "pingdom.monitor.stakater.com/alert-integrations"
-	PingdomAlertContacts                      = "pingdom.monitor.stakater.com/alert-contacts"
 )
 
 // PingdomMonitorService interfaces with MonitorService
@@ -157,91 +145,66 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 		httpCheck.IntegrationIds = integrationIds
 	}
 
-	service.addAnnotationConfigToHttpCheck(&httpCheck, monitor.Annotations)
+	service.addConfigToHttpCheck(&httpCheck, monitor.Config)
 
 	return httpCheck
 }
 
-func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *pingdom.HttpCheck, annotations map[string]string) {
-	// Read known annotations, try to map them to pingdom configs
+func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.HttpCheck, config interface{}) {
+	// Read config, try to map them to pingdom configs
 	// set some default values if we can't find them
 
-	if value, ok := annotations[PingdomAlertContacts]; ok {
-		userIdsStringArray := strings.Split(value, "-")
+	// Retrieve provider configuration
+	providerConfig, _ := config.(*ingressmonitorv1alpha1.PingdomConfig)
+
+	if providerConfig != nil && len(providerConfig.AlertContacts) != 0 {
+		userIdsStringArray := strings.Split(providerConfig.AlertContacts, "-")
 
 		if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-			log.Println("Error decoding user ids annotation", err.Error())
+			log.Println("Error decoding user alert contact IDs from config", err.Error())
 		} else {
 			httpCheck.UserIds = userIds
 		}
 	}
 
-	if value, ok := annotations[PingdomAlertIntegrations]; ok {
-		integrationIdsStringArray := strings.Split(value, "-")
+	if providerConfig != nil && len(providerConfig.AlertIntegrations) != 0 {
+		integrationIdsStringArray := strings.Split(providerConfig.AlertIntegrations, "-")
 
 		if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
-			log.Println("Error decoding integration ids annotation into integers", err.Error())
+			log.Println("Error decoding integration ids into integers", err.Error())
 		} else {
 			httpCheck.IntegrationIds = integrationIds
 		}
 	}
 
-	if value, ok := annotations[PingdomNotifyWhenBackUpAnnotation]; ok {
-		boolValue, err := strconv.ParseBool(value)
-		if err == nil {
-			httpCheck.NotifyWhenBackup = boolValue
-		}
-	}
-
-	if value, ok := annotations[PingdomPausedAnnotation]; ok {
-		boolValue, err := strconv.ParseBool(value)
-		if err == nil {
-			httpCheck.Paused = boolValue
-		}
-	}
-
-	if value, ok := annotations[PingdomResolutionAnnotation]; ok {
-		intValue, err := strconv.Atoi(value)
-		if err == nil {
-			httpCheck.Resolution = intValue
-		} else {
-			log.Println("Error decoding input into an integer")
-			httpCheck.Resolution = 1
-		}
+	if providerConfig != nil && providerConfig.Resolution > 0 {
+		httpCheck.Resolution = providerConfig.Resolution
 	} else {
 		httpCheck.Resolution = 1
 	}
 
-	if value, ok := annotations[PingdomSendNotificationWhenDownAnnotation]; ok {
-		intValue, err := strconv.Atoi(value)
-		if err == nil {
-			httpCheck.SendNotificationWhenDown = intValue
-		} else {
-			log.Println("Error decoding input into an integer")
-			httpCheck.SendNotificationWhenDown = 3
-		}
+	if providerConfig != nil && providerConfig.SendNotificationWhenDown > 0 {
+		httpCheck.SendNotificationWhenDown = providerConfig.SendNotificationWhenDown
 	} else {
 		httpCheck.SendNotificationWhenDown = 3
 	}
 
-	if value, ok := annotations[PingdomRequestHeadersAnnotation]; ok {
-
+	if providerConfig != nil && len(providerConfig.RequestHeaders) > 0 {
 		httpCheck.RequestHeaders = make(map[string]string)
-		err := json.Unmarshal([]byte(value), &httpCheck.RequestHeaders)
+		err := json.Unmarshal([]byte(providerConfig.RequestHeaders), &httpCheck.RequestHeaders)
 		if err != nil {
 			log.Println("Error Converting from string to JSON object")
 		}
 	}
 
-	// Does an annotation want to use basic auth
-	if userValue, ok := annotations[PingdomBasicAuthUser]; ok {
-		// Annotation should be set to the username to set on the httpCheck
+	if providerConfig != nil && len(providerConfig.BasicAuthUser) > 0 {
+		// This should be set to the username to set on the httpCheck
 		// Environment variable should define the password
 		// Mounted via a secret; key is the username, value the password
-		passwordValue := os.Getenv(userValue)
+		passwordValue := os.Getenv(providerConfig.BasicAuthUser)
 		if passwordValue != "" {
 			// Env variable set, pass user/pass to httpCheck
-			httpCheck.Username = userValue
+			httpCheck.Username = providerConfig.BasicAuthUser
 			httpCheck.Password = passwordValue
 			log.Println("Basic auth requirement detected. Setting username and password for httpCheck")
 		} else {
@@ -249,22 +212,23 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		}
 	}
 
-	// Does an annotation want to set a "should contain" string
-	if containValue, ok := annotations[PingdomShouldContainString]; ok {
-		if containValue != "" {
-			httpCheck.ShouldContain = containValue
-			log.Println("Should contain annotation detected. Setting Should Contain string: ", containValue)
-		}
+	if providerConfig != nil && len(providerConfig.ShouldContain) > 0 {
+		httpCheck.ShouldContain = providerConfig.ShouldContain
+		log.Println("Should contain annotation detected. Setting Should Contain string: ", providerConfig.ShouldContain)
 	}
 
-	// Does an annotation want to set any "tags"
 	// Tags should be a single word or multiple comma-seperated words
-	if tagValue, ok := annotations[PingdomTags]; ok {
-		if tagValue != "" && !strings.Contains(tagValue, " ") {
-			httpCheck.Tags = tagValue
-			log.Println("Tags annotation detected. Setting Tags as: ", tagValue)
+	if providerConfig != nil && len(providerConfig.Tags) > 0 {
+		if !strings.Contains(providerConfig.Tags, " ") {
+			httpCheck.Tags = providerConfig.Tags
+			log.Println("Tags annotation detected. Setting Tags as: ", providerConfig.Tags)
 		} else {
 			log.Println("Tag string should not contain spaces. Not applying tags.")
 		}
+	}
+
+	if providerConfig != nil {
+		httpCheck.Paused = providerConfig.Paused
+		httpCheck.NotifyWhenBackup = providerConfig.NotifyWhenBackUp
 	}
 }
