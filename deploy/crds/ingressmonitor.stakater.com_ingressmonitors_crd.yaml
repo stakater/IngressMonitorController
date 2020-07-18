@@ -98,6 +98,8 @@ spec:
                   type: integer
                 confirmation:
                   description: Confirmation value ranges from (0,10)
+                  maximum: 10
+                  minimum: 0
                   type: integer
                 contactGroup:
                   description: Contact Group to be alerted.
@@ -178,6 +180,7 @@ spec:
                   type: string
                 interval:
                   description: The uptimerobot check interval in seconds
+                  minimum: 60
                   type: integer
                 keywordExists:
                   description: keyword to check on URL (e.g.'search' or '404') (Only
@@ -189,6 +192,9 @@ spec:
                   type: string
                 monitorType:
                   description: The uptimerobot monitor type (http or keyword)
+                  enum:
+                  - http
+                  - keyword
                   type: string
                 statusPages:
                   description: The uptimerobot public status page ID to add this monitor

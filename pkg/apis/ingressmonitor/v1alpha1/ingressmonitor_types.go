@@ -56,6 +56,7 @@ type UptimeRobotConfig struct {
 	AlertContacts string `json:"alertContacts,omitempty"`
 
 	// The uptimerobot check interval in seconds
+	// +kubebuilder:validation:Minimum=60
 	// +optional
 	Interval int `json:"interval,omitempty"`
 
@@ -64,10 +65,12 @@ type UptimeRobotConfig struct {
 	MaintenanceWindows string `json:"maintenanceWindows,omitempty"`
 
 	// The uptimerobot monitor type (http or keyword)
+	// +kubebuilder:validation:Enum=http;keyword
 	// +optional
 	MonitorType string `json:"monitorType,omitempty"`
 
 	// Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)
+	// +kubebuilder:validation:Enum=yes;no
 	// +optional
 	KeywordExists string `json:"keywordExists,omitempty"`
 
@@ -169,6 +172,8 @@ type StatusCakeConfig struct {
 	StatusCodes string `json:"statusCodes,omitempty"`
 
 	// Confirmation value ranges from (0,10)
+	// +kubebuilder:validation:Maximum=10
+	// +kubebuilder:validation:Minimum=0
 	// +optional
 	Confirmation int `json:"confirmation,omitempty"`
 
