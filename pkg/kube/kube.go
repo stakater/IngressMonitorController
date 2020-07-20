@@ -8,7 +8,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/stakater/IngressMonitorController/pkg/callbacks"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -90,23 +89,4 @@ func isOpenshift() bool {
 	}
 	log.Info("Environment is Vanilla Kubernetes")
 	return false
-}
-
-// GetResourceActionFuncs provides the resource actions for ingress and routes
-func GetResourceActionFuncs(resource interface{}) callbacks.ResourceActionFuncs {
-	if IsRoute(resource) {
-		return callbacks.ResourceActionFuncs{
-			AnnotationFunc:        callbacks.GetRouteAnnotation,
-			NameFunc:              callbacks.GetRouteName,
-			NamespaceFunc:         callbacks.GetRouteNamespace,
-			CreationTimestampFunc: callbacks.GetRouteCreationTimestamp,
-		}
-	}
-
-	return callbacks.ResourceActionFuncs{
-		AnnotationFunc:        callbacks.GetIngressAnnotation,
-		NameFunc:              callbacks.GetIngressName,
-		NamespaceFunc:         callbacks.GetIngressNamespace,
-		CreationTimestampFunc: callbacks.GetIngressCreationTimestamp,
-	}
 }
