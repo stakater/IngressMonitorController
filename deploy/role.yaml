@@ -6,30 +6,19 @@ metadata:
 rules:
 - apiGroups:
   - ""
+  - "extensions"
+  - "route.openshift.io"
   resources:
-  - pods
-  - services
-  - services/finalizers
-  - endpoints
-  - persistentvolumeclaims
-  - events
-  - configmaps
+  - ingresses
+  - routes
   - secrets
   verbs:
-  - create
-  - delete
-  - get
   - list
-  - patch
-  - update
-  - watch
+  - get
 - apiGroups:
-  - apps
+  - ""
   resources:
-  - deployments
-  - daemonsets
-  - replicasets
-  - statefulsets
+  - events
   verbs:
   - create
   - delete
@@ -45,6 +34,7 @@ rules:
   verbs:
   - get
   - create
+  - list
 - apiGroups:
   - apps
   resourceNames:
@@ -57,13 +47,6 @@ rules:
   - ""
   resources:
   - pods
-  verbs:
-  - get
-- apiGroups:
-  - apps
-  resources:
-  - replicasets
-  - deployments
   verbs:
   - get
 - apiGroups:
