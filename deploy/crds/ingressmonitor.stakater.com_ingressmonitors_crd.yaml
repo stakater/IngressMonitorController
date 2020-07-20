@@ -226,8 +226,6 @@ spec:
                   - name
                   type: object
               type: object
-          required:
-          - providers
           type: object
         status:
           description: IngressMonitorStatus defines the observed state of IngressMonitor

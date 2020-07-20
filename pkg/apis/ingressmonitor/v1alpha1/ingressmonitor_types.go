@@ -17,7 +17,7 @@ type IngressMonitorSpec struct {
 	HealthEndpoint string `json:"healthEndpoint,omitempty"`
 
 	// Comma separated list of providers
-	// +required
+	// +optional
 	Providers string `json:"providers"`
 
 	// URL to monitor from either an ingress or route reference

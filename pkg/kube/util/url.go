@@ -22,6 +22,9 @@ func GetMonitorURL(client client.Client, ingressMonitor *ingressmonitorv1alpha1.
 	if ingressMonitor.Spec.URLFrom != nil {
 		log.Warn("Both url and urlFrom fields are specified. Using url over urlFrom")
 	}
+	if len(ingressMonitor.Spec.HealthEndpoint) > 0 {
+		log.Warn("Ignoring HealthEndpoint since url field is specified")
+	}
 	return ingressMonitor.Spec.URL, nil
 }
 
