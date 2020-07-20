@@ -50,15 +50,15 @@ func (mp *MonitorServiceProxy) ExtractConfig(spec ingressmonitorv1alpha1.Ingress
 	case "UptimeRobot":
 		config = spec.UptimeRobotConfig
 	case "Pingdom":
-		config = spec.UptimeRobotConfig
+		config = spec.PingdomConfig
 	case "StatusCake":
-		config = spec.UptimeRobotConfig
+		config = spec.StatusCakeConfig
 	case "Uptime":
-		config = spec.UptimeRobotConfig
+		config = spec.UptimeConfig
 	case "Updown":
-		config = spec.UptimeRobotConfig
+		config = spec.UpdownConfig
 	case "AppInsights":
-		config = spec.UptimeRobotConfig
+		config = spec.AppInsightsConfig
 	default:
 		return config
 	}
