@@ -2,9 +2,13 @@ package endpointmonitor
 
 import (
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/kube/util"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
+
+	"fmt"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -19,18 +23,20 @@ func (r *ReconcileEndpointMonitor) handleCreate(request reconcile.Request, insta
 	}
 
 	// Extract provider specific configuration
-	config := monitorService.ExtractConfig(instance.Spec)
+	providerConfig := monitorService.ExtractConfig(instance.Spec)
 
 	// Handle CreationDelay
-	createTime := instance.Metadata.CreationTimestamp
-	delay := time.Until(config.GetControllerConfig().CreationDelay)
+	createTime := instance.CreationTimestamp
+	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))
+
 	if delay.Nanoseconds() > 0 {
 		// Requeue request to add creation delay
+		log.Info("Requeuing request to add monitor " + monitorName + " for" + fmt.Sprintf("%f", config.GetControllerConfig().CreationDelay) + " seconds")
 		return reconcile.Result{RequeueAfter: delay}, nil
 	}
 
 	// Create monitor Model
-	monitor := models.NewMonitor(monitorName, url, config)
+	monitor := models.NewMonitor(monitorName, url, providerConfig)
 
 	// Add monitor for provider
 	monitorService.Add(monitor)

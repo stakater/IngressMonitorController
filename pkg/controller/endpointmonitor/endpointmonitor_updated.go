@@ -1,7 +1,6 @@
 package endpointmonitor
 
 import (
-	"fmt"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/kube/util"
 	"github.com/stakater/IngressMonitorController/pkg/models"
