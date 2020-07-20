@@ -1,0 +1,155 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "endpointmonitor.stakater.com/v1alpha1",
+          "kind": "EndpointMonitor",
+          "metadata": {
+            "name": "stakater"
+          },
+          "spec": {
+            "url": "https://www.stakater.com"
+          }
+        }
+      ]
+    capabilities: Basic Install
+  name: ingressmonitorcontroller.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: EndpointMonitor is the Schema for the endpointmonitors API
+      kind: EndpointMonitor
+      name: endpointmonitors.endpointmonitor.stakater.com
+      version: v1alpha1
+  description: An operator to watch ingresses/routes and create liveness alerts for your apps in Uptime checkers.
+  displayName: Ingress Monitor Controller
+  install:
+    spec:
+      deployments:
+      - name: ingressmonitorcontroller
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: ingressmonitorcontroller
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: ingressmonitorcontroller
+            spec:
+              containers:
+              - command:
+                - ingressmonitorcontroller
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: ingressmonitorcontroller
+                - name: CONFIG_SECRET_NAME
+                  value: imc-config
+                - name: LOG_LEVEL
+                  value: info
+                - name: LOG_FORMAT
+                  value: text
+                image: REPLACE_IMAGE
+                imagePullPolicy: Always
+                name: ingressmonitorcontroller
+                resources: {}
+              serviceAccountName: ingressmonitorcontroller
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          - extensions
+          - route.openshift.io
+          resources:
+          - ingresses
+          - routes
+          - secrets
+          verbs:
+          - list
+          - get
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+          - list
+        - apiGroups:
+          - apps
+          resourceNames:
+          - ingressmonitorcontroller
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - ingressmonitor.stakater.com
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        serviceAccountName: ingressmonitorcontroller
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  maturity: alpha
+  keywords:
+  - kubernetes
+  - IngressMonitorController
+  - EndpointMonitor
+  - Route
+  - Ingress
+  - Uptime
+  maintainers:
+  - email: hello@stakater.com
+    name: Stakater
+  provider:
+    name: Stakater
+  replaces: ingressmonitorcontroller.v0.0.0
+  version: 0.0.1
