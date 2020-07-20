@@ -28,7 +28,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
@@ -121,16 +120,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Load IngressMonitorController config from secret
-	tempClient, err := client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
-	if err != nil {
-		log.Error(err, "")
-		os.Exit(1)
-	}
-	ingressmonitorcontrollerconfig.LoadControllerConfig(tempClient)
-
-	// TODO: Don't create tempClient fix and use mgr.GetClient()
-	// ingressmonitorcontrollerconfig.LoadControllerConfig(mgr.GetClient())
+	ingressmonitorcontrollerconfig.LoadControllerConfig(mgr.GetAPIReader())
 
 	log.Info("Registering Components.")
 

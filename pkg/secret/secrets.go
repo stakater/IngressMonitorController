@@ -10,12 +10,13 @@ import (
 )
 
 // LoadSecretData loads a given secret key and returns it's data as a string.
-func LoadSecretData(c client.Client, secretName, namespace, dataKey string) (string, error) {
+func LoadSecretData(apiReader client.Reader, secretName, namespace, dataKey string) (string, error) {
 	s := &corev1.Secret{}
-	err := c.Get(context.TODO(), types.NamespacedName{Name: secretName, Namespace: namespace}, s)
+	err := apiReader.Get(context.TODO(), types.NamespacedName{Name: secretName, Namespace: namespace}, s)
 	if err != nil {
 		return "", err
 	}
+
 	retStr, ok := s.Data[dataKey]
 	if !ok {
 		return "", fmt.Errorf("secret %s did not contain key %s", secretName, dataKey)

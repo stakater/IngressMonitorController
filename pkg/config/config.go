@@ -86,7 +86,7 @@ type WebhookAction struct {
 	ServiceURI string `yaml:"service_uri"`
 }
 
-func LoadControllerConfig(client client.Client) {
+func LoadControllerConfig(apiReader client.Reader) {
 	var config Config
 	log.Info("Loading YAML Configuration from secret")
 
@@ -110,7 +110,10 @@ func LoadControllerConfig(client client.Client) {
 	}
 
 	// Retrieve config key from secret
-	configKey, err := secret.LoadSecretData(client, configSecretName, operatorNamespace, IngressMonitorControllerSecretConfigKey)
+	configKey, err := secret.LoadSecretData(apiReader, configSecretName, operatorNamespace, IngressMonitorControllerSecretConfigKey)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	// Unmarshall
 	err = yaml.Unmarshal([]byte(configKey), &config)
