@@ -24,6 +24,11 @@ type MonitorService struct {
 	ctx       context.Context
 }
 
+func (monitor *MonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// TODO: Retrieve oldMonitor config and compare it here
+	return false
+}
+
 func (service *MonitorService) Setup(provider config.Provider) {
 	service.ctx = context.Background()
 

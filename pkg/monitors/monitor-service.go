@@ -14,6 +14,7 @@ type MonitorService interface {
 	GetByName(name string) (*models.Monitor, error)
 	Remove(m models.Monitor)
 	Setup(p config.Provider)
+	Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool
 }
 
 func CreateMonitorService(p *config.Provider) MonitorServiceProxy {

@@ -27,6 +27,11 @@ type StatusCakeMonitorService struct {
 	client   *http.Client
 }
 
+func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// TODO: Retrieve oldMonitor config and compare it here
+	return false
+}
+
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
 func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	f := url.Values{}

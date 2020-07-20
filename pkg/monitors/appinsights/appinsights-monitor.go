@@ -93,6 +93,11 @@ func NewWebTest() *WebTest {
 	return &w
 }
 
+func (monitor *AppinsightsMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// TODO: Retrieve oldMonitor config and compare it here
+	return false
+}
+
 // Setup method will initialize a appinsights's go client
 func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 

@@ -23,6 +23,11 @@ type UpTimeMonitorService struct {
 	statusPageService UpTimeStatusPageService
 }
 
+func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// TODO: Retrieve oldMonitor config and compare it here
+	return false
+}
+
 func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
 	monitor.apiKey = p.ApiKey
 	monitor.url = p.ApiURL

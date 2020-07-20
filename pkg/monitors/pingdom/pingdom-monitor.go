@@ -28,6 +28,11 @@ type PingdomMonitorService struct {
 	client            *pingdom.Client
 }
 
+func (monitor *PingdomMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// TODO: Retrieve oldMonitor config and compare it here
+	return false
+}
+
 func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.apiKey = p.ApiKey
 	service.url = p.ApiURL

@@ -27,6 +27,11 @@ type UpdownMonitorService struct {
 	client *updown.Client
 }
 
+func (monitor *UpdownMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// TODO: Retrieve oldMonitor config and compare it here
+	return false
+}
+
 // Setup method will initialize a updown's go client object by using the configuration parameters
 func (updownService *UpdownMonitorService) Setup(confProvider config.Provider) {
 

@@ -86,6 +86,10 @@ func (mp *MonitorServiceProxy) Add(m models.Monitor) {
 	mp.monitor.Add(m)
 }
 
+func (mp *MonitorServiceProxy) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	return mp.monitor.Equal(oldMonitor, newMonitor)
+}
+
 func (mp *MonitorServiceProxy) Update(m models.Monitor) {
 	mp.monitor.Update(m)
 }

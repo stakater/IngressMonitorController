@@ -24,7 +24,9 @@ func (r *ReconcileEndpointMonitor) handleUpdate(request reconcile.Request, insta
 	// Create monitor Model
 	updatedMonitor := models.NewMonitor(monitor.Name, url, config)
 
-	// Update monitor for provider
-	monitorService.Update(updatedMonitor)
+	// Compare and Update monitor for provider if required
+	if !monitorService.Equal(monitor, updatedMonitor) {
+		monitorService.Update(updatedMonitor)
+	}
 	return reconcile.Result{RequeueAfter: RequeueTime}, nil
 }
