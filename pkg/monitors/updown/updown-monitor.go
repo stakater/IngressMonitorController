@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/antoineaugusti/updown"
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
@@ -150,7 +150,7 @@ func (service *UpdownMonitorService) addConfigToHttpCheck(updownCheckItemObj *up
 	// set some default values if we can't find them
 
 	// Retrieve provider configuration
-	providerConfig, _ := config.(*ingressmonitorv1alpha1.UpdownConfig)
+	providerConfig, _ := config.(*endpointmonitorv1alpha1.UpdownConfig)
 
 	if providerConfig != nil {
 		updownCheckItemObj.Enabled = providerConfig.Enable

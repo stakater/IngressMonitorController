@@ -1,7 +1,7 @@
-package ingressmonitor
+package endpointmonitor
 
 import (
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 
@@ -9,7 +9,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func (r *ReconcileIngressMonitor) handleDelete(request reconcile.Request, instance *ingressmonitorv1alpha1.IngressMonitor, monitorName string) (reconcile.Result, error) {
+func (r *ReconcileEndpointMonitor) handleDelete(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitorName string) (reconcile.Result, error) {
 	if instance == nil {
 		// Instance not found, nothing to do
 		return reconcile.Result{}, nil

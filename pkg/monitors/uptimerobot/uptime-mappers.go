@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 )
@@ -16,7 +16,7 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 	m.URL = uptimeMonitor.URL
 	m.ID = strconv.Itoa(uptimeMonitor.ID)
 
-	var providerConfig ingressmonitorv1alpha1.UptimeRobotConfig
+	var providerConfig endpointmonitorv1alpha1.UptimeRobotConfig
 	providerConfig.Interval = uptimeMonitor.Interval
 
 	alertContacts := make([]string, 0)

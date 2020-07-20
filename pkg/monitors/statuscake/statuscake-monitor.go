@@ -13,7 +13,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
@@ -35,7 +35,7 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	f.Add("WebsiteURL", unEscapedURL)
 
 	// Retrieve provider configuration
-	providerConfig, _ := m.Config.(*ingressmonitorv1alpha1.StatusCakeConfig)
+	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
 
 	if providerConfig != nil && providerConfig.CheckRate > 0 {
 		f.Add("CheckRate", strconv.Itoa(providerConfig.CheckRate))

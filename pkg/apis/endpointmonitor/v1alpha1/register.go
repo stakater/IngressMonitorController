@@ -1,8 +1,8 @@
 // NOTE: Boilerplate only.  Ignore this file.
 
-// Package v1alpha1 contains API Schema definitions for the ingressmonitor v1alpha1 API group
+// Package v1alpha1 contains API Schema definitions for the endpointmonitor v1alpha1 API group
 // +k8s:deepcopy-gen=package,register
-// +groupName=ingressmonitor.stakater.com
+// +groupName=endpointmonitor.stakater.com
 package v1alpha1
 
 import (
@@ -12,7 +12,7 @@ import (
 
 var (
 	// SchemeGroupVersion is group version used to register these objects
-	SchemeGroupVersion = schema.GroupVersion{Group: "ingressmonitor.stakater.com", Version: "v1alpha1"}
+	SchemeGroupVersion = schema.GroupVersion{Group: "endpointmonitor.stakater.com", Version: "v1alpha1"}
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
 	SchemeBuilder = &scheme.Builder{GroupVersion: SchemeGroupVersion}

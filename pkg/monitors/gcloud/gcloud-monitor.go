@@ -13,7 +13,7 @@ import (
 	monitoredres "google.golang.org/genproto/googleapis/api/monitoredres"
 	monitoringpb "google.golang.org/genproto/googleapis/monitoring/v3"
 
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
@@ -108,7 +108,7 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 	}
 
 	projectID := service.projectID
-	providerConfig, _ := monitor.Config.(*ingressmonitorv1alpha1.GCloudConfiguration)
+	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GCloudConfiguration)
 	if providerConfig != nil && len(providerConfig.ProjectId) != 0 {
 		projectID = providerConfig.ProjectId
 	}

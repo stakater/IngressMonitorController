@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
@@ -15,7 +15,7 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 	m.URL = uptimeMonitor.MspAddress
 	m.ID = strconv.Itoa(uptimeMonitor.PK)
 
-	var providerConfig ingressmonitorv1alpha1.UptimeConfig
+	var providerConfig endpointmonitorv1alpha1.UptimeConfig
 	providerConfig.Interval = uptimeMonitor.MspInterval
 	providerConfig.CheckType = uptimeMonitor.CheckType
 	providerConfig.Contacts = strings.Join(uptimeMonitor.ContactGroups, ",")

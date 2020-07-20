@@ -12,10 +12,10 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 )
 
-func GetMonitorURL(client client.Client, ingressMonitor *ingressmonitorv1alpha1.IngressMonitor) (string, error) {
+func GetMonitorURL(client client.Client, ingressMonitor *endpointmonitorv1alpha1.EndpointMonitor) (string, error) {
 	if len(ingressMonitor.Spec.URL) == 0 {
 		return discoverURLFromRefs(client, ingressMonitor)
 	}
@@ -28,7 +28,7 @@ func GetMonitorURL(client client.Client, ingressMonitor *ingressmonitorv1alpha1.
 	return ingressMonitor.Spec.URL, nil
 }
 
-func discoverURLFromIngressRef(client client.Client, ingressRef *ingressmonitorv1alpha1.IngressURLSource, namespace string, forceHttps bool, healthEndpoint string) (string, error) {
+func discoverURLFromIngressRef(client client.Client, ingressRef *endpointmonitorv1alpha1.IngressURLSource, namespace string, forceHttps bool, healthEndpoint string) (string, error) {
 	ingressObject := &v1beta1.Ingress{}
 	err := client.Get(context.TODO(), types.NamespacedName{Name: ingressRef.Name, Namespace: namespace}, ingressObject)
 	if err != nil {
@@ -40,7 +40,7 @@ func discoverURLFromIngressRef(client client.Client, ingressRef *ingressmonitorv
 	return ingressWrapper.GetURL(forceHttps, healthEndpoint), nil
 }
 
-func discoverURLFromRouteRef(client client.Client, routeRef *ingressmonitorv1alpha1.RouteURLSource, namespace string, forceHttps bool, healthEndpoint string) (string, error) {
+func discoverURLFromRouteRef(client client.Client, routeRef *endpointmonitorv1alpha1.RouteURLSource, namespace string, forceHttps bool, healthEndpoint string) (string, error) {
 	routeObject := &routev1.Route{}
 	err := client.Get(context.TODO(), types.NamespacedName{Name: routeRef.Name, Namespace: namespace}, routeObject)
 	if err != nil {
@@ -52,7 +52,7 @@ func discoverURLFromRouteRef(client client.Client, routeRef *ingressmonitorv1alp
 	return routeWrapper.GetURL(forceHttps, healthEndpoint), nil
 }
 
-func discoverURLFromRefs(client client.Client, ingressMonitor *ingressmonitorv1alpha1.IngressMonitor) (string, error) {
+func discoverURLFromRefs(client client.Client, ingressMonitor *endpointmonitorv1alpha1.EndpointMonitor) (string, error) {
 	urlFrom := ingressMonitor.Spec.URLFrom
 	if urlFrom == nil {
 		log.Warn("No URL sources set for ingressMonitor: " + ingressMonitor.Name)

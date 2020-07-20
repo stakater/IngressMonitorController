@@ -1,0 +1,6 @@
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: stakater
+spec:
+  url: https://www.stakater.com

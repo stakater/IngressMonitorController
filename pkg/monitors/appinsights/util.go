@@ -6,7 +6,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
 	log "github.com/sirupsen/logrus"
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
@@ -64,7 +64,7 @@ func getGeoLocation(locations []interface{}) *[]insights.WebTestGeolocation {
 // getConfiguration fetch values from config and return object of Configuration
 func getConfiguration(monitor models.Monitor) Configuration {
 
-	providerConfig, _ := monitor.Config.(*ingressmonitorv1alpha1.AppInsightsConfig)
+	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.AppInsightsConfig)
 
 	var config Configuration
 

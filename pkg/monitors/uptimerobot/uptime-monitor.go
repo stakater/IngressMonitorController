@@ -10,7 +10,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -169,7 +169,7 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 	}
 
 	// Retrieve provider configuration
-	providerConfig, _ := m.Config.(*ingressmonitorv1alpha1.UptimeRobotConfig)
+	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
 
 	if providerConfig != nil && len(providerConfig.AlertContacts) != 0 {
 		body += "&alert_contacts=" + providerConfig.AlertContacts
@@ -242,7 +242,7 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 func (monitor *UpTimeMonitorService) handleStatusPagesConfig(monitorToAdd models.Monitor, monitorId string) {
 	// Retrieve provider configuration
-	providerConfig, _ := monitorToAdd.Config.(*ingressmonitorv1alpha1.UptimeRobotConfig)
+	providerConfig, _ := monitorToAdd.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
 
 	if providerConfig != nil && len(providerConfig.StatusPages) != 0 {
 		IDs := strings.Split(providerConfig.StatusPages, "-")

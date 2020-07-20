@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/russellcardullo/go-pingdom/pingdom"
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
@@ -155,7 +155,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 	// set some default values if we can't find them
 
 	// Retrieve provider configuration
-	providerConfig, _ := config.(*ingressmonitorv1alpha1.PingdomConfig)
+	providerConfig, _ := config.(*endpointmonitorv1alpha1.PingdomConfig)
 
 	if providerConfig != nil && len(providerConfig.AlertContacts) != 0 {
 		userIdsStringArray := strings.Split(providerConfig.AlertContacts, "-")

@@ -1,7 +1,0 @@
-apiVersion: ingressmonitor.stakater.com/v1alpha1
-kind: IngressMonitor
-metadata:
-  name: example-ingressmonitor
-spec:
-  name: stakater-monitor
-  url: https://www.stakater.com

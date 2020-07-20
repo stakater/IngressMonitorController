@@ -1,11 +1,11 @@
-package ingressmonitor
+package endpointmonitor
 
 import (
 	"context"
 	log "github.com/sirupsen/logrus"
 	"time"
 
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	controllerName     = "ingressmonitor-controller"
+	controllerName     = "endpointmonitor-controller"
 	defaultRequeueTime = 60 * time.Second
 )
 
@@ -33,7 +33,7 @@ func init() {
 	}
 }
 
-// Add creates a new IngressMonitor Controller and adds it to the Manager. The Manager will set fields on the Controller
+// Add creates a new EndpointMonitor Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
 	return add(mgr, newReconciler(mgr))
@@ -42,7 +42,7 @@ func Add(mgr manager.Manager) error {
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	config := config.GetControllerConfig()
-	return &ReconcileIngressMonitor{
+	return &ReconcileEndpointMonitor{
 		client:          mgr.GetClient(),
 		scheme:          mgr.GetScheme(),
 		monitorServices: monitors.SetupMonitorServicesForProviders(config.Providers),
@@ -57,8 +57,8 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	// Watch for changes to primary resource IngressMonitor
-	err = c.Watch(&source.Kind{Type: &ingressmonitorv1alpha1.IngressMonitor{}}, &handler.EnqueueRequestForObject{})
+	// Watch for changes to primary resource EndpointMonitor
+	err = c.Watch(&source.Kind{Type: &endpointmonitorv1alpha1.EndpointMonitor{}}, &handler.EnqueueRequestForObject{})
 	if err != nil {
 		return err
 	}
@@ -66,11 +66,11 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	return nil
 }
 
-// blank assignment to verify that ReconcileIngressMonitor implements reconcile.Reconciler
-var _ reconcile.Reconciler = &ReconcileIngressMonitor{}
+// blank assignment to verify that ReconcileEndpointMonitor implements reconcile.Reconciler
+var _ reconcile.Reconciler = &ReconcileEndpointMonitor{}
 
-// ReconcileIngressMonitor reconciles a IngressMonitor object
-type ReconcileIngressMonitor struct {
+// ReconcileEndpointMonitor reconciles a EndpointMonitor object
+type ReconcileEndpointMonitor struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
 	client          client.Client
@@ -78,16 +78,16 @@ type ReconcileIngressMonitor struct {
 	monitorServices []monitors.MonitorServiceProxy
 }
 
-// Reconcile reads that state of the cluster for a IngressMonitor object and makes changes based on the state read
-// and what is in the IngressMonitor.Spec
+// Reconcile reads that state of the cluster for a EndpointMonitor object and makes changes based on the state read
+// and what is in the EndpointMonitor.Spec
 // Note:
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
-func (r *ReconcileIngressMonitor) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-	log.Info("Reconciling IngressMonitor")
+func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconcile.Result, error) {
+	log.Info("Reconciling EndpointMonitor")
 
-	// Fetch the IngressMonitor instance
-	instance := &ingressmonitorv1alpha1.IngressMonitor{}
+	// Fetch the EndpointMonitor instance
+	instance := &endpointmonitorv1alpha1.EndpointMonitor{}
 
 	monitorName := request.Name + "-" + request.Namespace
 

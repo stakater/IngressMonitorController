@@ -4,8 +4,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// IngressMonitorSpec defines the desired state of IngressMonitor
-type IngressMonitorSpec struct {
+// EndpointMonitorSpec defines the desired state of EndpointMonitor
+type EndpointMonitorSpec struct {
 	// URL to monitor
 	URL string `json:"url,omitempty"`
 
@@ -273,32 +273,32 @@ type RouteURLSource struct {
 	Name string `json:"name"`
 }
 
-// IngressMonitorStatus defines the observed state of IngressMonitor
-type IngressMonitorStatus struct {
+// EndpointMonitorStatus defines the observed state of EndpointMonitor
+type EndpointMonitorStatus struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// IngressMonitor is the Schema for the ingressmonitors API
+// EndpointMonitor is the Schema for the endpointmonitors API
 // +kubebuilder:subresource:status
-// +kubebuilder:resource:path=ingressmonitors,scope=Namespaced
-type IngressMonitor struct {
+// +kubebuilder:resource:path=endpointmonitors,scope=Namespaced
+type EndpointMonitor struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   IngressMonitorSpec   `json:"spec,omitempty"`
-	Status IngressMonitorStatus `json:"status,omitempty"`
+	Spec   EndpointMonitorSpec   `json:"spec,omitempty"`
+	Status EndpointMonitorStatus `json:"status,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// IngressMonitorList contains a list of IngressMonitor
-type IngressMonitorList struct {
+// EndpointMonitorList contains a list of EndpointMonitor
+type EndpointMonitorList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []IngressMonitor `json:"items"`
+	Items           []EndpointMonitor `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&IngressMonitor{}, &IngressMonitorList{})
+	SchemeBuilder.Register(&EndpointMonitor{}, &EndpointMonitorList{})
 }

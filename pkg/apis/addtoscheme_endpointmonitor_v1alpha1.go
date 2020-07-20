@@ -1,7 +1,7 @@
 package apis
 
 import (
-	"github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	"github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 )
 
 func init() {

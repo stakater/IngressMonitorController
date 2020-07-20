@@ -2,7 +2,7 @@ package monitors
 
 import (
 	log "github.com/sirupsen/logrus"
-	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/appinsights"
@@ -46,7 +46,7 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	return *mp
 }
 
-func (mp *MonitorServiceProxy) ExtractConfig(spec ingressmonitorv1alpha1.IngressMonitorSpec) interface{} {
+func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.EndpointMonitorSpec) interface{} {
 	var config interface{}
 
 	switch mp.monitorType {
