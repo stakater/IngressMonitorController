@@ -21,6 +21,14 @@ func (r *ReconcileEndpointMonitor) handleCreate(request reconcile.Request, insta
 	// Extract provider specific configuration
 	config := monitorService.ExtractConfig(instance.Spec)
 
+	// Handle CreationDelay
+	createTime := instance.Metadata.CreationTimestamp
+	delay := time.Until(config.GetControllerConfig().CreationDelay)
+	if delay.Nanoseconds() > 0 {
+		// Requeue request to add creation delay
+		return reconcile.Result{RequeueAfter: delay}, nil
+	}
+
 	// Create monitor Model
 	monitor := models.NewMonitor(monitorName, url, config)
 
