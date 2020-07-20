@@ -25,6 +25,14 @@ const (
 	defaultRequeueTime = 60 * time.Second
 )
 
+var RequeueTime = defaultRequeueTime
+
+func init() {
+	if config.GetControllerConfig().ResyncPeriod > 0 {
+		RequeueTime = time.Duration(config.GetControllerConfig().ResyncPeriod) * time.Second
+	}
+}
+
 // Add creates a new IngressMonitor Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {

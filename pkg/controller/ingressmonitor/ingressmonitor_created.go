@@ -27,5 +27,5 @@ func (r *ReconcileIngressMonitor) handleCreate(request reconcile.Request, instan
 	// Add monitor for provider
 	monitorService.Add(monitor)
 
-	return reconcile.Result{RequeueAfter: defaultRequeueTime}, nil
+	return reconcile.Result{RequeueAfter: RequeueTime}, nil
 }

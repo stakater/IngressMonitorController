@@ -29,5 +29,5 @@ func (r *ReconcileIngressMonitor) handleUpdate(request reconcile.Request, instan
 
 	// Update monitor for provider
 	monitorService.Update(updatedMonitor)
-	return reconcile.Result{RequeueAfter: defaultRequeueTime}, nil
+	return reconcile.Result{RequeueAfter: RequeueTime}, nil
 }
