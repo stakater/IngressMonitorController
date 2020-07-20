@@ -60,6 +60,7 @@ type Provider struct {
 	Password          string      `yaml:"password"`
 	AccountEmail      string      `yaml:"accountEmail"`
 	AppInsightsConfig AppInsights `yaml:"appInsightsConfig"`
+	GcloudConfig      Gcloud      `yaml:"gcloudConfig"`
 }
 
 type AppInsights struct {
@@ -70,6 +71,10 @@ type AppInsights struct {
 	GeoLocation   []interface{} `yaml:"geoLocation"`
 	EmailAction   EmailAction   `yaml:"emailAction"`
 	WebhookAction WebhookAction `yaml:"webhookAction"`
+}
+
+type Gcloud struct {
+	ProjectID string `yaml:"projectId"`
 }
 
 type EmailAction struct {

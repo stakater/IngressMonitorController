@@ -24,6 +24,7 @@ Currently we support the following monitors:
 - [Uptime](http://uptime.com) ([Additional Config](docs/uptime-configurations.md))
 - [Updown](https://updown.io/)([Additional Config](docs/updown-configuration.md))
 - [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/monitor-web-app-availability)([Additional Config](docs/appinsights-configuration.md))
+- [gcloud](https://cloud.google.com/monitoring/uptime-checks) ([Additional Config](docs/gcloud-configuration.md))
 
 ## Usage
 
@@ -114,6 +115,8 @@ or contact us in case of professional services and queries on <hello@stakater.co
 
 [website]: http://stakater.com/
 [community]: https://www.stakater.com/projects-overview.html
+
+The Google Cloud test infrastructure is sponsored by [JOSHMARTIN])(https://github.com/jshmrtn).
 
 ## Contributers
 
