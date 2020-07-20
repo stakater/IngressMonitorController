@@ -13,12 +13,9 @@ import (
 	monitoredres "google.golang.org/genproto/googleapis/api/monitoredres"
 	monitoringpb "google.golang.org/genproto/googleapis/monitoring/v3"
 
+	ingressmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/ingressmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
-)
-
-const (
-	ProjectIDAnnotation = "gcloud.monitor.stakater.com/project-id"
 )
 
 type MonitorService struct {
@@ -110,8 +107,14 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 		}
 	}
 
+	projectID := service.projectID
+	providerConfig, _ := monitor.Config.(*ingressmonitorv1alpha1.GCloudConfiguration)
+	if providerConfig != nil && len(providerConfig.ProjectId) != 0 {
+		projectID = providerConfig.ProjectId
+	}
+
 	_, err = service.client.CreateUptimeCheckConfig(service.ctx, &monitoringpb.CreateUptimeCheckConfigRequest{
-		Parent: "projects/" + service.projectID,
+		Parent: "projects/" + projectID,
 		UptimeCheckConfig: &monitoringpb.UptimeCheckConfig{
 			DisplayName: monitor.Name,
 			Resource: &monitoringpb.UptimeCheckConfig_MonitoredResource{

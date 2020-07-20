@@ -47,6 +47,10 @@ type IngressMonitorSpec struct {
 	// Configuration for AppInsights Monitor Provider
 	// +optional
 	AppInsightsConfig *AppInsightsConfig `json:"appInsightsConfig,omitempty"`
+
+	// Configuration for Google Cloud Monitor Provider
+	// +optional
+	GCloudConfiguration *GCloudConfiguration `json:"appInsightsConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -242,6 +246,13 @@ type AppInsightsConfig struct {
 	// Sets how often the test should run from each test location. Possible values: `300,600,900` seconds
 	// +optional
 	Frequency int `json:"frequency,omitempty"`
+}
+
+// GCloudConfiguration defines the configuration for Google Cloud Monitor Provider
+type GCloudConfiguration struct {
+	// Google Cloud Project ID
+	// +optional
+	ProjectId string `json:"projectId,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from

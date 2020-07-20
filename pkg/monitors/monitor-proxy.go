@@ -62,6 +62,8 @@ func (mp *MonitorServiceProxy) ExtractConfig(spec ingressmonitorv1alpha1.Ingress
 		config = spec.UpdownConfig
 	case "AppInsights":
 		config = spec.AppInsightsConfig
+	case "gcloud":
+		config = spec.GCloudConfiguration
 	default:
 		return config
 	}
