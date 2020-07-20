@@ -70,7 +70,7 @@ data:
       apiURL: https://google.com
       alertContacts: some-alert-contacts
     enableMonitorDeletion: true
-    monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+    monitorNameTemplate: "{{.Namespace}}-{{.Name}}"
     # how often (in seconds) monitors should be synced to their Kubernetes resources (0 = disabled)
     resyncPeriod: 0
     # creationDelay is a duration string to add a delay before creating new monitor (e.g., to allow DNS to catch up first)

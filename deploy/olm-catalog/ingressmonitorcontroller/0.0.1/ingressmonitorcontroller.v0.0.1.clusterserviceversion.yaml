@@ -26,7 +26,8 @@ spec:
       kind: EndpointMonitor
       name: endpointmonitors.endpointmonitor.stakater.com
       version: v1alpha1
-  description: An operator to watch ingresses/routes and create liveness alerts for your apps in Uptime checkers.
+  description: An operator to watch ingresses/routes and create liveness alerts for
+    your apps in Uptime checkers.
   displayName: Ingress Monitor Controller
   install:
     spec:
@@ -138,7 +139,6 @@ spec:
     type: MultiNamespace
   - supported: true
     type: AllNamespaces
-  maturity: alpha
   keywords:
   - kubernetes
   - IngressMonitorController
@@ -149,6 +149,7 @@ spec:
   maintainers:
   - email: hello@stakater.com
     name: Stakater
+  maturity: alpha
   provider:
     name: Stakater
   replaces: ingressmonitorcontroller.v0.0.0

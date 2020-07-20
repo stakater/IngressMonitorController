@@ -9,7 +9,6 @@ require (
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/Azure/go-autorest/autorest/validation v0.3.0 // indirect
 	github.com/antoineaugusti/updown v0.0.0-20190412074625-d590ab97f115
-	github.com/imdario/mergo v0.3.9
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
 	github.com/operator-framework/operator-sdk v0.19.0

@@ -32,15 +32,30 @@ spec:
           description: EndpointMonitorSpec defines the desired state of EndpointMonitor
           properties:
             appInsightsConfig:
+              description: Configuration for AppInsights Monitor Provider
+              properties:
+                frequency:
+                  description: 'Sets how often the test should run from each test
+                    location. Possible values: `300,600,900` seconds'
+                  type: integer
+                retryEnable:
+                  description: 'If its `true`, falied test will be retry after a short
+                    interval. Possible values: `true, false`'
+                  type: boolean
+                statusCode:
+                  description: Returned status code that is counted as a success
+                  type: integer
+              type: object
+            forceHttps:
+              description: Force monitor endpoint to use HTTPS
+              type: boolean
+            gcloudConfig:
               description: Configuration for Google Cloud Monitor Provider
               properties:
                 projectId:
                   description: Google Cloud Project ID
                   type: string
               type: object
-            forceHttps:
-              description: Force monitor endpoint to use HTTPS
-              type: boolean
             healthEndpoint:
               type: string
             pingdomConfig:

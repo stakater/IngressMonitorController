@@ -14,7 +14,7 @@ Source code can be found [here](https://github.com/stakater/IngressMonitorContro
 |-----|------|---------|-------------|
 | ingressMonitorController.config.labels.version | string | `"v1.0.92"` |  |
 | ingressMonitorController.configFilePath | string | `"/etc/IngressMonitorController/config.yaml"` |  |
-| ingressMonitorController.data."config.yaml" | string | `"providers:\n- name: UptimeRobot\n  apiKey: your-api-key\n  apiURL: https://google.com\n  alertContacts: some-alert-contacts\nenableMonitorDeletion: true\nmonitorNameTemplate: \"{{.Namespace}}-{{.IngressName}}\"\n# how often (in seconds) monitors should be synced to their Kubernetes resources (0 = disabled)\nresyncPeriod: 0\n# creationDelay is a duration string to add a delay before creating new monitor (e.g., to allow DNS to catch up first)\n# https://golang.org/pkg/time/#ParseDuration\ncreationDelay: 0"` |  |
+| ingressMonitorController.data."config.yaml" | string | `"providers:\n- name: UptimeRobot\n  apiKey: your-api-key\n  apiURL: https://google.com\n  alertContacts: some-alert-contacts\nenableMonitorDeletion: true\nmonitorNameTemplate: \"{{.Namespace}}-{{.Name}}\"\n# how often (in seconds) monitors should be synced to their Kubernetes resources (0 = disabled)\nresyncPeriod: 0\n# creationDelay is a duration string to add a delay before creating new monitor (e.g., to allow DNS to catch up first)\n# https://golang.org/pkg/time/#ParseDuration\ncreationDelay: 0"` |  |
 | ingressMonitorController.deployment.annotations."configmap.reloader.stakater.com/reload" | string | `"ingressmonitorcontroller"` |  |
 | ingressMonitorController.deployment.labels.version | string | `"v1.0.92"` |  |
 | ingressMonitorController.existingSecret | string | `""` |  |

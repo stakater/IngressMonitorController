@@ -50,7 +50,7 @@ type EndpointMonitorSpec struct {
 
 	// Configuration for Google Cloud Monitor Provider
 	// +optional
-	GCloudConfiguration *GCloudConfiguration `json:"appInsightsConfig,omitempty"`
+	GCloudConfig *GCloudConfig `json:"gcloudConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -249,7 +249,7 @@ type AppInsightsConfig struct {
 }
 
 // GCloudConfiguration defines the configuration for Google Cloud Monitor Provider
-type GCloudConfiguration struct {
+type GCloudConfig struct {
 	// Google Cloud Project ID
 	// +optional
 	ProjectId string `json:"projectId,omitempty"`

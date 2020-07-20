@@ -63,7 +63,7 @@ func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.Endpoi
 	case "AppInsights":
 		config = spec.AppInsightsConfig
 	case "gcloud":
-		config = spec.GCloudConfiguration
+		config = spec.GCloudConfig
 	default:
 		return config
 	}

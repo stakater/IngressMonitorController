@@ -108,7 +108,7 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 	}
 
 	projectID := service.projectID
-	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GCloudConfiguration)
+	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GCloudConfig)
 	if providerConfig != nil && len(providerConfig.ProjectId) != 0 {
 		projectID = providerConfig.ProjectId
 	}
@@ -228,9 +228,8 @@ func transformToMonitor(uptimeCheckConfig *monitoringpb.UptimeCheckConfig) (moni
 	}
 
 	return models.Monitor{
-		URL:         url.String(),
-		Name:        uptimeCheckConfig.DisplayName,
-		ID:          uptimeCheckConfig.Name,
-		Annotations: map[string]string{},
+		URL:  url.String(),
+		Name: uptimeCheckConfig.DisplayName,
+		ID:   uptimeCheckConfig.Name,
 	}
 }

@@ -14,8 +14,6 @@ import (
 func (r *ReconcileEndpointMonitor) handleUpdate(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitor models.Monitor, monitorService monitors.MonitorServiceProxy) (reconcile.Result, error) {
 	log.Info("Updating Monitor: " + monitor.Name)
 
-	fmt.Printf("%+v\n", instance.Spec)
-
 	url, err := util.GetMonitorURL(r.client, instance)
 	if err != nil {
 		return reconcile.Result{}, err

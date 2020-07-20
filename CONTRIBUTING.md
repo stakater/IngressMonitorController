@@ -135,5 +135,5 @@ providers:
     password: <your-account-password>
     accountEmail: <multi-auth-account-email>
 enableMonitorDeletion: true
-monitorNameTemplate: "{{.IngressName}}-{{.Namespace}}"
+monitorNameTemplate: "{{.Name}}-{{.Namespace}}"
 ```

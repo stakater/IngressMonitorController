@@ -2,6 +2,7 @@ package endpointmonitor
 
 import (
 	"context"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -89,9 +91,16 @@ func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconci
 	// Fetch the EndpointMonitor instance
 	instance := &endpointmonitorv1alpha1.EndpointMonitor{}
 
-	monitorName := request.Name + "-" + request.Namespace
+	var monitorName string
+	format, err := util.GetNameTemplateFormat(config.GetControllerConfig().MonitorNameTemplate)
+	if err != nil {
+		log.Error("Failed to parse MonitorNameTemplate, using default template `{{.Name}}-{{.Namespace}}`")
+		monitorName = request.Name + "-" + request.Namespace
+	} else {
+		monitorName = fmt.Sprintf(format, request.Name, request.Namespace)
+	}
 
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	err = r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
