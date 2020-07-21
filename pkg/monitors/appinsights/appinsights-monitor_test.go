@@ -9,8 +9,8 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
 	insightsAlert "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
-	"github.com/stakater/IngressMonitorController/pkg/models"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
 func TestAppinsightsMonitorService_createWebTest(t *testing.T) {
@@ -68,8 +68,8 @@ func TestAppinsightsMonitorService_createWebTest(t *testing.T) {
 					URL:  "https://microsoft.com",
 					Name: "foo",
 					Config: endpointmonitorv1alpha1.AppInsightsConfig{
-						StatusCode:   200,
-						Frequency:              300,
+						StatusCode:  200,
+						Frequency:   300,
 						RetryEnable: true,
 					},
 					ID: "",
@@ -191,8 +191,8 @@ func TestAppinsightsMonitorService_createAlertRuleResource(t *testing.T) {
 					URL:  "https://microsoft.com",
 					Name: "foo",
 					Config: endpointmonitorv1alpha1.AppInsightsConfig{
-						StatusCode:   200,
-						Frequency:              300,
+						StatusCode:  200,
+						Frequency:   300,
 						RetryEnable: true,
 					},
 					ID: "",

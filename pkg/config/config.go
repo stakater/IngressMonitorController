@@ -3,9 +3,9 @@ package config
 import (
 	log "github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 	"time"
-	"io/ioutil"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/stakater/IngressMonitorController/pkg/secret"

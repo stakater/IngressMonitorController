@@ -5,8 +5,8 @@ import (
 
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
 const (
@@ -28,7 +28,7 @@ func createRouteObjectWithAnnotations(routeName string, namespace string, url st
 
 func TestRouteWrapper_getURL(t *testing.T) {
 	type fields struct {
-		route      *routev1.Route
+		route  *routev1.Route
 		Client client.Client
 	}
 	tests := []struct {
@@ -39,7 +39,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithEmptyPath",
 			fields: fields{
-				route:      createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/"),
+				route:  createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/"),
 				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com/",
@@ -47,7 +47,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithHelloPath",
 			fields: fields{
-				route:      createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/hello"),
+				route:  createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/hello"),
 				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com/hello",
@@ -55,7 +55,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 		{
 			name: "TestGetUrlWithNoPath",
 			fields: fields{
-				route:      util.CreateRouteObject("testRoute", "test", routeTestUrl),
+				route:  util.CreateRouteObject("testRoute", "test", routeTestUrl),
 				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com/",
@@ -64,7 +64,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			iw := &RouteWrapper{
-				Route:      tt.fields.route,
+				Route:  tt.fields.route,
 				Client: tt.fields.Client,
 			}
 			if got := iw.GetURL(false, ""); got != tt.want {

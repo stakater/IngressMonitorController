@@ -4,11 +4,11 @@ import (
 	"os"
 	"testing"
 
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 	"github.com/stretchr/testify/assert"
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 )
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
@@ -90,21 +90,21 @@ func TestBuildUpsertFormAnnotations(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 
 	monitorConfig := endpointmonitorv1alpha1.StatusCakeConfig{
-		CheckRate: 60,
-		TestType: "TCP",
-		Paused: true,
-		PingURL: "",
+		CheckRate:      60,
+		TestType:       "TCP",
+		Paused:         true,
+		PingURL:        "",
 		FollowRedirect: true,
-		Port: 7070,
-		TriggerRate: 1,
-		ContactGroup: "123456,654321",
-		BasicAuthUser: "testuser",
-		NodeLocations: "",
-		StatusCodes: "500,501,502,503,504,505",
-		Confirmation: 2,
+		Port:           7070,
+		TriggerRate:    1,
+		ContactGroup:   "123456,654321",
+		BasicAuthUser:  "testuser",
+		NodeLocations:  "",
+		StatusCodes:    "500,501,502,503,504,505",
+		Confirmation:   2,
 		EnableSSLAlert: true,
-		RealBrowser: true,
-		TestTags: "test,testrun,uptime",
+		RealBrowser:    true,
+		TestTags:       "test,testrun,uptime",
 	}
 	m.Config = monitorConfig
 

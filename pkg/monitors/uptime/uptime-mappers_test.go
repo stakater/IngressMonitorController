@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/stakater/IngressMonitorController/pkg/models"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
 func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
@@ -59,28 +59,28 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 		ContactGroups: []string{"Default"}}
 
 	config1 := endpointmonitorv1alpha1.UptimeConfig{
-		Interval: 5,
+		Interval:  5,
 		CheckType: "HTTP",
 		Locations: "US-Central",
-		Contacts: "Default",
+		Contacts:  "Default",
 	}
 	config2 := endpointmonitorv1alpha1.UptimeConfig{
-		Interval: 10,
+		Interval:  10,
 		CheckType: "ICMP",
 		Locations: "US-Central",
-		Contacts: "Default",
+		Contacts:  "Default",
 	}
 
 	correctMonitors := []models.Monitor{
 		{
-			Name:        "Test Monitor",
-			ID:          "124",
-			URL:         "https://stakater.com",
+			Name:   "Test Monitor",
+			ID:     "124",
+			URL:    "https://stakater.com",
 			Config: config1},
 		{
-			Name:        "Test Monitor 2",
-			ID:          "125",
-			URL:         "https://facebook.com",
+			Name:   "Test Monitor 2",
+			ID:     "125",
+			URL:    "https://facebook.com",
 			Config: config2}}
 
 	var uptimeMonitors []UptimeMonitorMonitor

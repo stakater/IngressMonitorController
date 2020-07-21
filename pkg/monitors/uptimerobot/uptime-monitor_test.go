@@ -1,16 +1,16 @@
 package uptimerobot
 
 import (
+	"strconv"
 	"strings"
 	"testing"
-	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 )
 
 // Not a test case. Cleanup to remove added dummy Monitors
@@ -300,9 +300,9 @@ func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
 	service.Setup(*provider)
 
 	configKeyword := endpointmonitorv1alpha1.UptimeRobotConfig{
-		MonitorType: "keyword",
+		MonitorType:   "keyword",
 		KeywordExists: "yes",
-		KeywordValue: "google",
+		KeywordValue:  "google",
 	}
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configKeyword}

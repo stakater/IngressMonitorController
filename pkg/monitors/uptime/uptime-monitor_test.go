@@ -4,10 +4,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"testing"
 
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 )
 
 func TestGetAllMonitors(t *testing.T) {
@@ -49,9 +49,9 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	service.Setup(*provider)
 
 	monitorConfig := endpointmonitorv1alpha1.UptimeConfig{
-		Interval: 5,
+		Interval:  5,
 		Locations: "US-Central",
-		Contacts: "Default",
+		Contacts:  "Default",
 	}
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: monitorConfig}
@@ -86,9 +86,9 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	service.Setup(*provider)
 
 	monitorConfig := endpointmonitorv1alpha1.UptimeConfig{
-		Interval: 5,
+		Interval:  5,
 		Locations: "US-Central",
-		Contacts: "Default",
+		Contacts:  "Default",
 	}
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: monitorConfig}
@@ -154,9 +154,9 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	service.Setup(*provider)
 
 	monitorConfig := endpointmonitorv1alpha1.UptimeConfig{
-		Interval: 900,
+		Interval:  900,
 		Locations: "US-Central",
-		Contacts: "Default",
+		Contacts:  "Default",
 	}
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: monitorConfig}
