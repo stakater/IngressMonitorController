@@ -51,7 +51,7 @@ data:
 type: Opaque
 ```
 
-#### Additional Configuration
+#### Configuration Parameters
 
 Following are the available options that you can use to customize the controller:
 
@@ -136,6 +136,16 @@ The following quickstart let's you set up Ingress Monitor Controller to register
    $ oc apply -f deploy/role_binding.yaml
    $ oc apply -f deploy/operator.yaml
 ```
+
+### Environment Variables
+
+| Key                   |Description                                                                    |
+|-----------------------|-------------------------------------------------------------------------------|
+| WATCH_NAMESPACE             | Use comma separated list of namespaces or leave the field empty to watch all namespaces(cluster scope)          |
+| CONFIG_SECRET_NAME | Name of secret that holds the configuration |
+| LOG_LEVEL          | Set logging level from debug,info,warn,error,fatal. Default value is Info |
+| LOG_FORMAT        | Set logging format from text,json. Default value is text |
+
 
 ## Help
 
