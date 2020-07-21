@@ -3,11 +3,10 @@ package wrappers
 import (
 	"testing"
 
-	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 	"k8s.io/api/extensions/v1beta1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
+	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -52,7 +51,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 	type fields struct {
 		ingress    *v1beta1.Ingress
 		namespace  string
-		kubeClient kubernetes.Interface
+		Client client.Client
 	}
 	tests := []struct {
 		name   string
@@ -63,8 +62,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithEmptyPath",
 			fields: fields{
 				ingress:    createIngressObjectWithPath("testIngress", "test", testUrl, "/"),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
+				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com/",
 		},
@@ -72,8 +70,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithHelloPath",
 			fields: fields{
 				ingress:    createIngressObjectWithPath("testIngress", "test", testUrl, "/hello"),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
+				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com/hello",
 		},
@@ -81,59 +78,29 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithNoPath",
 			fields: fields{
 				ingress:    util.CreateIngressObject("testIngress", "test", testUrl),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
+				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com",
 		},
 		{
-			name: "TestGetUrlWithForceHTTPSAnnotation",
-			fields: fields{
-				ingress:    createIngressObjectWithAnnotations("testIngress", "test", testUrl, map[string]string{"monitor.stakater.com/forceHttps": "true"}),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
-			},
-			want: "https://testurl.stackator.com",
-		},
-		{
-			name: "TestGetUrlWithForceHTTPSAnnotationOff",
-			fields: fields{
-				ingress:    createIngressObjectWithAnnotations("testIngress", "test", testUrl, map[string]string{"monitor.stakater.com/forceHttps": "false"}),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
-			},
-			want: "http://testurl.stackator.com",
-		},
-		{
-			name: "TestGetUrlWithOverridePathAnnotation",
-			fields: fields{
-				ingress:    createIngressObjectWithAnnotations("testIngress", "test", testUrl, map[string]string{"monitor.stakater.com/overridePath": "/overriden-path"}),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
-			},
-			want: "http://testurl.stackator.com/overriden-path",
-		}, {
 			name: "TestGetUrlWithWildCardInPath",
 			fields: fields{
 				ingress:    createIngressObjectWithPath("testIngress", "test", testUrl, "/*"),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
+				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com/",
 		}, {
 			name: "TestGetUrlWithTLS",
 			fields: fields{
 				ingress:    createIngressObjectWithTLS("testIngress", "test", testUrl, "customtls.stackator.com"),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
+				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "https://customtls.stackator.com",
 		}, {
 			name: "TestGetUrlWithEmptyTLS",
 			fields: fields{
 				ingress:    createIngressObjectWithTLS("testIngress", "test", testUrl, ""),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
+				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com",
 		},
@@ -141,25 +108,12 @@ func TestIngressWrapper_getURL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			iw := &IngressWrapper{
-				Ingress:    tt.fields.ingress,
-				Namespace:  tt.fields.namespace,
-				KubeClient: tt.fields.kubeClient,
+				Ingress: tt.fields.ingress,
+				Client:  tt.fields.Client,
 			}
-			if got := iw.GetURL(); got != tt.want {
+			if got := iw.GetURL(false, ""); got != tt.want {
 				t.Errorf("IngressWrapper.getURL() = %v, want %v", got, tt.want)
 			}
 		})
 	}
-}
-
-func getTestKubeClient() kubernetes.Interface {
-	var kubeClient kubernetes.Interface
-	_, err := rest.InClusterConfig()
-	if err != nil {
-		kubeClient = kube.GetClientOutOfCluster()
-	} else {
-		kubeClient = kube.GetClient()
-	}
-
-	return kubeClient
 }

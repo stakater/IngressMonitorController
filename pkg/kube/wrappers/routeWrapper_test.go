@@ -5,7 +5,8 @@ import (
 
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-	"k8s.io/client-go/kubernetes"
+	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -28,8 +29,7 @@ func createRouteObjectWithAnnotations(routeName string, namespace string, url st
 func TestRouteWrapper_getURL(t *testing.T) {
 	type fields struct {
 		route      *routev1.Route
-		namespace  string
-		kubeClient kubernetes.Interface
+		Client client.Client
 	}
 	tests := []struct {
 		name   string
@@ -40,8 +40,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithEmptyPath",
 			fields: fields{
 				route:      createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/"),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
+				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com/",
 		},
@@ -49,8 +48,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithHelloPath",
 			fields: fields{
 				route:      createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/hello"),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
+				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com/hello",
 		},
@@ -58,47 +56,18 @@ func TestRouteWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithNoPath",
 			fields: fields{
 				route:      util.CreateRouteObject("testRoute", "test", routeTestUrl),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
+				Client: fakekubeclient.NewFakeClient(),
 			},
 			want: "http://testurl.stackator.com/",
-		},
-		{
-			name: "TestGetUrlWithForceHTTPSAnnotation",
-			fields: fields{
-				route:      createRouteObjectWithAnnotations("testRoute", "test", routeTestUrl, map[string]string{"monitor.stakater.com/forceHttps": "true"}),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
-			},
-			want: "https://testurl.stackator.com/",
-		},
-		{
-			name: "TestGetUrlWithForceHTTPSAnnotationOff",
-			fields: fields{
-				route:      createRouteObjectWithAnnotations("testRoute", "test", routeTestUrl, map[string]string{"monitor.stakater.com/forceHttps": "false"}),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
-			},
-			want: "http://testurl.stackator.com/",
-		},
-		{
-			name: "TestGetUrlWithOverridePathAnnotation",
-			fields: fields{
-				route:      createRouteObjectWithAnnotations("testRoute", "test", routeTestUrl, map[string]string{"monitor.stakater.com/overridePath": "/overriden-path"}),
-				namespace:  "test",
-				kubeClient: getTestKubeClient(),
-			},
-			want: "http://testurl.stackator.com/overriden-path",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			iw := &RouteWrapper{
 				Route:      tt.fields.route,
-				Namespace:  tt.fields.namespace,
-				KubeClient: tt.fields.kubeClient,
+				Client: tt.fields.Client,
 			}
-			if got := iw.GetURL(); got != tt.want {
+			if got := iw.GetURL(false, ""); got != tt.want {
 				t.Errorf("IngressWrapper.getURL() = %v, want %v", got, tt.want)
 			}
 		})

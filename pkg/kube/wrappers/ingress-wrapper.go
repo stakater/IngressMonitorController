@@ -16,13 +16,13 @@ import (
 
 type IngressWrapper struct {
 	Ingress *v1beta1.Ingress
-	client  client.Client
+	Client  client.Client
 }
 
 func NewIngressWrapper(ingress *v1beta1.Ingress, client client.Client) *IngressWrapper {
 	return &IngressWrapper{
 		Ingress: ingress,
-		client:  client,
+		Client:  client,
 	}
 }
 
@@ -35,10 +35,12 @@ func (iw *IngressWrapper) supportsTLS() bool {
 
 func (iw *IngressWrapper) tryGetTLSHost(forceHttps bool) (string, bool) {
 	if iw.supportsTLS() {
+		log.Info("iw.supportsTLS()")
 		return "https://" + iw.Ingress.Spec.TLS[0].Hosts[0], true
 	}
 
 	if forceHttps == true {
+		log.Info("forceHttpsZZ")
 		return "https://" + iw.Ingress.Spec.Rules[0].Host, true
 	}
 
@@ -129,7 +131,7 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 	}
 
 	service := &corev1.Service{}
-	err := iw.client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: iw.Ingress.Namespace}, service)
+	err := iw.Client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: iw.Ingress.Namespace}, service)
 	if err != nil {
 		log.Printf("Get service from kubernetes cluster error:%v", err)
 		return "", false
@@ -142,7 +144,7 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 		Namespace:     iw.Ingress.Namespace,
 		LabelSelector: labels.AsSelector(),
 	}
-	err = iw.client.List(context.TODO(), podList, listOps)
+	err = iw.Client.List(context.TODO(), podList, listOps)
 	if err != nil {
 		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
 	} else if len(podList.Items) > 0 {

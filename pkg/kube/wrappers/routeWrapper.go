@@ -15,13 +15,13 @@ import (
 
 type RouteWrapper struct {
 	Route  *routev1.Route
-	client client.Client
+	Client client.Client
 }
 
 func NewRouteWrapper(route *routev1.Route, client client.Client) *RouteWrapper {
 	return &RouteWrapper{
 		Route:  route,
-		client: client,
+		Client: client,
 	}
 }
 
@@ -73,7 +73,7 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 	}
 
 	service := &corev1.Service{}
-	err := rw.client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: rw.Route.Namespace}, service)
+	err := rw.Client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: rw.Route.Namespace}, service)
 	if err != nil {
 		log.Printf("Get service from kubernetes cluster error:%v", err)
 		return "", false
@@ -86,7 +86,7 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 		Namespace:     rw.Route.Namespace,
 		LabelSelector: labels.AsSelector(),
 	}
-	err = rw.client.List(context.TODO(), podList, listOps)
+	err = rw.Client.List(context.TODO(), podList, listOps)
 	if err != nil {
 		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
 	} else if len(podList.Items) > 0 {
