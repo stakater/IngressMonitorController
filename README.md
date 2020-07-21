@@ -1,6 +1,6 @@
 # ![](assets/web/IMC-round-100px.png) Ingress Monitor Controller
 
-A Kubernetes/Openshift controller to watch ingresses/routes and create liveness alerts for your apps/microservices in Uptime checkers.
+An operator to watch ingresses/routes and create liveness alerts for your apps/microservices in Uptime checkers.
 
 [![Get started with Stakater](https://stakater.github.io/README/stakater-github-banner.png)](http://stakater.com/?utm_source=IngressMonitorController&utm_medium=github)
 
@@ -10,9 +10,10 @@ We want to monitor ingresses in a kubernetes cluster and routes in openshift clu
 
 ## Solution
 
-This controller will continuously watch ingresses/routes in specific or all namespaces, and automatically add / remove monitors
-in any of the uptime checkers. With the help of this solution, you can keep a check on your services and see whether
-they're up and running and live, without worrying about manually registering them on the Uptime checker.
+This operator will continuously watch ingresses/routes based on defined `EndpointMonitor` custom resource, and 
+automatically add / remove monitors in any of the uptime checkers. With the help of this solution, you can keep a check
+ on your services and see whether they're up and running and live, without worrying about manually registering them on
+  the Uptime checker.
 
 ## Supported Uptime Checkers
 
@@ -22,63 +23,97 @@ Currently we support the following monitors:
 - [Pingdom](https://pingdom.com) ([Additional Config](docs/pingdom-configuration.md)) (Not fully tested)
 - [StatusCake](https://www.statuscake.com) ([Additional Config](docs/statuscake-configuration.md))
 - [Uptime](http://uptime.com) ([Additional Config](docs/uptime-configurations.md))
-- [Updown](https://updown.io/)([Additional Config](docs/updown-configuration.md))
-- [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/monitor-web-app-availability)([Additional Config](docs/appinsights-configuration.md))
+- [Updown](https://updown.io/) ([Additional Config](docs/updown-configuration.md))
+- [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/monitor-web-app-availability) ([Additional Config](docs/appinsights-configuration.md))
 - [gcloud](https://cloud.google.com/monitoring/uptime-checks) ([Additional Config](docs/gcloud-configuration.md))
 
 ## Usage
 
-The following quickstart let's you set up Ingress Monitor Controller to register uptime monitors for ingresses/routes in all namespaces:
+### Adding configuration
 
-1. Download the
-   [manifest file](https://raw.githubusercontent.com/stakater/IngressMonitorController/master/deployments/kubernetes/ingressmonitorcontroller.yaml)
+Configure the uptime checker configuration in the `config.yaml` based on your uptime provider. Add create a secret 
+`imc-config` that holds `config.yaml` key:
 
-2. Open the downloaded file in a text editor. Configure the uptime checker in the `config.yaml` data for the ConfigMap resource, and set the following properties
+```yaml
+kind: Secret
+apiVersion: v1
+metadata:
+  name: imc-config
+data:
+  config.yaml: >-
+    <BASE64_ENCODED_CONFIG.YAML>
+type: Opaque
+```
 
-   | Key           | Description                                                                                                                      |
-   | ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-   | name          | Name of the provider (e.g. UptimeRobot)                                                                                          |
-   | apiKey        | ApiKey of the provider                                                                                                           |
-   | apiURL        | Base url of the ApiProvider with trailing slash (e.g. https://api.uptimerobot.com/v2/)                                           |
-   | alertContacts | A `-` separated list of contact id's inside double quotes that you want to add to the monitors (e.g. "1234567_8_9-9876543_2_1" ) |
-   | creationDelay | A duration string (e.g., "300ms", "1h50s") to delay the creation of a monitor. (default: 0)                                      |
+- Replace `BASE64_ENCODED_CONFIG.YAML` with your config.yaml file that is encoded in base64. 
+- For detailed guide for the configuration refer to [Docs](./docs) and go through configuration guidelines for your uptime provider.
+- For sample `config.yaml` files refer to [Sample Configs](examples/configs).
+- Name of secret can be changed by setting environment variable `CONFIG_SECRET_NAME`.
 
-   _Note:_ Follow [this](docs/uptimerobot-configuration.md) guide to see how to fetch `alertContacts` from UptimeRobot.
+### Add EndpointMonitor
 
-   _Note 1:_ See the section `Using Secrets` [here](docs/Deploying-to-Kubernetes.md) if you do not want to use ConfigMap (because API-Key in plain text) and want to use Secrets to hide API keys
+`EndpointMonitor` resource can be used to manage monitors on static urls or route/ingress references.
 
-3) Enable for your Ingress/Route
+- Specifying url:
 
-   You will need to add the following annotation on your ingresses/routes so that the controller is able to recognize and monitor it.
+```yaml
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: stakater
+spec:
+  forceHtpps: true
+  url: https://stakater.com
+```
 
-   ```yaml
-   "monitor.stakater.com/enabled": "true"
-   ```
+- Specifying route reference:
 
-4) Deploy the controller by running the following command:
+```yaml
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: frontend
+spec:
+  forceHtpps: true
+  urlFrom:
+    routeRef:
+      name: frontend
+```
 
-   For Kubernetes Cluster
+- Specifying ingress reference:
 
-   ```bash
-   kubectl apply -f ingressmonitorcontroller.yaml -n default
-   ```
+```yaml
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: frontend
+spec:
+  forceHtpps: true
+  urlFrom:
+    ingressRef:
+      name: frontend
+```
 
-   For Openshift Cluster
+## Deploying the Operator
 
-   ```bash
-   oc create -f ingressmonitorcontroller.yaml -n default
-   ```
+The following quickstart let's you set up Ingress Monitor Controller to register uptime monitors for endpoints:
 
-### Helm Charts
+1) Clone this repository
+```terminal
+    $ git clone git@github.com:stakater/IngressMonitorController.git
+```
 
-Alternatively if you have configured helm on your cluster, you can install ingressmonitorcontroller from stakater's public chart repository and deploy it via helm using below mentioned commands
-
-```bash
-helm repo add stakater https://stakater.github.io/stakater-charts
-
-helm repo update
-
-helm install stakater/ingressmonitorcontroller
+2) Deploy dependencies(crds):
+```terminal
+    $ oc apply -f deploy/crds
+```
+ 
+3) Deploy ServiceAccount, Role, RoleBinding and Operator:
+```terminal
+   $ oc apply -f deploy/service_account.yaml
+   $ oc apply -f deploy/role.yaml
+   $ oc apply -f deploy/role_binding.yaml
+   $ oc apply -f deploy/operator.yaml
 ```
 
 ## Help
@@ -99,7 +134,7 @@ File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issue
 
 Join and talk to us on the #tools-ingressmonitor channel for discussing the Ingress Monitor Controller
 
-[![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://stakater-slack.herokuapp.com/)
+[![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://slack.stakater.com/)
 [![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater.slack.com/messages/CA66MMYSE/)
 
 ## License
@@ -118,6 +153,6 @@ or contact us in case of professional services and queries on <hello@stakater.co
 
 The Google Cloud test infrastructure is sponsored by [JOSHMARTIN])(https://github.com/jshmrtn).
 
-## Contributers
+## Contributors
 
 Stakater Team and the Open Source community! :trophy:

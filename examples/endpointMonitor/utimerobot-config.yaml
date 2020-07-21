@@ -1,0 +1,16 @@
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: uptimerobot-config-example
+spec:
+  forceHtpps: true
+  providers: "UptimeRobot"
+  healthEndpoint: "/healthzzz"
+  urlFrom:
+    routeRef:
+      name: frontend
+  uptimeRobotConfig:
+    interval: 600
+    monitorType: "http"
+    KeywordExists: "yes"
+    KeywordValue: "404"
