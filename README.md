@@ -45,6 +45,19 @@ data:
 type: Opaque
 ```
 
+#### Additional Configuration
+
+Following are the available options that you can use to customize the controller:
+
+| Key                   |Description                                                                    |
+|-----------------------|-------------------------------------------------------------------------------|
+| providers             | An array of uptime providers that you want to add to your controller          |
+| enableMonitorDeletion | A safeguard flag that is used to enable or disable monitor deletion on ingress deletion (Useful for prod environments where you don't want to remove monitor on ingress deletion) |
+| resyncPeriod          | Resync period in seconds, allows to re-sync periodically the monitors with the Routes. Defaults to 0 (= disabled) |
+| creationDelay        | CreationDelay is a duration string to add a delay before creating new monitor (e.g., to allow DNS to catch up first) |
+| monitorNameTemplate    | Template for monitor name eg, `{{.Namespace}}-{{.Name}}`          |  
+
+
 - Replace `BASE64_ENCODED_CONFIG.YAML` with your config.yaml file that is encoded in base64. 
 - For detailed guide for the configuration refer to [Docs](./docs) and go through configuration guidelines for your uptime provider.
 - For sample `config.yaml` files refer to [Sample Configs](examples/configs).
@@ -93,6 +106,8 @@ spec:
     ingressRef:
       name: frontend
 ```
+
+NOTE: For provider specific additional configuration refer to [Docs](./docs) and go through configuration guidelines for your uptime provider.
 
 ## Deploying the Operator
 
