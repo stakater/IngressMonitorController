@@ -18,6 +18,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/apis"
 	ingressmonitorcontrollerconfig "github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/controller"
+	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/version"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
@@ -130,9 +131,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := routev1.AddToScheme(mgr.GetScheme()); err != nil {
-		log.Error(err, "error registering route objects")
-		os.Exit(1)
+	// Register Route object
+	if kube.IsOpenshift {
+		if err := routev1.AddToScheme(mgr.GetScheme()); err != nil {
+			log.Error(err, "error registering route objects")
+			os.Exit(1)
+		}
 	}
 
 	// Setup all Controllers
