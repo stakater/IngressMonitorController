@@ -1,6 +1,7 @@
 apiVersion: endpointmonitor.stakater.com/v1alpha1
 kind: EndpointMonitor
 metadata:
-  name: stakater
+  name: static-url-example
 spec:
-  url: https://www.stakater.com
+  forceHtpps: true
+  url: https://stakater.com/

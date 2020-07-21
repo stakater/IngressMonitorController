@@ -53,10 +53,26 @@ enableMonitorDeletion: true
 
 ## Additional Configuration
 
-Additional Appinsights configurations can be added to each ingress object using annotations, current supported annotations are:
+Additional Appinsights configurations can be added in the `EndpointMonitor`, current supported configuration attributes are:
 
-| Annotations                                  | Description                                                                                                                                      |
+| Fields                                  | Description                                                                                                                                      |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| appinsights.monitor.stakater.com/statuscode  | Returned status code that is counted as a success. Possible values: [HTTP Status Codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) |
-| appinsights.monitor.stakater.com/retryenable | If its `true`, falied test will be retry after a short interval. Possible values: `true, false`                                                  |
-| appinsights.monitor.stakater.com/frequency   | Sets how often the test should run from each test location. Possible values: `300,600,900` seconds                                               |
+| statuscode  | Returned status code that is counted as a success. Possible values: [HTTP Status Codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) |
+| retryenable | If its `true`, falied test will be retry after a short interval. Possible values: `true, false`                                                  |
+| frequency   | Sets how often the test should run from each test location. Possible values: `300,600,900` seconds                                               |
+
+## Example: 
+
+```yaml
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: stakater
+spec:
+  forceHtpps: true
+  url: https://stakater.com/
+  appInsightsConfig:
+    statusCode: 404
+    retryEnable: true
+    frequency: 900
+```

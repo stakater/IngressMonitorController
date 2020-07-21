@@ -22,12 +22,30 @@ in the [Configuration section of the README](../README.md#configuration):
 
 ## Additional Configuration
 
-Additional updown configurations can be added to each ingress object using annotations, current supported annotations are:
+Additional updown configurations can be added through these fields:
 
-|                        Annotations                       |                    Description                   |
+|                        Fields                       |                    Description                   |
 |----------------------------------------------------------|--------------------------------------------------|
-| updown.monitor.stakater.com/enable  | Set to "false" to disable checks                 |
-| updown.monitor.stakater.com/period                       | The pingdom check interval in seconds, it accepts `only` these values: 15, 30, 60, 120, 300, 600, 1800, 3600  |
-| updown.monitor.stakater.com/enable | Check be enabled or not ("true" or "false") |
-| updown.monitor.stakater.com/publish-page | Status page be public or not ("true" or "false")|
-| updown.monitor.stakater.com/request-headers              | Custom updown request headers (e.g. {"Accept"="application/json"}) |
+| enable  | Set to "false" to disable checks                 |
+| period                       | The pingdom check interval in seconds, it accepts `only` these values: 15, 30, 60, 120, 300, 600, 1800, 3600  |
+| enable | Check be enabled or not ("true" or "false") |
+| publish-page | Status page be public or not ("true" or "false")|
+| request-headers              | Custom updown request headers (e.g. {"Accept"="application/json"}) |
+
+
+## Example: 
+
+```yaml
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: stakater
+spec:
+  forceHtpps: true
+  url: https://stakater.com/
+  updownConfig:
+    enable: true
+    period: 15
+    publishPage: true
+    requestHeaders: {"Accept"="application/json"}
+```

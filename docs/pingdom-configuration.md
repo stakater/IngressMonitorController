@@ -23,23 +23,48 @@ More information can be found [Here](https://www.pingdom.com/api/2.1/#multi-user
 
 ## Advanced
 
-Currently additional pingdom configurations can be added through a set of annotations to each ingress object, the current supported annotations are:
+Currently additional pingdom configurations can be added through these fields:
 
-|                        Annotation                        |                    Description                   |
+|                        Fields                        |                    Description                   |
 |:--------------------------------------------------------:|:------------------------------------------------:|
-| pingdom.monitor.stakater.com/resolution                  | The pingdom check interval in minutes            |
-| pingdom.monitor.stakater.com/send-notification-when-down | How many failed check attempts before notifying  |
-| pingdom.monitor.stakater.com/paused                      | Set to "true" to pause checks                    |
-| pingdom.monitor.stakater.com/notify-when-back-up         | Set to "false" to disable recovery notifications |
-| pingdom.monitor.stakater.com/request-headers             | Custom pingdom request headers (e.g. {"Accept"="application/json"}) |
-| pingdom.monitor.stakater.com/basic-auth-user             | Required for basic-authentication checks - [see below](#basic-auth-checks) |
-| pingdom.monitor.stakater.com/should-contain              | Set to text string that has to be present in the HTML code of the page (configures "Should contain") |
-| pingdom.monitor.stakater.com/tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws") |
-| pingdom.monitor.stakater.com/alert-integrations                | `-` separated set list of integrations ids (e.g. "91166-12168") |
-| pingdom.monitor.stakater.com/alert-contacts                | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1") to override the [default alertContacts](https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage)|
+| resolution                  | The pingdom check interval in minutes            |
+| send-notification-when-down | How many failed check attempts before notifying  |
+| paused                      | Set to "true" to pause checks                    |
+| notify-when-back-up         | Set to "false" to disable recovery notifications |
+| request-headers             | Custom pingdom request headers (e.g. {"Accept"="application/json"}) |
+| basic-auth-user             | Required for basic-authentication checks - [see below](#basic-auth-checks) |
+| should-contain              | Set to text string that has to be present in the HTML code of the page (configures "Should contain") |
+| tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws") |
+| alert-integrations                | `-` separated set list of integrations ids (e.g. "91166-12168") |
+| alert-contacts                | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1") to override the [default alertContacts](https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage)|
+
 
 ### Basic Auth checks
 
-Pingdom supports checks completing basic auth requirements. The annotation `pingdom.monitor.stakater.com/basic-auth-user` can be used to trigger the Ingress Monitor attempting to configure this setting. The value of the anotation should be the username to be configured. The Ingress Monitor Controller will then attempt to access an OS env variable of the same name which will return the password that should be used. The env variable can be mounted within the Ingress Monitor Controller container via a secret.
+Pingdom supports checks completing basic auth requirements. In `EndpointMonitor` the field `basicAuthUser` can be used to trigger the Ingress Monitor attempting to configure this setting. The value of the field should be the username to be configured. The Ingress Monitor Controller will then attempt to access an OS env variable of the same name which will return the password that should be used. The env variable can be mounted within the Ingress Monitor Controller container via a secret.
 
-For example; the annotation `pingdom.monitor.stakater.com/basic-auth-user: 'health-service'` will set the username field to 'health-service' and will retrieve the password via `os.Getenv('health-service')` and set this appropriately.
+For example; setting the field like `basicAuthUser: health-service` will set the username field to 'health-service' and will retrieve the password via `os.Getenv('health-service')` and set this appropriately.
+
+
+## Example: 
+
+```yaml
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: stakater
+spec:
+  forceHtpps: true
+  url: https://stakater.com/
+  pingdomConfig:
+    resolution: 10
+    sendNotificationWhenDown: true
+    paused: false
+    notifyWhenBackUp: false
+    requestHeaders: {"Accept"="application/json"}
+    basicAuthUser: health-service
+    shouldContain: "must have text"
+    tags: "testing,aws"
+    alertIntegrations: "91166-12168"
+    alertContacts: "1234567_8_9-9876543_2_1,1234567_8_9-9876543_2_2"
+```

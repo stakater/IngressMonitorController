@@ -6,14 +6,14 @@ import (
 )
 
 const (
-	configFilePath                   = "../../configs/testConfigs/test-config.yaml"
+	configFilePath                   = "../../examples/configs/test-config-uptimerobot.yaml"
 	correctTestConfigName            = "UptimeRobot"
 	correctTestAPIKey                = "657a68d9ashdyasjdklkskuasd"
 	correctTestAPIURL                = "https://api.uptimerobot.com/v2/"
 	correctTestAlertContacts         = "0544483_0_0-2628365_0_0-2633263_0_0"
 	correctTestEnableMonitorDeletion = true
 
-	configFilePathPingdom               = "../../configs/testConfigs/test-config-pingdom.yaml"
+	configFilePathPingdom               = "../../examples/configs/test-config-pingdom.yaml"
 	correctTestPingdomConfigMulti       = "PingdomMulti"
 	correctTestPingdomUsername          = "user@test.com"
 	correctTestPingdomAPIURL            = "https://api.pingdom.com/v2/"
@@ -23,13 +23,13 @@ const (
 	correctTestPingdomAlertIntegrations = "91166,10924"
 	correctTestPingdomAPIKey            = "657a68d9ashdyasjdklkskuasd"
 
-	configFilePathUptime           = "../../configs/testConfigs/test-config-uptime.yaml"
+	configFilePathUptime           = "../../examples/configs/test-config-uptime.yaml"
 	correctTestUptimeConfigName    = "Uptime"
 	correctTestUptimeAPIURL        = "https://uptime.com/api/v1/"
 	correctTestUptimeAPIKey        = "657a68d9ashdyasjdklkskuasd"
 	correctTestUptimeAlertContacts = "Default"
 
-	configFilePathAppInsights        = "../../configs/testConfigs/test-config-appinsights.yaml"
+	configFilePathAppInsights        = "../../examples/configs/test-config-appinsights.yaml"
 	correctTestAppInsightsConfigName = "AppInsights"
 )
 

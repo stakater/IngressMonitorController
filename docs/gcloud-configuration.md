@@ -36,3 +36,17 @@ providers:
       projectId: project-name
 enableMonitorDeletion: true
 ```
+
+## Example: 
+
+```yaml
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: stakater
+spec:
+  forceHtpps: true
+  url: https://stakater.com/
+  gcloudConfig:
+    projectId: stakater-project
+```

@@ -80,7 +80,7 @@ type UptimeRobotConfig struct {
 
 	// keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)
 	// +optional
-	KeywordValue string `json:"keywordExists,omitempty"`
+	KeywordValue string `json:"keywordValue,omitempty"`
 
 	// The uptimerobot public status page ID to add this monitor to
 	// +optional
@@ -202,7 +202,7 @@ type PingdomConfig struct {
 
 	// Set to "true" to pause checks
 	// +optional
-	Paused bool `json:"resolution,paused"`
+	Paused bool `json:"paused,omitempty"`
 
 	// Set to "false" to disable recovery notifications
 	// +optional
