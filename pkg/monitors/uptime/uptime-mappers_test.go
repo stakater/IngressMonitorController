@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 )
 
 func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
@@ -16,12 +17,13 @@ func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 		CheckType:   "HTTP"}
 
 	monitorObject := UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitorObject)
+	providerConfig, _ := monitorObject.Config.(endpointmonitorv1alpha1.UptimeConfig)
 
 	if monitorObject.ID != strconv.Itoa(uptimeMonitorObject.PK) ||
 		monitorObject.Name != uptimeMonitorObject.Name ||
 		monitorObject.URL != uptimeMonitorObject.MspAddress ||
-		"5" != monitorObject.Annotations["uptime.monitor.stakater.com/interval"] ||
-		"HTTP" != monitorObject.Annotations["uptime.monitor.stakater.com/check_type"] {
+		5 != providerConfig.Interval ||
+		"HTTP" != providerConfig.CheckType {
 		t.Error("Correct: \n",
 			uptimeMonitorObject.Name,
 			uptimeMonitorObject.PK,
@@ -31,8 +33,8 @@ func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 		t.Error("Parsed: \n", monitorObject.Name,
 			monitorObject.ID,
 			monitorObject.URL,
-			monitorObject.Annotations["uptime.monitor.stakater.com/interval"],
-			monitorObject.Annotations["uptime.monitor.stakater.com/check_type"],
+			providerConfig.Interval,
+			providerConfig.CheckType,
 		)
 		t.Error("Mapper did not map the values correctly")
 	}
@@ -56,17 +58,17 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 		Locations:     []string{"US-Central"},
 		ContactGroups: []string{"Default"}}
 
-	var annotations1 = map[string]string{
-		"uptime.monitor.stakater.com/interval":   "5",
-		"uptime.monitor.stakater.com/check_type": "HTTP",
-		"uptime.monitor.stakater.com/locations":  "US-Central",
-		"uptime.monitor.stakater.com/contacts":   "Default",
+	config1 := endpointmonitorv1alpha1.UptimeConfig{
+		Interval: 5,
+		CheckType: "HTTP",
+		Locations: "US-Central",
+		Contacts: "Default",
 	}
-	var annotations2 = map[string]string{
-		"uptime.monitor.stakater.com/interval":   "10",
-		"uptime.monitor.stakater.com/check_type": "ICMP",
-		"uptime.monitor.stakater.com/locations":  "US-Central",
-		"uptime.monitor.stakater.com/contacts":   "Default",
+	config2 := endpointmonitorv1alpha1.UptimeConfig{
+		Interval: 10,
+		CheckType: "ICMP",
+		Locations: "US-Central",
+		Contacts: "Default",
 	}
 
 	correctMonitors := []models.Monitor{
@@ -74,12 +76,12 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 			Name:        "Test Monitor",
 			ID:          "124",
 			URL:         "https://stakater.com",
-			Annotations: annotations1},
+			Config: config1},
 		{
 			Name:        "Test Monitor 2",
 			ID:          "125",
 			URL:         "https://facebook.com",
-			Annotations: annotations2}}
+			Config: config2}}
 
 	var uptimeMonitors []UptimeMonitorMonitor
 	uptimeMonitors = append(uptimeMonitors, uptimeMonitorObject1)

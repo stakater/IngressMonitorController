@@ -10,6 +10,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
 	insightsAlert "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 )
 
 func TestAppinsightsMonitorService_createWebTest(t *testing.T) {
@@ -66,10 +67,10 @@ func TestAppinsightsMonitorService_createWebTest(t *testing.T) {
 				monitor: models.Monitor{
 					URL:  "https://microsoft.com",
 					Name: "foo",
-					Annotations: map[string]string{
-						"AppInsightsStatusCodeAnnotation":   "200",
-						"AppInsightsFrequency":              string(frequency),
-						"AppInsightsRetryEnabledAnnotation": "true",
+					Config: endpointmonitorv1alpha1.AppInsightsConfig{
+						StatusCode:   200,
+						Frequency:              300,
+						RetryEnable: true,
 					},
 					ID: "",
 				},
@@ -128,7 +129,6 @@ func TestAppinsightsMonitorService_createAlertRuleResource(t *testing.T) {
 	alertName := fmt.Sprintf("%s-alert", webtestName)
 	resourceGroup := "demoRG"
 	geoLocation := []interface{}{"us-tx-sn1-azr"}
-	frequency := int32(300)
 	isEnabled := true
 	subID := "99cb99da-9cf9-9999-9999-9eacc5d36a65"
 	emailAction := []string{"mail@cizer.dev"}
@@ -190,10 +190,10 @@ func TestAppinsightsMonitorService_createAlertRuleResource(t *testing.T) {
 				monitor: models.Monitor{
 					URL:  "https://microsoft.com",
 					Name: "foo",
-					Annotations: map[string]string{
-						"AppInsightsStatusCodeAnnotation":   "200",
-						"AppInsightsFrequency":              string(frequency),
-						"AppInsightsRetryEnabledAnnotation": "true",
+					Config: endpointmonitorv1alpha1.AppInsightsConfig{
+						StatusCode:   200,
+						Frequency:              300,
+						RetryEnable: true,
 					},
 					ID: "",
 				},

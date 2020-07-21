@@ -8,6 +8,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 	"github.com/stretchr/testify/assert"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 )
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
@@ -87,23 +88,25 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 
 func TestBuildUpsertFormAnnotations(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
-	m.Annotations = map[string]string{
-		"statuscake.monitor.stakater.com/check-rate":       "60",
-		"statuscake.monitor.stakater.com/test-type":        "TCP",
-		"statuscake.monitor.stakater.com/paused":           "true",
-		"statuscake.monitor.stakater.com/ping-url":         "",
-		"statuscake.monitor.stakater.com/follow-redirect":  "true",
-		"statuscake.monitor.stakater.com/port":             "7070",
-		"statuscake.monitor.stakater.com/trigger-rate":     "1",
-		"statuscake.monitor.stakater.com/contact-group":    "123456,654321",
-		"statuscake.monitor.stakater.com/basic-auth-user":  "testuser",
-		"statuscake.monitor.stakater.com/node-locations":   "",
-		"statuscake.monitor.stakater.com/status-codes":     "500,501,502,503,504,505",
-		"statuscake.monitor.stakater.com/confirmation":     "2",
-		"statuscake.monitor.stakater.com/enable-ssl-alert": "true",
-		"statuscake.monitor.stakater.com/test-tags":        "test,testrun,uptime",
-		"statuscake.monitor.stakater.com/real-browser":     "true",
+
+	monitorConfig := endpointmonitorv1alpha1.StatusCakeConfig{
+		CheckRate: 60,
+		TestType: "TCP",
+		Paused: true,
+		PingURL: "",
+		FollowRedirect: true,
+		Port: 7070,
+		TriggerRate: 1,
+		ContactGroup: "123456,654321",
+		BasicAuthUser: "testuser",
+		NodeLocations: "",
+		StatusCodes: "500,501,502,503,504,505",
+		Confirmation: 2,
+		EnableSSLAlert: true,
+		RealBrowser: true,
+		TestTags: "test,testrun,uptime",
 	}
+	m.Config = monitorConfig
 
 	oldEnv := os.Getenv("testuser")
 	os.Setenv("testuser", "testpass")

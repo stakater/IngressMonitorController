@@ -8,6 +8,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 	"github.com/stretchr/testify/assert"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 )
 
 type Block struct {
@@ -125,15 +126,16 @@ func TestAddMonitorWhileNoCheckExists(t *testing.T) {
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
 
-	annotations := map[string]string{
-		"updown.monitor.stakater.com/publish-page": "false",
-		"updown.monitor.stakater.com/enable":       "false",
-		"updown.monitor.stakater.com/period":       "120"}
+	monitorConfig := endpointmonitorv1alpha1.UpdownConfig{
+		PublishPage: false,
+		Enable: false,
+		Period: 120,
+	}
 
 	newMonitor := models.Monitor{
 		URL:         CheckURL,
 		Name:        CheckName,
-		Annotations: annotations}
+		Config: monitorConfig}
 
 	UpdownService.Add(newMonitor)
 }
@@ -192,16 +194,17 @@ func TestUpdateMonitorWhileCheckExists(t *testing.T) {
 	firstElement := 0
 	monitorSlice := UpdownService.GetAll()
 
-	annotations := map[string]string{
-		"updown.monitor.stakater.com/publish-page": "true",
-		"updown.monitor.stakater.com/enable":       "false",
-		"updown.monitor.stakater.com/period":       "60"}
+	monitorConfig := endpointmonitorv1alpha1.UpdownConfig{
+		PublishPage: true,
+		Enable: false,
+		Period: 60,
+	}
 
 	updatedMonitor := models.Monitor{
 		URL:         CheckURL,
 		Name:        UpdatedCheckName,
 		ID:          monitorSlice[firstElement].ID,
-		Annotations: annotations}
+		Config: monitorConfig}
 
 	UpdownService.Update(updatedMonitor)
 
