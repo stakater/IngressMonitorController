@@ -37,13 +37,13 @@ Additional uptime robot configurations can be added through these fields:
 
 |                        Fields                    |                    Description                               |
 |:----------------------------------------------------:|:------------------------------------------------------------:|
-| alert-contacts       | The uptimerobot alertContacts to be associated with this monitor. Overrides the value of `alertContacts` from the Controller's ConfigMap. See [Fetching alert contacts from UpTime Robot](https://github.com/stakater/IngressMonitorController/blob/master/docs/uptimerobot-configuration.md) |
-| interval            | The uptimerobot check interval in seconds                    |
-| status-pages        | The uptimerobot public status page ID to add this monitor to. Multiple values can be given as a dash delimited string, e.g. 12345-32135-490923|
-| maintenance-windows | Add a maintenance windows to this check (Pro Plan only)      |
-| monitor-type        | The uptimerobot monitor type (http or keyword)               |
-| keyword-exists      | Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)|
-| keyword-value       | keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)|
+| AlertContacts       | The uptimerobot alertContacts to be associated with this monitor. Overrides the value of `alertContacts` from the Controller's ConfigMap. See [Fetching alert contacts from UpTime Robot](https://github.com/stakater/IngressMonitorController/blob/master/docs/uptimerobot-configuration.md) |
+| Interval            | The uptimerobot check interval in seconds                    |
+| StatusPages        | The uptimerobot public status page ID to add this monitor to. Multiple values can be given as a dash delimited string, e.g. 12345-32135-490923|
+| MaintenanceWindows | Add a maintenance windows to this check (Pro Plan only)      |
+| MonitorType        | The uptimerobot monitor type (http or keyword)               |
+| KeywordExists      | Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)|
+| KeywordValue       | keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)|
 
 ### Fetching public status page ids from UpTime Robot
 

@@ -27,16 +27,16 @@ Currently additional pingdom configurations can be added through these fields:
 
 |                        Fields                        |                    Description                   |
 |:--------------------------------------------------------:|:------------------------------------------------:|
-| resolution                  | The pingdom check interval in minutes            |
-| send-notification-when-down | How many failed check attempts before notifying  |
-| paused                      | Set to "true" to pause checks                    |
-| notify-when-back-up         | Set to "false" to disable recovery notifications |
-| request-headers             | Custom pingdom request headers (e.g. {"Accept"="application/json"}) |
-| basic-auth-user             | Required for basic-authentication checks - [see below](#basic-auth-checks) |
-| should-contain              | Set to text string that has to be present in the HTML code of the page (configures "Should contain") |
-| tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws") |
-| alert-integrations                | `-` separated set list of integrations ids (e.g. "91166-12168") |
-| alert-contacts                | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1") to override the [default alertContacts](https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage)|
+| Resolution                  | The pingdom check interval in minutes            |
+| SendNotificationWhenDown | How many failed check attempts before notifying  |
+| Paused                      | Set to "true" to pause checks                    |
+| NotifyWhenBackUp         | Set to "false" to disable recovery notifications |
+| RequestHeaders             | Custom pingdom request headers (e.g. {"Accept"="application/json"}) |
+| BasicAuthUser             | Required for basic-authentication checks - [see below](#basic-auth-checks) |
+| ShouldContain              | Set to text string that has to be present in the HTML code of the page (configures "Should contain") |
+| Tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws") |
+| AlertIntegrations                | `-` separated set list of integrations ids (e.g. "91166-12168") |
+| AlertContacts                | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1") to override the [default alertContacts](https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage)|
 
 
 ### Basic Auth checks

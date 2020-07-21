@@ -9,10 +9,10 @@ Additional uptime configurations can be added through following fields:
 
 |                        Fields                    |                    Description                               |
 |:----------------------------------------------------:|:------------------------------------------------------------:|
-| interval            | The uptime check interval in seconds                    |
-| check_type        | The uptime check type that can be HTTP/DNS/ICMP etc. |
-| contacts | Add one or more contact groups separated by `,` |
-| locations | Add different locations for the check |
+| Interval            | The uptime check interval in seconds                    |
+| CheckType        | The uptime check type that can be HTTP/DNS/ICMP etc. |
+| Contacts | Add one or more contact groups separated by `,` |
+| Locations | Add different locations for the check |
 
 ## Example: 
 

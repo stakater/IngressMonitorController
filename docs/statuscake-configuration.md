@@ -14,16 +14,16 @@ Currently additional Statuscake configurations can be added through these fields
 
 |                        Fields                        |                    Description                   |
 |:--------------------------------------------------------:|:------------------------------------------------:|
-| check-rate               | Set Check Rate for the monitor (default: 300)    |
-| test-type                | Set Test type - HTTP, TCP, PING (default: HTTP)  |
-| paused                   | Pause the service                                |
-| ping-url                 | Webhook for alerts                               |
-| follow-redirect          | Enable ingress redirects                         |
-| port                     | TCP Port                                         |
-| trigger-rate             | Minutes to wait before sending an alert          |
-| contact-group            | Contact Group to be alerted.                     |
-| test-tags                | Comma separated list of tags                     |
-| basic-auth-user          | Required for [basic-authenticationchecks](#basic-auth-checks)  |
+| CheckRate               | Set Check Rate for the monitor (default: 300)    |
+| TestType                | Set Test type - HTTP, TCP, PING (default: HTTP)  |
+| Paused                   | Pause the service                                |
+| PingURL                 | Webhook for alerts                               |
+| FollowRedirect          | Enable ingress redirects                         |
+| Port                     | TCP Port                                         |
+| TriggerRate             | Minutes to wait before sending an alert          |
+| ContactGroup            | Contact Group to be alerted.                     |
+| TestTags                | Comma separated list of tags                     |
+| BasicAuthUser          | Required for [basic-authenticationchecks](#basic-auth-checks)  |
 
 
 ### Basic Auth checks

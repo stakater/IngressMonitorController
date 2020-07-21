@@ -26,11 +26,10 @@ Additional updown configurations can be added through these fields:
 
 |                        Fields                       |                    Description                   |
 |----------------------------------------------------------|--------------------------------------------------|
-| enable  | Set to "false" to disable checks                 |
-| period                       | The pingdom check interval in seconds, it accepts `only` these values: 15, 30, 60, 120, 300, 600, 1800, 3600  |
-| enable | Check be enabled or not ("true" or "false") |
-| publish-page | Status page be public or not ("true" or "false")|
-| request-headers              | Custom updown request headers (e.g. {"Accept"="application/json"}) |
+| Enable  | Set to "false" to disable checks                 |
+| Period                       | The pingdom check interval in seconds, it accepts `only` these values: 15, 30, 60, 120, 300, 600, 1800, 3600  |
+| PublishPage | Status page be public or not ("true" or "false")|
+| RequestHeaders              | Custom updown request headers (e.g. {"Accept"="application/json"}) |
 
 
 ## Example: 
