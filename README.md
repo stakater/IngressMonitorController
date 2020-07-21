@@ -1,5 +1,11 @@
 # ![](assets/web/IMC-round-100px.png) Ingress Monitor Controller
 
+###DEPRECATION NOTICE: 
+**IMC has now been converted to an Operator and we have stopped support from our side for the controller based implementation
+, although support from community for the controller is still appreciated. Using Operator is recommended and existing users can follow
+[Migration To Operator](./docs/migration-guide.md) for migrating to Operator. Although, Controller based implementation is maintained at [release-v1](https://github.com/stakater/IngressMonitorController/tree/release-v1) instead.**
+
+
 An operator to watch ingresses/routes and create liveness alerts for your apps/microservices in Uptime checkers.
 
 [![Get started with Stakater](https://stakater.github.io/README/stakater-github-banner.png)](http://stakater.com/?utm_source=IngressMonitorController&utm_medium=github)
