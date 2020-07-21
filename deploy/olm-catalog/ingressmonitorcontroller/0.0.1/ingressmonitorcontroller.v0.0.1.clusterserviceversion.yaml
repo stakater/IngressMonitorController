@@ -2,19 +2,7 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
   annotations:
-    alm-examples: |-
-      [
-        {
-          "apiVersion": "endpointmonitor.stakater.com/v1alpha1",
-          "kind": "EndpointMonitor",
-          "metadata": {
-            "name": "stakater"
-          },
-          "spec": {
-            "url": "https://www.stakater.com"
-          }
-        }
-      ]
+    alm-examples: '[]'
     capabilities: Basic Install
   name: ingressmonitorcontroller.v0.0.1
   namespace: placeholder
@@ -86,6 +74,7 @@ spec:
           - ""
           resources:
           - events
+          - services
           verbs:
           - create
           - delete

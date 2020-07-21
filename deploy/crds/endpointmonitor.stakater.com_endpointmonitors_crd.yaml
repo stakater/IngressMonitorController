@@ -73,12 +73,15 @@ spec:
                 notifyWhenBackUp:
                   description: Set to "false" to disable recovery notifications
                   type: boolean
+                paused:
+                  description: Set to "true" to pause checks
+                  type: boolean
                 requestHeaders:
                   description: Custom pingdom request headers
                   type: string
                 resolution:
-                  description: Set to "true" to pause checks
-                  type: boolean
+                  description: The pingdom check interval in minutes
+                  type: integer
                 sendNotificationWhenDown:
                   description: How many failed check attempts before notifying
                   type: integer
@@ -190,6 +193,13 @@ spec:
                   minimum: 60
                   type: integer
                 keywordExists:
+                  description: Alert if value exist (yes) or doesn't exist (no) (Only
+                    if monitor-type is keyword)
+                  enum:
+                  - "yes"
+                  - "no"
+                  type: string
+                keywordValue:
                   description: keyword to check on URL (e.g.'search' or '404') (Only
                     if monitor-type is keyword)
                   type: string
