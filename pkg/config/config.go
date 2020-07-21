@@ -5,6 +5,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 	"os"
 	"time"
+	"io/ioutil"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/stakater/IngressMonitorController/pkg/secret"
@@ -125,4 +126,22 @@ func LoadControllerConfig(apiReader client.Reader) {
 
 func GetControllerConfig() Config {
 	return IngressMonitorControllerConfig
+}
+
+func ReadConfig(filePath string) Config {
+	var config Config
+	// Read YML
+	log.Info("Reading YAML Configuration", filePath)
+	source, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Unmarshall
+	err = yaml.Unmarshal(source, &config)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return config
 }
