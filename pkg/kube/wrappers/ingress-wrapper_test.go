@@ -28,13 +28,6 @@ func createIngressObjectWithPath(ingressName string, namespace string, url strin
 	return ingress
 }
 
-func createIngressObjectWithAnnotations(ingressName string, namespace string, url string, annotations map[string]string) *v1beta1.Ingress {
-	ingress := util.CreateIngressObject(ingressName, namespace, url)
-	ingress.ObjectMeta.SetAnnotations(annotations)
-
-	return ingress
-}
-
 func createIngressObjectWithTLS(ingressName string, namespace string, url string, tlsHostname string) *v1beta1.Ingress {
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 	ingress.Spec.TLS = []v1beta1.IngressTLS{
@@ -49,9 +42,8 @@ func createIngressObjectWithTLS(ingressName string, namespace string, url string
 
 func TestIngressWrapper_getURL(t *testing.T) {
 	type fields struct {
-		ingress   *v1beta1.Ingress
-		namespace string
-		Client    client.Client
+		ingress *v1beta1.Ingress
+		Client  client.Client
 	}
 	tests := []struct {
 		name   string

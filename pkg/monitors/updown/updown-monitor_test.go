@@ -19,10 +19,6 @@ type Block struct {
 
 type Exception interface{}
 
-func Throw(up Exception) {
-	panic(up)
-}
-
 func (tcf Block) Do() {
 	if tcf.Finally != nil {
 

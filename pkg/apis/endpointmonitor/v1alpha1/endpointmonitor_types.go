@@ -241,7 +241,7 @@ type AppInsightsConfig struct {
 
 	// If its `true`, falied test will be retry after a short interval. Possible values: `true, false`
 	// +optional
-	RetryEnable bool `json:"retryEnable,retryEnable"`
+	RetryEnable bool `json:"retryEnable,omitempty"`
 
 	// Sets how often the test should run from each test location. Possible values: `300,600,900` seconds
 	// +optional

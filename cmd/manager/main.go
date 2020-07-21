@@ -34,11 +34,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 )
 
-const (
-	defaultLogLevel  = "info"
-	defaultLogFormat = "text"
-)
-
 // Change below variables to serve metrics on different host or port.
 var (
 	metricsHost               = "0.0.0.0"

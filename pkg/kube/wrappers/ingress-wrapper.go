@@ -35,12 +35,10 @@ func (iw *IngressWrapper) supportsTLS() bool {
 
 func (iw *IngressWrapper) tryGetTLSHost(forceHttps bool) (string, bool) {
 	if iw.supportsTLS() {
-		log.Info("iw.supportsTLS()")
 		return "https://" + iw.Ingress.Spec.TLS[0].Hosts[0], true
 	}
 
-	if forceHttps == true {
-		log.Info("forceHttpsZZ")
+	if forceHttps {
 		return "https://" + iw.Ingress.Spec.Rules[0].Host, true
 	}
 

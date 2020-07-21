@@ -19,13 +19,6 @@ func createRouteObjectWithPath(routeName string, namespace string, url string, p
 	return route
 }
 
-func createRouteObjectWithAnnotations(routeName string, namespace string, url string, annotations map[string]string) *routev1.Route {
-	route := util.CreateRouteObject(routeName, namespace, url)
-	route.ObjectMeta.SetAnnotations(annotations)
-
-	return route
-}
-
 func TestRouteWrapper_getURL(t *testing.T) {
 	type fields struct {
 		route  *routev1.Route

@@ -26,10 +26,7 @@ func NewRouteWrapper(route *routev1.Route, client client.Client) *RouteWrapper {
 }
 
 func (rw *RouteWrapper) supportsTLS() bool {
-	if rw.Route.Spec.TLS != nil {
-		return true
-	}
-	return false
+	return rw.Route.Spec.TLS != nil
 }
 
 func (rw *RouteWrapper) tryGetTLSHost(forceHttps bool) (string, bool) {
@@ -37,7 +34,7 @@ func (rw *RouteWrapper) tryGetTLSHost(forceHttps bool) (string, bool) {
 		return "https://" + rw.Route.Spec.Host, true
 	}
 
-	if forceHttps == true {
+	if forceHttps {
 		return "https://" + rw.Route.Spec.Host, true
 	}
 
@@ -46,13 +43,6 @@ func (rw *RouteWrapper) tryGetTLSHost(forceHttps bool) (string, bool) {
 
 func (rw *RouteWrapper) getHost() string {
 	return "http://" + rw.Route.Spec.Host
-}
-
-func (rw *RouteWrapper) getRoutePort() string {
-	if rw.Route.Spec.Port != nil && rw.Route.Spec.Port.TargetPort.String() != "" {
-		return rw.Route.Spec.Port.TargetPort.String()
-	}
-	return ""
 }
 
 func (rw *RouteWrapper) getRouteSubPath() string {

@@ -15,8 +15,9 @@ func (r *ReconcileEndpointMonitor) handleDelete(request reconcile.Request, insta
 		return reconcile.Result{}, nil
 	}
 
-	if config.GetControllerConfig().EnableMonitorDeletion == false {
+	if !config.GetControllerConfig().EnableMonitorDeletion {
 		log.Info("Monitor deletion is disabled. Skipping deletion for monitor: " + monitorName)
+		return reconcile.Result{}, nil
 	}
 
 	log.Info("Removing Monitor: " + monitorName)

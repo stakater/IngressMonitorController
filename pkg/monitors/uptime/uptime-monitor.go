@@ -108,7 +108,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 				log.Println("Failed to Unmarshal Response Json Object")
 			}
 
-			if f.Errors == false {
+			if !f.Errors {
 				log.Println("Monitor Added: " + m.Name)
 			} else {
 				log.Print("Monitor couldn't be added: " + m.Name +
@@ -145,7 +145,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 			if err != nil {
 				log.Println("Failed to Unmarshal Response Json Object")
 			}
-			if f.Errors == false {
+			if !f.Errors {
 				log.Println("Monitor Updated: " + m.Name)
 			} else {
 				log.Println("Monitor couldn't be updated: " + m.Name)
@@ -173,7 +173,7 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 		var f UptimeMonitorMonitorResponse
 		json.Unmarshal(response.Bytes, &f)
 
-		if f.Errors == false {
+		if !f.Errors {
 			log.Println("Monitor Removed: " + m.Name)
 		} else {
 			log.Println("Monitor couldn't be removed: " + m.Name)

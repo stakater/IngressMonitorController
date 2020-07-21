@@ -149,16 +149,16 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	}
 
 	if providerConfig != nil {
-		if providerConfig.Paused == true {
+		if providerConfig.Paused {
 			f.Add("Paused", "1")
 		}
-		if providerConfig.FollowRedirect == true {
+		if providerConfig.FollowRedirect {
 			f.Add("FollowRedirect", "1")
 		}
-		if providerConfig.EnableSSLAlert == true {
+		if providerConfig.EnableSSLAlert {
 			f.Add("EnableSSLAlert", "1")
 		}
-		if providerConfig.RealBrowser == true {
+		if providerConfig.RealBrowser {
 			f.Add("RealBrowser", "1")
 		}
 	}
