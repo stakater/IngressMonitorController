@@ -54,7 +54,7 @@ binary-image: builder-image
 	@docker run --network host --rm "${BUILDER}" | docker build --network host -t "${REPOSITORY}" -f Dockerfile.run -
 
 test:
-	"$(GOCMD)" test -v ./...
+	GOFLAGS="-count=1" "$(GOCMD)" test -v ./...
 
 stop:
 	@docker stop "${BINARY}"
