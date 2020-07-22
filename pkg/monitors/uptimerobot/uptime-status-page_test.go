@@ -12,7 +12,7 @@ import (
 
 // Not a test case. Cleanup to remove added dummy StatusPages
 func TestRemoveDanglingStatusPages(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	service := UpTimeStatusPageService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
@@ -64,7 +64,7 @@ func TestRemoveDanglingStatusPages(t *testing.T) {
 }
 
 func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	service := UpTimeStatusPageService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
@@ -120,7 +120,7 @@ func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 }
 
 func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	service := UpTimeStatusPageService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
@@ -179,7 +179,7 @@ func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 }
 
 func TestGetStatusPagesForMonitor(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	service := UpTimeStatusPageService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
@@ -249,7 +249,7 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 }
 
 func TestRemoveMonitorFromStatusPage(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	service := UpTimeStatusPageService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)

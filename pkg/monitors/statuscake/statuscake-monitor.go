@@ -175,8 +175,12 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		f.Add("TriggerRate", strconv.Itoa(providerConfig.TriggerRate))
 	}
 
+	if providerConfig != nil && providerConfig.Port > 0 {
+		f.Add("Port", strconv.Itoa(providerConfig.Port))
+	}
+
 	if providerConfig != nil && providerConfig.Confirmation > 0 {
-		f.Add("TriggerRate", strconv.Itoa(providerConfig.Confirmation))
+		f.Add("Confirmation", strconv.Itoa(providerConfig.Confirmation))
 	}
 	return f
 }

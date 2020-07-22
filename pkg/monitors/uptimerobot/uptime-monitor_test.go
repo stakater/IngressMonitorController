@@ -15,7 +15,7 @@ import (
 
 // Not a test case. Cleanup to remove added dummy Monitors
 func TestRemoveDanglingMonitors(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -35,7 +35,7 @@ func TestRemoveDanglingMonitors(t *testing.T) {
 }
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	// service.Setup(config.Providers[0])
@@ -60,7 +60,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 }
 
 func TestUpdateMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -98,13 +98,13 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 }
 
 func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
 
-	configInterval := endpointmonitorv1alpha1.UptimeRobotConfig{
+	configInterval := &endpointmonitorv1alpha1.UptimeRobotConfig{
 		Interval: 600,
 	}
 
@@ -131,13 +131,13 @@ func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
 }
 
 func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
 
-	configInterval := endpointmonitorv1alpha1.UptimeRobotConfig{
+	configInterval := &endpointmonitorv1alpha1.UptimeRobotConfig{
 		Interval: 600,
 	}
 
@@ -186,7 +186,7 @@ func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
 }
 
 func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -232,7 +232,7 @@ func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
 }
 
 func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -293,7 +293,7 @@ func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
 }
 
 func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -339,7 +339,7 @@ func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
 }
 
 func TestAddMonitorWithIncorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -361,7 +361,7 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 }
 
 func TestAddMonitorWithAlertContactsAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")

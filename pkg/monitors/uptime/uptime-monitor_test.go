@@ -11,7 +11,7 @@ import (
 )
 
 func TestGetAllMonitors(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "Uptime")
@@ -35,7 +35,7 @@ func TestGetAllMonitors(t *testing.T) {
 }
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "Uptime")
@@ -72,7 +72,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 }
 
 func TestUpdateMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "Uptime")
@@ -139,7 +139,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 }
 
 func TestAddMonitorWithIncorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 

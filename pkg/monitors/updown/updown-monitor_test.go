@@ -41,7 +41,7 @@ const (
 )
 
 func TestSetupMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 
 	provider := util.GetProviderWithName(config, "Updown")
@@ -56,7 +56,7 @@ func TestSetupMonitorWithCorrectValues(t *testing.T) {
 }
 
 func TestSetupMonitorWithIncorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 
 	provider := util.GetProviderWithName(config, "InvalidProviderName")
@@ -71,7 +71,7 @@ func TestSetupMonitorWithIncorrectValues(t *testing.T) {
 
 // TestRemoveCleanUp it will remove all the checks before any test executes
 func TestRemoveCleanUp(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -92,7 +92,7 @@ func TestRemoveCleanUp(t *testing.T) {
 }
 
 func TestGetAllMonitorWhileNoCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -104,7 +104,7 @@ func TestGetAllMonitorWhileNoCheckExists(t *testing.T) {
 }
 
 func TestGetByNameMonitorWhileNoCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -117,7 +117,7 @@ func TestGetByNameMonitorWhileNoCheckExists(t *testing.T) {
 }
 
 func TestAddMonitorWhileNoCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -137,7 +137,7 @@ func TestAddMonitorWhileNoCheckExists(t *testing.T) {
 }
 
 func TestAddMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -150,7 +150,7 @@ func TestAddMonitorWhileCheckExists(t *testing.T) {
 }
 
 func TestGetAllMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -167,7 +167,7 @@ func TestGetAllMonitorWhileCheckExists(t *testing.T) {
 }
 
 func TestGetByNameMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -182,7 +182,7 @@ func TestGetByNameMonitorWhileCheckExists(t *testing.T) {
 }
 
 func TestUpdateMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -207,7 +207,7 @@ func TestUpdateMonitorWhileCheckExists(t *testing.T) {
 }
 
 func TestGetAllMonitorWhileCheckUpdated(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -221,7 +221,7 @@ func TestGetAllMonitorWhileCheckUpdated(t *testing.T) {
 }
 
 func TestRemoveMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -238,7 +238,7 @@ func TestRemoveMonitorWhileCheckExists(t *testing.T) {
 }
 
 func TestGetAllMonitorWhenCheckAreRemoved(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)

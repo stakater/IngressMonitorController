@@ -128,6 +128,17 @@ func GetControllerConfig() Config {
 	return IngressMonitorControllerConfig
 }
 
+func GetControllerConfigTest() Config {
+	configFilePath := os.Getenv("CONFIG_FILE_PATH")
+	if len(configFilePath) == 0 {
+		configFilePath = "../../examples/configs/test-config.yaml"
+	}
+
+	config := ReadConfig(configFilePath)
+
+	return config
+}
+
 func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML
