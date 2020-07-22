@@ -22,10 +22,8 @@ func CreateHttpClient(url string) *HttpClient {
 }
 
 func (client *HttpClient) addHeaders(request *http.Request, headers map[string]string) {
-	if headers != nil {
-		for key, value := range headers {
-			request.Header.Add(key, value)
-		}
+	for key, value := range headers {
+		request.Header.Add(key, value)
 	}
 }
 

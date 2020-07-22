@@ -88,7 +88,7 @@ func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
-	service.AddMonitorToStatusPage(statusPage, *monitorRes)
+	_, err = service.AddMonitorToStatusPage(statusPage, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -101,7 +101,7 @@ func TestAddMonitorMultipleTimesToStatusPage(t *testing.T) {
 		t.Error("The status page does not contain the monitor, expected: " + monitorRes.ID + ", but was: " + strings.Join(statusPageRes.Monitors, "-"))
 	}
 
-	service.AddMonitorToStatusPage(statusPage, *monitorRes)
+	_, err = service.AddMonitorToStatusPage(statusPage, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -143,7 +143,7 @@ func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
-	service.AddMonitorToStatusPage(statusPage, *monitor1Res)
+	_, err = service.AddMonitorToStatusPage(statusPage, *monitor1Res)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -156,7 +156,7 @@ func TestAddMultipleMonitorsToStatusPage(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
-	service.AddMonitorToStatusPage(statusPage, *monitor2Res)
+	_, err = service.AddMonitorToStatusPage(statusPage, *monitor2Res)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
@@ -216,12 +216,12 @@ func TestGetStatusPagesForMonitor(t *testing.T) {
 		t.Error("Error: " + err.Error())
 	}
 
-	service.AddMonitorToStatusPage(statusPage1, *monitorRes)
+	_, err = service.AddMonitorToStatusPage(statusPage1, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
 
-	service.AddMonitorToStatusPage(statusPage2, *monitorRes)
+	_, err = service.AddMonitorToStatusPage(statusPage2, *monitorRes)
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}

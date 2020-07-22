@@ -47,7 +47,10 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			return nil, err
+		}
 
 		if f.Monitors != nil {
 			for _, monitor := range f.Monitors {
@@ -77,7 +80,11 @@ func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
 
 		if len(f.Monitors) > 0 {
 			return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors), nil
@@ -104,7 +111,11 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 	if response.StatusCode == Http.StatusOK {
 
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+			return nil
+		}
 
 		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
 
@@ -126,7 +137,10 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorNewMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err, "Monitor couldn't be added: "+m.Name)
+		}
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Added: " + m.Name)
@@ -150,8 +164,10 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorStatusMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
-
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err, "Monitor couldn't be updated: "+m.Name)
+		}
 		if f.Stat == "ok" {
 			log.Println("Monitor Updated: " + m.Name)
 			monitor.handleStatusPagesConfig(m, strconv.Itoa(f.Monitor.ID))
@@ -232,8 +248,10 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorStatusMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
-
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err, "Monitor couldn't be removed: "+m.Name)
+		}
 		if f.Stat == "ok" {
 			log.Println("Monitor Removed: " + m.Name)
 		} else {

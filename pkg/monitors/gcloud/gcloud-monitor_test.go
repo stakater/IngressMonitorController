@@ -28,10 +28,10 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
-			// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-  		// Fail this case in future when have a valid gcloud account
-  		log.Error(err.Error())
-  		return
+		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
+		// Fail this case in future when have a valid gcloud account
+		log.Error(err.Error())
+		return
 	}
 	if mRes.Name != m.Name || mRes.URL != m.URL {
 		t.Error("URL and name should be the same")

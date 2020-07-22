@@ -31,7 +31,7 @@ func (r *ReconcileEndpointMonitor) handleCreate(request reconcile.Request, insta
 
 	if delay.Nanoseconds() > 0 {
 		// Requeue request to add creation delay
-		log.Info("Requeuing request to add monitor " + monitorName + " for" + fmt.Sprintf("%f", config.GetControllerConfig().CreationDelay) + " seconds")
+		log.Info("Requeuing request to add monitor " + monitorName + " for" + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
 		return reconcile.Result{RequeueAfter: delay}, nil
 	}
 

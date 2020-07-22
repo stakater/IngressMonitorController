@@ -38,11 +38,9 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	monitors := monitor.GetAll()
 
-	if monitors != nil {
-		for _, monitor := range monitors {
-			if monitor.Name == name {
-				return &monitor, nil
-			}
+	for _, monitor := range monitors {
+		if monitor.Name == name {
+			return &monitor, nil
 		}
 	}
 
@@ -171,8 +169,10 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
-
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+		}
 		if !f.Errors {
 			log.Println("Monitor Removed: " + m.Name)
 		} else {
