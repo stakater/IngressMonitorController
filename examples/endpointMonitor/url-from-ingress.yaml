@@ -1,0 +1,9 @@
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: url-from-ingress-example
+spec:
+  forceHtpps: true
+  urlFrom:
+    ingressRef:
+      name: frontend
