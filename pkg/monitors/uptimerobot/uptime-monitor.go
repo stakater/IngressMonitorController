@@ -49,7 +49,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		var f UptimeMonitorGetMonitorsResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			return nil, err
+			log.Error(err)
 		}
 
 		if f.Monitors != nil {
@@ -83,7 +83,6 @@ func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
 			log.Error(err)
-			return nil, err
 		}
 
 		if len(f.Monitors) > 0 {
@@ -114,7 +113,6 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
 			log.Error(err)
-			return nil
 		}
 
 		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
