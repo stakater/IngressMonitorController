@@ -58,13 +58,13 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 		Locations:     []string{"US-Central"},
 		ContactGroups: []string{"Default"}}
 
-	config1 := endpointmonitorv1alpha1.UptimeConfig{
+	config1 := &endpointmonitorv1alpha1.UptimeConfig{
 		Interval:  5,
 		CheckType: "HTTP",
 		Locations: "US-Central",
 		Contacts:  "Default",
 	}
-	config2 := endpointmonitorv1alpha1.UptimeConfig{
+	config2 := &endpointmonitorv1alpha1.UptimeConfig{
 		Interval:  10,
 		CheckType: "ICMP",
 		Locations: "US-Central",

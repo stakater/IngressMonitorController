@@ -122,7 +122,7 @@ func TestAddMonitorWhileNoCheckExists(t *testing.T) {
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
 
-	monitorConfig := endpointmonitorv1alpha1.UpdownConfig{
+	monitorConfig := &endpointmonitorv1alpha1.UpdownConfig{
 		PublishPage: false,
 		Enable:      false,
 		Period:      120,
@@ -190,7 +190,7 @@ func TestUpdateMonitorWhileCheckExists(t *testing.T) {
 	firstElement := 0
 	monitorSlice := UpdownService.GetAll()
 
-	monitorConfig := endpointmonitorv1alpha1.UpdownConfig{
+	monitorConfig := &endpointmonitorv1alpha1.UpdownConfig{
 		PublishPage: true,
 		Enable:      false,
 		Period:      60,

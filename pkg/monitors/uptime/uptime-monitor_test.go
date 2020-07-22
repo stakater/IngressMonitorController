@@ -48,7 +48,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	}
 	service.Setup(*provider)
 
-	monitorConfig := endpointmonitorv1alpha1.UptimeConfig{
+	monitorConfig := &endpointmonitorv1alpha1.UptimeConfig{
 		Interval:  5,
 		Locations: "US-Central",
 		Contacts:  "Default",
@@ -85,7 +85,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	}
 	service.Setup(*provider)
 
-	monitorConfig := endpointmonitorv1alpha1.UptimeConfig{
+	monitorConfig := &endpointmonitorv1alpha1.UptimeConfig{
 		Interval:  5,
 		Locations: "US-Central",
 		Contacts:  "Default",
@@ -153,7 +153,7 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	}
 	service.Setup(*provider)
 
-	monitorConfig := endpointmonitorv1alpha1.UptimeConfig{
+	monitorConfig := &endpointmonitorv1alpha1.UptimeConfig{
 		Interval:  900,
 		Locations: "US-Central",
 		Contacts:  "Default",
