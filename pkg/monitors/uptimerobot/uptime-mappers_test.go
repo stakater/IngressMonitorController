@@ -16,7 +16,7 @@ func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 
 	monitorObject := UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitorObject)
 
-	providerConfig, _ := monitorObject.Config.(endpointmonitorv1alpha1.UptimeRobotConfig)
+	providerConfig, _ := monitorObject.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
 
 	if monitorObject.ID != strconv.Itoa(uptimeMonitorObject.ID) || monitorObject.Name != uptimeMonitorObject.FriendlyName || monitorObject.URL != uptimeMonitorObject.URL || 900 != providerConfig.Interval {
 		t.Error("Mapper did not map the values correctly")
@@ -27,11 +27,11 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 	uptimeMonitorObject1 := UptimeMonitorMonitor{FriendlyName: "Test Monitor 1", ID: 124, URL: "https://stakater.com", Interval: 900}
 	uptimeMonitorObject2 := UptimeMonitorMonitor{FriendlyName: "Test Monitor 2", ID: 125, URL: "https://stackator.com", Interval: 600}
 
-	config1 := endpointmonitorv1alpha1.UptimeRobotConfig{
+	config1 := &endpointmonitorv1alpha1.UptimeRobotConfig{
 		Interval: 900,
 	}
 
-	config2 := endpointmonitorv1alpha1.UptimeRobotConfig{
+	config2 := &endpointmonitorv1alpha1.UptimeRobotConfig{
 		Interval: 600,
 	}
 

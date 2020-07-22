@@ -28,7 +28,7 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 		providerConfig.AlertContacts = strings.Join(alertContacts, "-")
 	}
 
-	m.Config = providerConfig
+	m.Config = &providerConfig
 
 	return &m
 }

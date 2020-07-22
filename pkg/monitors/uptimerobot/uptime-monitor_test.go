@@ -202,7 +202,7 @@ func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
 	}
 	statusPage.ID = ID
 
-	configStatusPage := endpointmonitorv1alpha1.UptimeRobotConfig{
+	configStatusPage := &endpointmonitorv1alpha1.UptimeRobotConfig{
 		StatusPages: statusPage.ID,
 	}
 
@@ -263,7 +263,7 @@ func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
 	}
 	statusPage.ID = ID
 
-	configStatusPage := endpointmonitorv1alpha1.UptimeRobotConfig{
+	configStatusPage := &endpointmonitorv1alpha1.UptimeRobotConfig{
 		StatusPages: statusPage.ID,
 	}
 
@@ -299,7 +299,7 @@ func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
 
-	configKeyword := endpointmonitorv1alpha1.UptimeRobotConfig{
+	configKeyword := &endpointmonitorv1alpha1.UptimeRobotConfig{
 		MonitorType:   "keyword",
 		KeywordExists: "yes",
 		KeywordValue:  "google",
@@ -319,7 +319,7 @@ func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
 
 	service.Remove(*mRes)
 
-	configHttpMonitor := endpointmonitorv1alpha1.UptimeRobotConfig{
+	configHttpMonitor := &endpointmonitorv1alpha1.UptimeRobotConfig{
 		MonitorType: "http",
 	}
 
@@ -367,7 +367,7 @@ func TestAddMonitorWithAlertContactsAnnotations(t *testing.T) {
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
 
-	configAlertContacts := endpointmonitorv1alpha1.UptimeRobotConfig{
+	configAlertContacts := &endpointmonitorv1alpha1.UptimeRobotConfig{
 		AlertContacts: "2628365_0_0",
 	}
 

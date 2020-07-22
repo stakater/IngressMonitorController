@@ -60,6 +60,7 @@ type UptimeMonitorMonitorStatus struct {
 
 type UptimeMonitorStatusMonitorResponse struct {
 	Stat    string `json:"stat"`
+	Error   UptimeMonitorError         `json:"error"`
 	Monitor struct {
 		ID int `json:"id"`
 	} `json:"monitor"`

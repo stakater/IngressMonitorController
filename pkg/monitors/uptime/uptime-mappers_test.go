@@ -17,7 +17,7 @@ func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 		CheckType:   "HTTP"}
 
 	monitorObject := UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitorObject)
-	providerConfig, _ := monitorObject.Config.(endpointmonitorv1alpha1.UptimeConfig)
+	providerConfig, _ := monitorObject.Config.(*endpointmonitorv1alpha1.UptimeConfig)
 
 	if monitorObject.ID != strconv.Itoa(uptimeMonitorObject.PK) ||
 		monitorObject.Name != uptimeMonitorObject.Name ||

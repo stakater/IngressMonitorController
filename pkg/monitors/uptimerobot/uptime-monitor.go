@@ -144,7 +144,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := monitor.processProviderConfig(m, true)
+	body := monitor.processProviderConfig(m, false)
 
 	response := client.PostUrlEncodedFormBody(body)
 
@@ -156,7 +156,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 			log.Println("Monitor Updated: " + m.Name)
 			monitor.handleStatusPagesConfig(m, strconv.Itoa(f.Monitor.ID))
 		} else {
-			log.Println("Monitor couldn't be updated: " + m.Name)
+			log.Println("Monitor couldn't be updated: " + m.Name + ". Error: " + f.Error.Message)
 		}
 	} else {
 		log.Println("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
@@ -237,7 +237,7 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 		if f.Stat == "ok" {
 			log.Println("Monitor Removed: " + m.Name)
 		} else {
-			log.Println("Monitor couldn't be removed: " + m.Name)
+			log.Println("Monitor couldn't be removed: " + m.Name + ". Error: " + f.Error.Message)
 			log.Println(string(body))
 		}
 	} else {
