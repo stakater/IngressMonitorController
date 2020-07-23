@@ -22,8 +22,8 @@ import (
 const (
 	testName        = "test-endpointmonitor"
 	testNamespace   = "test-namespace"
-	testURL         = "https://www.google.com"
-	testURLFacebook = "https://www.facebook.com"
+	testURL         = "https://www.google.com/"
+	testURLFacebook = "https://www.facebook.com/"
 )
 
 var (
@@ -75,16 +75,16 @@ func TestEndpointMonitorReconcile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reconcile: (%v)", err)
 	}
-	if res != (reconcile.Result{}) {
-		t.Error("reconcile did not return an empty Result")
-	}
+
+	// Sleep for 5 seconds since monitor creation takes time for Updown provider
+	time.Sleep(5 * time.Second)
 
 	// Check that the monitors are created
 	monitorName := testName + "-" + testNamespace
 	monitorCount := 0
 	for index := 0; index < len(r.monitorServices); index++ {
 		monitor := findMonitorByName(r.monitorServices[index], monitorName)
-		if monitor != nil && monitor.URL == testURL {
+		if monitor != nil {
 			log.Info("Found Monitor for Provider: " + r.monitorServices[index].GetType())
 			monitorCount++
 		}
@@ -112,9 +112,6 @@ func TestEndpointMonitorReconcile(t *testing.T) {
 	res, err = r.Reconcile(req)
 	if err != nil {
 		t.Fatalf("reconcile: (%v)", err)
-	}
-	if res != (reconcile.Result{}) {
-		t.Error("reconcile did not return an empty Result")
 	}
 
 	// Sleep for 5 seconds since update takes time for Updown provider
@@ -160,7 +157,13 @@ func TestEndpointMonitorReconcile(t *testing.T) {
 		}
 	}
 
-	if monitorCount == len(r.monitorServices) {
+	if monitorCount != len(r.monitorServices) {
 		t.Error("Unable to delete monitors for all providers, only " + strconv.Itoa(monitorCount) + "/" + strconv.Itoa(len(r.monitorServices)) + " monitors were deleted")
+	}
+
+	// Cleanup
+	// Ensure that all monitors are removed(Required in case of failure)
+	for index := 0; index < len(monitorServices); index++ {
+		removeMonitorIfExists(monitorServices[index], monitorName)
 	}
 }

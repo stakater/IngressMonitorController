@@ -153,6 +153,6 @@ func ReadConfig(filePath string) Config {
 	if err != nil {
 		log.Panic(err)
 	}
-
+	IngressMonitorControllerConfig = config
 	return config
 }
