@@ -81,7 +81,7 @@ You will get a response similar to what is shown below
 }
 ```
 
-Copy values of `id` field of your public status page which you want to use for Ingress Monitor Controller into the relevant ingress annotation.
+Copy values of `id` field of your public status page which you want to use for Ingress Monitor Controller into the relevant EndpointMonitor CR. 
 
 ### Fetching maintenance windows from UpTime Robot
 
@@ -117,7 +117,7 @@ You will get a response similar to what is shown below
 }
 ```
 
-Copy values of `id` field of the maintenance windows which you want to use for Ingress Monitor Controller and separate them by `-`. You will now have a string similar to `12345-23564`. This is basically the value you will need to specify in the maintenance-windows ingress annotation.
+Copy values of `id` field of the maintenance windows which you want to use for Ingress Monitor Controller and separate them by `-`. You will now have a string similar to `12345-23564`. This is basically the value you will need to specify in the maintenance-windows EndpointMonitor CR.
 
 
 ## Example: 

@@ -97,7 +97,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	service.Remove(*mRes)
 }
 
-func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
+func TestAddMonitorWithInterval(t *testing.T) {
 	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
@@ -130,7 +130,7 @@ func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
 	service.Remove(*mRes)
 }
 
-func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
+func TestUpdateMonitorInterval(t *testing.T) {
 	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
@@ -185,7 +185,7 @@ func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
 	service.Remove(*mRes)
 }
 
-func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
+func TestAddMonitorWithStatusPage(t *testing.T) {
 	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
@@ -231,7 +231,7 @@ func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
 	statusPageService.Remove(statusPage)
 }
 
-func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
+func TestUpdateMonitorIntervalStatusPage(t *testing.T) {
 	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
@@ -292,7 +292,7 @@ func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
 	statusPageService.Remove(statusPage)
 }
 
-func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
+func TestAddMonitorWithMonitorType(t *testing.T) {
 	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
@@ -360,7 +360,7 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	}
 }
 
-func TestAddMonitorWithAlertContactsAnnotations(t *testing.T) {
+func TestAddMonitorWithAlertContacts(t *testing.T) {
 	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}

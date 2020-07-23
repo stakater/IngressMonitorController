@@ -86,7 +86,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	}
 }
 
-func TestBuildUpsertFormAnnotations(t *testing.T) {
+func TestBuildUpsertForm(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 
 	monitorConfig := &endpointmonitorv1alpha1.StatusCakeConfig{

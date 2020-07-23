@@ -45,7 +45,7 @@ var (
 
 func TestEndpointMonitorReconcile(t *testing.T) {
 	controllerConfig := config.GetControllerConfigTest()
-	monitorServices := monitors.SetupMonitorServicesForProviders(controllerConfig.Providers)
+	monitorServices := monitors.SetupMonitorServicesForProvidersTest(controllerConfig.Providers)
 
 	endpointMonitor := &EndpointMonitorInstance
 
@@ -74,6 +74,9 @@ func TestEndpointMonitorReconcile(t *testing.T) {
 	res, err := r.Reconcile(req)
 	if err != nil {
 		t.Fatalf("reconcile: (%v)", err)
+	}
+	if res != (reconcile.Result{}) {
+		log.Error("reconcile did not return an empty Result")
 	}
 
 	// Sleep for 5 seconds since monitor creation takes time for Updown provider
@@ -113,6 +116,9 @@ func TestEndpointMonitorReconcile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reconcile: (%v)", err)
 	}
+	if res != (reconcile.Result{}) {
+		log.Error("reconcile did not return an empty Result")
+	}
 
 	// Sleep for 5 seconds since update takes time for Updown provider
 	time.Sleep(5 * time.Second)
@@ -143,7 +149,7 @@ func TestEndpointMonitorReconcile(t *testing.T) {
 		t.Fatalf("reconcile: (%v)", err)
 	}
 	if res != (reconcile.Result{}) {
-		t.Error("reconcile did not return an empty Result")
+		log.Error("reconcile did not return an empty Result")
 	}
 
 	// Sleep for 5 seconds since update takes time for Updown provider

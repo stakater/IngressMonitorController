@@ -37,3 +37,31 @@ func SetupMonitorServicesForProviders(providers []config.Provider) []MonitorServ
 
 	return monitorServices
 }
+
+func SetupMonitorServicesForProvidersTest(providers []config.Provider) []MonitorServiceProxy {
+	if len(providers) < 1 {
+		log.Panic("Cannot Instantiate controller with no providers")
+	}
+	// TODO: Fix provider specific implementation and then add them to this list
+	allowedProviders := []string{"UptimeRobot", "StatusCake"}
+
+	monitorServices := []MonitorServiceProxy{}
+
+	for index := 0; index < len(providers); index++ {
+		if contains(allowedProviders, providers[index].Name) {
+			monitorServices = append(monitorServices, CreateMonitorService(&providers[index]))
+			log.Info("Configuration added for " + providers[index].Name)
+		}
+	}
+
+	return monitorServices
+}
+
+func contains(arr []string, str string) bool {
+	for _, a := range arr {
+		if a == str {
+			return true
+		}
+	}
+	return false
+}

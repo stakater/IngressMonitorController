@@ -68,21 +68,21 @@ func getConfiguration(monitor models.Monitor) Configuration {
 
 	var config Configuration
 
-	// ExpectedStatusCode is configurable via annotation, Default value 200
+	// ExpectedStatusCode is configurable via Config, Default value 200
 	if providerConfig != nil && providerConfig.StatusCode > 0 {
 		config.expectedStatusCode = providerConfig.StatusCode
 	} else {
 		config.expectedStatusCode = AppInsightsStatusCodeDefaultValue
 	}
 
-	// isRetryEnabled is configurable via annotation, Default value true
+	// isRetryEnabled is configurable via config, Default value true
 	if providerConfig != nil {
 		config.isRetryEnabled = providerConfig.RetryEnable
 	} else {
 		config.isRetryEnabled = AppInsightsRetryEnabledDefaultValue
 	}
 
-	// frequency is configurable via annotation, Default value 300
+	// frequency is configurable via config, Default value 300
 	if providerConfig != nil && providerConfig.StatusCode > 0 {
 		config.frequency = int32(providerConfig.StatusCode)
 	} else {

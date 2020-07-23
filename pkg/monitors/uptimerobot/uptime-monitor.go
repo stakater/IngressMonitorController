@@ -225,7 +225,7 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 			if providerConfig != nil && len(providerConfig.KeywordValue) != 0 {
 				body += "&keyword_value=" + providerConfig.KeywordValue
 			} else {
-				log.Error("Monitor is of type Keyword but the `keyword-value` annotation is missing")
+				log.Error("Monitor is of type Keyword but the `keyword-value` is missing")
 			}
 		}
 	} else {

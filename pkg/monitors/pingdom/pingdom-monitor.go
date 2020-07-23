@@ -219,14 +219,14 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 
 	if providerConfig != nil && len(providerConfig.ShouldContain) > 0 {
 		httpCheck.ShouldContain = providerConfig.ShouldContain
-		log.Println("Should contain annotation detected. Setting Should Contain string: ", providerConfig.ShouldContain)
+		log.Println("Should contain detected. Setting Should Contain string: ", providerConfig.ShouldContain)
 	}
 
 	// Tags should be a single word or multiple comma-seperated words
 	if providerConfig != nil && len(providerConfig.Tags) > 0 {
 		if !strings.Contains(providerConfig.Tags, " ") {
 			httpCheck.Tags = providerConfig.Tags
-			log.Println("Tags annotation detected. Setting Tags as: ", providerConfig.Tags)
+			log.Println("Tags detected. Setting Tags as: ", providerConfig.Tags)
 		} else {
 			log.Println("Tag string should not contain spaces. Not applying tags.")
 		}
