@@ -142,7 +142,7 @@ func GetControllerConfigTest() Config {
 func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML
-	log.Info("Reading YAML Configuration", filePath)
+	log.Info("Reading YAML Configuration: ", filePath)
 	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Panic(err)
