@@ -16,7 +16,7 @@ spec:
       containers:
         - name: ingressmonitorcontroller
           # Replace this with the built image name
-          image: REPLACE_IMAGE
+          image: stakater/ingressmonitorcontroller:v2.0.0
           command:
           - ingressmonitorcontroller
           imagePullPolicy: Always

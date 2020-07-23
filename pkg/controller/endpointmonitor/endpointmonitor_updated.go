@@ -10,12 +10,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func (r *ReconcileEndpointMonitor) handleUpdate(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitor models.Monitor, monitorService monitors.MonitorServiceProxy) (reconcile.Result, error) {
+func (r *ReconcileEndpointMonitor) handleUpdate(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitor models.Monitor, monitorService monitors.MonitorServiceProxy) error {
 	log.Info("Updating Monitor: " + monitor.Name)
 
 	url, err := util.GetMonitorURL(r.client, instance)
 	if err != nil {
-		return reconcile.Result{}, err
+		return err
 	}
 
 	// Extract provider specific configuration
@@ -28,5 +28,5 @@ func (r *ReconcileEndpointMonitor) handleUpdate(request reconcile.Request, insta
 	if !monitorService.Equal(monitor, updatedMonitor) {
 		monitorService.Update(updatedMonitor)
 	}
-	return reconcile.Result{RequeueAfter: RequeueTime}, nil
+	return nil
 }

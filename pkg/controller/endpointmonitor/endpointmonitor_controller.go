@@ -112,18 +112,27 @@ func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconci
 		return reconcile.Result{}, err
 	}
 
+	// Handle CreationDelay
+	createTime := instance.CreationTimestamp
+	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))
+
 	for index := 0; index < len(r.monitorServices); index++ {
 		monitor := findMonitorByName(r.monitorServices[index], monitorName)
 		if monitor != nil {
 			// Monitor already exists, update if required
-			r.handleUpdate(request, instance, *monitor, r.monitorServices[index])
+			err = r.handleUpdate(request, instance, *monitor, r.monitorServices[index])
 		} else {
 			// Monitor doesn't exist, create monitor
-			r.handleCreate(request, instance, monitorName, r.monitorServices[index])
+			if delay.Nanoseconds() > 0 {
+				// Requeue request to add creation delay
+				log.Info("Requeuing request to add monitor " + monitorName + " for" + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
+				return reconcile.Result{RequeueAfter: delay}, nil
+			}
+			err = r.handleCreate(request, instance, monitorName, r.monitorServices[index])
 		}
 	}
 
-	return reconcile.Result{}, nil
+	return reconcile.Result{RequeueAfter: RequeueTime}, err
 }
 
 func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) *models.Monitor {
