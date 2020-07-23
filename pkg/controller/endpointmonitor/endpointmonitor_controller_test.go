@@ -1,28 +1,28 @@
 package endpointmonitor
 
 import (
-	"testing"
-	"strconv"
 	"context"
 	log "github.com/sirupsen/logrus"
+	"strconv"
+	"testing"
 	"time"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/stakater/IngressMonitorController/pkg/config"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
-	"github.com/stakater/IngressMonitorController/pkg/config"
 	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 const (
-	testName      = "test-endpointmonitor"
-	testNamespace = "test-namespace"
-	testURL = "https://www.google.com"
+	testName        = "test-endpointmonitor"
+	testNamespace   = "test-namespace"
+	testURL         = "https://www.google.com"
 	testURLFacebook = "https://www.facebook.com"
 )
 
@@ -84,7 +84,7 @@ func TestEndpointMonitorReconcile(t *testing.T) {
 	monitorCount := 0
 	for index := 0; index < len(r.monitorServices); index++ {
 		monitor := findMonitorByName(r.monitorServices[index], monitorName)
-		if (monitor != nil && monitor.URL == testURL) {
+		if monitor != nil && monitor.URL == testURL {
 			log.Info("Found Monitor for Provider: " + r.monitorServices[index].GetType())
 			monitorCount++
 		}
@@ -123,7 +123,7 @@ func TestEndpointMonitorReconcile(t *testing.T) {
 	monitorCount = 0
 	for index := 0; index < len(r.monitorServices); index++ {
 		monitor := findMonitorByName(r.monitorServices[index], monitorName)
-		if (monitor != nil && monitor.URL == testURLFacebook) {
+		if monitor != nil && monitor.URL == testURLFacebook {
 			log.Info("Found Updated Monitor for Provider: " + r.monitorServices[index].GetType())
 			monitorCount++
 		}
@@ -155,7 +155,7 @@ func TestEndpointMonitorReconcile(t *testing.T) {
 	monitorCount = 0
 	for index := 0; index < len(r.monitorServices); index++ {
 		monitor := findMonitorByName(r.monitorServices[index], monitorName)
-		if (monitor == nil) {
+		if monitor == nil {
 			monitorCount++
 		}
 	}

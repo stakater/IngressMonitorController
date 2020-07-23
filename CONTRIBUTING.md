@@ -135,6 +135,27 @@ type UptimeRobotConfig struct {
 
 And then handle this configuration as handled in `processProviderConfig` in [uptime-monitor.go](./pkg/monitors/uptimerobot/uptime-monitor.go)
 
+# Development
+
+## Dependencies: 
+1. GoLang v1.14.x
+2. kubectl
+3. operator-sdk v0.15.x
+
+## Running Operator Locally
+
+1. Create a namespace `test`
+2. Create a secret with name `imc-config` and add your desired config in there
+3. Run `make run-local`
+
+**NOTE**: Ensure that all required resources are re-generated 
+
+# Creating a New Release
+
+1. Update CSV version in `./hack/update-resources.sh`
+2. Update image tag in `./deploy/operator.yaml`(look for `image:`)
+3. Update dependencies and resources by running `./hack/update-resources.sh` script from root directory
+
 # Testing
 
 ## Running Tests Locally

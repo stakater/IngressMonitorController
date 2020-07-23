@@ -1,6 +1,7 @@
 # ![](assets/web/IMC-round-100px.png) Ingress Monitor Controller
 
 ###DEPRECATION NOTICE: 
+
 **IMC has now been converted to an Operator and we have stopped support from our side for the controller based implementation
 , although support from community for the controller is still appreciated. Using Operator is recommended and existing users can follow
 [Migration To Operator](./docs/migration-guide.md) for migrating to Operator. Although, Controller based implementation is maintained at [release-v1](https://github.com/stakater/IngressMonitorController/tree/release-v1) instead.**

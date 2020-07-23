@@ -56,6 +56,9 @@ binary-image: builder-image
 test:
 	GOFLAGS="-count=1" "$(GOCMD)" test -v ./...
 
+run-local:
+	./hack/run-local.sh
+
 stop:
 	@docker stop "${BINARY}"
 
