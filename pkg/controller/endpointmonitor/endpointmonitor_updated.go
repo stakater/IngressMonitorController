@@ -22,7 +22,7 @@ func (r *ReconcileEndpointMonitor) handleUpdate(request reconcile.Request, insta
 	config := monitorService.ExtractConfig(instance.Spec)
 
 	// Create monitor Model
-	updatedMonitor := models.NewMonitor(monitor.Name, url, config)
+	updatedMonitor := models.Monitor{Name: monitor.Name, ID: monitor.ID, URL: url, Config: config}
 
 	// Compare and Update monitor for provider if required
 	if !monitorService.Equal(monitor, updatedMonitor) {

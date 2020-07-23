@@ -39,7 +39,6 @@ func (service *MonitorService) Setup(provider config.Provider) {
 	} else {
 		service.client = client
 	}
-
 	service.projectID = provider.GcloudConfig.ProjectID
 }
 

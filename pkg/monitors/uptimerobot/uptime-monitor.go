@@ -119,7 +119,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	}
 
-	log.Println("GetAllMonitors Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+	log.Println("GetAllMonitors Request for UptimeRobot failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	return nil
 
 }

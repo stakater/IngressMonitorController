@@ -2,19 +2,28 @@ package endpointmonitor
 
 import (
 	"testing"
+	"strconv"
+	"context"
+	log "github.com/sirupsen/logrus"
+	"time"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/stakater/IngressMonitorController/pkg/monitors"
+
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/kubernetes/scheme"
+	"github.com/stakater/IngressMonitorController/pkg/config"
 	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/apimachinery/pkg/types"
 )
 
 const (
 	testName      = "test-endpointmonitor"
 	testNamespace = "test-namespace"
+	testURL = "https://www.google.com"
+	testURLFacebook = "https://www.facebook.com"
 )
 
 var (
@@ -28,13 +37,16 @@ var (
 			APIVersion: "endpointmonitor.stakater.com/v1alpha1",
 		},
 		Spec: endpointmonitorv1alpha1.EndpointMonitorSpec{
-			URL:        "https://www.google.com",
+			URL:        testURL,
 			ForceHTTPS: true,
 		},
 	}
 )
 
-func TestEndpointMonitorCreate(t *testing.T) {
+func TestEndpointMonitorReconcile(t *testing.T) {
+	controllerConfig := config.GetControllerConfigTest()
+	monitorServices := monitors.SetupMonitorServicesForProviders(controllerConfig.Providers)
+
 	endpointMonitor := &EndpointMonitorInstance
 
 	// Objects to track in the fake client.
@@ -46,7 +58,7 @@ func TestEndpointMonitorCreate(t *testing.T) {
 	s := scheme.Scheme
 	s.AddKnownTypes(endpointmonitorv1alpha1.SchemeGroupVersion, endpointMonitor)
 	cl := fakekubeclient.NewFakeClient(objs...)
-	r := &ReconcileEndpointMonitor{client: cl, scheme: s}
+	r := &ReconcileEndpointMonitor{client: cl, scheme: s, monitorServices: monitorServices}
 
 	// Mock request to simulate Reconcile() being called on an event for a
 	// watched resource .
@@ -57,6 +69,8 @@ func TestEndpointMonitorCreate(t *testing.T) {
 		},
 	}
 
+	log.Info("Testing reconcile for create")
+
 	res, err := r.Reconcile(req)
 	if err != nil {
 		t.Fatalf("reconcile: (%v)", err)
@@ -65,7 +79,88 @@ func TestEndpointMonitorCreate(t *testing.T) {
 		t.Error("reconcile did not return an empty Result")
 	}
 
-	// Check that the monitor is created
+	// Check that the monitors are created
+	monitorName := testName + "-" + testNamespace
+	monitorCount := 0
+	for index := 0; index < len(r.monitorServices); index++ {
+		monitor := findMonitorByName(r.monitorServices[index], monitorName)
+		if (monitor != nil && monitor.URL == testURL) {
+			log.Info("Found Monitor for Provider: " + r.monitorServices[index].GetType())
+			monitorCount++
+		}
+	}
 
-	// Check that the status of the CR is updated
+	if monitorCount != len(r.monitorServices) {
+		t.Error("Unable to create monitors for all providers, only " + strconv.Itoa(monitorCount) + "/" + strconv.Itoa(len(r.monitorServices)) + " monitors were added")
+	}
+
+	endpointMonitorObject := &endpointmonitorv1alpha1.EndpointMonitor{}
+	err = cl.Get(context.TODO(), types.NamespacedName{Name: testName, Namespace: testNamespace}, endpointMonitorObject)
+	if err != nil {
+		t.Fatalf("Get EndpointMonitor Instance : (%v)", err)
+	}
+
+	// Update URL and re-run reconcile for update
+	endpointMonitorObject.Spec.URL = testURLFacebook
+	err = cl.Update(context.TODO(), endpointMonitorObject)
+	if err != nil {
+		t.Error(err, "Could not update EndpointMonitor CR")
+	}
+
+	log.Info("Testing reconcile for update")
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+	if res != (reconcile.Result{}) {
+		t.Error("reconcile did not return an empty Result")
+	}
+
+	// Sleep for 5 seconds since update takes time for Updown provider
+	time.Sleep(5 * time.Second)
+
+	monitorCount = 0
+	for index := 0; index < len(r.monitorServices); index++ {
+		monitor := findMonitorByName(r.monitorServices[index], monitorName)
+		if (monitor != nil && monitor.URL == testURLFacebook) {
+			log.Info("Found Updated Monitor for Provider: " + r.monitorServices[index].GetType())
+			monitorCount++
+		}
+	}
+
+	if monitorCount != len(r.monitorServices) {
+		t.Error("Unable to update monitors for all providers, only " + strconv.Itoa(monitorCount) + "/" + strconv.Itoa(len(r.monitorServices)) + " monitors were updated")
+	}
+
+	// Delete CR to test deletion
+	err = cl.Delete(context.TODO(), endpointMonitorObject)
+	if err != nil {
+		t.Error(err, "Could not delete EndpointMonitor CR")
+	}
+
+	log.Info("Testing reconcile for delete")
+
+	res, err = r.Reconcile(req)
+	if err != nil {
+		t.Fatalf("reconcile: (%v)", err)
+	}
+	if res != (reconcile.Result{}) {
+		t.Error("reconcile did not return an empty Result")
+	}
+
+	// Sleep for 5 seconds since update takes time for Updown provider
+	time.Sleep(5 * time.Second)
+
+	monitorCount = 0
+	for index := 0; index < len(r.monitorServices); index++ {
+		monitor := findMonitorByName(r.monitorServices[index], monitorName)
+		if (monitor == nil) {
+			monitorCount++
+		}
+	}
+
+	if monitorCount == len(r.monitorServices) {
+		t.Error("Unable to delete monitors for all providers, only " + strconv.Itoa(monitorCount) + "/" + strconv.Itoa(len(r.monitorServices)) + " monitors were deleted")
+	}
 }

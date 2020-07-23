@@ -76,7 +76,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	}
 
-	log.Println("GetAllMonitors Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+	log.Println("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	return nil
 
 }
@@ -114,7 +114,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 				log.Println(string(response.Bytes))
 			}
 		} else {
-			log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode) + string(response.Bytes))
+			log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode) + "\n" + string(response.Bytes))
 		}
 	} else {
 		log.Println(err.Error())

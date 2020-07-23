@@ -36,7 +36,7 @@ func (r *ReconcileEndpointMonitor) handleCreate(request reconcile.Request, insta
 	}
 
 	// Create monitor Model
-	monitor := models.NewMonitor(monitorName, url, providerConfig)
+	monitor := models.Monitor{Name: monitorName, URL: url, Config: providerConfig}
 
 	// Add monitor for provider
 	monitorService.Add(monitor)

@@ -34,6 +34,7 @@ func removeMonitorIfExists(monitorService monitors.MonitorServiceProxy, monitorN
 	// Monitor Exists
 	if monitor != nil {
 		// Monitor Exists, remove the monitor
+		log.Info("Removing monitor with name: " + monitorName + " for provider: " + monitorService.GetType())
 		monitorService.Remove(*monitor)
 	} else {
 		log.Info("Cannot find monitor with name: " + monitorName + " for provider: " + monitorService.GetType())

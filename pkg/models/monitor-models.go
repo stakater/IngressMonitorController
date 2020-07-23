@@ -7,9 +7,10 @@ type Monitor struct {
 	Config interface{}
 }
 
-func NewMonitor(monitorName string, monitorUrl string, config interface{}) Monitor {
+func NewMonitor(monitorName string, id string, monitorUrl string, config interface{}) Monitor {
 	return Monitor{
 		Name:   monitorName,
+		ID:			id,
 		URL:    monitorUrl,
 		Config: config,
 	}
