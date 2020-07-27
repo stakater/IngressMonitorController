@@ -34,7 +34,7 @@ spec:
             spec:
               containers:
               - command:
-                - ingressmonitorcontroller
+                - IngressMonitorController
                 env:
                 - name: WATCH_NAMESPACE
                   valueFrom:
@@ -75,6 +75,8 @@ spec:
           resources:
           - events
           - services
+          - configmaps
+          - services/finalizers
           verbs:
           - create
           - delete
@@ -83,6 +85,15 @@ spec:
           - patch
           - update
           - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - '*'
         - apiGroups:
           - monitoring.coreos.com
           resources:
@@ -106,7 +117,7 @@ spec:
           verbs:
           - get
         - apiGroups:
-          - ingressmonitor.stakater.com
+          - endpointmonitor.stakater.com
           resources:
           - '*'
           verbs:
