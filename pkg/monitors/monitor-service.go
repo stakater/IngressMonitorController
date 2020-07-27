@@ -2,6 +2,7 @@ package monitors
 
 import (
 	log "github.com/sirupsen/logrus"
+	"strings"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -44,6 +45,7 @@ func SetupMonitorServicesForProvidersTest(providers []config.Provider) []Monitor
 	}
 	// TODO: Fix provider specific implementation and then add them to this list
 	allowedProviders := []string{"UptimeRobot", "StatusCake"}
+	log.Info("Setting up monitor services for tests(CRDs) for supported providers: " + strings.Join(allowedProviders[:], ","))
 
 	monitorServices := []MonitorServiceProxy{}
 

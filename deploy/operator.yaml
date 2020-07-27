@@ -15,7 +15,6 @@ spec:
       serviceAccountName: ingressmonitorcontroller
       containers:
         - name: ingressmonitorcontroller
-          # Replace this with the built image name
           image: stakater/ingressmonitorcontroller:v2.0.0
           command:
           - ingressmonitorcontroller

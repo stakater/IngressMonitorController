@@ -1,4 +1,4 @@
-FROM registry.svc.ci.openshift.org/openshift/release:golang-1.10 AS builder
+FROM registry.svc.ci.openshift.org/openshift/release:golang-1.14 AS builder
 COPY . /go/src/github.com/stakater/IngressMonitorController
 WORKDIR /go/src/github.com/stakater/IngressMonitorController
 RUN make build
