@@ -3,9 +3,9 @@ FROM registry.svc.ci.openshift.org/openshift/release:golang-1.14 AS builder
 RUN mkdir -p /workdir
 WORKDIR /workdir
 COPY go.mod go.sum ./
-RUN go mod download && go mod vendor
+RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --installsuffix cgo --ldflags="-s" -o build/_output/bin/IngressMonitorController ./cmd/manager
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=mod -a --installsuffix cgo --ldflags="-s" -o build/_output/bin/IngressMonitorController ./cmd/manager
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 
