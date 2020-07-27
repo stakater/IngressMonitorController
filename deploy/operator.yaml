@@ -17,7 +17,7 @@ spec:
         - name: ingressmonitorcontroller
           image: stakater/ingressmonitorcontroller:v2.0.0
           command:
-          - ingressmonitorcontroller
+          - IngressMonitorController
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE

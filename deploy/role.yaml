@@ -20,6 +20,8 @@ rules:
   resources:
   - events
   - services
+  - configmaps
+  - services/finalizers
   verbs:
   - create
   - delete
@@ -28,6 +30,15 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - daemonsets
+  - replicasets
+  - statefulsets
+  verbs:
+  - "*"
 - apiGroups:
   - monitoring.coreos.com
   resources:
@@ -51,7 +62,7 @@ rules:
   verbs:
   - get
 - apiGroups:
-  - ingressmonitor.stakater.com
+  - endpointmonitor.stakater.com
   resources:
   - '*'
   verbs:
