@@ -1,11 +1,23 @@
 FROM registry.svc.ci.openshift.org/openshift/release:golang-1.14 AS builder
-COPY . /go/src/github.com/stakater/IngressMonitorController
-WORKDIR /go/src/github.com/stakater/IngressMonitorController
-RUN make build
 
-FROM registry.svc.ci.openshift.org/openshift/origin-v4.0:base
-ENV OPERATOR_BIN=IngressMonitorController-operator
+RUN mkdir -p /workdir
+WORKDIR /workdir
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --installsuffix cgo --ldflags="-s" -o build/_output/bin/IngressMonitorController ./cmd/manager
 
-WORKDIR /root/
-COPY --from=builder /go/src/github.com/stakater/IngressMonitorController/build/_output/bin/${OPERATOR_BIN} /usr/local/bin/${OPERATOR_BIN}
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+
+ENV USER_UID=1001
+
+COPY --from=builder /workdir/build/_output/bin/* /usr/local/bin/
+
+COPY build/bin /usr/local/bin
+RUN  /usr/local/bin/user_setup
+
+ENTRYPOINT ["/usr/local/bin/entrypoint"]
+
+USER ${USER_UID}
+
 MAINTAINER "Stakater Team"

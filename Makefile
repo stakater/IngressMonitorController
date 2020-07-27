@@ -48,10 +48,9 @@ verify-golangci-lint: $(GOLANGCI_LINT)
 verify: verify-fmt verify-golangci-lint
 
 builder-image:
-	@docker build --network host -t "${BUILDER}" -f build/package/Dockerfile.build .
+	@docker build --network host -t "${BUILDER}" -f build/Dockerfile .
 
 binary-image: builder-image
-	@docker run --network host --rm "${BUILDER}" | docker build --network host -t "${REPOSITORY}" -f Dockerfile.run -
 
 test:
 	GOFLAGS="-count=1" "$(GOCMD)" test -v ./...
