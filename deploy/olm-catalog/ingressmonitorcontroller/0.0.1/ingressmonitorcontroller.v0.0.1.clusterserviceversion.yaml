@@ -52,7 +52,7 @@ spec:
                   value: info
                 - name: LOG_FORMAT
                   value: text
-                image: stakater/ingressmonitorcontroller:v2.0.0
+                image: stakater/ingressmonitorcontroller:v2.0.1
                 imagePullPolicy: Always
                 name: ingressmonitorcontroller
                 resources: {}
