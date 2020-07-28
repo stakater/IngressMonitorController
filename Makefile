@@ -48,7 +48,7 @@ verify-golangci-lint: $(GOLANGCI_LINT)
 verify: verify-fmt verify-golangci-lint
 
 builder-image:
-	@docker build --network host -t "${BUILDER}" -f build/Dockerfile .
+	@docker build --network host -t "${REPOSITORY}" -f build/Dockerfile .
 
 binary-image: builder-image
 
