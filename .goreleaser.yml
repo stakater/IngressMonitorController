@@ -2,6 +2,7 @@
 # Build customization
 builds:
   - binary: imc
+    main: ./cmd/manager/main.go
     env:
       - CGO_ENABLED=0
     goos:
