@@ -1,6 +1,6 @@
 # ![](assets/web/IMC-round-100px.png) Ingress Monitor Controller
 
-###DEPRECATION NOTICE: 
+### DEPRECATION NOTICE: 
 
 **IMC has now been converted to an Operator and we have stopped support from our side for the controller based implementation
 , although support from community for the controller is still appreciated. Using Operator is recommended and existing users can follow
