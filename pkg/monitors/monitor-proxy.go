@@ -2,6 +2,7 @@ package monitors
 
 import (
 	log "github.com/sirupsen/logrus"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/appinsights"
@@ -16,6 +17,10 @@ import (
 type MonitorServiceProxy struct {
 	monitorType string
 	monitor     MonitorService
+}
+
+func (mp *MonitorServiceProxy) GetType() string {
+	return mp.monitorType
 }
 
 func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
@@ -41,6 +46,30 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	return *mp
 }
 
+func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.EndpointMonitorSpec) interface{} {
+	var config interface{}
+
+	switch mp.monitorType {
+	case "UptimeRobot":
+		config = spec.UptimeRobotConfig
+	case "Pingdom":
+		config = spec.PingdomConfig
+	case "StatusCake":
+		config = spec.StatusCakeConfig
+	case "Uptime":
+		config = spec.UptimeConfig
+	case "Updown":
+		config = spec.UpdownConfig
+	case "AppInsights":
+		config = spec.AppInsightsConfig
+	case "gcloud":
+		config = spec.GCloudConfig
+	default:
+		return config
+	}
+	return config
+}
+
 func (mp *MonitorServiceProxy) Setup(p config.Provider) {
 	mp.monitor.Setup(p)
 }
@@ -55,6 +84,10 @@ func (mp *MonitorServiceProxy) GetByName(name string) (*models.Monitor, error) {
 
 func (mp *MonitorServiceProxy) Add(m models.Monitor) {
 	mp.monitor.Add(m)
+}
+
+func (mp *MonitorServiceProxy) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	return mp.monitor.Equal(oldMonitor, newMonitor)
 }
 
 func (mp *MonitorServiceProxy) Update(m models.Monitor) {

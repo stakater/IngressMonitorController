@@ -50,8 +50,10 @@ func (statusPageService *UpTimeStatusPageService) Add(statusPage UpTimeStatusPag
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeStatusPageResponse
-		json.Unmarshal(response.Bytes, &f)
-
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+		}
 		if f.Stat == "ok" {
 			log.Println("Status Page Added: " + statusPage.Name)
 			return strconv.Itoa(f.UptimePublicStatusPage.ID), nil
@@ -78,7 +80,10 @@ func (statusPageService *UpTimeStatusPageService) Remove(statusPage UpTimeStatus
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeStatusPageResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+		}
 
 		if f.Stat == "ok" {
 			log.Println("Status Page Removed: " + statusPage.Name)
@@ -121,7 +126,10 @@ func (statusPageService *UpTimeStatusPageService) AddMonitorToStatusPage(statusP
 
 		if response.StatusCode == Http.StatusOK {
 			var f UptimeStatusPageResponse
-			json.Unmarshal(response.Bytes, &f)
+			err := json.Unmarshal(response.Bytes, &f)
+			if err != nil {
+				log.Error(err)
+			}
 
 			if f.Stat == "ok" {
 				log.Println("Status Page Updated: " + statusPage.Name)
@@ -165,8 +173,10 @@ func (statusPageService *UpTimeStatusPageService) RemoveMonitorFromStatusPage(st
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeStatusPageResponse
-		json.Unmarshal(response.Bytes, &f)
-
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+		}
 		if f.Stat == "ok" {
 			log.Println("Status Page Updated: " + statusPage.Name)
 			return strconv.Itoa(f.UptimePublicStatusPage.ID), nil
@@ -193,7 +203,10 @@ func (statusPageService *UpTimeStatusPageService) Get(ID string) (*UpTimeStatusP
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeStatusPagesResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+		}
 
 		if f.StatusPages != nil {
 			for _, statusPage := range f.StatusPages {
@@ -268,7 +281,10 @@ func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID st
 
 			if response.StatusCode == Http.StatusOK {
 
-				json.Unmarshal(response.Bytes, &f)
+				err := json.Unmarshal(response.Bytes, &f)
+				if err != nil {
+					log.Error(err)
+				}
 
 				for _, statusPage := range f.StatusPages {
 					if util.ContainsInt(statusPage.Monitors, IDint) {

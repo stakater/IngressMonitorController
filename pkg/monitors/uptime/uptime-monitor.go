@@ -11,6 +11,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -20,6 +21,11 @@ type UpTimeMonitorService struct {
 	apiKey        string
 	url           string
 	alertContacts string
+}
+
+func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// TODO: Retrieve oldMonitor config and compare it here
+	return false
 }
 
 func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
@@ -32,11 +38,9 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	monitors := monitor.GetAll()
 
-	if monitors != nil {
-		for _, monitor := range monitors {
-			if monitor.Name == name {
-				return &monitor, nil
-			}
+	for _, monitor := range monitors {
+		if monitor.Name == name {
+			return &monitor, nil
 		}
 	}
 
@@ -72,7 +76,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	}
 
-	log.Println("GetAllMonitors Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+	log.Println("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	return nil
 
 }
@@ -87,31 +91,8 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 	headers["Content-Type"] = "application/json"
 	headers["Accepts"] = "application/json"
 
-	body := make(map[string]interface{})
-	body["name"] = m.Name
-	unEscapedURL, _ := url.QueryUnescape(m.URL)
-	body["msp_address"] = unEscapedURL
+	body := processProviderConfig(m)
 
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/interval"]; ok {
-		interval, err := strconv.Atoi(val)
-		if nil == err {
-			body["msp_interval"] = interval
-		}
-	} else {
-		body["msp_interval"] = 5 // by default interval check is 5 minutes
-	}
-
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/locations"]; ok {
-		body["locations"] = strings.Split(val, ",")
-	} else {
-		body["locations"] = strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
-	}
-
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/contacts"]; ok {
-		body["contact_groups"] = strings.Split(val, ",")
-	} else {
-		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
-	}
 	jsonBody, err := json.Marshal(body)
 	if err == nil {
 		log.Println(string(jsonBody))
@@ -125,7 +106,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 				log.Println("Failed to Unmarshal Response Json Object")
 			}
 
-			if f.Errors == false {
+			if !f.Errors {
 				log.Println("Monitor Added: " + m.Name)
 			} else {
 				log.Print("Monitor couldn't be added: " + m.Name +
@@ -133,7 +114,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 				log.Println(string(response.Bytes))
 			}
 		} else {
-			log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode) + string(response.Bytes))
+			log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode) + "\n" + string(response.Bytes))
 		}
 	} else {
 		log.Println(err.Error())
@@ -149,31 +130,8 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 	headers["Authorization"] = "Token " + monitor.apiKey
 	headers["Content-Type"] = "application/json"
 
-	body := make(map[string]interface{})
-	body["name"] = m.Name
-	unEscapedURL, _ := url.QueryUnescape(m.URL)
-	body["msp_address"] = unEscapedURL
+	body := processProviderConfig(m)
 
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/interval"]; ok {
-		interval, err := strconv.Atoi(val)
-		if nil == err {
-			body["msp_interval"] = interval
-		}
-	} else {
-		body["msp_interval"] = 5 // by default interval check is 5 minutes
-	}
-
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/locations"]; ok {
-		body["locations"] = strings.Split(val, ",")
-	} else {
-		body["locations"] = strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
-	}
-
-	if val, ok := m.Annotations["uptime.monitor.stakater.com/contacts"]; ok {
-		body["contact_groups"] = strings.Split(val, ",")
-	} else {
-		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
-	}
 	jsonBody, err := json.Marshal(body)
 	log.Println(string(jsonBody))
 	if err == nil {
@@ -185,7 +143,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 			if err != nil {
 				log.Println("Failed to Unmarshal Response Json Object")
 			}
-			if f.Errors == false {
+			if !f.Errors {
 				log.Println("Monitor Updated: " + m.Name)
 			} else {
 				log.Println("Monitor couldn't be updated: " + m.Name)
@@ -211,9 +169,11 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
-
-		if f.Errors == false {
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+		}
+		if !f.Errors {
 			log.Println("Monitor Removed: " + m.Name)
 		} else {
 			log.Println("Monitor couldn't be removed: " + m.Name)
@@ -221,4 +181,35 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 	} else {
 		log.Println("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
+}
+
+func processProviderConfig(m models.Monitor) map[string]interface{} {
+
+	// Retrieve provider configuration
+	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.UptimeConfig)
+
+	body := make(map[string]interface{})
+	body["name"] = m.Name
+	unEscapedURL, _ := url.QueryUnescape(m.URL)
+	body["msp_address"] = unEscapedURL
+
+	if providerConfig != nil && providerConfig.Interval > 0 {
+		body["msp_interval"] = strconv.Itoa(providerConfig.Interval)
+	} else {
+		body["msp_interval"] = 5 // by default interval check is 5 minutes
+	}
+
+	if providerConfig != nil && len(providerConfig.Locations) != 0 {
+		body["locations"] = strings.Split(providerConfig.Locations, ",")
+	} else {
+		body["locations"] = strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
+	}
+
+	if providerConfig != nil && len(providerConfig.Contacts) != 0 {
+		body["contact_groups"] = strings.Split(providerConfig.Contacts, ",")
+	} else {
+		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
+	}
+
+	return body
 }

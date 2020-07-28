@@ -2,22 +2,28 @@ package wrappers
 
 import (
 	"context"
-	"log"
 	"net/url"
 	"path"
 	"strings"
 
-	"github.com/stakater/IngressMonitorController/pkg/constants"
+	log "github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type IngressWrapper struct {
-	Ingress    *v1beta1.Ingress
-	Namespace  string
-	KubeClient kubernetes.Interface
+	Ingress *v1beta1.Ingress
+	Client  client.Client
+}
+
+func NewIngressWrapper(ingress *v1beta1.Ingress, client client.Client) *IngressWrapper {
+	return &IngressWrapper{
+		Ingress: ingress,
+		Client:  client,
+	}
 }
 
 func (iw *IngressWrapper) supportsTLS() bool {
@@ -27,17 +33,13 @@ func (iw *IngressWrapper) supportsTLS() bool {
 	return false
 }
 
-func (iw *IngressWrapper) tryGetTLSHost() (string, bool) {
+func (iw *IngressWrapper) tryGetTLSHost(forceHttps bool) (string, bool) {
 	if iw.supportsTLS() {
 		return "https://" + iw.Ingress.Spec.TLS[0].Hosts[0], true
 	}
 
-	annotations := iw.Ingress.GetAnnotations()
-	if value, ok := annotations[constants.ForceHTTPSAnnotation]; ok {
-		if value == "true" {
-			// Annotation exists and is enabled
-			return "https://" + iw.Ingress.Spec.Rules[0].Host, true
-		}
+	if forceHttps {
+		return "https://" + iw.Ingress.Spec.Rules[0].Host, true
 	}
 
 	return "", false
@@ -68,7 +70,7 @@ func (iw *IngressWrapper) getIngressSubPath() string {
 	return ""
 }
 
-func (iw *IngressWrapper) GetURL() string {
+func (iw *IngressWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	if !iw.rulesExist() {
 		log.Println("No rules exist in ingress: " + iw.Ingress.GetName())
 		return ""
@@ -76,7 +78,7 @@ func (iw *IngressWrapper) GetURL() string {
 
 	var URL string
 
-	if host, exists := iw.tryGetTLSHost(); exists { // Get TLS Host if it exists
+	if host, exists := iw.tryGetTLSHost(forceHttps); exists { // Get TLS Host if it exists
 		URL = host
 	} else {
 		URL = iw.getHost() // Fallback for normal Host
@@ -90,10 +92,8 @@ func (iw *IngressWrapper) GetURL() string {
 		return ""
 	}
 
-	annotations := iw.Ingress.GetAnnotations()
-
-	if value, ok := annotations[constants.OverridePathAnnotation]; ok {
-		u.Path = value
+	if len(healthEndpoint) != 0 {
+		u.Path = healthEndpoint
 	} else {
 		// ingressSubPath
 		ingressSubPath := iw.getIngressSubPath()
@@ -105,15 +105,8 @@ func (iw *IngressWrapper) GetURL() string {
 		// Health endpoint from pod successful
 		if exists {
 			u.Path = path.Join(u.Path, healthEndpoint)
-		} else { // Try to get annotation and set
-
-			// Annotation for health Endpoint exists
-			if value, ok := annotations[constants.MonitorHealthAnnotation]; ok {
-				u.Path = path.Join(u.Path, value)
-			}
 		}
 	}
-
 	return u.String()
 }
 
@@ -129,25 +122,31 @@ func (iw *IngressWrapper) hasService() (string, bool) {
 }
 
 func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
-
 	serviceName, exists := iw.hasService()
 
 	if !exists {
 		return "", false
 	}
 
-	service, err := iw.KubeClient.CoreV1().Services(iw.Ingress.Namespace).Get(context.TODO(), serviceName, meta_v1.GetOptions{})
+	service := &corev1.Service{}
+	err := iw.Client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: iw.Ingress.Namespace}, service)
 	if err != nil {
 		log.Printf("Get service from kubernetes cluster error:%v", err)
 		return "", false
 	}
 
-	set := labels.Set(service.Spec.Selector)
+	labels := labels.Set(service.Spec.Selector)
 
-	if pods, err := iw.KubeClient.CoreV1().Pods(iw.Ingress.Namespace).List(context.TODO(), meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
+	podList := &corev1.PodList{}
+	listOps := &client.ListOptions{
+		Namespace:     iw.Ingress.Namespace,
+		LabelSelector: labels.AsSelector(),
+	}
+	err = iw.Client.List(context.TODO(), podList, listOps)
+	if err != nil {
 		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
-	} else if len(pods.Items) > 0 {
-		pod := pods.Items[0]
+	} else if len(podList.Items) > 0 {
+		pod := podList.Items[0]
 
 		podContainers := pod.Spec.Containers
 

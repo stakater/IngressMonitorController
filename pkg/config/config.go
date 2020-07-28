@@ -1,13 +1,24 @@
 package config
 
 import (
+	log "github.com/sirupsen/logrus"
+	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
+	"github.com/stakater/IngressMonitorController/pkg/secret"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+)
 
-	yaml "gopkg.in/yaml.v2"
+const (
+	IngressMonitorControllerSecretConfigKey   = "config.yaml"
+	IngressMonitorControllerSecretDefaultName = "imc-config"
+)
+
+var (
+	IngressMonitorControllerConfig Config
 )
 
 type Config struct {
@@ -76,10 +87,62 @@ type WebhookAction struct {
 	ServiceURI string `yaml:"service_uri"`
 }
 
+func LoadControllerConfig(apiReader client.Reader) {
+	var config Config
+	log.Info("Loading YAML Configuration from secret")
+
+	// Retrieve operator namespace
+	operatorNamespace, _ := os.LookupEnv("OPERATOR_NAMESPACE")
+	if len(operatorNamespace) == 0 {
+		operatorNamespaceTemp, err := k8sutil.GetOperatorNamespace()
+		if err != nil {
+			if err == k8sutil.ErrNoNamespace {
+				log.Info("Skipping leader election; not running in a cluster.")
+			}
+			log.Panic(err)
+		}
+		operatorNamespace = operatorNamespaceTemp
+	}
+
+	configSecretName, _ := os.LookupEnv("CONFIG_SECRET_NAME")
+	if len(configSecretName) == 0 {
+		configSecretName = IngressMonitorControllerSecretDefaultName
+		log.Warn("CONFIG_SECRET_NAME is unset, using default value: imc-config")
+	}
+
+	// Retrieve config key from secret
+	configKey, err := secret.LoadSecretData(apiReader, configSecretName, operatorNamespace, IngressMonitorControllerSecretConfigKey)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Unmarshall
+	err = yaml.Unmarshal([]byte(configKey), &config)
+	if err != nil {
+		log.Panic(err)
+	}
+	IngressMonitorControllerConfig = config
+}
+
+func GetControllerConfig() Config {
+	return IngressMonitorControllerConfig
+}
+
+func GetControllerConfigTest() Config {
+	configFilePath := os.Getenv("CONFIG_FILE_PATH")
+	if len(configFilePath) == 0 {
+		configFilePath = "../../examples/configs/test-config.yaml"
+	}
+
+	config := ReadConfig(configFilePath)
+
+	return config
+}
+
 func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML
-	log.Info("Reading YAML Configuration", filePath)
+	log.Info("Reading YAML Configuration: ", filePath)
 	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Panic(err)
@@ -90,17 +153,6 @@ func ReadConfig(filePath string) Config {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	return config
-}
-
-func GetControllerConfig() Config {
-	configFilePath := os.Getenv("CONFIG_FILE_PATH")
-	if len(configFilePath) == 0 {
-		configFilePath = "../../configs/testConfigs/test-config.yaml"
-	}
-
-	config := ReadConfig(configFilePath)
-
+	IngressMonitorControllerConfig = config
 	return config
 }

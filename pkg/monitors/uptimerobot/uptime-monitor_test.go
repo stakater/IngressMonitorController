@@ -1,19 +1,21 @@
 package uptimerobot
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
 // Not a test case. Cleanup to remove added dummy Monitors
 func TestRemoveDanglingMonitors(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -33,7 +35,7 @@ func TestRemoveDanglingMonitors(t *testing.T) {
 }
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	// service.Setup(config.Providers[0])
@@ -58,7 +60,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 }
 
 func TestUpdateMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -95,18 +97,18 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	service.Remove(*mRes)
 }
 
-func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+func TestAddMonitorWithInterval(t *testing.T) {
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
 
-	var annotations = map[string]string{
-		"uptimerobot.monitor.stakater.com/interval": "600",
+	configInterval := &endpointmonitorv1alpha1.UptimeRobotConfig{
+		Interval: 600,
 	}
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configInterval}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
@@ -120,24 +122,26 @@ func TestAddMonitorWithIntervalAnnotations(t *testing.T) {
 	if mRes.URL != m.URL {
 		t.Error("The URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
 	}
-	if "600" != mRes.Annotations["uptimerobot.monitor.stakater.com/interval"] {
-		t.Error("The interval is incorrect, expected: 600, but was: " + mRes.Annotations["uptimerobot.monitor.stakater.com/interval"])
+	providerConfig, _ := mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
+
+	if 600 != providerConfig.Interval {
+		t.Error("The interval is incorrect, expected: 600, but was: " + strconv.Itoa(providerConfig.Interval))
 	}
 	service.Remove(*mRes)
 }
 
-func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+func TestUpdateMonitorInterval(t *testing.T) {
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
 
-	var annotations = map[string]string{
-		"uptimerobot.monitor.stakater.com/interval": "600",
+	configInterval := &endpointmonitorv1alpha1.UptimeRobotConfig{
+		Interval: 600,
 	}
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configInterval}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
@@ -151,13 +155,15 @@ func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
 	if mRes.URL != m.URL {
 		t.Error("The initial URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
 	}
-	if "600" != mRes.Annotations["uptimerobot.monitor.stakater.com/interval"] {
-		t.Error("The initial interval is incorrect: 600, but was: " + mRes.Annotations["uptimerobot.monitor.stakater.com/interval"])
+	providerConfig, _ := mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
+
+	if 600 != providerConfig.Interval {
+		t.Error("The interval is incorrect, expected: 600, but was: " + strconv.Itoa(providerConfig.Interval))
 	}
 
 	mRes.URL = "https://facebook.com"
-	annotations["uptimerobot.monitor.stakater.com/interval"] = "900"
-	mRes.Annotations = annotations
+	providerConfig.Interval = 900
+	mRes.Config = providerConfig
 
 	service.Update(*mRes)
 
@@ -169,15 +175,18 @@ func TestUpdateMonitorIntervalAnnotations(t *testing.T) {
 	if mRes.URL != "https://facebook.com" {
 		t.Error("The updated URL is incorrect, expected: https://facebook.com, but was: " + mRes.URL)
 	}
-	if "900" != mRes.Annotations["uptimerobot.monitor.stakater.com/interval"] {
-		t.Error("The updated interval is incorrect, expected: 900, but was: " + mRes.Annotations["uptimerobot.monitor.stakater.com/interval"])
+
+	providerConfig, _ = mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
+
+	if 900 != providerConfig.Interval {
+		t.Error("The interval is incorrect, expected: 600, but was: " + strconv.Itoa(providerConfig.Interval))
 	}
 
 	service.Remove(*mRes)
 }
 
-func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+func TestAddMonitorWithStatusPage(t *testing.T) {
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -193,11 +202,11 @@ func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
 	}
 	statusPage.ID = ID
 
-	var annotations = map[string]string{
-		"uptimerobot.monitor.stakater.com/status-pages": statusPage.ID,
+	configStatusPage := &endpointmonitorv1alpha1.UptimeRobotConfig{
+		StatusPages: statusPage.ID,
 	}
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configStatusPage}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
@@ -222,8 +231,8 @@ func TestAddMonitorWithStatusPageAnnotations(t *testing.T) {
 	statusPageService.Remove(statusPage)
 }
 
-func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+func TestUpdateMonitorIntervalStatusPage(t *testing.T) {
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -254,12 +263,12 @@ func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
 	}
 	statusPage.ID = ID
 
-	var annotations = map[string]string{
-		"uptimerobot.monitor.stakater.com/status-pages": statusPage.ID,
+	configStatusPage := &endpointmonitorv1alpha1.UptimeRobotConfig{
+		StatusPages: statusPage.ID,
 	}
 
 	mRes.URL = "https://facebook.com"
-	mRes.Annotations = annotations
+	mRes.Config = configStatusPage
 
 	service.Update(*mRes)
 
@@ -283,21 +292,20 @@ func TestUpdateMonitorIntervalStatusPageAnnotations(t *testing.T) {
 	statusPageService.Remove(statusPage)
 }
 
-func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+func TestAddMonitorWithMonitorType(t *testing.T) {
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
 
-	// Check for monitor type 'keyword'
-	var annotations = map[string]string{
-		"uptimerobot.monitor.stakater.com/monitor-type":   "keyword",
-		"uptimerobot.monitor.stakater.com/keyword-exists": "yes",
-		"uptimerobot.monitor.stakater.com/keyword-value":  "google",
+	configKeyword := &endpointmonitorv1alpha1.UptimeRobotConfig{
+		MonitorType:   "keyword",
+		KeywordExists: "yes",
+		KeywordValue:  "google",
 	}
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configKeyword}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
@@ -311,12 +319,11 @@ func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
 
 	service.Remove(*mRes)
 
-	// Check for monitor type 'http'
-	annotations = map[string]string{
-		"uptimerobot.monitor.stakater.com/monitor-type": "http",
+	configHttpMonitor := &endpointmonitorv1alpha1.UptimeRobotConfig{
+		MonitorType: "http",
 	}
 
-	m = models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	m = models.Monitor{Name: "google-test", URL: "https://google.com", Config: configHttpMonitor}
 	service.Add(m)
 
 	mRes, err = service.GetByName("google-test")
@@ -332,7 +339,7 @@ func TestAddMonitorWithMonitorTypeAnnotations(t *testing.T) {
 }
 
 func TestAddMonitorWithIncorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
@@ -353,18 +360,18 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	}
 }
 
-func TestAddMonitorWithAlertContactsAnnotations(t *testing.T) {
-	config := config.GetControllerConfig()
+func TestAddMonitorWithAlertContacts(t *testing.T) {
+	config := config.GetControllerConfigTest()
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
 	service.Setup(*provider)
 
-	var annotations = map[string]string{
-		"uptimerobot.monitor.stakater.com/alert-contacts": "2628365_0_0",
+	configAlertContacts := &endpointmonitorv1alpha1.UptimeRobotConfig{
+		AlertContacts: "2628365_0_0",
 	}
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com", Annotations: annotations}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configAlertContacts}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
@@ -378,8 +385,11 @@ func TestAddMonitorWithAlertContactsAnnotations(t *testing.T) {
 	if mRes.URL != m.URL {
 		t.Error("The URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
 	}
-	if "2628365_0_0" != mRes.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"] {
-		t.Error("The alert-contacts is incorrect, expected: 2628365_0_0, but was: " + mRes.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"])
+
+	providerConfig, _ := mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
+
+	if "2628365_0_0" != providerConfig.AlertContacts {
+		t.Error("The alert-contacts is incorrect, expected: 2628365_0_0, but was: " + providerConfig.AlertContacts)
 	}
 	service.Remove(*mRes)
 }

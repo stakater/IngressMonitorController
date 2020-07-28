@@ -10,7 +10,7 @@ import (
 )
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := PingdomMonitorService{}
 	provider := util.GetProviderWithName(config, "Pingdom")
@@ -41,7 +41,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 }
 
 func TestUpdateMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 
 	service := PingdomMonitorService{}
 

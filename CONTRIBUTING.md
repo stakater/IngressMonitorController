@@ -29,6 +29,7 @@ type MonitorService interface {
     GetByName(name string) (*Monitor, error)
     Remove(m Monitor)
     Setup(provider Provider)
+    Equal(oldMonitor Monitor, newMonitor Monitor) bool
 }
 ```
 
@@ -51,6 +52,24 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 }
 ```
 
+Similarly, add a new case for your provider in ExtractConfig:
+
+```go
+func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.EndpointMonitorSpec) interface{} {
+	var config interface{}
+
+	switch mp.monitorType {
+	case "UptimeRobot":
+		config = spec.UptimeRobotConfig
+    case "MyNewMonitor":
+        config = spec.MyNewMonitorConfig
+	default:
+		return config
+	}
+	return config
+}
+```
+
 Note that the name you specify here for the case will be the key for your new monitor which you can add it in ConfigMap.
 
 Also in case of handling custom api objects for the monitor api, you can create mappers that map from the api objects to the generic `Monitor` objects. The way you have to create these is to create a file named `monitorname-mappers.go` and add mapping functions in that file. An example of a mapping function is found below:
@@ -69,33 +88,73 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 
 ## Naming Conventions
 
-### Annotations
+### Configuration
 
-You should use the following format for annotations when there are monitor specific annotations:
-
-```bash
-<monitor-name>.monitor.stakater.com/<annotation-name>
-```
-
-You should use the following format for annotations when there are global annotations:
-
-```bash
-monitor.stakater.com/<annotation-name>
-```
+You can add additional configuration in [endpointmonitor_types.go](./pkg/apis/endpointmonitor/v1alpha1/endpointmonitor_types.go)
+And then handle it accordingly in your monitor's implementation.
 
 #### Examples
 
-For example you're adding support for a new monitor service named `alertme`, it's specific annotations would look like the following:
+In [endpointmonitor_types.go](./pkg/apis/endpointmonitor/v1alpha1/endpointmonitor_types.go)
 
-```bash
-alertme.monitor.stakater.com/some-key
+```yaml
+// UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
+type UptimeRobotConfig struct {
+	// The uptimerobot alertContacts to be associated with this monitor
+	// +optional
+	AlertContacts string `json:"alertContacts,omitempty"`
+
+	// The uptimerobot check interval in seconds
+	// +kubebuilder:validation:Minimum=60
+	// +optional
+	Interval int `json:"interval,omitempty"`
+
+	// Specify maintenanceWindows i.e. once or recurring “do-not-monitor periods”
+	// +optional
+	MaintenanceWindows string `json:"maintenanceWindows,omitempty"`
+
+	// The uptimerobot monitor type (http or keyword)
+	// +kubebuilder:validation:Enum=http;keyword
+	// +optional
+	MonitorType string `json:"monitorType,omitempty"`
+
+	// Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)
+	// +kubebuilder:validation:Enum=yes;no
+	// +optional
+	KeywordExists string `json:"keywordExists,omitempty"`
+
+	// keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)
+	// +optional
+	KeywordValue string `json:"keywordValue,omitempty"`
+
+	// The uptimerobot public status page ID to add this monitor to
+	// +optional
+	StatusPages string `json:"statusPages,omitempty"`
+}
 ```
 
-In case of a global annotation, lets say you want to create 1 for disabling deletion of specific monitors, it would look like so:
+And then handle this configuration as handled in `processProviderConfig` in [uptime-monitor.go](./pkg/monitors/uptimerobot/uptime-monitor.go)
 
-```bash
-monitor.stakater.com/keep-on-delete
-```
+# Development
+
+## Dependencies: 
+1. GoLang v1.14.x
+2. kubectl
+3. operator-sdk v0.15.x
+
+## Running Operator Locally
+
+1. Create a namespace `test`
+2. Create a secret with name `imc-config` and add your desired config in there
+3. Run `make run-local`
+
+**NOTE**: Ensure that all required resources are re-generated 
+
+# Creating a New Release
+
+1. Update CSV version in `./hack/update-resources.sh`
+2. Update image tag in `./deploy/operator.yaml`(look for `image:`)
+3. Update dependencies and resources by running `./hack/update-resources.sh` script from root directory
 
 # Testing
 
@@ -105,7 +164,7 @@ Tests require a Kubernetes instance to talk to with a `test` namespace created, 
 
 ```bash
 # while still in the root folder, configure test setup
-$ export CONFIG_FILE_PATH=$(pwd)/configs/testConfigs/test-config.yaml
+$ export CONFIG_FILE_PATH=$(pwd)/examples/configs/test-config.yaml
 # update the apikey and alertContacts in this file and the config_test.go file (`correctTestAPIKey` and `correctTestAlertContacts` contstants)
 $ minikube start
 $ kubectl create namespace test
@@ -135,5 +194,5 @@ providers:
     password: <your-account-password>
     accountEmail: <multi-auth-account-email>
 enableMonitorDeletion: true
-monitorNameTemplate: "{{.IngressName}}-{{.Namespace}}"
+monitorNameTemplate: "{{.Name}}-{{.Namespace}}"
 ```

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
@@ -17,10 +18,6 @@ type Block struct {
 }
 
 type Exception interface{}
-
-func Throw(up Exception) {
-	panic(up)
-}
 
 func (tcf Block) Do() {
 	if tcf.Finally != nil {
@@ -44,7 +41,7 @@ const (
 )
 
 func TestSetupMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 
 	provider := util.GetProviderWithName(config, "Updown")
@@ -59,7 +56,7 @@ func TestSetupMonitorWithCorrectValues(t *testing.T) {
 }
 
 func TestSetupMonitorWithIncorrectValues(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 
 	provider := util.GetProviderWithName(config, "InvalidProviderName")
@@ -74,7 +71,7 @@ func TestSetupMonitorWithIncorrectValues(t *testing.T) {
 
 // TestRemoveCleanUp it will remove all the checks before any test executes
 func TestRemoveCleanUp(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -95,7 +92,7 @@ func TestRemoveCleanUp(t *testing.T) {
 }
 
 func TestGetAllMonitorWhileNoCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -107,7 +104,7 @@ func TestGetAllMonitorWhileNoCheckExists(t *testing.T) {
 }
 
 func TestGetByNameMonitorWhileNoCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -120,26 +117,27 @@ func TestGetByNameMonitorWhileNoCheckExists(t *testing.T) {
 }
 
 func TestAddMonitorWhileNoCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
 
-	annotations := map[string]string{
-		"updown.monitor.stakater.com/publish-page": "false",
-		"updown.monitor.stakater.com/enable":       "false",
-		"updown.monitor.stakater.com/period":       "120"}
+	monitorConfig := &endpointmonitorv1alpha1.UpdownConfig{
+		PublishPage: false,
+		Enable:      false,
+		Period:      120,
+	}
 
 	newMonitor := models.Monitor{
-		URL:         CheckURL,
-		Name:        CheckName,
-		Annotations: annotations}
+		URL:    CheckURL,
+		Name:   CheckName,
+		Config: monitorConfig}
 
 	UpdownService.Add(newMonitor)
 }
 
 func TestAddMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -152,7 +150,7 @@ func TestAddMonitorWhileCheckExists(t *testing.T) {
 }
 
 func TestGetAllMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -169,7 +167,7 @@ func TestGetAllMonitorWhileCheckExists(t *testing.T) {
 }
 
 func TestGetByNameMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -184,7 +182,7 @@ func TestGetByNameMonitorWhileCheckExists(t *testing.T) {
 }
 
 func TestUpdateMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -192,23 +190,24 @@ func TestUpdateMonitorWhileCheckExists(t *testing.T) {
 	firstElement := 0
 	monitorSlice := UpdownService.GetAll()
 
-	annotations := map[string]string{
-		"updown.monitor.stakater.com/publish-page": "true",
-		"updown.monitor.stakater.com/enable":       "false",
-		"updown.monitor.stakater.com/period":       "60"}
+	monitorConfig := &endpointmonitorv1alpha1.UpdownConfig{
+		PublishPage: true,
+		Enable:      false,
+		Period:      60,
+	}
 
 	updatedMonitor := models.Monitor{
-		URL:         CheckURL,
-		Name:        UpdatedCheckName,
-		ID:          monitorSlice[firstElement].ID,
-		Annotations: annotations}
+		URL:    CheckURL,
+		Name:   UpdatedCheckName,
+		ID:     monitorSlice[firstElement].ID,
+		Config: monitorConfig}
 
 	UpdownService.Update(updatedMonitor)
 
 }
 
 func TestGetAllMonitorWhileCheckUpdated(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -222,7 +221,7 @@ func TestGetAllMonitorWhileCheckUpdated(t *testing.T) {
 }
 
 func TestRemoveMonitorWhileCheckExists(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)
@@ -239,7 +238,7 @@ func TestRemoveMonitorWhileCheckExists(t *testing.T) {
 }
 
 func TestGetAllMonitorWhenCheckAreRemoved(t *testing.T) {
-	config := config.GetControllerConfig()
+	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	UpdownService.Setup(*provider)

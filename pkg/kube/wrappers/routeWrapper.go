@@ -2,41 +2,40 @@ package wrappers
 
 import (
 	"context"
-	"log"
 	"net/url"
 	"path"
 
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/stakater/IngressMonitorController/pkg/constants"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	log "github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type RouteWrapper struct {
-	Route      *routev1.Route
-	Namespace  string
-	KubeClient kubernetes.Interface
+	Route  *routev1.Route
+	Client client.Client
+}
+
+func NewRouteWrapper(route *routev1.Route, client client.Client) *RouteWrapper {
+	return &RouteWrapper{
+		Route:  route,
+		Client: client,
+	}
 }
 
 func (rw *RouteWrapper) supportsTLS() bool {
-	if rw.Route.Spec.TLS != nil {
-		return true
-	}
-	return false
+	return rw.Route.Spec.TLS != nil
 }
 
-func (rw *RouteWrapper) tryGetTLSHost() (string, bool) {
+func (rw *RouteWrapper) tryGetTLSHost(forceHttps bool) (string, bool) {
 	if rw.supportsTLS() {
 		return "https://" + rw.Route.Spec.Host, true
 	}
 
-	annotations := rw.Route.GetAnnotations()
-	if value, ok := annotations[constants.ForceHTTPSAnnotation]; ok {
-		if value == "true" {
-			// Annotation exists and is enabled
-			return "https://" + rw.Route.Spec.Host, true
-		}
+	if forceHttps {
+		return "https://" + rw.Route.Spec.Host, true
 	}
 
 	return "", false
@@ -44,13 +43,6 @@ func (rw *RouteWrapper) tryGetTLSHost() (string, bool) {
 
 func (rw *RouteWrapper) getHost() string {
 	return "http://" + rw.Route.Spec.Host
-}
-
-func (rw *RouteWrapper) getRoutePort() string {
-	if rw.Route.Spec.Port != nil && rw.Route.Spec.Port.TargetPort.String() != "" {
-		return rw.Route.Spec.Port.TargetPort.String()
-	}
-	return ""
 }
 
 func (rw *RouteWrapper) getRouteSubPath() string {
@@ -65,26 +57,30 @@ func (rw *RouteWrapper) hasService() (string, bool) {
 }
 
 func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
-
 	serviceName, exists := rw.hasService()
-
 	if !exists {
 		return "", false
 	}
 
-	service, err := rw.KubeClient.CoreV1().Services(rw.Route.Namespace).Get(context.TODO(), serviceName, meta_v1.GetOptions{})
+	service := &corev1.Service{}
+	err := rw.Client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: rw.Route.Namespace}, service)
 	if err != nil {
 		log.Printf("Get service from kubernetes cluster error:%v", err)
 		return "", false
 	}
 
-	set := labels.Set(service.Spec.Selector)
+	labels := labels.Set(service.Spec.Selector)
 
-	if pods, err := rw.KubeClient.CoreV1().Pods(rw.Route.Namespace).List(context.TODO(), meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
+	podList := &corev1.PodList{}
+	listOps := &client.ListOptions{
+		Namespace:     rw.Route.Namespace,
+		LabelSelector: labels.AsSelector(),
+	}
+	err = rw.Client.List(context.TODO(), podList, listOps)
+	if err != nil {
 		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
-	} else if len(pods.Items) > 0 {
-		pod := pods.Items[0]
-
+	} else if len(podList.Items) > 0 {
+		pod := podList.Items[0]
 		podContainers := pod.Spec.Containers
 
 		if len(podContainers) == 1 {
@@ -99,10 +95,10 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 	return "", false
 }
 
-func (rw *RouteWrapper) GetURL() string {
+func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	var URL string
 
-	if host, exists := rw.tryGetTLSHost(); exists { // Get TLS Host if it exists
+	if host, exists := rw.tryGetTLSHost(forceHttps); exists { // Get TLS Host if it exists
 		URL = host
 	} else {
 		URL = rw.getHost() // Fallback for normal Host
@@ -116,10 +112,8 @@ func (rw *RouteWrapper) GetURL() string {
 		return ""
 	}
 
-	annotations := rw.Route.GetAnnotations()
-
-	if value, ok := annotations[constants.OverridePathAnnotation]; ok {
-		u.Path = value
+	if len(healthEndpoint) != 0 {
+		u.Path = healthEndpoint
 	} else {
 		// Append subpath
 		u.Path = path.Join(u.Path, rw.getRouteSubPath())
@@ -130,14 +124,7 @@ func (rw *RouteWrapper) GetURL() string {
 		// Health endpoint from pod successful
 		if exists {
 			u.Path = path.Join(u.Path, healthEndpoint)
-		} else { // Try to get annotation and set
-
-			// Annotation for health Endpoint exists
-			if value, ok := annotations[constants.MonitorHealthAnnotation]; ok {
-				u.Path = path.Join(u.Path, value)
-			}
 		}
 	}
-
 	return u.String()
 }

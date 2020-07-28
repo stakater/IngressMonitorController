@@ -10,6 +10,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -20,6 +21,11 @@ type UpTimeMonitorService struct {
 	url               string
 	alertContacts     string
 	statusPageService UpTimeStatusPageService
+}
+
+func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// TODO: Retrieve oldMonitor config and compare it here
+	return false
 }
 
 func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
@@ -41,7 +47,10 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+		}
 
 		if f.Monitors != nil {
 			for _, monitor := range f.Monitors {
@@ -71,7 +80,10 @@ func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor
 
 	if response.StatusCode == 200 {
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+		}
 
 		if len(f.Monitors) > 0 {
 			return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors), nil
@@ -98,13 +110,16 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 	if response.StatusCode == Http.StatusOK {
 
 		var f UptimeMonitorGetMonitorsResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err)
+		}
 
 		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
 
 	}
 
-	log.Println("GetAllMonitors Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+	log.Println("GetAllMonitors Request for UptimeRobot failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	return nil
 
 }
@@ -114,61 +129,22 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name)
-
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"]; ok {
-		body += "&alert_contacts=" + val
-	} else {
-		body += "&alert_contacts=" + monitor.alertContacts
-	}
-
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
-		body += "&interval=" + val
-	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
-		body += "&mwindows=" + val
-	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/monitor-type"]; ok {
-		if strings.Contains(strings.ToLower(val), "http") {
-			body += "&type=1"
-		} else if strings.Contains(strings.ToLower(val), "keyword") {
-			body += "&type=2"
-
-			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-exists"]; ok {
-
-				if strings.Contains(strings.ToLower(val), "yes") {
-					body += "&keyword_type=1"
-				} else if strings.Contains(strings.ToLower(val), "no") {
-					body += "&keyword_type=2"
-				}
-
-			} else {
-				body += "&keyword_type=1" // By default 1 (check if keyword exists)
-			}
-
-			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-value"]; ok {
-				body += "&keyword_value=" + val
-			} else {
-				log.Println("Monitor is of type Keyword but the `keyword-value` annotation is missing")
-				log.Println("Monitor couldn't be added: " + m.Name)
-				return
-			}
-		}
-	} else {
-		body += "&type=1" // By default monitor is of type HTTP
-	}
+	body := monitor.processProviderConfig(m, true)
 
 	response := client.PostUrlEncodedFormBody(body)
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorNewMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err, "Monitor couldn't be added: "+m.Name)
+		}
 
 		if f.Stat == "ok" {
 			log.Println("Monitor Added: " + m.Name)
-			monitor.handleStatusPagesAnnotations(m, strconv.Itoa(f.Monitor.ID))
+			monitor.handleStatusPagesConfig(m, strconv.Itoa(f.Monitor.ID))
 		} else {
-			log.Println("Monitor couldn't be added: " + m.Name)
+			log.Println("Monitor couldn't be added: " + m.Name + ". Error: " + f.Error.Message)
 		}
 	} else {
 		log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
@@ -180,31 +156,65 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL
+	body := monitor.processProviderConfig(m, false)
 
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/alert-contacts"]; ok {
-		body += "&alert_contacts=" + val
+	response := client.PostUrlEncodedFormBody(body)
+
+	if response.StatusCode == Http.StatusOK {
+		var f UptimeMonitorStatusMonitorResponse
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err, "Monitor couldn't be updated: "+m.Name)
+		}
+		if f.Stat == "ok" {
+			log.Println("Monitor Updated: " + m.Name)
+			monitor.handleStatusPagesConfig(m, strconv.Itoa(f.Monitor.ID))
+		} else {
+			log.Println("Monitor couldn't be updated: " + m.Name + ". Error: " + f.Error.Message)
+		}
+	} else {
+		log.Println("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+	}
+}
+
+func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, createMonitorRequest bool) string {
+	var body string
+
+	// if createFunction is true, generate query for create else for update
+	if createMonitorRequest {
+		body = "api_key=" + monitor.apiKey + "&format=json&url=" + url.QueryEscape(m.URL) + "&friendly_name=" + url.QueryEscape(m.Name)
+	} else {
+		body = "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID + "&friendly_name=" + m.Name + "&url=" + m.URL
+	}
+
+	// Retrieve provider configuration
+	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
+
+	if providerConfig != nil && len(providerConfig.AlertContacts) != 0 {
+		body += "&alert_contacts=" + providerConfig.AlertContacts
 	} else {
 		body += "&alert_contacts=" + monitor.alertContacts
 	}
 
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/interval"]; ok {
-		body += "&interval=" + val
+	if providerConfig != nil && providerConfig.Interval > 0 {
+		body += "&interval=" + strconv.Itoa(providerConfig.Interval)
 	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/maintenance-windows"]; ok {
-		body += "&mwindows=" + val
+
+	if providerConfig != nil && len(providerConfig.MaintenanceWindows) != 0 {
+		body += "&mwindows=" + providerConfig.MaintenanceWindows
 	}
-	if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/monitor-type"]; ok {
-		if strings.Contains(strings.ToLower(val), "http") {
+
+	if providerConfig != nil && len(providerConfig.MonitorType) != 0 {
+		if strings.Contains(strings.ToLower(providerConfig.MonitorType), "http") {
 			body += "&type=1"
-		} else if strings.Contains(strings.ToLower(val), "keyword") {
+		} else if strings.Contains(strings.ToLower(providerConfig.MonitorType), "keyword") {
 			body += "&type=2"
 
-			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-exists"]; ok {
+			if providerConfig != nil && len(providerConfig.KeywordExists) != 0 {
 
-				if strings.Contains(strings.ToLower(val), "yes") {
+				if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "yes") {
 					body += "&keyword_type=1"
-				} else if strings.Contains(strings.ToLower(val), "no") {
+				} else if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "no") {
 					body += "&keyword_type=2"
 				}
 
@@ -212,33 +222,16 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 				body += "&keyword_type=1" // By default 1 (check if keyword exists)
 			}
 
-			if val, ok := m.Annotations["uptimerobot.monitor.stakater.com/keyword-value"]; ok {
-				body += "&keyword_value=" + val
+			if providerConfig != nil && len(providerConfig.KeywordValue) != 0 {
+				body += "&keyword_value=" + providerConfig.KeywordValue
 			} else {
-				log.Println("Monitor is of type Keyword but the `keyword-value` annotation is missing")
-				log.Println("Monitor couldn't be updated: " + m.Name)
-				return
+				log.Error("Monitor is of type Keyword but the `keyword-value` is missing")
 			}
 		}
 	} else {
 		body += "&type=1" // By default monitor is of type HTTP
 	}
-
-	response := client.PostUrlEncodedFormBody(body)
-
-	if response.StatusCode == Http.StatusOK {
-		var f UptimeMonitorStatusMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
-
-		if f.Stat == "ok" {
-			log.Println("Monitor Updated: " + m.Name)
-			monitor.handleStatusPagesAnnotations(m, strconv.Itoa(f.Monitor.ID))
-		} else {
-			log.Println("Monitor couldn't be updated: " + m.Name)
-		}
-	} else {
-		log.Println("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
-	}
+	return body
 }
 
 func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
@@ -253,12 +246,14 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	if response.StatusCode == Http.StatusOK {
 		var f UptimeMonitorStatusMonitorResponse
-		json.Unmarshal(response.Bytes, &f)
-
+		err := json.Unmarshal(response.Bytes, &f)
+		if err != nil {
+			log.Error(err, "Monitor couldn't be removed: "+m.Name)
+		}
 		if f.Stat == "ok" {
 			log.Println("Monitor Removed: " + m.Name)
 		} else {
-			log.Println("Monitor couldn't be removed: " + m.Name)
+			log.Println("Monitor couldn't be removed: " + m.Name + ". Error: " + f.Error.Message)
 			log.Println(string(body))
 		}
 	} else {
@@ -266,9 +261,12 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 	}
 }
 
-func (monitor *UpTimeMonitorService) handleStatusPagesAnnotations(monitorToAdd models.Monitor, monitorId string) {
-	if val, ok := monitorToAdd.Annotations["uptimerobot.monitor.stakater.com/status-pages"]; ok {
-		IDs := strings.Split(val, "-")
+func (monitor *UpTimeMonitorService) handleStatusPagesConfig(monitorToAdd models.Monitor, monitorId string) {
+	// Retrieve provider configuration
+	providerConfig, _ := monitorToAdd.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
+
+	if providerConfig != nil && len(providerConfig.StatusPages) != 0 {
+		IDs := strings.Split(providerConfig.StatusPages, "-")
 		for i := range IDs {
 			monitor.updateStatusPages(IDs[i], models.Monitor{ID: monitorId})
 		}

@@ -6,14 +6,14 @@ import (
 )
 
 const (
-	configFilePath                   = "../../configs/testConfigs/test-config.yaml"
+	configFilePath                   = "../../examples/configs/test-config-uptimerobot.yaml"
 	correctTestConfigName            = "UptimeRobot"
 	correctTestAPIKey                = "657a68d9ashdyasjdklkskuasd"
 	correctTestAPIURL                = "https://api.uptimerobot.com/v2/"
 	correctTestAlertContacts         = "0544483_0_0-2628365_0_0-2633263_0_0"
 	correctTestEnableMonitorDeletion = true
 
-	configFilePathPingdom               = "../../configs/testConfigs/test-config-pingdom.yaml"
+	configFilePathPingdom               = "../../examples/configs/test-config-pingdom.yaml"
 	correctTestPingdomConfigMulti       = "PingdomMulti"
 	correctTestPingdomUsername          = "user@test.com"
 	correctTestPingdomAPIURL            = "https://api.pingdom.com/v2/"
@@ -23,18 +23,18 @@ const (
 	correctTestPingdomAlertIntegrations = "91166,10924"
 	correctTestPingdomAPIKey            = "657a68d9ashdyasjdklkskuasd"
 
-	configFilePathUptime           = "../../configs/testConfigs/test-config-uptime.yaml"
+	configFilePathUptime           = "../../examples/configs/test-config-uptime.yaml"
 	correctTestUptimeConfigName    = "Uptime"
 	correctTestUptimeAPIURL        = "https://uptime.com/api/v1/"
 	correctTestUptimeAPIKey        = "657a68d9ashdyasjdklkskuasd"
 	correctTestUptimeAlertContacts = "Default"
 
-	configFilePathAppInsights        = "../../configs/testConfigs/test-config-appinsights.yaml"
+	configFilePathAppInsights        = "../../examples/configs/test-config-appinsights.yaml"
 	correctTestAppInsightsConfigName = "AppInsights"
 )
 
 func TestConfigWithCorrectValues(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
+	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
 		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations,
 		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 0}
@@ -46,7 +46,7 @@ func TestConfigWithCorrectValues(t *testing.T) {
 }
 
 func TestConfigWithIncorrectProviderValues(t *testing.T) {
-	incorrectConfig := Config{Providers: []Provider{Provider{Name: "UptimeRobot2", ApiKey: "abc", ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	incorrectConfig := Config{Providers: []Provider{{Name: "UptimeRobot2", ApiKey: "abc", ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConfig) {
@@ -55,7 +55,7 @@ func TestConfigWithIncorrectProviderValues(t *testing.T) {
 }
 
 func TestConfigWithIncorrectEnableFlag(t *testing.T) {
-	incorrectConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: false}
+	incorrectConfig := Config{Providers: []Provider{{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}, EnableMonitorDeletion: false}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConfig) {
@@ -73,7 +73,7 @@ func TestConfigWithoutProvider(t *testing.T) {
 }
 
 func TestConfigWithoutEnabledFlag(t *testing.T) {
-	incorrectConfig := Config{Providers: []Provider{Provider{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}}
+	incorrectConfig := Config{Providers: []Provider{{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConfig) {
@@ -82,7 +82,7 @@ func TestConfigWithoutEnabledFlag(t *testing.T) {
 }
 
 func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
+	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
 		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations,
 		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion}
@@ -93,7 +93,7 @@ func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
 }
 
 func TestConfigWithUptime(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestUptimeConfigName, ApiKey: correctTestUptimeAPIKey, ApiURL: correctTestUptimeAPIURL, AlertContacts: correctTestUptimeAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 300}
+	correctConfig := Config{Providers: []Provider{{Name: correctTestUptimeConfigName, ApiKey: correctTestUptimeAPIKey, ApiURL: correctTestUptimeAPIURL, AlertContacts: correctTestUptimeAlertContacts}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 300}
 	config := ReadConfig(configFilePathUptime)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")
@@ -116,7 +116,7 @@ func TestConfigWithAppinsights(t *testing.T) {
 		},
 	}
 
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestAppInsightsConfigName, AppInsightsConfig: appinsightConfig}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
+	correctConfig := Config{Providers: []Provider{{Name: correctTestAppInsightsConfigName, AppInsightsConfig: appinsightConfig}}, EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePathAppInsights)
 	if !reflect.DeepEqual(config, correctConfig) {
 		t.Error("Marshalled config and correct config do not match")

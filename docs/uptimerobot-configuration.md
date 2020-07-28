@@ -31,19 +31,19 @@ You will get a response similar to what is shown below
 
 Copy values of `id` field of your alert contacts which you want to use for Ingress Monitor Controller and append `_0_0` to them and seperate them by `-`. You will now have a string similar to `12345_0_0-23564_0_0`. This is basically the value you will need to specify in Ingress Monitor Controller's ConfigMap as `alertContacts`.
 
-## Annotations
+## Configuration
 
-Additional uptime robot configurations can be added through a set of annotations to each ingress object, the current supported annotations are:
+Additional uptime robot configurations can be added through these fields:
 
-|                        Annotation                    |                    Description                               |
+|                        Fields                    |                    Description                               |
 |:----------------------------------------------------:|:------------------------------------------------------------:|
-| uptimerobot.monitor.stakater.com/alert-contacts       | The uptimerobot alertContacts to be associated with this monitor. Overrides the value of `alertContacts` from the Controller's ConfigMap. See [Fetching alert contacts from UpTime Robot](https://github.com/stakater/IngressMonitorController/blob/master/docs/uptimerobot-configuration.md) |
-| uptimerobot.monitor.stakater.com/interval            | The uptimerobot check interval in seconds                    |
-| uptimerobot.monitor.stakater.com/status-pages        | The uptimerobot public status page ID to add this monitor to. Multiple values can be given as a dash delimited string, e.g. 12345-32135-490923|
-| uptimerobot.monitor.stakater.com/maintenance-windows | Add a maintenance windows to this check (Pro Plan only)      |
-| uptimerobot.monitor.stakater.com/monitor-type        | The uptimerobot monitor type (http or keyword)               |
-| uptimerobot.monitor.stakater.com/keyword-exists      | Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)|
-| uptimerobot.monitor.stakater.com/keyword-value       | keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)|
+| AlertContacts       | The uptimerobot alertContacts to be associated with this monitor. Overrides the value of `alertContacts` from the Controller's ConfigMap. See [Fetching alert contacts from UpTime Robot](https://github.com/stakater/IngressMonitorController/blob/master/docs/uptimerobot-configuration.md) |
+| Interval            | The uptimerobot check interval in seconds                    |
+| StatusPages        | The uptimerobot public status page ID to add this monitor to. Multiple values can be given as a dash delimited string, e.g. 12345-32135-490923|
+| MaintenanceWindows | Add a maintenance windows to this check (Pro Plan only)      |
+| MonitorType        | The uptimerobot monitor type (http or keyword)               |
+| KeywordExists      | Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)|
+| KeywordValue       | keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)|
 
 ### Fetching public status page ids from UpTime Robot
 
@@ -81,7 +81,7 @@ You will get a response similar to what is shown below
 }
 ```
 
-Copy values of `id` field of your public status page which you want to use for Ingress Monitor Controller into the relevant ingress annotation.
+Copy values of `id` field of your public status page which you want to use for Ingress Monitor Controller into the relevant EndpointMonitor CR. 
 
 ### Fetching maintenance windows from UpTime Robot
 
@@ -117,4 +117,26 @@ You will get a response similar to what is shown below
 }
 ```
 
-Copy values of `id` field of the maintenance windows which you want to use for Ingress Monitor Controller and separate them by `-`. You will now have a string similar to `12345-23564`. This is basically the value you will need to specify in the maintenance-windows ingress annotation.
+Copy values of `id` field of the maintenance windows which you want to use for Ingress Monitor Controller and separate them by `-`. You will now have a string similar to `12345-23564`. This is basically the value you will need to specify in the maintenance-windows EndpointMonitor CR.
+
+
+## Example: 
+
+```yaml
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: stakater
+spec:
+  forceHtpps: true
+  url: https://stakater.com/
+  uptimeRobotConfig:
+    alertContacts: 60
+    interval: 120
+    maintenanceWindows: "maintenance-window"
+    monitorType: keyword
+    keywordExists: true
+    keywordValue: 404
+    statusPages: "status-page"
+    
+```

@@ -45,6 +45,12 @@ type UptimeMonitorLogs struct {
 type UptimeMonitorNewMonitorResponse struct {
 	Stat    string                     `json:"stat"`
 	Monitor UptimeMonitorMonitorStatus `json:"monitor"`
+	Error   UptimeMonitorError         `json:"error"`
+}
+
+type UptimeMonitorError struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
 }
 
 type UptimeMonitorMonitorStatus struct {
@@ -53,7 +59,8 @@ type UptimeMonitorMonitorStatus struct {
 }
 
 type UptimeMonitorStatusMonitorResponse struct {
-	Stat    string `json:"stat"`
+	Stat    string             `json:"stat"`
+	Error   UptimeMonitorError `json:"error"`
 	Monitor struct {
 		ID int `json:"id"`
 	} `json:"monitor"`

@@ -13,18 +13,20 @@ import (
 	monitoredres "google.golang.org/genproto/googleapis/api/monitoredres"
 	monitoringpb "google.golang.org/genproto/googleapis/monitoring/v3"
 
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
-)
-
-const (
-	ProjectIDAnnotation = "gcloud.monitor.stakater.com/project-id"
 )
 
 type MonitorService struct {
 	client    *monitoring.UptimeCheckClient
 	projectID string
 	ctx       context.Context
+}
+
+func (monitor *MonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// TODO: Retrieve oldMonitor config and compare it here
+	return false
 }
 
 func (service *MonitorService) Setup(provider config.Provider) {
@@ -37,7 +39,6 @@ func (service *MonitorService) Setup(provider config.Provider) {
 	} else {
 		service.client = client
 	}
-
 	service.projectID = provider.GcloudConfig.ProjectID
 }
 
@@ -110,8 +111,14 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 		}
 	}
 
+	projectID := service.projectID
+	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GCloudConfig)
+	if providerConfig != nil && len(providerConfig.ProjectId) != 0 {
+		projectID = providerConfig.ProjectId
+	}
+
 	_, err = service.client.CreateUptimeCheckConfig(service.ctx, &monitoringpb.CreateUptimeCheckConfigRequest{
-		Parent: "projects/" + service.projectID,
+		Parent: "projects/" + projectID,
 		UptimeCheckConfig: &monitoringpb.UptimeCheckConfig{
 			DisplayName: monitor.Name,
 			Resource: &monitoringpb.UptimeCheckConfig_MonitoredResource{
@@ -225,9 +232,8 @@ func transformToMonitor(uptimeCheckConfig *monitoringpb.UptimeCheckConfig) (moni
 	}
 
 	return models.Monitor{
-		URL:         url.String(),
-		Name:        uptimeCheckConfig.DisplayName,
-		ID:          uptimeCheckConfig.Name,
-		Annotations: map[string]string{},
+		URL:  url.String(),
+		Name: uptimeCheckConfig.DisplayName,
+		ID:   uptimeCheckConfig.Name,
 	}
 }

@@ -27,7 +27,7 @@ func CreateIngressObject(ingressName string, namespace string, url string) *v1be
 		},
 		Spec: v1beta1.IngressSpec{
 			Rules: []v1beta1.IngressRule{
-				v1beta1.IngressRule{
+				{
 					Host: url,
 				},
 			},

@@ -3,10 +3,10 @@ package appinsights
 import (
 	"encoding/xml"
 	"fmt"
-	"strconv"
 
 	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
 	log "github.com/sirupsen/logrus"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
@@ -61,45 +61,33 @@ func getGeoLocation(locations []interface{}) *[]insights.WebTestGeolocation {
 	return &geoLocations
 }
 
-// getAnnotation fetch values from annotations and return object of Annotations
-func getAnnotation(monitor models.Monitor) Annotation {
+// getConfiguration fetch values from config and return object of Configuration
+func getConfiguration(monitor models.Monitor) Configuration {
 
-	var anno Annotation
-	// ExpectedStatusCode is configurable via annotation, Default value 200
-	if val, ok := monitor.Annotations[AppInsightsStatusCodeAnnotation]; ok {
-		intVal, err := strconv.Atoi(val)
-		if err != nil {
-			log.Errorf("Error fetching isRetryEnabled from annotation, setting it to default value: %v", err)
-			anno.expectedStatusCode = AppInsightsStatusCodeAnnotationDefaultValue
-		}
-		anno.expectedStatusCode = intVal
+	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.AppInsightsConfig)
+
+	var config Configuration
+
+	// ExpectedStatusCode is configurable via Config, Default value 200
+	if providerConfig != nil && providerConfig.StatusCode > 0 {
+		config.expectedStatusCode = providerConfig.StatusCode
 	} else {
-		anno.expectedStatusCode = AppInsightsStatusCodeAnnotationDefaultValue
+		config.expectedStatusCode = AppInsightsStatusCodeDefaultValue
 	}
 
-	// isRetryEnabled is configurable via annotation, Default value true
-	if val, ok := monitor.Annotations[AppInsightsRetryEnabledAnnotation]; ok {
-		boolVal, err := strconv.ParseBool(val)
-		if err != nil {
-			log.Errorf("Error fetching isRetryEnabled from annotation, setting it to default value: %v", err)
-			anno.isRetryEnabled = AppInsightsRetryEnabledAnnotationDefaultValue
-		}
-		anno.isRetryEnabled = boolVal
+	// isRetryEnabled is configurable via config, Default value true
+	if providerConfig != nil {
+		config.isRetryEnabled = providerConfig.RetryEnable
 	} else {
-		anno.isRetryEnabled = AppInsightsRetryEnabledAnnotationDefaultValue
+		config.isRetryEnabled = AppInsightsRetryEnabledDefaultValue
 	}
 
-	// frequency is configurable via annotation, Default value 300
-	if val, ok := monitor.Annotations[AppInsightsFrequency]; ok {
-		intVal, err := strconv.Atoi(val)
-		if err != nil {
-			log.Errorf("Error fetching frequency from annotation, setting it to default value: %v", err)
-			anno.frequency = AppInsightsFrequencyDefaultValue
-		}
-		anno.frequency = int32(intVal)
+	// frequency is configurable via config, Default value 300
+	if providerConfig != nil && providerConfig.StatusCode > 0 {
+		config.frequency = int32(providerConfig.StatusCode)
 	} else {
-		anno.frequency = AppInsightsFrequencyDefaultValue
+		config.frequency = AppInsightsFrequencyDefaultValue
 	}
 
-	return anno
+	return config
 }

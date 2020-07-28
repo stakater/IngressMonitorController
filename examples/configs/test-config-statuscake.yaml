@@ -1,0 +1,6 @@
+providers:
+  - name: StatusCake
+    apiKey: API_KEY
+    apiURL: https://app.statuscake.com/API/
+    username: USERNAME
+enableMonitorDeletion: true

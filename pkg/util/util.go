@@ -18,7 +18,7 @@ func SliceAtoi(stringSlice []string) ([]int, error) {
 	return intSlice, nil
 }
 
-func SliceItoa(intSlice []int) ([]string) {
+func SliceItoa(intSlice []int) []string {
 	var stringSlice = []string{}
 
 	for _, intValue := range intSlice {

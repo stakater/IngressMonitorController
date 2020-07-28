@@ -3,28 +3,32 @@ package util
 import (
 	"bytes"
 	"html/template"
+)
 
-	"github.com/pkg/errors"
+const (
+	defaultNameTemplate = "{{.Name}}-{{.Namespace}}"
 )
 
 type MonitorNameTemplateParts struct {
-	IngressName string
-	Namespace   string
+	Name      string
+	Namespace string
 }
 
 func GetNameTemplateFormat(nameTemplate string) (string, error) {
 	if nameTemplate == "" {
-		nameTemplate = "{{.IngressName}}-{{.Namespace}}"
+		nameTemplate = defaultNameTemplate
 	}
 	placeholders := MonitorNameTemplateParts{"%[1]s", "%[2]s"}
+
 	tmpl, err := template.New("format").Parse(nameTemplate)
 	if err != nil {
-		errors.Wrap(err, "Failed to parse nameTempalte")
+		return "", err
 	}
+
 	var buffer bytes.Buffer
 	err = tmpl.Execute(&buffer, placeholders)
 	if err != nil {
-		errors.Wrap(err, "Failed to execute nameTempalte")
+		return "", err
 	}
 	return buffer.String(), nil
 }

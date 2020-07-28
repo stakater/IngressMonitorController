@@ -22,17 +22,15 @@ func CreateHttpClient(url string) *HttpClient {
 }
 
 func (client *HttpClient) addHeaders(request *http.Request, headers map[string]string) {
-	if headers != nil {
-		for key, value := range headers {
-			request.Header.Add(key, value)
-		}
+	for key, value := range headers {
+		request.Header.Add(key, value)
 	}
 }
 
 func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, headers map[string]string) HttpResponse {
 	reader := bytes.NewReader(body)
 
-	//log.Println("NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
+	//   log.Println("NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
 
 	request, err := http.NewRequest(requestType, client.url, reader)
 	if err != nil {

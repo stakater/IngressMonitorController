@@ -1,4 +1,4 @@
-providers: 
+providers:
   - name: UptimeRobot
     apiKey: 657a68d9ashdyasjdklkskuasd
     apiURL: https://api.uptimerobot.com/v2/
