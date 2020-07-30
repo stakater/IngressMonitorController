@@ -19,45 +19,7 @@ spec:
   displayName: Ingress Monitor Controller
   install:
     spec:
-      deployments:
-      - name: ingressmonitorcontroller
-        spec:
-          replicas: 1
-          selector:
-            matchLabels:
-              name: ingressmonitorcontroller
-          strategy: {}
-          template:
-            metadata:
-              labels:
-                name: ingressmonitorcontroller
-            spec:
-              containers:
-              - command:
-                - IngressMonitorController
-                env:
-                - name: WATCH_NAMESPACE
-                  valueFrom:
-                    fieldRef:
-                      fieldPath: metadata.annotations['olm.targetNamespaces']
-                - name: POD_NAME
-                  valueFrom:
-                    fieldRef:
-                      fieldPath: metadata.name
-                - name: OPERATOR_NAME
-                  value: ingressmonitorcontroller
-                - name: CONFIG_SECRET_NAME
-                  value: imc-config
-                - name: LOG_LEVEL
-                  value: info
-                - name: LOG_FORMAT
-                  value: text
-                image: stakater/ingressmonitorcontroller:v2.0.1
-                imagePullPolicy: Always
-                name: ingressmonitorcontroller
-                resources: {}
-              serviceAccountName: ingressmonitorcontroller
-      permissions:
+      clusterPermissions:
       - rules:
         - apiGroups:
           - ""
@@ -129,6 +91,44 @@ spec:
           - update
           - watch
         serviceAccountName: ingressmonitorcontroller
+      deployments:
+      - name: ingressmonitorcontroller
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: ingressmonitorcontroller
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: ingressmonitorcontroller
+            spec:
+              containers:
+              - command:
+                - IngressMonitorController
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: ingressmonitorcontroller
+                - name: CONFIG_SECRET_NAME
+                  value: imc-config
+                - name: LOG_LEVEL
+                  value: info
+                - name: LOG_FORMAT
+                  value: text
+                image: stakater/ingressmonitorcontroller:v2.0.1
+                imagePullPolicy: Always
+                name: ingressmonitorcontroller
+                resources: {}
+              serviceAccountName: ingressmonitorcontroller
     strategy: deployment
   installModes:
   - supported: true
