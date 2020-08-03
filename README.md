@@ -183,7 +183,7 @@ or contact us in case of professional services and queries on <hello@stakater.co
 [website]: http://stakater.com/
 [community]: https://www.stakater.com/projects-overview.html
 
-The Google Cloud test infrastructure is sponsored by [JOSHMARTIN])(https://github.com/jshmrtn).
+The Google Cloud test infrastructure is sponsored by [JOSHMARTIN](https://github.com/jshmrtn).
 
 ## Contributors
 
