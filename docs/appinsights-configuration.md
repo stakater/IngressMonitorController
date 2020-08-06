@@ -69,7 +69,7 @@ kind: EndpointMonitor
 metadata:
   name: stakater
 spec:
-  forceHtpps: true
+  forceHttps: true
   url: https://stakater.com/
   appInsightsConfig:
     statusCode: 404

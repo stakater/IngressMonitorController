@@ -3,7 +3,7 @@ kind: EndpointMonitor
 metadata:
   name: url-from-route-example
 spec:
-  forceHtpps: true
+  forceHttps: true
   urlFrom:
     routeRef:
       name: frontend
