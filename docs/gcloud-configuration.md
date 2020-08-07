@@ -45,7 +45,7 @@ kind: EndpointMonitor
 metadata:
   name: stakater
 spec:
-  forceHtpps: true
+  forceHttps: true
   url: https://stakater.com/
   gcloudConfig:
     projectId: stakater-project

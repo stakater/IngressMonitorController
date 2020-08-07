@@ -22,7 +22,7 @@ kind: EndpointMonitor
 metadata:
   name: stakater
 spec:
-  forceHtpps: true
+  forceHttps: true
   url: https://stakater.com/
   uptimeConfig:
     interval: 60

@@ -82,7 +82,7 @@ kind: EndpointMonitor
 metadata:
   name: stakater
 spec:
-  forceHtpps: true
+  forceHttps: true
   url: https://stakater.com
 ```
 
@@ -94,7 +94,7 @@ kind: EndpointMonitor
 metadata:
   name: frontend
 spec:
-  forceHtpps: true
+  forceHttps: true
   urlFrom:
     routeRef:
       name: frontend
@@ -108,7 +108,7 @@ kind: EndpointMonitor
 metadata:
   name: frontend
 spec:
-  forceHtpps: true
+  forceHttps: true
   urlFrom:
     ingressRef:
       name: frontend

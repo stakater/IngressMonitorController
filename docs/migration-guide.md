@@ -12,7 +12,7 @@ kind: EndpointMonitor
 metadata:
   name: uptimerobot-config-example
 spec:
-  forceHtpps: true
+  forceHttps: true
   providers: "UptimeRobot"
   healthEndpoint: "/healthzzz"
   urlFrom:

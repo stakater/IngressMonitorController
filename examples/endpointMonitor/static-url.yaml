@@ -3,5 +3,5 @@ kind: EndpointMonitor
 metadata:
   name: static-url-example
 spec:
-  forceHtpps: true
+  forceHttps: true
   url: https://stakater.com/
