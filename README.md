@@ -167,7 +167,7 @@ File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issue
 Join and talk to us on the #tools-ingressmonitor channel for discussing the Ingress Monitor Controller
 
 [![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://slack.stakater.com/)
-[![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater.slack.com/messages/CA66MMYSE/)
+[![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater-community.slack.com/messages/CA66MMYSE)
 
 ## License
 
