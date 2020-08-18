@@ -1,5 +1,5 @@
 channels:
-- currentCSV: ingressmonitorcontroller.v0.0.1
+- currentCSV: ingressmonitorcontroller.v0.0.2
   name: alpha
 defaultChannel: alpha
 packageName: ingressmonitorcontroller
