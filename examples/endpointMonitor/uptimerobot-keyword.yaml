@@ -1,0 +1,11 @@
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: uptimerobot-keyword-example
+  namespace: default
+spec:
+  url: https://stakater.com/
+  uptimeRobotConfig:
+    monitorType: "keyword"
+    KeywordExists: "yes"
+    KeywordValue: "403"

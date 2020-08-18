@@ -188,6 +188,11 @@ spec:
                   description: The uptimerobot alertContacts to be associated with
                     this monitor
                   type: string
+                customHTTPStatuses:
+                  description: 'Defines which http status codes are treated as up
+                    or down For ex: 200:0_401:1_503:1 (to accept 200 as down and 401
+                    and 503 as up)'
+                  type: string
                 interval:
                   description: The uptimerobot check interval in seconds
                   minimum: 60
