@@ -204,6 +204,10 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 		body += "&mwindows=" + providerConfig.MaintenanceWindows
 	}
 
+	if providerConfig != nil && len(providerConfig.CustomHTTPStatuses) != 0 {
+		body += "&custom_http_statuses=" + providerConfig.CustomHTTPStatuses
+	}
+
 	if providerConfig != nil && len(providerConfig.MonitorType) != 0 {
 		if strings.Contains(strings.ToLower(providerConfig.MonitorType), "http") {
 			body += "&type=1"

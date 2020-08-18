@@ -85,6 +85,10 @@ type UptimeRobotConfig struct {
 	// The uptimerobot public status page ID to add this monitor to
 	// +optional
 	StatusPages string `json:"statusPages,omitempty"`
+
+	// Defines which http status codes are treated as up or down
+	// For ex: 200:0_401:1_503:1 (to accept 200 as down and 401 and 503 as up)
+	CustomHTTPStatuses string `json:"customHTTPStatuses,omitempty"`
 }
 
 // UptimeConfig defines the configuration for Uptime Monitor Provider

@@ -44,6 +44,7 @@ Additional uptime robot configurations can be added through these fields:
 | MonitorType        | The uptimerobot monitor type (http or keyword)               |
 | KeywordExists      | Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)|
 | KeywordValue       | keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)|
+| customHTTPStatuses | Defines which http status codes are treated as up or down For ex: 200:0_401:1_503:1 (to accept 200 as down and 401 and 503 as up) |
 
 ### Fetching public status page ids from UpTime Robot
 
