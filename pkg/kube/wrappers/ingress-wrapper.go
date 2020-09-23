@@ -58,11 +58,15 @@ func (iw *IngressWrapper) getIngressSubPath() string {
 	rule := iw.Ingress.Spec.Rules[0]
 	if rule.HTTP != nil {
 		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
-			if strings.ContainsAny(rule.HTTP.Paths[0].Path, "*") {
-				return strings.TrimRight(rule.HTTP.Paths[0].Path, "*")
-			} else {
-				return rule.HTTP.Paths[0].Path
-			}
+			path := rule.HTTP.Paths[0].Path
+
+			// Remove * from path if exists
+			path = strings.TrimRight(path, "*")
+			// Remove regex caputure group from path if exists
+			parsed := strings.Split(path, "(")
+			path = parsed[0]
+
+			return path
 		}
 	}
 	return ""
