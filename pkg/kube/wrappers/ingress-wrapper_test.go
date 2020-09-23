@@ -82,6 +82,13 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			},
 			want: "http://testurl.stackator.com/",
 		}, {
+			name: "TestGetUrlWithRegexCaptureGroupInPath",
+			fields: fields{
+				ingress: createIngressObjectWithPath("testIngress", "test", testUrl, "/api(/|$)(.*)"),
+				Client:  fakekubeclient.NewFakeClient(),
+			},
+			want: "http://testurl.stackator.com/api",
+		}, {
 			name: "TestGetUrlWithTLS",
 			fields: fields{
 				ingress: createIngressObjectWithTLS("testIngress", "test", testUrl, "customtls.stackator.com"),
