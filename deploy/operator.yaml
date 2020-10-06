@@ -15,9 +15,9 @@ spec:
       serviceAccountName: ingressmonitorcontroller
       containers:
         - name: ingressmonitorcontroller
-          image: stakater/ingressmonitorcontroller:v2.0.2
+          image: stakater/ingressmonitorcontroller:v2.0.4
           command:
-          - IngressMonitorController
+            - IngressMonitorController
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
@@ -36,4 +36,3 @@ spec:
               value: info
             - name: LOG_FORMAT
               value: text
-
