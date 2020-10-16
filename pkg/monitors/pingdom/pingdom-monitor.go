@@ -30,31 +30,25 @@ const (
 
 // PingdomMonitorService interfaces with MonitorService
 type PingdomMonitorService struct {
-	apiKey            string
+	apiToken          string
 	url               string
 	alertContacts     string
 	alertIntegrations string
-	username          string
-	password          string
-	accountEmail      string
 	client            *pingdom.Client
 }
 
 func (service *PingdomMonitorService) Setup(p config.Provider) {
-	service.apiKey = p.ApiKey
-	service.url = p.ApiURL
+	service.apiToken = p.ApiToken
 	service.alertContacts = p.AlertContacts
 	service.alertIntegrations = p.AlertIntegrations
-	service.username = p.Username
-	service.password = p.Password
 
-	// Check if config file defines a multi-user config
-	if p.AccountEmail != "" {
-		service.accountEmail = p.AccountEmail
-		service.client = pingdom.NewMultiUserClient(service.username, service.password, service.apiKey, service.accountEmail)
-	} else {
-		service.client = pingdom.NewClient(service.username, service.password, service.apiKey)
-	}
+    var err error
+    service.client, err = pingdom.NewClientWithConfig(pingdom.ClientConfig{
+        APIToken: service.apiToken,
+    })
+    if err != nil {
+        log.Println("Failed to authenticate with error: ", err.Error())
+    }
 }
 
 func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, error) {
@@ -141,22 +135,25 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck.Url = url.Path
 	httpCheck.Name = monitor.Name
 
-	userIdsStringArray := strings.Split(service.alertContacts, "-")
+    if service.alertContacts != "" {
+    	userIdsStringArray := strings.Split(service.alertContacts, "-")
+    
+    	if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
+    		log.Println(err.Error())
+    	} else {
+    		httpCheck.UserIds = userIds
+    	}
+    }
 
-	if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-		log.Println(err.Error())
-	} else {
-		httpCheck.UserIds = userIds
-	}
-
-	integrationIdsStringArray := strings.Split(service.alertIntegrations, "-")
-
-	if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
-		log.Println(err.Error())
-	} else {
-		httpCheck.IntegrationIds = integrationIds
-	}
-
+    if service.alertIntegrations != "" {
+    	integrationIdsStringArray := strings.Split(service.alertIntegrations, "-")
+    
+    	if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
+    		log.Println(err.Error())
+    	} else {
+    		httpCheck.IntegrationIds = integrationIds
+    	}
+    }
 	service.addAnnotationConfigToHttpCheck(&httpCheck, monitor.Annotations)
 
 	return httpCheck
