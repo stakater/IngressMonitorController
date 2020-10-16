@@ -42,13 +42,13 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.alertContacts = p.AlertContacts
 	service.alertIntegrations = p.AlertIntegrations
 
-    var err error
-    service.client, err = pingdom.NewClientWithConfig(pingdom.ClientConfig{
-        APIToken: service.apiToken,
-    })
-    if err != nil {
-        log.Println("Failed to authenticate with error: ", err.Error())
-    }
+	var err error
+	service.client, err = pingdom.NewClientWithConfig(pingdom.ClientConfig{
+		APIToken: service.apiToken,
+	})
+	if err != nil {
+		log.Println("Failed to authenticate with error: ", err.Error())
+	}
 }
 
 func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, error) {
