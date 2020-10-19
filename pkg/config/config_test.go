@@ -15,13 +15,9 @@ const (
 
 	configFilePathPingdom               = "../../configs/testConfigs/test-config-pingdom.yaml"
 	correctTestPingdomConfigMulti       = "PingdomMulti"
-	correctTestPingdomUsername          = "user@test.com"
-	correctTestPingdomAPIURL            = "https://api.pingdom.com/v2/"
-	correctTestPingdomPassword          = "SuperSecret"
-	correctTestPingdomAccountEmail      = "multi@test.com"
+	correctTestPingdomAPIToken          = "657a68d9ashdyasjdklkskuasd"
 	correctTestPingdomAlertContacts     = "0544483_0_0-2628365_0_0-2633263_0_0"
 	correctTestPingdomAlertIntegrations = "91166,10924"
-	correctTestPingdomAPIKey            = "657a68d9ashdyasjdklkskuasd"
 
 	configFilePathUptime           = "../../configs/testConfigs/test-config-uptime.yaml"
 	correctTestUptimeConfigName    = "Uptime"
@@ -34,9 +30,8 @@ const (
 )
 
 func TestConfigWithCorrectValues(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
-		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations,
-		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiToken: correctTestPingdomAPIToken,
+		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 0}
 
 	config := ReadConfig(configFilePathPingdom)
@@ -82,9 +77,8 @@ func TestConfigWithoutEnabledFlag(t *testing.T) {
 }
 
 func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
-		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations,
-		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
+	correctConfig := Config{Providers: []Provider{Provider{Name: correctTestPingdomConfigMulti, ApiToken: correctTestPingdomAPIToken,
+		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePathPingdom)
 	if !reflect.DeepEqual(config, correctConfig) {
