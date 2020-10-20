@@ -167,6 +167,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/russellcardullo/go-pingdom v1.0.0 h1:onhnHzECEQI1r1Oel6F9piZ2hI8L339IDBKAQdbUAO4=
 github.com/russellcardullo/go-pingdom v1.0.0/go.mod h1:MbP0xrebNTkKp7dUsxfOJF+MvJ6eNmvj5y6gqXFbOaw=
+github.com/russellcardullo/go-pingdom v1.2.0 h1:2Ow0DAxEzzuZ2hW5uX/guA/j0UChAP43OaUPsEVqNJ8=
+github.com/russellcardullo/go-pingdom v1.2.0/go.mod h1:NT3vtTnQ6SX9/FeDcf+QOb9GHZ7jDUdmY7wFVfxRxok=
 github.com/sirupsen/logrus v1.6.0 h1:UBcNElsrwanuuMsnGSlYmtmgbb23qDR5dG+6X6Oo89I=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
 github.com/spf13/afero v1.2.2/go.mod h1:9ZxEEn6pIJ8Rxe320qSDBk6AsU0r9pR7Q4OcevTdifk=

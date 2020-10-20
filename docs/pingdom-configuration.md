@@ -9,8 +9,7 @@ in the [Configuration section of the README](../README.md#configuration):
 
 | Key      | Description                                      |
 |----------|--------------------------------------------------|
-| username | Account username for authentication with Pingdom |
-| password | Account password for authentication with Pingdom |
+| apiToken | Your generated Pingdom API Token                 |
 
 ## Optional
 The following optional property can be included for Pingdom accounts which require multi-user authentication.
@@ -18,7 +17,7 @@ More information can be found [Here](https://www.pingdom.com/api/2.1/#multi-user
 
 | Key               | Description                                              |
 |-------------------|----------------------------------------------------------|
-| accountEmail      | Email account for multi-user authentication with Pingdom |
+| alertContact      | `-` separated contact Ids                                |
 | alertIntegrations | Comma separated list of integration ids                  |
 
 ## Advanced
