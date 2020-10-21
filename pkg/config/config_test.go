@@ -33,7 +33,7 @@ const (
 
 func TestConfigWithCorrectValues(t *testing.T) {
 	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
-		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations}},
+		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations, TeamAlertContacts: correctTestTeamAlertContacts}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 0}
 
 	config := ReadConfig(configFilePathPingdom)
@@ -80,7 +80,7 @@ func TestConfigWithoutEnabledFlag(t *testing.T) {
 
 func TestConfigWithPingdom(t *testing.T) {
 	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
-		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations}},
+		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations, TeamAlertContacts: correctTestTeamAlertContacts}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePathPingdom)
 	if !reflect.DeepEqual(config, correctConfig) {
