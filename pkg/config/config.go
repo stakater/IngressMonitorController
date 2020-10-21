@@ -53,6 +53,7 @@ func (c *Config) UnmarshalYAML(data []byte) error {
 
 type Provider struct {
 	Name              string      `yaml:"name"`
+	ApiKey            string      `yaml:"apiKey"`
 	ApiToken          string      `yaml:"apiToken"`
 	ApiURL            string      `yaml:"apiURL"`
 	AlertContacts     string      `yaml:"alertContacts"`
