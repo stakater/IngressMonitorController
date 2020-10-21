@@ -11,6 +11,15 @@ in the [Configuration section of the README](../README.md#configuration):
 |----------|--------------------------------------------------|
 | apiKey | Pingdom API Token generated inside My Pingdom |
 
+## Optional
+The following optional property can be included if you want to declare some default options, without re-declaring them for each EndpointMonitor.
+You are able to override any of them via EndpointMonitor specific options.
+
+| Key               | Description                                              |
+|-------------------|----------------------------------------------------------|
+| alertIntegrations | `-` separated list of integration ids                  |
+| teamAlertContacts | `-` separated list of teams ids                  |
+| alertContacts     | `-` separated list of alert contacts ids                  |
 ## Advanced
 
 Currently additional pingdom configurations can be added through these fields:

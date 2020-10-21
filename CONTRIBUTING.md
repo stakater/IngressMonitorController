@@ -190,6 +190,9 @@ providers:
   - name: Pingdom
     apiKey: <your-api-key>
     apiURL: https://api.pingdom.com
+    alertIntegrations: "91166-10924"
+    alertContacts: "1234567_8_9-9876543_2_1,1234567_8_9-9876543_2_2"
+    teamAlertContacts: "1234567_8_9-9876543_2_1,1234567_8_9-9876543_2_2"
 enableMonitorDeletion: true
 monitorNameTemplate: "{{.Name}}-{{.Namespace}}"
 ```
