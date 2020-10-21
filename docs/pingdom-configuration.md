@@ -9,7 +9,7 @@ in the [Configuration section of the README](../README.md#configuration):
 
 | Key      | Description                                      |
 |----------|--------------------------------------------------|
-| apiKey | Pingdom API Token generated inside My Pingdom |
+| apiToken | Pingdom API Token generated inside My Pingdom |
 
 ## Optional
 The following optional properties can be included if you want to declare some default options, without re-declaring them for each EndpointMonitor.

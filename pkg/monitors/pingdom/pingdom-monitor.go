@@ -19,7 +19,7 @@ import (
 
 // PingdomMonitorService interfaces with MonitorService
 type PingdomMonitorService struct {
-	apiKey            string
+	apiToken          string
 	url               string
 	alertContacts     string
 	alertIntegrations string
@@ -33,7 +33,7 @@ func (monitor *PingdomMonitorService) Equal(oldMonitor models.Monitor, newMonito
 }
 
 func (service *PingdomMonitorService) Setup(p config.Provider) {
-	service.apiKey = p.ApiKey
+	service.apiToken = p.ApiToken
 	service.url = p.ApiURL
 	service.alertContacts = p.AlertContacts
 	service.alertIntegrations = p.AlertIntegrations
@@ -41,7 +41,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 
 	var err error
 	service.client, err = pingdom.NewClientWithConfig(pingdom.ClientConfig{
-		APIToken: service.apiKey,
+		APIToken: service.apiToken,
 		BaseURL:  service.url,
 	})
 	if err != nil {
