@@ -76,7 +76,7 @@ func main() {
 		os.Exit(1)
 	}
 	if len(namespace) == 0 {
-		log.Info("Warning: WATCH_NAMESPACE is set to empty string, will monitor ingresses in all namespaces.")
+		log.Info("Warning: WATCH_NAMESPACE is set to empty string, will check EndpointMonitor in all namespaces.")
 	} else {
 		log.Info("Watching Namespace: " + namespace)
 	}
