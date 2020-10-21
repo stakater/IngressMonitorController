@@ -1,7 +1,7 @@
 providers:
   - name: Pingdom
     apiURL: "https://api.pingdom.com/api/3.1"
-    apiKey: "657a68d9ashdyasjdklkskuasd"
+    apiToken: "657a68d9ashdyasjdklkskuasd"
     alertContacts: "0544483_0_0-2628365_0_0-2633263_0_0"
     teamAlertContacts: "1234567_0_0-2628365_0_0-2633263_0_0"
     alertIntegrations: "91166-10924"
