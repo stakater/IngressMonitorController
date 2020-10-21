@@ -39,7 +39,6 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 
 	var err error
 	service.client, err = pingdom.NewClientWithConfig(pingdom.ClientConfig{
-
 		APIToken: service.apiKey,
 		BaseURL:  service.url,
 	})
