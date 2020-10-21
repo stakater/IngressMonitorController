@@ -12,7 +12,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
 	github.com/operator-framework/operator-sdk v0.19.0
-	github.com/russellcardullo/go-pingdom v1.0.0
+	github.com/russellcardullo/go-pingdom v1.3.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.5.1
 	google.golang.org/api v0.14.0

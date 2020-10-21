@@ -3,11 +3,12 @@ package pingdom
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/russellcardullo/go-pingdom/pingdom"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
@@ -22,9 +23,6 @@ type PingdomMonitorService struct {
 	url               string
 	alertContacts     string
 	alertIntegrations string
-	username          string
-	password          string
-	accountEmail      string
 	client            *pingdom.Client
 }
 
@@ -38,15 +36,15 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.url = p.ApiURL
 	service.alertContacts = p.AlertContacts
 	service.alertIntegrations = p.AlertIntegrations
-	service.username = p.Username
-	service.password = p.Password
 
-	// Check if config file defines a multi-user config
-	if p.AccountEmail != "" {
-		service.accountEmail = p.AccountEmail
-		service.client = pingdom.NewMultiUserClient(service.username, service.password, service.apiKey, service.accountEmail)
-	} else {
-		service.client = pingdom.NewClient(service.username, service.password, service.apiKey)
+	var err error
+	service.client, err = pingdom.NewClientWithConfig(pingdom.ClientConfig{
+
+		APIToken: service.apiKey,
+		BaseURL:  service.url,
+	})
+	if err != nil {
+		log.Println("Error Seting Up Monitor Service: ", err.Error())
 	}
 }
 
@@ -179,6 +177,16 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 			log.Println("Error decoding integration ids into integers", err.Error())
 		} else {
 			httpCheck.IntegrationIds = integrationIds
+		}
+	}
+
+	if providerConfig != nil && len(providerConfig.TeamAlertContacts) != 0 {
+		integrationTeamIdsStringArray := strings.Split(providerConfig.TeamAlertContacts, "-")
+
+		if integrationTeamIdsStringArray, err := util.SliceAtoi(integrationTeamIdsStringArray); err != nil {
+			log.Println("Error decoding integration ids into integers", err.Error())
+		} else {
+			httpCheck.TeamIds = integrationTeamIdsStringArray
 		}
 	}
 
