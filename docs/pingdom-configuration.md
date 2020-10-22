@@ -9,18 +9,17 @@ in the [Configuration section of the README](../README.md#configuration):
 
 | Key      | Description                                      |
 |----------|--------------------------------------------------|
-| username | Account username for authentication with Pingdom |
-| password | Account password for authentication with Pingdom |
+| apiToken | Pingdom API Token generated inside My Pingdom |
 
 ## Optional
-The following optional property can be included for Pingdom accounts which require multi-user authentication.
-More information can be found [Here](https://www.pingdom.com/api/2.1/#multi-user+authentication)
+The following optional properties can be included if you want to declare some default options, without re-declaring them for each EndpointMonitor.
+You are able to override any of them via EndpointMonitor specific options.
 
 | Key               | Description                                              |
 |-------------------|----------------------------------------------------------|
-| accountEmail      | Email account for multi-user authentication with Pingdom |
-| alertIntegrations | Comma separated list of integration ids                  |
-
+| alertIntegrations | `-` separated list of integration ids                  |
+| teamAlertContacts | `-` separated list of teams ids                  |
+| alertContacts     | `-` separated list of alert contacts ids                  |
 ## Advanced
 
 Currently additional pingdom configurations can be added through these fields:
@@ -37,7 +36,7 @@ Currently additional pingdom configurations can be added through these fields:
 | Tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws") |
 | AlertIntegrations                | `-` separated set list of integrations ids (e.g. "91166-12168") |
 | AlertContacts                | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1") to override the [default alertContacts](https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage)|
-
+| TeamAlertContacts            | Teams to alert.  `-` separated set list of teams ids (e.g. "1234567_8_9-9876543_2_1)|
 
 ### Basic Auth checks
 
@@ -67,4 +66,5 @@ spec:
     tags: "testing,aws"
     alertIntegrations: "91166-12168"
     alertContacts: "1234567_8_9-9876543_2_1,1234567_8_9-9876543_2_2"
+    teamAlertContacts: "1234567_8_9-9876543_2_1,1234567_8_9-9876543_2_2"
 ```

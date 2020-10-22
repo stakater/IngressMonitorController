@@ -235,6 +235,10 @@ type PingdomConfig struct {
 	// `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1")
 	// +optional
 	AlertContacts string `json:"alertContacts,omitempty"`
+
+	// `-` separated team id's (e.g. "1234567_8_9-9876543_2_1")
+	// +optional
+	TeamAlertContacts string `json:"teamAlertContacts,omitempty"`
 }
 
 // AppInsightsConfig defines the configuration for AppInsights Monitor Provider

@@ -93,6 +93,9 @@ spec:
                   description: Comma separated set of tags to apply to check (e.g.
                     "testing,aws")
                   type: string
+                teamAlertContacts:
+                  description: '`-` separated team id''s (e.g. "1234567_8_9-9876543_2_1")'
+                  type: string
               type: object
             providers:
               description: Comma separated list of providers
