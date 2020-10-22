@@ -16,12 +16,12 @@ ingressMonitorController:
     provider: stakater
   deployment:
     labels:
-      version: "v1.0.102"
+      version: "SNAPSHOT-release-v1-2"
     annotations:
       configmap.reloader.stakater.com/reload: ingressmonitorcontroller
   config:
     labels:
-      version: "v1.0.102"
+      version: "SNAPSHOT-release-v1-2"
   rbac:
     create: true
   # Service account config for the agent pods
@@ -29,13 +29,13 @@ ingressMonitorController:
     # Specifies whether a ServiceAccount should be created
     create: true
     labels:
-      version: "v1.0.102"
+      version: "SNAPSHOT-release-v1-2"
     # The name of the ServiceAccount to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ingressmonitorcontroller
   image:
     name: stakater/ingressmonitorcontroller
-    tag: "v1.0.102"
+    tag: "SNAPSHOT-release-v1-2"
     pullPolicy: IfNotPresent
   configFilePath: /etc/IngressMonitorController/config.yaml
   data:

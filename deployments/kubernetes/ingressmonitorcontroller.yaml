@@ -54,10 +54,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.102"
+    chart: "ingressmonitorcontroller-SNAPSHOT-release-v1-2"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.102
+    version: SNAPSHOT-release-v1-2
     
     group: com.stakater.platform
     provider: stakater
@@ -88,10 +88,10 @@ metadata:
     
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.102"
+    chart: "ingressmonitorcontroller-SNAPSHOT-release-v1-2"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.102
+    version: SNAPSHOT-release-v1-2
     
     group: com.stakater.platform
     provider: stakater
@@ -111,14 +111,16 @@ spec:
     metadata:
       labels:
         app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-v1.0.102"
+        chart: "ingressmonitorcontroller-SNAPSHOT-release-v1-2"
         release: "ingressmonitorcontroller"
         heritage: "Tiller"
-        version: v1.0.102
+        version: SNAPSHOT-release-v1-2
         
         group: com.stakater.platform
         provider: stakater
         
+      annotations:
+        checksum/config: 11ab81ca3f6f0a8f3174a1613db9f26dbfe3cc6947bdd48903661de9d4930255
     spec:
       containers:
       - env:
@@ -128,7 +130,7 @@ spec:
           value: info
         - name: LOG_FORMAT
           value: text
-        image: "stakater/ingressmonitorcontroller:v1.0.102"
+        image: "stakater/ingressmonitorcontroller:SNAPSHOT-release-v1-2"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
@@ -139,6 +141,7 @@ spec:
         - name: ingressmonitorcontroller-vol
           configMap:
             name: ingressmonitorcontroller
+
 ---
 # Source: ingressmonitorcontroller/templates/role.yaml
 
@@ -157,10 +160,10 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-v1.0.102"
+    chart: "ingressmonitorcontroller-SNAPSHOT-release-v1-2"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: v1.0.102
+    version: SNAPSHOT-release-v1-2
     
     group: com.stakater.platform
     provider: stakater
