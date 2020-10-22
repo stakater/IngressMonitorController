@@ -761,6 +761,7 @@ github.com/rs/cors v1.6.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/rubenv/sql-migrate v0.0.0-20200212082348-64f95ea68aa3/go.mod h1:rtQlpHw+eR6UrqaS3kX1VYeaCxzCVdimDS7g5Ln4pPc=
 github.com/russellcardullo/go-pingdom v1.0.0 h1:onhnHzECEQI1r1Oel6F9piZ2hI8L339IDBKAQdbUAO4=
 github.com/russellcardullo/go-pingdom v1.0.0/go.mod h1:MbP0xrebNTkKp7dUsxfOJF+MvJ6eNmvj5y6gqXFbOaw=
+github.com/russellcardullo/go-pingdom v1.3.0 h1:uf5ZJOOR6BxqLcz0Lwmtb6HMFgX20CCLIhy0wB6tc/4=
 github.com/russellcardullo/go-pingdom v1.3.0/go.mod h1:y9hd/6P97iuRFi6VPGgLxsRQaJQll298jZ/qPQPfcXw=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
