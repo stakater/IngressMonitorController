@@ -54,10 +54,10 @@ metadata:
   annotations:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-SNAPSHOT-release-v1-2"
+    chart: "ingressmonitorcontroller-v1.0.103"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: SNAPSHOT-release-v1-2
+    version: v1.0.103
     
     group: com.stakater.platform
     provider: stakater
@@ -88,10 +88,10 @@ metadata:
     
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-SNAPSHOT-release-v1-2"
+    chart: "ingressmonitorcontroller-v1.0.103"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: SNAPSHOT-release-v1-2
+    version: v1.0.103
     
     group: com.stakater.platform
     provider: stakater
@@ -111,16 +111,16 @@ spec:
     metadata:
       labels:
         app: ingressmonitorcontroller
-        chart: "ingressmonitorcontroller-SNAPSHOT-release-v1-2"
+        chart: "ingressmonitorcontroller-v1.0.103"
         release: "ingressmonitorcontroller"
         heritage: "Tiller"
-        version: SNAPSHOT-release-v1-2
+        version: v1.0.103
         
         group: com.stakater.platform
         provider: stakater
         
       annotations:
-        checksum/config: 11ab81ca3f6f0a8f3174a1613db9f26dbfe3cc6947bdd48903661de9d4930255
+        checksum/config: 8156a37cfd533a628a1647c9698c631a3c0daee472c00da7237452077f21d1a4
     spec:
       containers:
       - env:
@@ -130,7 +130,7 @@ spec:
           value: info
         - name: LOG_FORMAT
           value: text
-        image: "stakater/ingressmonitorcontroller:SNAPSHOT-release-v1-2"
+        image: "stakater/ingressmonitorcontroller:v1.0.103"
         imagePullPolicy: IfNotPresent
         name: ingressmonitorcontroller
         volumeMounts:
@@ -160,10 +160,10 @@ kind: ServiceAccount
 metadata:
   labels:
     app: ingressmonitorcontroller
-    chart: "ingressmonitorcontroller-SNAPSHOT-release-v1-2"
+    chart: "ingressmonitorcontroller-v1.0.103"
     release: "ingressmonitorcontroller"
     heritage: "Tiller"
-    version: SNAPSHOT-release-v1-2
+    version: v1.0.103
     
     group: com.stakater.platform
     provider: stakater
