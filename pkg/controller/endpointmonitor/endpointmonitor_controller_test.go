@@ -124,7 +124,7 @@ func TestEndpointMonitorReconcileUpdate(t *testing.T) {
 	monitorCount = 0
 	for index := 0; index < len(r.monitorServices); index++ {
 		monitor, err := findMonitorByName(r.monitorServices[index], monitorName)
-		if monitor != nil  && err != nil && monitor.URL == testURLFacebook {
+		if monitor != nil && err != nil && monitor.URL == testURLFacebook {
 			log.Info("Found Updated Monitor for Provider: " + r.monitorServices[index].GetType())
 			monitorCount++
 		}
