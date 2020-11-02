@@ -60,8 +60,9 @@ func (service *MonitorService) GetByName(name string) (monitor *models.Monitor, 
 			return &localMonitor, nil
 		}
 	}
-
-	return nil, fmt.Errorf("Unable to locate monitor with name %v", name)
+	// monitor not found and no errors raised
+	log.Printf("There is no gcloud MonitorService with name %s found.", name)
+	return nil, nil
 }
 
 func (service *MonitorService) GetAll() (monitors []models.Monitor) {

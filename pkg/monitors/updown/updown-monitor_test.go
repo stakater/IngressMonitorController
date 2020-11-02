@@ -110,8 +110,10 @@ func TestGetByNameMonitorWhileNoCheckExists(t *testing.T) {
 	UpdownService.Setup(*provider)
 
 	var nilMonitorModelObj *models.Monitor
-	monitorObject, _ := UpdownService.GetByName("NoExistingCheck")
-
+	monitorObject, err := UpdownService.GetByName("NoExistingCheck")
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
 	assert.Equal(t, monitorObject, nilMonitorModelObj)
 
 }
@@ -175,8 +177,10 @@ func TestGetByNameMonitorWhileCheckExists(t *testing.T) {
 	firstElement := 0
 	var nilMonitorModelObj *models.Monitor
 	monitorSlice := UpdownService.GetAll()
-	monitorObject, _ := UpdownService.GetByName(monitorSlice[firstElement].ID)
-
+	monitorObject, err := UpdownService.GetByName(monitorSlice[firstElement].ID)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
 	assert.NotEqual(t, &monitorObject, nilMonitorModelObj)
 
 }

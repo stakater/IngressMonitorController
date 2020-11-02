@@ -117,7 +117,11 @@ func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconci
 	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))
 
 	for index := 0; index < len(r.monitorServices); index++ {
-		monitor := findMonitorByName(r.monitorServices[index], monitorName)
+		monitor, err := findMonitorByName(r.monitorServices[index], monitorName)
+		// if there was some error while getting a monitor, re-queue it to try on the next reconcile iteration
+		if err != nil {
+			return reconcile.Result{RequeueAfter: RequeueTime}, err
+		}
 		if monitor != nil {
 			// Monitor already exists, update if required
 			err = r.handleUpdate(request, instance, *monitor, r.monitorServices[index])
@@ -135,12 +139,7 @@ func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconci
 	return reconcile.Result{RequeueAfter: RequeueTime}, err
 }
 
-func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) *models.Monitor {
-
-	monitor, _ := monitorService.GetByName(monitorName)
-	// Monitor Exists
-	if monitor != nil {
-		return monitor
-	}
-	return nil
+func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) (*models.Monitor, error) {
+	monitor, err := monitorService.GetByName(monitorName)
+	return monitor, err
 }
