@@ -14,14 +14,12 @@ const (
 	correctTestEnableMonitorDeletion = true
 
 	configFilePathPingdom               = "../../examples/configs/test-config-pingdom.yaml"
-	correctTestPingdomConfigMulti       = "PingdomMulti"
-	correctTestPingdomUsername          = "user@test.com"
-	correctTestPingdomAPIURL            = "https://api.pingdom.com/v2/"
-	correctTestPingdomPassword          = "SuperSecret"
-	correctTestPingdomAccountEmail      = "multi@test.com"
+	correctTestPingdomConfigMulti       = "Pingdom"
+	correctTestPingdomAPIURL            = "https://api.pingdom.com/api/3.1"
 	correctTestPingdomAlertContacts     = "0544483_0_0-2628365_0_0-2633263_0_0"
-	correctTestPingdomAlertIntegrations = "91166,10924"
-	correctTestPingdomAPIKey            = "657a68d9ashdyasjdklkskuasd"
+	correctTestPingdomAlertIntegrations = "91166-10924"
+	correctTestPingdomAPIToken          = "657a68d9ashdyasjdklkskuasd"
+	correctTestPingdomTeamAlertContacts = "1234567_0_0-2628365_0_0-2633263_0_0"
 
 	configFilePathUptime           = "../../examples/configs/test-config-uptime.yaml"
 	correctTestUptimeConfigName    = "Uptime"
@@ -34,9 +32,8 @@ const (
 )
 
 func TestConfigWithCorrectValues(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
-		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations,
-		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
+	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiToken: correctTestPingdomAPIToken, ApiURL: correctTestPingdomAPIURL,
+		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations, TeamAlertContacts: correctTestPingdomTeamAlertContacts}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion, ResyncPeriod: 0}
 
 	config := ReadConfig(configFilePathPingdom)
@@ -73,7 +70,7 @@ func TestConfigWithoutProvider(t *testing.T) {
 }
 
 func TestConfigWithoutEnabledFlag(t *testing.T) {
-	incorrectConfig := Config{Providers: []Provider{{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, AlertContacts: correctTestAlertContacts}}}
+	incorrectConfig := Config{Providers: []Provider{{Name: correctTestConfigName, ApiKey: correctTestAPIKey, ApiURL: correctTestAPIURL, TeamAlertContacts: correctTestPingdomTeamAlertContacts, AlertContacts: correctTestAlertContacts}}}
 	config := ReadConfig(configFilePath)
 
 	if reflect.DeepEqual(config, incorrectConfig) {
@@ -81,10 +78,9 @@ func TestConfigWithoutEnabledFlag(t *testing.T) {
 	}
 }
 
-func TestConfigWithPingdomMultiAuthEnabledFlag(t *testing.T) {
-	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiKey: correctTestPingdomAPIKey, ApiURL: correctTestPingdomAPIURL,
-		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations,
-		Username: correctTestPingdomUsername, Password: correctTestPingdomPassword, AccountEmail: correctTestPingdomAccountEmail}},
+func TestConfigWithPingdom(t *testing.T) {
+	correctConfig := Config{Providers: []Provider{{Name: correctTestPingdomConfigMulti, ApiToken: correctTestPingdomAPIToken, ApiURL: correctTestPingdomAPIURL,
+		AlertContacts: correctTestPingdomAlertContacts, AlertIntegrations: correctTestPingdomAlertIntegrations, TeamAlertContacts: correctTestPingdomTeamAlertContacts}},
 		EnableMonitorDeletion: correctTestEnableMonitorDeletion}
 	config := ReadConfig(configFilePathPingdom)
 	if !reflect.DeepEqual(config, correctConfig) {

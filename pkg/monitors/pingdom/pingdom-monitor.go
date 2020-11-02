@@ -3,11 +3,12 @@ package pingdom
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/russellcardullo/go-pingdom/pingdom"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
@@ -18,13 +19,11 @@ import (
 
 // PingdomMonitorService interfaces with MonitorService
 type PingdomMonitorService struct {
-	apiKey            string
+	apiToken          string
 	url               string
 	alertContacts     string
 	alertIntegrations string
-	username          string
-	password          string
-	accountEmail      string
+	teamAlertContacts string
 	client            *pingdom.Client
 }
 
@@ -34,19 +33,19 @@ func (monitor *PingdomMonitorService) Equal(oldMonitor models.Monitor, newMonito
 }
 
 func (service *PingdomMonitorService) Setup(p config.Provider) {
-	service.apiKey = p.ApiKey
+	service.apiToken = p.ApiToken
 	service.url = p.ApiURL
 	service.alertContacts = p.AlertContacts
 	service.alertIntegrations = p.AlertIntegrations
-	service.username = p.Username
-	service.password = p.Password
+	service.teamAlertContacts = p.TeamAlertContacts
 
-	// Check if config file defines a multi-user config
-	if p.AccountEmail != "" {
-		service.accountEmail = p.AccountEmail
-		service.client = pingdom.NewMultiUserClient(service.username, service.password, service.apiKey, service.accountEmail)
-	} else {
-		service.client = pingdom.NewClient(service.username, service.password, service.apiKey)
+	var err error
+	service.client, err = pingdom.NewClientWithConfig(pingdom.ClientConfig{
+		APIToken: service.apiToken,
+		BaseURL:  service.url,
+	})
+	if err != nil {
+		log.Println("Error Seting Up Monitor Service: ", err.Error())
 	}
 }
 
@@ -133,23 +132,39 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck.Hostname = url.Host
 	httpCheck.Url = url.Path
 	httpCheck.Name = monitor.Name
+	// Set the default values if they are present in provider config
+	// all of them can be overridden via EndpointMonitor specific options
+	// Default alert contacts
+	if len(service.alertContacts) > 0 {
+		userIdsStringArray := strings.Split(service.alertContacts, "-")
 
-	userIdsStringArray := strings.Split(service.alertContacts, "-")
-
-	if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-		log.Println(err.Error())
-	} else {
-		httpCheck.UserIds = userIds
+		if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
+			log.Println(err.Error())
+		} else {
+			httpCheck.UserIds = userIds
+		}
 	}
+	// Default alert integrations
+	if len(service.alertIntegrations) > 0 {
+		integrationIdsStringArray := strings.Split(service.alertIntegrations, "-")
 
-	integrationIdsStringArray := strings.Split(service.alertIntegrations, "-")
-
-	if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
-		log.Println(err.Error())
-	} else {
-		httpCheck.IntegrationIds = integrationIds
+		if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
+			log.Println(err.Error())
+		} else {
+			httpCheck.IntegrationIds = integrationIds
+		}
 	}
+	// Default team alert contacts
+	if len(service.teamAlertContacts) > 0 {
+		teamAlertContactsStringArray := strings.Split(service.teamAlertContacts, "-")
 
+		if teamAlertsIds, err := util.SliceAtoi(teamAlertContactsStringArray); err != nil {
+			log.Println(err.Error())
+		} else {
+			httpCheck.TeamIds = teamAlertsIds
+		}
+	}
+	// Generate check itself
 	service.addConfigToHttpCheck(&httpCheck, monitor.Config)
 
 	return httpCheck
@@ -161,7 +176,6 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 
 	// Retrieve provider configuration
 	providerConfig, _ := config.(*endpointmonitorv1alpha1.PingdomConfig)
-
 	if providerConfig != nil && len(providerConfig.AlertContacts) != 0 {
 		userIdsStringArray := strings.Split(providerConfig.AlertContacts, "-")
 
@@ -179,6 +193,16 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 			log.Println("Error decoding integration ids into integers", err.Error())
 		} else {
 			httpCheck.IntegrationIds = integrationIds
+		}
+	}
+
+	if providerConfig != nil && len(providerConfig.TeamAlertContacts) != 0 {
+		integrationTeamIdsStringArray := strings.Split(providerConfig.TeamAlertContacts, "-")
+
+		if integrationTeamIdsStringArray, err := util.SliceAtoi(integrationTeamIdsStringArray); err != nil {
+			log.Println("Error decoding integration ids into integers", err.Error())
+		} else {
+			httpCheck.TeamIds = integrationTeamIdsStringArray
 		}
 	}
 
