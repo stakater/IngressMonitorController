@@ -39,9 +39,11 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	}
 	// mRes.URL is a domain name, without scheme, so we parsed URL previously
 	if mRes.Name != m.Name || mRes.URL != parsedUrl.Host {
-		t.Errorf("URL and name should be the same")
+		t.Errorf("URL and name should be the same %+v", mRes)
 	}
 	service.Remove(*mRes)
+	//Deletion delay
+	time.Sleep(5 * time.Second)
 	monitor, err := service.GetByName(mRes.Name)
 	if err != nil {
 		t.Error("Error: " + err.Error())
