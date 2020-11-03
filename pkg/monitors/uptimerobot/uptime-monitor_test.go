@@ -368,7 +368,7 @@ func TestAddMonitorWithAlertContacts(t *testing.T) {
 	service.Setup(*provider)
 
 	configAlertContacts := &endpointmonitorv1alpha1.UptimeRobotConfig{
-		AlertContacts: "2937190",
+		AlertContacts: "2628365_0_0",
 	}
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configAlertContacts}
@@ -388,7 +388,7 @@ func TestAddMonitorWithAlertContacts(t *testing.T) {
 
 	providerConfig, _ := mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
 
-	if "2937190_0_0" != providerConfig.AlertContacts {
+	if "2628365_0_0" != providerConfig.AlertContacts {
 		t.Error("The alert-contacts is incorrect, expected: 2628365_0_0, but was: " + providerConfig.AlertContacts)
 	}
 	service.Remove(*mRes)
