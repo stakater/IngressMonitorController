@@ -126,7 +126,7 @@ func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconci
 			// Monitor already exists, update if required
 			err = r.handleUpdate(request, instance, *monitor, r.monitorServices[index])
 			if err != nil {
-				log.Error("Error while handling update: %s", err)
+				log.Errorf("Error while handling update: %s", err)
 				return reconcile.Result{RequeueAfter: RequeueTime}, err
 			}
 		} else {
@@ -138,7 +138,7 @@ func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconci
 			}
 			err = r.handleCreate(request, instance, monitorName, r.monitorServices[index])
 			if err != nil {
-				log.Error("Error while handling create: %s", err)
+				log.Errorf("Error while handling create: %s", err)
 				return reconcile.Result{RequeueAfter: RequeueTime}, err
 			}
 		}
