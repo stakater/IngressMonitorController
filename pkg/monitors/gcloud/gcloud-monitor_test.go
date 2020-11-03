@@ -17,7 +17,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	provider := util.GetProviderWithName(config, "gcloud")
 	if provider == nil {
 		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		//       Fail this case in future when have a valid updown account
+		// Fail this case in future when have a valid gcloud account
 		log.Error("Failed to find provider")
 		return
 	}
@@ -29,7 +29,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 
 	if err != nil {
 		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
+		// Fail this case in future when have a valid gcloud account
 		log.Error(err.Error())
 		return
 	}
@@ -67,7 +67,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	provider := util.GetProviderWithName(config, "gcloud")
 	if provider == nil {
 		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		//       Fail this case in future when have a valid updown account
+		// Fail this case in future when have a valid gcloud account
 		log.Error("Failed to find provider")
 		return
 	}
@@ -80,7 +80,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 
 	if err != nil {
 		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
+		// Fail this case in future when have a valid gcloud account
 		log.Error(err.Error())
 		return
 	}
