@@ -2,7 +2,9 @@ package pingdom
 
 import (
 	log "github.com/sirupsen/logrus"
+	"net/url"
 	"testing"
+	"time"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -21,16 +23,23 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		return
 	}
 	service.Setup(*provider)
-	m := models.Monitor{Name: "google-test", URL: "https://google1.com"}
+	urlToTest := "https://google1.com"
+	parsedUrl, err := url.Parse(urlToTest)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+	m := models.Monitor{Name: "google-test", URL: urlToTest}
 	service.Add(m)
-
+	//Creation delay
+	time.Sleep(5 * time.Second)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-	if mRes.Name != m.Name || mRes.URL != m.URL {
-		t.Error("URL and name should be the same")
+	// mRes.URL is a domain name, without scheme, so we parsed URL previously
+	if mRes.Name != m.Name || mRes.URL != parsedUrl.Host {
+		t.Errorf("URL and name should be the same")
 	}
 	service.Remove(*mRes)
 	monitor, err := service.GetByName(mRes.Name)
@@ -55,16 +64,21 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 		return
 	}
 	service.Setup(*provider)
-
-	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+	urlToTest := "https://google.com"
+	parsedUrl, err := url.Parse(urlToTest)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+	m := models.Monitor{Name: "google-test", URL: urlToTest}
 	service.Add(m)
-
+	//Creation delay
+	time.Sleep(5 * time.Second)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-	if mRes.Name != m.Name || mRes.URL != m.URL {
+	if mRes.Name != m.Name || mRes.URL != parsedUrl.Host {
 		t.Error("URL and name should be the same")
 	}
 
@@ -77,7 +91,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-	if mRes.URL != "https://facebook.com" {
+	if mRes.URL != "facebook.com" {
 		t.Error("URL and name should be the same")
 	}
 
