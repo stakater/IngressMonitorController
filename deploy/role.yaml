@@ -15,6 +15,7 @@ rules:
   verbs:
   - list
   - get
+  - watch
 - apiGroups:
   - ""
   resources:
@@ -61,6 +62,8 @@ rules:
   - pods
   verbs:
   - get
+  - list
+  - watch
 - apiGroups:
   - endpointmonitor.stakater.com
   resources:
