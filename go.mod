@@ -18,6 +18,7 @@ require (
 	google.golang.org/api v0.14.0
 	google.golang.org/genproto v0.0.0-20200117163144-32f20d992d24
 	gopkg.in/yaml.v2 v2.3.0
+	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.18.5
 	k8s.io/apimachinery v0.18.5
 	k8s.io/client-go v12.0.0+incompatible

@@ -19,6 +19,10 @@ func TestRemoveDanglingMonitors(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		return
+	}
+
 	service.Setup(*provider)
 
 	mons, err := service.GetAllByName("google-test")
@@ -40,6 +44,10 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	service := UpTimeMonitorService{}
 	// service.Setup(config.Providers[0])
 	provider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		return
+	}
+
 	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
@@ -64,6 +72,9 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		return
+	}
 	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
@@ -102,6 +113,9 @@ func TestAddMonitorWithInterval(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		return
+	}
 	service.Setup(*provider)
 
 	configInterval := &endpointmonitorv1alpha1.UptimeRobotConfig{
