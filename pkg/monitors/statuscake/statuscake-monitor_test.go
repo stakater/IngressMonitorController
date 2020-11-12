@@ -3,12 +3,13 @@ package statuscake
 import (
 	"os"
 	"testing"
+	"time"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/assert"
 )
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
@@ -17,10 +18,9 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	service := StatusCakeMonitorService{}
 	provider := util.GetProviderWithName(config, "StatusCake")
 	if provider == nil {
-		panic("Failed to find provider")
+		return
 	}
 	service.Setup(*provider)
-
 	m := models.Monitor{Name: "google-test", URL: "https://google1.com"}
 	service.Add(m)
 
@@ -33,6 +33,8 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		t.Error("URL and name should be the same")
 	}
 	service.Remove(*mRes)
+
+	time.Sleep(5 * time.Second)
 
 	monitor, err := service.GetByName(mRes.Name)
 
@@ -51,7 +53,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 
 	provider := util.GetProviderWithName(config, "StatusCake")
 	if provider == nil {
-		panic("Failed to find provider")
+		return
 	}
 	service.Setup(*provider)
 
@@ -80,6 +82,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 		t.Error("URL and name should be the same")
 	}
 
+	time.Sleep(5 * time.Second)
 	service.Remove(*mRes)
 
 	monitor, err := service.GetByName(mRes.Name)

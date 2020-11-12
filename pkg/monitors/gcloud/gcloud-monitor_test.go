@@ -3,8 +3,6 @@ package gcloud
 import (
 	"testing"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
@@ -16,23 +14,18 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	service := MonitorService{}
 	provider := util.GetProviderWithName(config, "gcloud")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid gcloud account
-		log.Error("Failed to find provider")
 		return
 	}
+
 	service.Setup(*provider)
 	m := models.Monitor{Name: "google-test", URL: "https://google1.com/"}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
-
 	if err != nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid gcloud account
-		log.Error(err.Error())
-		return
+		t.Error("Unable to get monitor by name with error", err)
 	}
+
 	if mRes.Name != m.Name || mRes.URL != m.URL {
 		t.Error("URL and name should be the same")
 	}
@@ -49,11 +42,8 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	}
 
 	service.Remove(*mRes)
-
 	monitor, err := service.GetByName(mRes.Name)
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
+
 	if monitor != nil {
 		t.Error("Monitor should've been deleted ", monitor, err)
 	}
@@ -66,9 +56,6 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 
 	provider := util.GetProviderWithName(config, "gcloud")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid gcloud account
-		log.Error("Failed to find provider")
 		return
 	}
 	service.Setup(*provider)
@@ -77,13 +64,10 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
-
 	if err != nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid gcloud account
-		log.Error(err.Error())
-		return
+		t.Error("Unable to get monitor by name with error", err)
 	}
+
 	if mRes.Name != m.Name || mRes.URL != m.URL {
 		t.Error("URL and name should be the same")
 	}
@@ -105,10 +89,8 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	service.Remove(*mRes)
 
 	monitor, err := service.GetByName(mRes.Name)
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
+
 	if monitor != nil {
-		t.Error("Monitor should've been deleted ", monitor)
+		t.Error("Monitor should've been deleted ", monitor, err)
 	}
 }

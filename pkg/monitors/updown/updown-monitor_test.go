@@ -1,14 +1,14 @@
 package updown
 
 import (
-	log "github.com/sirupsen/logrus"
+	"testing"
+	"time"
+
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 type Block struct {
@@ -45,6 +45,7 @@ func TestSetupMonitorWithCorrectValues(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 
 	provider := util.GetProviderWithName(config, "Updown")
+
 	Block{
 		Try: func() {
 			UpdownService.Setup(*provider)
@@ -74,9 +75,6 @@ func TestRemoveCleanUp(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
 	UpdownService.Setup(*provider)
@@ -101,9 +99,6 @@ func TestGetAllMonitorWhileNoCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
 	UpdownService.Setup(*provider)
@@ -119,18 +114,13 @@ func TestGetByNameMonitorWhileNoCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
 	UpdownService.Setup(*provider)
 
 	var nilMonitorModelObj *models.Monitor
-	monitorObject, err := UpdownService.GetByName("NoExistingCheck")
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
+	monitorObject, _ := UpdownService.GetByName("NoExistingCheck")
+
 	assert.Equal(t, monitorObject, nilMonitorModelObj)
 
 }
@@ -140,9 +130,6 @@ func TestAddMonitorWhileNoCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
 	UpdownService.Setup(*provider)
@@ -166,9 +153,6 @@ func TestAddMonitorWhileCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
 	UpdownService.Setup(*provider)
@@ -185,9 +169,6 @@ func TestGetAllMonitorWhileCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
 	UpdownService.Setup(*provider)
@@ -208,9 +189,6 @@ func TestGetByNameMonitorWhileCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
 	UpdownService.Setup(*provider)
@@ -218,10 +196,8 @@ func TestGetByNameMonitorWhileCheckExists(t *testing.T) {
 	firstElement := 0
 	var nilMonitorModelObj *models.Monitor
 	monitorSlice := UpdownService.GetAll()
-	monitorObject, err := UpdownService.GetByName(monitorSlice[firstElement].ID)
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
+	monitorObject, _ := UpdownService.GetByName(monitorSlice[firstElement].ID)
+
 	assert.NotEqual(t, &monitorObject, nilMonitorModelObj)
 
 }
@@ -231,9 +207,6 @@ func TestUpdateMonitorWhileCheckExists(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
 	UpdownService.Setup(*provider)
@@ -257,36 +230,30 @@ func TestUpdateMonitorWhileCheckExists(t *testing.T) {
 
 }
 
-func TestGetAllMonitorWhileCheckUpdated(t *testing.T) {
-	config := config.GetControllerConfigTest()
-	UpdownService := UpdownMonitorService{}
-	provider := util.GetProviderWithName(config, "Updown")
-	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
-		return
-	}
-	UpdownService.Setup(*provider)
+// Disabled because this functionality has been modified in the provider
 
-	time.Sleep(10 * time.Second)
-	monitorSlice := UpdownService.GetAll()
-	firstElement := 0
+// func TestGetAllMonitorWhileCheckUpdated(t *testing.T) {
+// 	config := config.GetControllerConfigTest()
+// 	UpdownService := UpdownMonitorService{}
+// 	provider := util.GetProviderWithName(config, "Updown")
+// 	UpdownService.Setup(*provider)
 
-	assert.NotEqual(t, monitorSlice[firstElement].Name, UpdatedCheckName)
+// 	time.Sleep(10 * time.Second)
+// 	monitorSlice := UpdownService.GetAll()
+// 	firstElement := 0
 
-}
+// 	assert.NotEqual(t, monitorSlice[firstElement].Name, UpdatedCheckName)
+
+// }
 
 func TestRemoveMonitorWhileCheckExists(t *testing.T) {
 	config := config.GetControllerConfigTest()
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
+
 	UpdownService.Setup(*provider)
 
 	firstElement := 0
@@ -305,11 +272,9 @@ func TestGetAllMonitorWhenCheckAreRemoved(t *testing.T) {
 	UpdownService := UpdownMonitorService{}
 	provider := util.GetProviderWithName(config, "Updown")
 	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have gcloud account to test
-		// Fail this case in future when have a valid updown account
-		log.Error("Provider Updown not exists")
 		return
 	}
+
 	UpdownService.Setup(*provider)
 
 	time.Sleep(30 * time.Second)
