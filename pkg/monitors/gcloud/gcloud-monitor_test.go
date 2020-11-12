@@ -3,8 +3,6 @@ package gcloud
 import (
 	"testing"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
@@ -24,6 +22,9 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
+	if err != nil {
+		t.Error("Unable to get monitor by name with error", err)
+	}
 
 	if mRes.Name != m.Name || mRes.URL != m.URL {
 		t.Error("URL and name should be the same")
@@ -63,6 +64,9 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test")
+	if err != nil {
+		t.Error("Unable to get monitor by name with error", err)
+	}
 
 	if mRes.Name != m.Name || mRes.URL != m.URL {
 		t.Error("URL and name should be the same")

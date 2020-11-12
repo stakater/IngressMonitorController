@@ -43,7 +43,7 @@ $(GOLANGCI_LINT):
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(dir $@) v1.24.0
 
 verify-golangci-lint: $(GOLANGCI_LINT)
-	GOLANGCI_LINT_CACHE=$(GOLANGCI_LINT_CACHE) $(GOLANGCI_LINT) run --timeout=300s ./cmd/... ./pkg/... ./test/...
+	GOLANGCI_LINT_CACHE=$(GOLANGCI_LINT_CACHE) $(GOLANGCI_LINT) run --timeout=300s ./cmd/... ./pkg/...
 
 verify: verify-fmt verify-golangci-lint
 
