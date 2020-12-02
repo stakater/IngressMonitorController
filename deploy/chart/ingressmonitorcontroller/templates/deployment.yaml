@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+{{- if .Values.ingressMonitorController.deployment.annotations }}
+{{ toYaml .Values.ingressMonitorController.deployment.annotations | indent 4 }}
+{{- end }}
+  labels:
+    app: {{ template "name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+{{- if .Values.ingressMonitorController.deployment.labels }}
+{{ toYaml .Values.ingressMonitorController.deployment.labels | indent 4 }}
+{{- end }}
+{{- if .Values.ingressMonitorController.matchLabels }}
+{{ toYaml .Values.ingressMonitorController.matchLabels | indent 4 }}
+{{- end }}
+{{- if .Values.ingressMonitorController.useFullName }}
+  name: {{ template "fullname" . }}
+{{- else }}
+  name: {{ template "name" . }}
+{{- end }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name | quote }}
+    {{- if .Values.ingressMonitorController.useFullName }}
+      name: {{ template "fullname" . }}
+    {{- else }}
+      name: {{ template "name" . }}
+    {{- end }}
+{{- if .Values.ingressMonitorController.matchLabels }}
+{{ toYaml .Values.ingressMonitorController.matchLabels | indent 6 }}
+{{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: {{ .Release.Name | quote }}
+        heritage: {{ .Release.Service | quote }}
+      {{- if .Values.ingressMonitorController.useFullName }}
+        name: {{ template "fullname" . }}
+      {{- else }}
+        name: {{ template "name" . }}
+      {{- end }}
+{{- if .Values.ingressMonitorController.deployment.labels }}
+{{ toYaml .Values.ingressMonitorController.deployment.labels | indent 8 }}
+{{- end }}
+{{- if .Values.ingressMonitorController.matchLabels }}
+{{ toYaml .Values.ingressMonitorController.matchLabels | indent 8 }}
+{{- end }}
+    spec:
+      containers:
+      - env:
+        - name: WATCH_NAMESPACE
+        {{- if .Values.ingressMonitorController.watchNamespace }}
+          value: {{ .Values.ingressMonitorController.watchNamespace | quote }}
+        {{- else }}
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        {{- end }}
+        - name: POD_NAME
+        {{- if .Values.ingressMonitorController.deployment.podName }}
+          value: {{ .Values.ingressMonitorController.deployment.podName | quote }}
+        {{- else }}
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        {{- end }}
+        - name: CONFIG_SECRET_NAME
+        {{- if .Values.ingressMonitorController.useFullName }}
+          value: {{ template "fullname" . }}-secret
+        {{- else }}
+          value: {{ template "name" . }}-secret
+        {{- end }}
+        - name: OPERATOR_NAME
+          value: {{ .Values.ingressMonitorController.deployment.operatorName | quote }}
+        - name: LOG_LEVEL
+          value: {{ .Values.ingressMonitorController.deployment.logLevel | quote }}
+        - name: LOG_FORMAT
+          value: {{ .Values.ingressMonitorController.deployment.logFormat | quote }}
+        image: "{{ .Values.ingressMonitorController.image.name }}:{{ .Values.ingressMonitorController.image.tag }}"
+        command:
+          - IngressMonitorController
+        imagePullPolicy: {{ .Values.ingressMonitorController.image.pullPolicy }}
+      {{- if .Values.ingressMonitorController.useFullName }}
+        name: {{ template "fullname" . }}
+      {{- else }}
+        name: {{ template "name" . }}
+      {{- end }}
+      serviceAccountName: {{ template "serviceAccountName" . }}
