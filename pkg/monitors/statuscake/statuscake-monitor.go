@@ -81,6 +81,8 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	}
 
 	if providerConfig != nil && len(providerConfig.StatusCodes) > 0 {
+		f.Add("StatusCodes", proiderConfig.StatusCodes)
+	} else {
 		statusCodes := []string{
 			"204", // No content
 			"205", // Reset content
