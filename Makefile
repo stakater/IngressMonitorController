@@ -58,6 +58,9 @@ test:
 run-local:
 	./hack/run-local.sh
 
+update-resources:
+	./hack/update-resources.sh
+
 stop:
 	@docker stop "${BINARY}"
 
