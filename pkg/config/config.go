@@ -5,10 +5,11 @@ import (
 	"os"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+	yaml "gopkg.in/yaml.v2"
+
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
-	"github.com/rs/zerolog/log"
 	"github.com/stakater/IngressMonitorController/pkg/secret"
-	"gopkg.in/yaml.v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
