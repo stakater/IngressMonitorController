@@ -6,3 +6,4 @@ out
 /IngressMonitorController
 /build/_output/bin/
 /_output/
+.local

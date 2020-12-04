@@ -1,6 +1,7 @@
 #!/bin/bash
 
-CSV_VERSION="0.0.1"
+CSV_VERSION=${CSV_VERSION:=0.0.1}
+
 
 gofmt -s -w .
 operator-sdk generate crds
