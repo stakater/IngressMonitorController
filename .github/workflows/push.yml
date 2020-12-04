@@ -58,9 +58,7 @@ jobs:
         run: |
           kubectl cluster-info
           kubectl apply -f deploy/crds
-          echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}"> kube.yaml
-          kubectl apply -f kube.yaml
-          rm -f kube.yaml
+          echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}"> .local/test-config.yaml
 
       - name: Test
         run: make test
