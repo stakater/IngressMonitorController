@@ -138,7 +138,7 @@ And then handle this configuration as handled in `processProviderConfig` in [upt
 # Development
 
 ## Dependencies: 
-1. GoLang v1.14.x
+1. GoLang v1.15.2
 2. kubectl
 3. operator-sdk v0.15.x
 

@@ -1,4 +1,4 @@
-FROM registry.svc.ci.openshift.org/openshift/release:golang-1.14 AS builder
+FROM golang:1.15.2 AS builder
 
 RUN mkdir -p /workdir
 WORKDIR /workdir
