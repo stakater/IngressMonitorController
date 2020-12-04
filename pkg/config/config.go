@@ -1,14 +1,14 @@
 package config
 
 import (
-	log "github.com/sirupsen/logrus"
-	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"time"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
+	"github.com/rs/zerolog/log"
 	"github.com/stakater/IngressMonitorController/pkg/secret"
+	"gopkg.in/yaml.v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -133,7 +133,7 @@ func GetControllerConfig() Config {
 func GetControllerConfigTest() Config {
 	configFilePath := os.Getenv("CONFIG_FILE_PATH")
 	if len(configFilePath) == 0 {
-		configFilePath = "../../.local/test-config.yaml"
+		configFilePath = "../../../.local/test-config.yaml"
 	}
 
 	config := ReadConfig(configFilePath)
