@@ -15,7 +15,7 @@ GOLANGCI_LINT_VERSION = v1.24
 DOCKER_TAG ?= dev
 REPOSITORY = ${DOCKER_IMAGE}:${DOCKER_TAG}
 
-VERSION=$(shell cat .version)
+VERSION ?= 0.0.1
 BUILD=
 
 GOCMD = go
@@ -57,6 +57,12 @@ test:
 
 run-local:
 	./hack/run-local.sh
+
+update-resources-ci: update-operator-image
+	CSV_VERSION=$(VERSION) ./hack/update-resources.sh
+
+update-operator-image:
+	sed -i "s|image: stakater/ingressmonitorcontroller:v.*|image: stakater/ingressmonitorcontroller:v$(VERSION)|" deploy/operator.yaml
 
 stop:
 	@docker stop "${BINARY}"
