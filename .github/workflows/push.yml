@@ -6,10 +6,9 @@ on:
       - master
 
 env:
-  DOCKER_FILE_PATH: Dockerfile
+  DOCKER_FILE_PATH: build/Dockerfile
   GOLANG_VERSION: 1.15.2
   OPERATOR_SDK_VERSION: "0.15.2"
-  KUSTOMIZE_VERSION: "3.5.4"
   KUBERNETES_VERSION: "1.18.0"
   KIND_VERSION: "0.7.0"
 
