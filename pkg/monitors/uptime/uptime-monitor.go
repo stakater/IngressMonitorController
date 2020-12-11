@@ -211,5 +211,9 @@ func processProviderConfig(m models.Monitor) map[string]interface{} {
 		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
 	}
 
+	if providerConfig != nil && len(providerConfig.Tags) != 0 {
+		body["tags"] = strings.Split(providerConfig.Tags, ",")
+	}
+
 	return body
 }
