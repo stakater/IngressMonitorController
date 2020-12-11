@@ -56,7 +56,8 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 		MspInterval:   10,
 		CheckType:     "ICMP",
 		Locations:     []string{"US-Central"},
-		ContactGroups: []string{"Default"}}
+		ContactGroups: []string{"Default"},
+		Tags:          []string{"Core"}}
 
 	config1 := &endpointmonitorv1alpha1.UptimeConfig{
 		Interval:  5,
@@ -69,6 +70,7 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 		CheckType: "ICMP",
 		Locations: "US-Central",
 		Contacts:  "Default",
+		Tags:      "Core",
 	}
 
 	correctMonitors := []models.Monitor{

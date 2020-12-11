@@ -29,4 +29,5 @@ spec:
     checkType: HTTP
     contacts: "133,132"
     locations: "sea,fr"
+    tags: "core" # ignored if not passed
 ```
