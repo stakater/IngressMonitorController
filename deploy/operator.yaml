@@ -15,7 +15,7 @@ spec:
       serviceAccountName: ingressmonitorcontroller
       containers:
         - name: ingressmonitorcontroller
-          image: stakater/ingressmonitorcontroller:v2.0.9
+          image: stakater/ingressmonitorcontroller:v2.0.10
           command:
             - IngressMonitorController
           imagePullPolicy: Always
