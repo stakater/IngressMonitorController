@@ -123,8 +123,8 @@ func TestEndpointMonitorReconcileUpdate(t *testing.T) {
 
 	monitorCount = 0
 	for index := 0; index < len(r.monitorServices); index++ {
-		monitor := findMonitorByName(r.monitorServices[index], monitorName)
-		if monitor != nil && monitor.URL == testURLFacebook {
+		monitor, err := findMonitorByName(r.monitorServices[index], monitorName)
+		if monitor != nil && err == nil && monitor.URL == testURLFacebook {
 			log.Info("Found Updated Monitor for Provider: " + r.monitorServices[index].GetType())
 			monitorCount++
 		}
@@ -185,7 +185,10 @@ func TestEndpointMonitorReconcileDelete(t *testing.T) {
 
 	monitorCount = 0
 	for index := 0; index < len(r.monitorServices); index++ {
-		monitor := findMonitorByName(r.monitorServices[index], monitorName)
+		monitor, err := findMonitorByName(r.monitorServices[index], monitorName)
+		if err != nil {
+			t.Error(err, "Could not findMonitorByName")
+		}
 		if monitor == nil {
 			monitorCount++
 		}
@@ -232,7 +235,10 @@ func setupReconcilerAndCreateResource() (client.Client, *ReconcileEndpointMonito
 func getMonitorCount(monitorName string, monitorServices []monitors.MonitorServiceProxy) int {
 	monitorCount := 0
 	for index := 0; index < len(monitorServices); index++ {
-		monitor := findMonitorByName(monitorServices[index], monitorName)
+		monitor, err := findMonitorByName(monitorServices[index], monitorName)
+		if err != nil {
+			log.Error(err, "Could not findMonitorByName")
+		}
 		if monitor != nil {
 			log.Info("Found Monitor for Provider: " + monitorServices[index].GetType())
 			monitorCount++

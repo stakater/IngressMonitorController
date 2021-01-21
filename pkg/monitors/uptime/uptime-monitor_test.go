@@ -163,9 +163,12 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 
 	service.Add(m)
 
-	_, err := service.GetByName("google-test")
+	monitor, err := service.GetByName("google-test")
 
-	if err == nil {
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if monitor != nil {
 		t.Error("google-test should not have existed")
 	}
 }

@@ -27,7 +27,7 @@ type PingdomMonitorService struct {
 	client            *pingdom.Client
 }
 
-func (monitor *PingdomMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+func (service *PingdomMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
 	// TODO: Retrieve oldMonitor config and compare it here
 	return false
 }
@@ -45,21 +45,23 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 		BaseURL:  service.url,
 	})
 	if err != nil {
-		log.Println("Error Seting Up Monitor Service: ", err.Error())
+		log.Println("Error Setting Up Monitor Service: ", err.Error())
 	}
 }
 
 func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, error) {
-	var match *models.Monitor
-
-	monitors := service.GetAll()
+	monitors, err := service.GetAllWithAPIErrorHandler()
+	if err != nil {
+		return nil, fmt.Errorf("error received while getting all Pingdom monitors: %s", err.Error())
+	}
 	for _, mon := range monitors {
 		if mon.Name == name {
 			return &mon, nil
 		}
 	}
-
-	return match, fmt.Errorf("Unable to locate monitor with name %v", name)
+	// neither error and any matched monitor
+	log.Printf("There is no PingdomMonitorService with name %s found.", name)
+	return nil, nil
 }
 
 func (service *PingdomMonitorService) GetAll() []models.Monitor {
@@ -80,6 +82,26 @@ func (service *PingdomMonitorService) GetAll() []models.Monitor {
 	}
 
 	return monitors
+}
+
+// Function that gets all monitors with an error handling to avoid duplicate checks creation
+func (service *PingdomMonitorService) GetAllWithAPIErrorHandler() ([]models.Monitor, error) {
+	var monitors []models.Monitor
+
+	checks, err := service.client.Checks.List()
+	if err != nil {
+		return nil, err
+	}
+	for _, mon := range checks {
+		newMon := models.Monitor{
+			URL:  mon.Hostname,
+			ID:   fmt.Sprintf("%v", mon.ID),
+			Name: mon.Name,
+		}
+		monitors = append(monitors, newMon)
+	}
+
+	return monitors, nil
 }
 
 func (service *PingdomMonitorService) Add(m models.Monitor) {
