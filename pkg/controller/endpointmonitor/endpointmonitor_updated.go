@@ -6,12 +6,10 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 
-	log "github.com/sirupsen/logrus"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 func (r *ReconcileEndpointMonitor) handleUpdate(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitor models.Monitor, monitorService monitors.MonitorServiceProxy) error {
-	log.Info("Updating Monitor: " + monitor.Name)
 
 	url, err := util.GetMonitorURL(r.client, instance)
 	if err != nil {
