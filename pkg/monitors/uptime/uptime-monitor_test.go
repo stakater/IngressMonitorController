@@ -1,9 +1,9 @@
 package uptime
 
 import (
-	log "github.com/sirupsen/logrus"
 	"testing"
 
+	log "github.com/sirupsen/logrus"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -167,5 +167,110 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 
 	if err == nil {
 		t.Error("google-test should not have existed")
+	}
+}
+
+func TestEqualMonitor(t *testing.T) {
+
+	config := config.GetControllerConfigTest()
+
+	service := UpTimeMonitorService{}
+
+	provider := util.GetProviderWithName(config, "Uptime")
+	if provider == nil {
+		panic("Failed to find provider")
+	}
+	// If test Config is passed skip the test
+	if provider.ApiKey == "API_KEY" {
+		return
+	}
+	service.Setup(*provider)
+
+	type args struct {
+		oldMonitor models.Monitor
+		newMonitor models.Monitor
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "Equal Values",
+			args: args{
+				oldMonitor: models.Monitor{Name: "google-test", URL: "https://google.com",
+					Config: &endpointmonitorv1alpha1.UptimeConfig{
+						Interval:  1,
+						Locations: "US-Central,China",
+						Contacts:  "Default",
+					}},
+				newMonitor: models.Monitor{Name: "google-test", URL: "https://google.com",
+					Config: &endpointmonitorv1alpha1.UptimeConfig{
+						Interval:  1,
+						Locations: "US-Central,China",
+						Contacts:  "Default",
+					}},
+			},
+			want: true,
+		},
+		{
+			name: "Unsorted Locations",
+			args: args{
+				oldMonitor: models.Monitor{Name: "google-test", URL: "https://google.com",
+					Config: &endpointmonitorv1alpha1.UptimeConfig{
+						Interval:  1,
+						Locations: "US-Central,Germany,China",
+						Contacts:  "Default",
+					}},
+				newMonitor: models.Monitor{Name: "google-test", URL: "https://google.com",
+					Config: &endpointmonitorv1alpha1.UptimeConfig{
+						Interval:  1,
+						Locations: "China,US-Central,Germany",
+						Contacts:  "Default",
+					}},
+			},
+			want: true,
+		},
+		{
+			name: "Without Contacts",
+			args: args{
+				oldMonitor: models.Monitor{Name: "google-test", URL: "https://google.com",
+					Config: &endpointmonitorv1alpha1.UptimeConfig{
+						Interval:  1,
+						Locations: "US-Central,Germany,China",
+						Contacts:  "Default",
+					}},
+				newMonitor: models.Monitor{Name: "google-test", URL: "https://google.com",
+					Config: &endpointmonitorv1alpha1.UptimeConfig{
+						Interval:  1,
+						Locations: "China,US-Central,Germany",
+					}},
+			},
+			want: true,
+		},
+		{
+			name: "Unequal Values",
+			args: args{
+				oldMonitor: models.Monitor{Name: "google-test", URL: "https://google.com",
+					Config: &endpointmonitorv1alpha1.UptimeConfig{
+						Interval:  10,
+						Locations: "US-Central,China",
+						Contacts:  "Default",
+					}},
+				newMonitor: models.Monitor{Name: "google-test", URL: "https://google.com",
+					Config: &endpointmonitorv1alpha1.UptimeConfig{
+						Interval:  1,
+						Locations: "China,US-Central,Germany",
+					}},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := service.Equal(tt.args.oldMonitor, tt.args.newMonitor); got != tt.want {
+				t.Errorf("UpTimeMonitorService.Equal() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
