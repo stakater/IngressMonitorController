@@ -17,6 +17,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 )
 
 type UpTimeMonitorService struct {
@@ -206,19 +207,21 @@ func processProviderConfig(m models.Monitor) map[string]interface{} {
 
 	// sorting locations which is useful during Equal method used in Update.
 	if providerConfig != nil && len(providerConfig.Locations) != 0 {
-		locations := strings.Split(providerConfig.Locations, ",")
-		sort.Strings(locations)
-		body["locations"] = locations
+		body["locations"] = util.SplitAndSort(providerConfig.Locations, ",")
 	} else {
 		locations := strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
 		sort.Strings(locations)
-		body["locations"] = locations
+		body["locations"] = util.SplitAndSort(providerConfig.Locations, ",")
 	}
 
 	if providerConfig != nil && len(providerConfig.Contacts) != 0 {
-		body["contact_groups"] = strings.Split(providerConfig.Contacts, ",")
+		body["contact_groups"] = util.SplitAndSort(providerConfig.Contacts, ",")
 	} else {
 		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
+	}
+
+	if providerConfig != nil && len(providerConfig.Tags) != 0 {
+		body["tags"] = util.SplitAndSort(providerConfig.Tags, ",")
 	}
 
 	return body
