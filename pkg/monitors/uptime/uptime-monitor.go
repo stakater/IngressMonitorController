@@ -31,7 +31,11 @@ func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor
 
 	// using processed config to avoid unnecessary update call because of default values
 	// like contacts and sorted locations
-	return reflect.DeepEqual(processProviderConfig(oldMonitor), processProviderConfig(newMonitor))
+	if !(reflect.DeepEqual(processProviderConfig(oldMonitor), processProviderConfig(newMonitor))) {
+		log.Printf("There are some new changes in %s monitor", newMonitor.Name)
+		return false
+	}
+	return true
 }
 
 func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
@@ -62,12 +66,11 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 	headers["Content-Type"] = "application/json"
 
 	pageNo := 1
-	next := "notNull"
-	f := UptimeMonitorGetMonitorsResponse{
-		Next: &next,
-	}
+	val := "notNull"
+	next := &val
 	// Loop over paginated response until Next is null
-	for f.Next != nil {
+	for next != nil {
+		var f UptimeMonitorGetMonitorsResponse
 		checksUrl := fmt.Sprintf("%schecks/?page=%d", monitor.url, pageNo)
 		client := http.CreateHttpClient(checksUrl)
 		response := client.GetUrl(headers, []byte(""))
@@ -81,6 +84,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		}
 		monitors = append(monitors, f.Monitors...)
 		pageNo++
+		next = f.Next
 	}
 	return UptimeMonitorMonitorsToBaseMonitorsMapper(monitors)
 
