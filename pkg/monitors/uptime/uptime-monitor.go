@@ -3,6 +3,7 @@ package uptime
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"sort"
 	"strconv"
@@ -42,7 +43,6 @@ func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
 func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, error) {
 
 	monitors := monitor.GetAll()
-
 	for _, monitor := range monitors {
 		if monitor.Name == name {
 			return &monitor, nil
@@ -56,32 +56,33 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
-	action := "checks/"
-
-	client := http.CreateHttpClient(monitor.url + action)
-
+	var monitors []UptimeMonitorMonitor
 	headers := make(map[string]string)
 	headers["Authorization"] = "Token " + monitor.apiKey
 	headers["Content-Type"] = "application/json"
 
-	response := client.GetUrl(headers, []byte(""))
-
-	if response.StatusCode == Http.StatusOK {
-
-		var f UptimeMonitorGetMonitorsResponse
+	pageNo := 1
+	next := "notNull"
+	f := UptimeMonitorGetMonitorsResponse{
+		Next: &next,
+	}
+	// Loop over paginated response until Next is null
+	for f.Next != nil {
+		checksUrl := fmt.Sprintf("%schecks/?page=%d", monitor.url, pageNo)
+		client := http.CreateHttpClient(checksUrl)
+		response := client.GetUrl(headers, []byte(""))
+		if response.StatusCode != Http.StatusOK {
+			log.Println("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
+			return []models.Monitor{}
+		}
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Println("Could not Unmarshal Json Response")
+			log.Printf("Could not Unmarshal Json Response with error: %v", err)
 		}
-		if f.Count == 0 {
-			return []models.Monitor{}
-		} else {
-			return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
-		}
+		monitors = append(monitors, f.Monitors...)
+		pageNo++
 	}
-
-	log.Println("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
-	return nil
+	return UptimeMonitorMonitorsToBaseMonitorsMapper(monitors)
 
 }
 
