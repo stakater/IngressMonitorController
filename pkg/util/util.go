@@ -1,7 +1,9 @@
 package util
 
 import (
+	"sort"
 	"strconv"
+	"strings"
 )
 
 func SliceAtoi(stringSlice []string) ([]int, error) {
@@ -45,4 +47,11 @@ func ContainsString(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func SplitAndSort(s string, sep string) []string {
+
+	slice := strings.Split(s, sep)
+	sort.Strings(slice)
+	return slice
 }

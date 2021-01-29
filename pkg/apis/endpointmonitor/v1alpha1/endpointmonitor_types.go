@@ -108,6 +108,10 @@ type UptimeConfig struct {
 	// Add different locations for the check
 	// +optional
 	Locations string `json:"locations,omitempty"`
+
+	// Add one or more tags for the check separated by `,`
+	// +optional
+	Tags string `json:"tags,omitempty"`
 }
 
 // UpdownConfig defines the configuration for Updown Monitor Provider
