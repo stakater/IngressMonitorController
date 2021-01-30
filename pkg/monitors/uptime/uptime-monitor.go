@@ -8,10 +8,12 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	Http "net/http"
 	"net/url"
 
+	gocache "github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
@@ -20,6 +22,8 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 )
+
+var cache = gocache.New(5*time.Minute, 5*time.Minute)
 
 type UpTimeMonitorService struct {
 	apiKey        string
@@ -47,6 +51,7 @@ func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
 func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, error) {
 
 	monitors := monitor.GetAll()
+
 	for _, monitor := range monitors {
 		if monitor.Name == name {
 			return &monitor, nil
@@ -64,10 +69,15 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 	headers := make(map[string]string)
 	headers["Authorization"] = "Token " + monitor.apiKey
 	headers["Content-Type"] = "application/json"
-
 	pageNo := 1
 	val := "notNull"
 	next := &val
+
+	cached, found := cache.Get("uptime-checks")
+	if found {
+		return UptimeMonitorMonitorsToBaseMonitorsMapper(cached.([]UptimeMonitorMonitor))
+	}
+
 	// Loop over paginated response until Next is null
 	for next != nil {
 		var f UptimeMonitorGetMonitorsResponse
@@ -76,8 +86,9 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		response := client.GetUrl(headers, []byte(""))
 		if response.StatusCode != Http.StatusOK {
 			log.Println("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
-			return []models.Monitor{}
+			return nil
 		}
+
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
 			log.Printf("Could not Unmarshal Json Response with error: %v", err)
@@ -86,12 +97,13 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		pageNo++
 		next = f.Next
 	}
+	cache.Set("uptime-checks", monitors, gocache.DefaultExpiration)
 	return UptimeMonitorMonitorsToBaseMonitorsMapper(monitors)
-
 }
 
 func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
+	defer cache.Flush()
 	action := "checks/add-http/"
 	client := http.CreateHttpClient(monitor.url + action)
 
@@ -128,11 +140,13 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 	} else {
 		log.Println(err.Error())
 	}
+
 }
 
 func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	log.Info("Updating Monitor: " + m.Name)
+	defer cache.Flush()
 
 	action := "checks/" + m.ID + "/"
 	client := http.CreateHttpClient(monitor.url + action)
@@ -168,6 +182,8 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 }
 
 func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
+
+	defer cache.Flush()
 	action := "checks/" + m.ID + "/"
 
 	client := http.CreateHttpClient(monitor.url + action)
