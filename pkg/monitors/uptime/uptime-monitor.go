@@ -3,6 +3,8 @@ package uptime
 import (
 	"encoding/json"
 	"errors"
+	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -15,6 +17,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/pkg/util"
 )
 
 type UpTimeMonitorService struct {
@@ -24,8 +27,10 @@ type UpTimeMonitorService struct {
 }
 
 func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
-	// TODO: Retrieve oldMonitor config and compare it here
-	return false
+
+	// using processed config to avoid unnecessary update call because of default values
+	// like contacts and sorted locations
+	return reflect.DeepEqual(processProviderConfig(oldMonitor), processProviderConfig(newMonitor))
 }
 
 func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
@@ -73,7 +78,6 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		} else {
 			return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
 		}
-
 	}
 
 	log.Println("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
@@ -122,6 +126,8 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 }
 
 func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
+
+	log.Info("Updating Monitor: " + m.Name)
 
 	action := "checks/" + m.ID + "/"
 	client := http.CreateHttpClient(monitor.url + action)
@@ -199,17 +205,25 @@ func processProviderConfig(m models.Monitor) map[string]interface{} {
 		body["msp_interval"] = 5 // by default interval check is 5 minutes
 	}
 
+	// sorting locations which is useful during Equal method used in Update.
 	if providerConfig != nil && len(providerConfig.Locations) != 0 {
-		body["locations"] = strings.Split(providerConfig.Locations, ",")
+		body["locations"] = util.SplitAndSort(providerConfig.Locations, ",")
 	} else {
-		body["locations"] = strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
+		locations := strings.Split("US-East,US-West,GBR", ",") // by default 3 lcoations for a check
+		sort.Strings(locations)
+		body["locations"] = util.SplitAndSort(providerConfig.Locations, ",")
 	}
 
 	if providerConfig != nil && len(providerConfig.Contacts) != 0 {
-		body["contact_groups"] = strings.Split(providerConfig.Contacts, ",")
+		body["contact_groups"] = util.SplitAndSort(providerConfig.Contacts, ",")
 	} else {
 		body["contact_groups"] = strings.Split("Default", ",") // use default use email as a contact
 	}
 
+	if providerConfig != nil && len(providerConfig.Tags) != 0 {
+		body["tags"] = util.SplitAndSort(providerConfig.Tags, ",")
+	}
+
 	return body
+
 }

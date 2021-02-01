@@ -20,7 +20,7 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 	providerConfig.CheckType = uptimeMonitor.CheckType
 	providerConfig.Contacts = strings.Join(uptimeMonitor.ContactGroups, ",")
 	providerConfig.Locations = strings.Join(uptimeMonitor.Locations, ",")
-
+	providerConfig.Tags = strings.Join(uptimeMonitor.Tags, ",")
 	m.Config = &providerConfig
 	return &m
 }
