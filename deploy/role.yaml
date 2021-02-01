@@ -3,6 +3,10 @@ kind: ClusterRole
 metadata:
   creationTimestamp: null
   name: ingressmonitorcontroller
+  labels:
+    # Add these permissions to the "admin" and "edit" default roles.
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
 rules:
 - apiGroups:
   - ""
