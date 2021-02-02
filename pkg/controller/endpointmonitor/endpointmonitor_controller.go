@@ -3,8 +3,9 @@ package endpointmonitor
 import (
 	"context"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
@@ -125,7 +126,7 @@ func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconci
 			// Monitor doesn't exist, create monitor
 			if delay.Nanoseconds() > 0 {
 				// Requeue request to add creation delay
-				log.Info("Requeuing request to add monitor " + monitorName + " for" + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
+				log.Info("Requeuing request to add monitor " + monitorName + " for " + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
 				return reconcile.Result{RequeueAfter: delay}, nil
 			}
 			err = r.handleCreate(request, instance, monitorName, r.monitorServices[index])
