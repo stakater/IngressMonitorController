@@ -1,5 +1,5 @@
 ingressMonitorController:
-  watchNamespace: 'api'
+  watchNamespace: ''
   useFullName: false
   matchLabels: {}
   deployment:
@@ -30,7 +30,7 @@ ingressMonitorController:
     pullPolicy: Always
   providers:
   - name: Uptime
-    apiKey: 0008465a8fdc6b5bb96ac30e7b6fdd278d20d346
+    apiKey: ''
     apiURL: https://uptime.com/api/v1/
     alertContacts: 'Default'
   enableMonitorDeletion: true
