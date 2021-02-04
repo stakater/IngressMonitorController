@@ -13,6 +13,9 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service | quote }}
+    # Add these permissions to the "admin" and "edit" default roles.
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
 {{- if .Values.ingressMonitorController.rbac.labels }}
 {{ toYaml .Values.ingressMonitorController.rbac.labels | indent 4 }}
 {{- end }}
