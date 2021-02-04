@@ -26,7 +26,7 @@ ingressMonitorController:
     name: imc-operator
   image:
     name: stakater/ingressmonitorcontroller
-    tag: 'v2.0.2'
+    tag: 'v2.0.10'
     pullPolicy: Always
   providers:
   - name: Uptime
