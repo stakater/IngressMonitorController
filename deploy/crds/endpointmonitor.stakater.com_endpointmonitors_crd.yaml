@@ -183,6 +183,9 @@ spec:
                 locations:
                   description: Add different locations for the check
                   type: string
+                tags:
+                  description: Add one or more tags for the check separated by `,`
+                  type: string
               type: object
             uptimeRobotConfig:
               description: Configuration for UptimeRobot Monitor Provider
