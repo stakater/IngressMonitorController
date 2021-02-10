@@ -128,8 +128,7 @@ func TestBuildUpsertForm(t *testing.T) {
 	assert.Equal(t, "", vals.Get("PingURL"))
 	assert.Equal(t, "7070", vals.Get("Port"))
 	assert.Equal(t, "1", vals.Get("RealBrowser"))
-	// TODO: Fix implementation first and then uncomment this assertion
-	// assert.Equal(t, "500,501,502,503,504,505", vals.Get("StatusCodes"))
+	assert.Equal(t, "500,501,502,503,504,505", vals.Get("StatusCodes"))
 	assert.Equal(t, "test,testrun,uptime", vals.Get("TestTags"))
 	assert.Equal(t, "TCP", vals.Get("TestType"))
 	assert.Equal(t, "1", vals.Get("TriggerRate"))
