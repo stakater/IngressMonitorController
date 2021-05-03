@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	cloud.google.com/go v0.54.0
-	github.com/Azure/azure-sdk-for-go v53.4.0+incompatible
+	github.com/Azure/azure-sdk-for-go v44.0.0+incompatible
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.0
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/Azure/go-autorest/autorest/validation v0.3.0 // indirect
@@ -15,6 +15,7 @@ require (
 	github.com/operator-framework/operator-sdk v1.7.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/russellcardullo/go-pingdom v1.3.0
+	github.com/stakater/operator-utils v0.1.13 // indirect
 	github.com/stretchr/testify v1.6.1
 	google.golang.org/api v0.20.0
 	google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a

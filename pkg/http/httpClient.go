@@ -37,9 +37,9 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 
 	request, err := http.NewRequest(requestType, client.url, reader)
 	if err != nil {
-		log.Error(err, "Failed to craft HTTP Request. METHOD: " + requestType +
-			" URL: " + client.url +
-			" PAYLOAD: " + string(body))
+		log.Error(err, "Failed to craft HTTP Request. METHOD: "+requestType+
+			" URL: "+client.url+
+			" PAYLOAD: "+string(body))
 	}
 
 	if headers != nil {
