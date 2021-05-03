@@ -20,7 +20,7 @@ const (
 
 var (
 	IngressMonitorControllerConfig Config
-	log = logf.Log.WithName("config")
+	log                            = logf.Log.WithName("config")
 )
 
 type Config struct {
