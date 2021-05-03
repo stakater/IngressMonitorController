@@ -54,7 +54,7 @@ const (
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = r.Log.WithValues("endpointmonitor", req.NamespacedName)
+	log = r.Log.WithValues("endpointmonitor", req.NamespacedName)
 
 	// Fetch the EndpointMonitor instance
 	instance := &endpointmonitorv1alpha1.EndpointMonitor{}
@@ -63,18 +63,18 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	format, err := util.GetNameTemplateFormat(config.GetControllerConfig().MonitorNameTemplate)
 	if err != nil {
 		log.Error("Failed to parse MonitorNameTemplate, using default template `{{.Name}}-{{.Namespace}}`")
-		monitorName = request.Name + "-" + request.Namespace
+		monitorName = req.Name + "-" + req.Namespace
 	} else {
-		monitorName = fmt.Sprintf(format, request.Name, request.Namespace)
+		monitorName = fmt.Sprintf(format, req.Name, req.Namespace)
 	}
 
-	err = r.client.Get(context.TODO(), request.NamespacedName, instance)
+	err = r.Get(context.TODO(), req.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			return r.handleDelete(request, instance, monitorName)
+			return r.handleDelete(req, instance, monitorName)
 		}
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
@@ -88,7 +88,7 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		monitor := findMonitorByName(r.monitorServices[index], monitorName)
 		if monitor != nil {
 			// Monitor already exists, update if required
-			err = r.handleUpdate(request, instance, *monitor, r.monitorServices[index])
+			err = r.handleUpdate(req, instance, *monitor, r.monitorServices[index])
 		} else {
 			// Monitor doesn't exist, create monitor
 			if delay.Nanoseconds() > 0 {
@@ -96,11 +96,11 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				log.Info("Requeuing request to add monitor " + monitorName + " for " + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
 				return reconcile.Result{RequeueAfter: delay}, nil
 			}
-			err = r.handleCreate(request, instance, monitorName, r.monitorServices[index])
+			err = r.handleCreate(req, instance, monitorName, r.monitorServices[index])
 		}
 	}
 
-	return reconcile.Result{RequeueAfter: RequeueTime}, err
+	return reconcile.Result{RequeueAfter: defaultRequeueTime}, err
 }
 
 // SetupWithManager sets up the controller with the Manager.

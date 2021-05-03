@@ -1,13 +1,12 @@
-package endpointmonitor
+package controllers
 
 import (
 	"context"
-	log "github.com/sirupsen/logrus"
 	"strconv"
 	"testing"
 	"time"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 

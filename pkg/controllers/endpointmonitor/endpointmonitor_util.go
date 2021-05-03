@@ -1,4 +1,4 @@
-package endpointmonitor
+package controllers
 
 import (
 	"github.com/stakater/IngressMonitorController/pkg/models"

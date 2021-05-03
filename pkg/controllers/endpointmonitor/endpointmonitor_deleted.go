@@ -1,15 +1,16 @@
-package endpointmonitor
+package controllers
 
 import (
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 
-	log "github.com/sirupsen/logrus"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func (r *ReconcileEndpointMonitor) handleDelete(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitorName string) (reconcile.Result, error) {
+func (r *EndpointMonitorReconciler) handleDelete(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitorName string) (reconcile.Result, error) {
+	log := r.Log.WithValues("endpointMonitor", instance.ObjectMeta.Namespace)
+
 	if instance == nil {
 		// Instance not found, nothing to do
 		return reconcile.Result{}, nil
