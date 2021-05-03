@@ -1,4 +1,4 @@
-# ![](assets/web/IMC-round-100px.png) Ingress Monitor Controller
+# ![](docs/images/IMC-round-100px.png) Ingress Monitor Controller
 
 ### DEPRECATION NOTICE: 
 
