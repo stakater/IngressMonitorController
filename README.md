@@ -120,6 +120,24 @@ NOTE: For provider specific additional configuration refer to [Docs](./docs) and
 
 The following quickstart let's you set up Ingress Monitor Controller to register uptime monitors for endpoints:
 
+## Helm Chart
+
+If you have configured helm on your cluster, you can deploy IngressMonitorController via helm using below mentioned commands. For details on chart, see [IMC Helm Chart](https://github.com/stakater/IngressMonitorController/tree/master/deploy/chart/ingressmonitorcontroller)
+
+```sh
+# Install CRDs
+kubectl apply -f https://raw.githubusercontent.com/stakater/IngressMonitorController/master/deploy/crds/endpointmonitor.stakater.com_endpointmonitors_crd.yaml
+
+# Install chart
+helm repo add stakater https://stakater.github.io/stakater-charts
+
+helm repo update
+
+helm install stakater/ingressmonitorcontroller
+```
+
+## Vanilla Manifests
+
 1) Clone this repository
 ```terminal
     $ git clone git@github.com:stakater/IngressMonitorController.git

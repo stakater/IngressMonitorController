@@ -34,6 +34,10 @@ jobs:
         curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin $ {{ env.GOLANG_CI_LINT_VERSION }}
         golangci-lint run --timeout=10m ./...
 
+    - name: Helm Lint
+      run: |
+        helm lint deploy/chart/ingressmonitorcontroller
+
     - name: Install kubectl
       run: |
         curl -LO "https://storage.googleapis.com/kubernetes-release/release/v${KUBERNETES_VERSION}/bin/linux/amd64/kubectl"
