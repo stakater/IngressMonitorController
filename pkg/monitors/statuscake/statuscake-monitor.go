@@ -284,7 +284,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		if err != nil {
 			log.Error(err, "Unable to read response")
 		}
-		log.Error(nil, "Insert Request failed for name: " + m.Name + " with status code " + strconv.Itoa(resp.StatusCode))
+		log.Error(nil, "Insert Request failed for name: "+m.Name+" with status code "+strconv.Itoa(resp.StatusCode))
 		log.Error(nil, string(bodyBytes))
 	}
 }
@@ -326,7 +326,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 			log.V(1).Info(fa.Message)
 		}
 	} else {
-		log.Error(nil, "Update Request failed for name: " + m.Name)
+		log.Error(nil, "Update Request failed for name: "+m.Name)
 	}
 }
 
@@ -368,6 +368,6 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 			log.V(1).Info(fa.Message)
 		}
 	} else {
-		log.Error(nil, "Delete Request failed for name: " + m.Name)
+		log.Error(nil, "Delete Request failed for name: "+m.Name)
 	}
 }

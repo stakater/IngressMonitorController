@@ -3,7 +3,6 @@ package pingdom
 import (
 	"testing"
 
-	"github.com/apex/log"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
@@ -17,7 +16,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	if provider == nil {
 		// TODO: Currently forcing to pass the test as we dont have Pingdom account to test
 		//       Fail this case in future when have a valid Pingdom account
-		log.Error("Failed to find provider")
+		log.Error(nil, "Failed to find provider")
 		return
 	}
 	service.Setup(*provider)
@@ -49,7 +48,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	if provider == nil {
 		// TODO: Currently forcing to pass the test as we dont have Pingdom account to test
 		//       Fail this case in future when have a valid Pingdom account
-		log.Error("Failed to find provider")
+		log.Error(nil, "Failed to find provider")
 		return
 	}
 	service.Setup(*provider)

@@ -4,14 +4,10 @@ import (
 	"strings"
 	"testing"
 
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 )
-
-var log = logf.Log.WithName("uptime-status-page-test")
 
 // Not a test case. Cleanup to remove added dummy StatusPages
 func TestRemoveDanglingStatusPages(t *testing.T) {
