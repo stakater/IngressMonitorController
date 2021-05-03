@@ -64,7 +64,7 @@ jobs:
       - name: Set up Cluster
         run: |
           kubectl cluster-info
-          kubectl apply -f deploy/crds
+          make install
           mkdir -p .local
           echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
     
@@ -136,12 +136,25 @@ jobs:
           operator-sdk version
           operator-sdk version | grep -q "${OPERATOR_SDK_VERSION}"
 
-      # Update chart tag to the latest semver tag
-      - name: Update Resources
+      # Install kustomize
+      - uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: ${{ env.KUSTOMIZE_VERSION }}
+
+      - name: Generate Bundle
         env:
           VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
-        run: make update-resources-ci
+        run: make bundle
 
+      # Update chart tag to the latest semver tag
+      - name: Update Chart Version
+        env:
+          VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
+        run: make bump-chart
+
+      - name: Update Chart CRDs
+        run: make generate-crds
+        
       # Publish helm chart
       - name: Publish Helm chart
         uses: stefanprodan/helm-gh-pages@master
