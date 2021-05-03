@@ -1,93 +1,60 @@
-package endpointmonitor
+/*
+Copyright 2021.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package controllers
 
 import (
 	"context"
 	"fmt"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	"github.com/apex/log"
+	"github.com/go-logr/logr"
 	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 )
 
-const (
-	controllerName     = "endpointmonitor-controller"
-	defaultRequeueTime = 60 * time.Second
-)
-
-var RequeueTime = defaultRequeueTime
-
-func init() {
-	if config.GetControllerConfig().ResyncPeriod > 0 {
-		RequeueTime = time.Duration(config.GetControllerConfig().ResyncPeriod) * time.Second
-	}
-}
-
-// Add creates a new EndpointMonitor Controller and adds it to the Manager. The Manager will set fields on the Controller
-// and Start it when the Manager is Started.
-func Add(mgr manager.Manager) error {
-	return add(mgr, newReconciler(mgr))
-}
-
-// newReconciler returns a new reconcile.Reconciler
-func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	config := config.GetControllerConfig()
-	return &ReconcileEndpointMonitor{
-		client:          mgr.GetClient(),
-		scheme:          mgr.GetScheme(),
-		monitorServices: monitors.SetupMonitorServicesForProviders(config.Providers),
-	}
-}
-
-// add adds a new Controller to mgr with r as the reconcile.Reconciler
-func add(mgr manager.Manager, r reconcile.Reconciler) error {
-	// Create a new controller
-	c, err := controller.New(controllerName, mgr, controller.Options{Reconciler: r})
-	if err != nil {
-		return err
-	}
-
-	// Watch for changes to primary resource EndpointMonitor
-	err = c.Watch(&source.Kind{Type: &endpointmonitorv1alpha1.EndpointMonitor{}}, &handler.EnqueueRequestForObject{})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// blank assignment to verify that ReconcileEndpointMonitor implements reconcile.Reconciler
-var _ reconcile.Reconciler = &ReconcileEndpointMonitor{}
-
-// ReconcileEndpointMonitor reconciles a EndpointMonitor object
-type ReconcileEndpointMonitor struct {
-	// This client, initialized using mgr.Client() above, is a split client
-	// that reads objects from the cache and writes to the apiserver
-	client          client.Client
-	scheme          *runtime.Scheme
+// EndpointMonitorReconciler reconciles a EndpointMonitor object
+type EndpointMonitorReconciler struct {
+	client.Client
+	Log    logr.Logger
+	Scheme *runtime.Scheme
 	monitorServices []monitors.MonitorServiceProxy
 }
 
-// Reconcile reads that state of the cluster for a EndpointMonitor object and makes changes based on the state read
-// and what is in the EndpointMonitor.Spec
-// Note:
-// The Controller will requeue the Request to be processed again if the returned error is non-nil or
-// Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
-func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-	log.Info("Reconciling EndpointMonitor")
+const (
+	defaultRequeueTime = 60 * time.Second
+)
+
+//+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors/finalizers,verbs=update
+
+// Reconcile is part of the main kubernetes reconciliation loop which aims to
+// move the current state of the cluster closer to the desired state.
+func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	_ = r.Log.WithValues("endpointmonitor", req.NamespacedName)
 
 	// Fetch the EndpointMonitor instance
 	instance := &endpointmonitorv1alpha1.EndpointMonitor{}
@@ -136,12 +103,9 @@ func (r *ReconcileEndpointMonitor) Reconcile(request reconcile.Request) (reconci
 	return reconcile.Result{RequeueAfter: RequeueTime}, err
 }
 
-func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) *models.Monitor {
-
-	monitor, _ := monitorService.GetByName(monitorName)
-	// Monitor Exists
-	if monitor != nil {
-		return monitor
-	}
-	return nil
+// SetupWithManager sets up the controller with the Manager.
+func (r *EndpointMonitorReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&endpointmonitorv1alpha1.EndpointMonitor{}).
+		Complete(r)
 }

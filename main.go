@@ -36,8 +36,10 @@ import (
 
 	routev1 "github.com/openshift/api/route/v1"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
+	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/controllers"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
+	"github.com/stakater/IngressMonitorController/pkg/monitors"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -105,12 +107,14 @@ func main() {
 	}
 
 	// Load Controller Config
-	ingressmonitorcontrollerconfig.LoadControllerConfig(mgr.GetAPIReader())
+	config.LoadControllerConfig(mgr.GetAPIReader())
+	config := config.GetControllerConfig()
 
 	if err = (&controllers.EndpointMonitorReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("EndpointMonitor"),
 		Scheme: mgr.GetScheme(),
+		monitorServices: monitors.SetupMonitorServicesForProviders(config.Providers),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "EndpointMonitor")
 		os.Exit(1)
