@@ -43,7 +43,7 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	case "gcloud":
 		mp.monitor = &gcloud.MonitorService{}
 	default:
-		log.Panic("No such provider found: ", mType)
+		log.V(1).Info("No such provider found: ", mType)
 	}
 	return *mp
 }

@@ -47,7 +47,7 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
     case "MyNewMonitor":
         mp.monitor = &MyNewMonitorService{}
     default:
-        log.Panic("No such provider found")
+        log.V(1).Info("No such provider found")
     }
     return *mp
 }
