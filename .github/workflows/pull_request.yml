@@ -20,7 +20,8 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
       with:
-        ref: ${{github.event.pull_request.head.sha}}
+        fetch-depth: 0
+        ref: ${{ github.head_ref }}
 
     - name: Set up Go
       id: go
@@ -35,8 +36,7 @@ jobs:
 
     - name: Helm Lint
       run: |
-        cd deploy/chart/ingressmonitorcontroller
-        helm lint
+        helm lint deploy/chart/ingressmonitorcontroller
 
     - name: Install kubectl
       run: |
