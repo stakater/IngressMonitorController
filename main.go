@@ -107,10 +107,10 @@ func main() {
 	config := config.GetControllerConfig()
 
 	if err = (&controllers.EndpointMonitorReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("EndpointMonitor"),
-		Scheme: mgr.GetScheme(),
-		monitorServices: monitors.SetupMonitorServicesForProviders(config.Providers),
+		Client:          mgr.GetClient(),
+		Log:             ctrl.Log.WithName("controllers").WithName("EndpointMonitor"),
+		Scheme:          mgr.GetScheme(),
+		MonitorServices: monitors.SetupMonitorServicesForProviders(config.Providers),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "EndpointMonitor")
 		os.Exit(1)
