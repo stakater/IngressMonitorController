@@ -9,7 +9,7 @@ import (
 )
 
 func (r *EndpointMonitorReconciler) handleDelete(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitorName string) (reconcile.Result, error) {
-	log := r.Log.WithValues("endpointMonitor", instance.ObjectMeta.Namespace)
+	log := r.Log.WithValues("endpointMonitor", request.Namespace)
 
 	if instance == nil {
 		// Instance not found, nothing to do
