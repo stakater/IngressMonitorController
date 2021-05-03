@@ -54,7 +54,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithEmptyPath",
 			fields: fields{
 				ingress: createIngressObjectWithPath("testIngress", "test", testUrl, "/"),
-				Client:  fakekubeclient.NewFakeClient(),
+				Client:  fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "http://testurl.stackator.com/",
 		},
@@ -62,7 +62,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithHelloPath",
 			fields: fields{
 				ingress: createIngressObjectWithPath("testIngress", "test", testUrl, "/hello"),
-				Client:  fakekubeclient.NewFakeClient(),
+				Client:  fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "http://testurl.stackator.com/hello",
 		},
@@ -70,7 +70,7 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithNoPath",
 			fields: fields{
 				ingress: util.CreateIngressObject("testIngress", "test", testUrl),
-				Client:  fakekubeclient.NewFakeClient(),
+				Client:  fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "http://testurl.stackator.com",
 		},
@@ -78,28 +78,28 @@ func TestIngressWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithWildCardInPath",
 			fields: fields{
 				ingress: createIngressObjectWithPath("testIngress", "test", testUrl, "/*"),
-				Client:  fakekubeclient.NewFakeClient(),
+				Client:  fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "http://testurl.stackator.com/",
 		}, {
 			name: "TestGetUrlWithRegexCaptureGroupInPath",
 			fields: fields{
 				ingress: createIngressObjectWithPath("testIngress", "test", testUrl, "/api(/|$)(.*)"),
-				Client:  fakekubeclient.NewFakeClient(),
+				Client:  fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "http://testurl.stackator.com/api",
 		}, {
 			name: "TestGetUrlWithTLS",
 			fields: fields{
 				ingress: createIngressObjectWithTLS("testIngress", "test", testUrl, "customtls.stackator.com"),
-				Client:  fakekubeclient.NewFakeClient(),
+				Client:  fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "https://customtls.stackator.com",
 		}, {
 			name: "TestGetUrlWithEmptyTLS",
 			fields: fields{
 				ingress: createIngressObjectWithTLS("testIngress", "test", testUrl, ""),
-				Client:  fakekubeclient.NewFakeClient(),
+				Client:  fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "http://testurl.stackator.com",
 		},

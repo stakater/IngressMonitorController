@@ -33,7 +33,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithEmptyPath",
 			fields: fields{
 				route:  createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/"),
-				Client: fakekubeclient.NewFakeClient(),
+				Client: fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "http://testurl.stackator.com/",
 		},
@@ -41,7 +41,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithHelloPath",
 			fields: fields{
 				route:  createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/hello"),
-				Client: fakekubeclient.NewFakeClient(),
+				Client: fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "http://testurl.stackator.com/hello",
 		},
@@ -49,7 +49,7 @@ func TestRouteWrapper_getURL(t *testing.T) {
 			name: "TestGetUrlWithNoPath",
 			fields: fields{
 				route:  util.CreateRouteObject("testRoute", "test", routeTestUrl),
-				Client: fakekubeclient.NewFakeClient(),
+				Client: fakekubeclient.NewClientBuilder().Build(),
 			},
 			want: "http://testurl.stackator.com/",
 		},
