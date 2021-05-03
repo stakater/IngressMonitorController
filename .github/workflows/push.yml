@@ -11,6 +11,7 @@ env:
   OPERATOR_SDK_VERSION: "0.15.2"
   KUBERNETES_VERSION: "1.18.0"
   KIND_VERSION: "0.7.0"
+  HELM_REGISTRY_URL: "https://stakater.github.io/stakater-charts"
 
 jobs:
   build:
@@ -134,6 +135,21 @@ jobs:
         env:
           VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
         run: make update-resources-ci
+
+      # Publish helm chart
+      - name: Publish Helm chart
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          branch: master
+          repository: stakater-charts
+          target_dir: docs
+          token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+          charts_dir: deploy/chart/
+          charts_url: ${{ env.HELM_REGISTRY_URL }}
+          owner: stakater
+          linting: on
+          commit_username: stakater-user
+          commit_email: stakater@gmail.com
 
       # Commit back changes
       - name: Commit files
