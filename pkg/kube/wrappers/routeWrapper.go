@@ -66,7 +66,7 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 	service := &corev1.Service{}
 	err := rw.Client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: rw.Route.Namespace}, service)
 	if err != nil {
-		log.Printf("Get service from kubernetes cluster error:%v", err)
+		log.Info("Get service from kubernetes cluster error:%v", err)
 		return "", false
 	}
 
@@ -79,7 +79,7 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 	}
 	err = rw.Client.List(context.TODO(), podList, listOps)
 	if err != nil {
-		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
+		log.Info("List Pods of service[%s] error:%v", service.GetName(), err)
 	} else if len(podList.Items) > 0 {
 		pod := podList.Items[0]
 		podContainers := pod.Spec.Containers
@@ -89,7 +89,7 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 				return podContainers[0].ReadinessProbe.HTTPGet.Path, true
 			}
 		} else {
-			log.Printf("Pod has %d containers so skipping health endpoint", len(podContainers))
+			log.Info("Pod has %d containers so skipping health endpoint", len(podContainers))
 		}
 	}
 
@@ -109,7 +109,7 @@ func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	u, err := url.Parse(URL)
 
 	if err != nil {
-		log.Printf("URL parsing error in getURL() :%v", err)
+		log.Info("URL parsing error in getURL() :%v", err)
 		return ""
 	}
 

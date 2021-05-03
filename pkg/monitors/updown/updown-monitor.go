@@ -3,9 +3,10 @@ package updown
 
 import (
 	"fmt"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-		"net/http"
+	"net/http"
 	"net/url"
+
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/antoineaugusti/updown"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
@@ -19,6 +20,8 @@ const (
 	UpdownPublishedDefaultValue = true
 	UpdownEnableDefaultValue    = true
 )
+
+var log = logf.Log.WithName("updown")
 
 // UpdownMonitorService struct contains parameters required by updown go client
 type UpdownMonitorService struct {
@@ -108,13 +111,13 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 	log.Info("Monitor addition request has been completed")
 
 	if (httpResponse.StatusCode == http.StatusCreated) && (err == nil) {
-		log.Printf("Monitor %s has been added.", updownMonitor.Name)
+		log.Info("Monitor %s has been added.", updownMonitor.Name)
 
 	} else if (httpResponse.StatusCode == http.StatusBadRequest) && (err != nil) {
-		log.Printf("Monitor %s is not created because of invalid parameters or it exists.", updownMonitor.Name)
+		log.Info("Monitor %s is not created because of invalid parameters or it exists.", updownMonitor.Name)
 
 	} else {
-		log.Printf("Unable to create monitor %s ", updownMonitor.Name)
+		log.Info("Unable to create monitor %s ", updownMonitor.Name)
 
 	}
 
@@ -188,10 +191,10 @@ func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 	log.Info("Updown's check Update request has been completed")
 
 	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
-		log.Printf("Monitor %s has been updated with following parameters", updownMonitor.Name)
+		log.Info("Monitor %s has been updated with following parameters", updownMonitor.Name)
 
 	} else {
-		log.Printf("Monitor %s is not updated because of %s", updownMonitor.Name, err.Error())
+		log.Info("Monitor %s is not updated because of %s", updownMonitor.Name, err.Error())
 
 	}
 
@@ -206,13 +209,13 @@ func (updownService *UpdownMonitorService) Remove(updownMonitor models.Monitor) 
 	log.Info("Updown's check Remove request has been completed")
 
 	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
-		log.Printf("Monitor %v has been deleted.", updownMonitor.Name)
+		log.Info("Monitor %v has been deleted.", updownMonitor.Name)
 
 	} else if (httpResponse.StatusCode == http.StatusNotFound) && (err != nil) {
-		log.Printf("Monitor %v is not found.", updownMonitor.Name)
+		log.Info("Monitor %v is not found.", updownMonitor.Name)
 
 	} else {
-		log.Printf("Unable to delete %v monitor: ", updownMonitor.Name)
+		log.Info("Unable to delete %v monitor: ", updownMonitor.Name)
 	}
 
 }

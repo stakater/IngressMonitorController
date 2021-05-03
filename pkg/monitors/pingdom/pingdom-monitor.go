@@ -3,10 +3,12 @@ package pingdom
 import (
 	"encoding/json"
 	"fmt"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"	"net/url"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
+
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/russellcardullo/go-pingdom/pingdom"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
@@ -14,6 +16,8 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 )
+
+var log = logf.Log.WithName("pingdom")
 
 // PingdomMonitorService interfaces with MonitorService
 type PingdomMonitorService struct {

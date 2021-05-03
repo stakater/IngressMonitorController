@@ -145,7 +145,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 			log.Info("Monitor couldn't be added: " + m.Name + ". Error: " + f.Error.Message)
 		}
 	} else {
-		log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+		log.Info("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
 

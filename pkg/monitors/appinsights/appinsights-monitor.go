@@ -10,6 +10,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
 	insightsAlert "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
+	"github.com/apex/log"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -205,22 +206,22 @@ func (aiService *AppinsightsMonitorService) GetByName(monitorName string) (*mode
 func (aiService *AppinsightsMonitorService) Add(monitor models.Monitor) {
 
 	log.Info("AppInsights Monitor's Add method has been called")
-	log.Printf("Adding Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
+	log.Info("Adding Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
 	webtest := aiService.createWebTest(monitor)
 	_, err := aiService.insightsClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, monitor.Name, webtest)
 	if err != nil {
 		log.Errorf("Error adding Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 	} else {
-		log.Printf("Successfully added Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+		log.Info("Successfully added Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		if aiService.isAlertEnabled() {
-			log.Printf("Adding alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
+			log.Info("Adding alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
 			alertName := fmt.Sprintf("%s-alert", monitor.Name)
 			webtestAlert := aiService.createAlertRuleResource(monitor)
 			_, err := aiService.alertrulesClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, alertName, webtestAlert)
 			if err != nil {
 				log.Errorf("Error adding alert rule for WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 			}
-			log.Printf("Successfully added Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+			log.Info("Successfully added Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		}
 	}
 
@@ -230,23 +231,23 @@ func (aiService *AppinsightsMonitorService) Add(monitor models.Monitor) {
 func (aiService *AppinsightsMonitorService) Update(monitor models.Monitor) {
 
 	log.Info("AppInsights Monitor's Update method has been called")
-	log.Printf("Updating Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
+	log.Info("Updating Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
 
 	webtest := aiService.createWebTest(monitor)
 	_, err := aiService.insightsClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, monitor.Name, webtest)
 	if err != nil {
 		log.Errorf("Error updating Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 	} else {
-		log.Printf("Successfully updated Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+		log.Info("Successfully updated Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		if aiService.isAlertEnabled() {
-			log.Printf("Updating alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
+			log.Info("Updating alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
 			alertName := fmt.Sprintf("%s-alert", monitor.Name)
 			webtestAlert := aiService.createAlertRuleResource(monitor)
 			_, err := aiService.alertrulesClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, alertName, webtestAlert)
 			if err != nil {
 				log.Errorf("Error updating alert rule for WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 			}
-			log.Printf("Successfully updating Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+			log.Info("Successfully updating Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		}
 	}
 }
@@ -255,7 +256,7 @@ func (aiService *AppinsightsMonitorService) Update(monitor models.Monitor) {
 func (aiService *AppinsightsMonitorService) Remove(monitor models.Monitor) {
 
 	log.Info("AppInsights Monitor's Remove method has been called")
-	log.Printf("Deleting Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
+	log.Info("Deleting Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
 	r, err := aiService.insightsClient.Delete(aiService.ctx, aiService.resourceGroup, monitor.Name)
 	if err != nil {
 		if r.Response.StatusCode == http.StatusNotFound {
@@ -263,9 +264,9 @@ func (aiService *AppinsightsMonitorService) Remove(monitor models.Monitor) {
 		}
 		log.Errorf("Error deleting Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 	} else {
-		log.Printf("Successfully removed Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+		log.Info("Successfully removed Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		if aiService.isAlertEnabled() {
-			log.Printf("Deleting alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
+			log.Info("Deleting alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
 			alertName := fmt.Sprintf("%s-alert", monitor.Name)
 			r, err := aiService.alertrulesClient.Delete(aiService.ctx, aiService.resourceGroup, alertName)
 			if err != nil {
@@ -274,7 +275,7 @@ func (aiService *AppinsightsMonitorService) Remove(monitor models.Monitor) {
 				}
 				log.Errorf("Error deleting alert rule for WebTests %s (Resource Group %s): %v", alertName, aiService.resourceGroup, err)
 			}
-			log.Printf("Successfully removed Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+			log.Info("Successfully removed Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		}
 	}
 }
