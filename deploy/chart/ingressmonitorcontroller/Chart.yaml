@@ -1,0 +1,12 @@
+apiVersion: v1
+name: ingressmonitorcontroller
+version: v2.0.15
+description: IngressMonitorController Operator chart that runs on kubernetes
+keywords:
+  - IngressMonitorController
+  - IngressMonitorController Operator
+  - kubernetes
+home: https://github.com/stakater/IngressMonitorController
+icon: https://raw.githubusercontent.com/stakater/IngressMonitorController/master/assets/web/IMC-round-100px.png
+sources:
+  - https://github.com/stakater/IngressMonitorController

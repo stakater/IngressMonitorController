@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+{{- if .Values.deployment.annotations }}
+{{ toYaml .Values.deployment.annotations | indent 4 }}
+{{- end }}
+  labels:
+{{ include "labels" $ | indent 4 }}
+{{- if .Values.deployment.labels }}
+{{ toYaml .Values.deployment.labels | indent 4 }}
+{{- end }}
+  name: {{ template "name" . }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+{{ include "labels" $ | indent 6 }}
+{{- if .Values.deployment.labels }}
+{{ toYaml .Values.deployment.labels | indent 6 }}
+{{- end }}
+  template:
+    metadata:
+      labels:
+{{ include "labels" $ | indent 8 }}
+{{- if .Values.deployment.labels }}
+{{ toYaml .Values.deployment.labels | indent 8 }}
+{{- end }}
+    spec:
+      containers:
+      - env:
+        - name: WATCH_NAMESPACE
+        {{- if .Values.watchNamespaces }}
+          value: {{ .Values.watchNamespaces | quote }}
+        {{- else }}
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        {{- end }}
+        - name: POD_NAME
+        {{- if .Values.deployment.podName }}
+          value: {{ .Values.deployment.podName | quote }}
+        {{- else }}
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        {{- end }}
+        - name: CONFIG_SECRET_NAME
+        {{- if .Values.secret.name }}
+          value: {{ .Values.secret.name | quote }}
+        {{- else }}
+          value: {{ template "name" . }}
+        {{- end }}
+        - name: OPERATOR_NAME
+          value: {{ .Values.deployment.operatorName | quote }}
+        - name: LOG_LEVEL
+          value: {{ .Values.deployment.logLevel | quote }}
+        - name: LOG_FORMAT
+          value: {{ .Values.deployment.logFormat | quote }}
+        image: "{{ .Values.deployment.image.name }}:{{ .Values.deployment.image.tag }}"
+        command:
+          - IngressMonitorController
+        imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+        name: {{ template "name" . }}
+      serviceAccountName: {{ template "serviceAccountName" . }}
