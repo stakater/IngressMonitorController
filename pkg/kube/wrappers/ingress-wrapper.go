@@ -2,11 +2,11 @@ package wrappers
 
 import (
 	"context"
-	"net/url"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
+		"net/url"
 	"path"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -76,7 +76,7 @@ func (iw *IngressWrapper) getIngressSubPath() string {
 
 func (iw *IngressWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	if !iw.rulesExist() {
-		log.Println("No rules exist in ingress: " + iw.Ingress.GetName())
+		log.Info("No rules exist in ingress: " + iw.Ingress.GetName())
 		return ""
 	}
 

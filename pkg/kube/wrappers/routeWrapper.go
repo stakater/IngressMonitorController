@@ -6,12 +6,13 @@ import (
 	"path"
 
 	routev1 "github.com/openshift/api/route/v1"
-	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+var log = logf.Log.WithName("route-wrapper")
 
 type RouteWrapper struct {
 	Route  *routev1.Route

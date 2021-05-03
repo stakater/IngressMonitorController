@@ -1,9 +1,9 @@
 package pingdom
 
 import (
-	log "github.com/sirupsen/logrus"
 	"testing"
 
+	"github.com/apex/log"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"

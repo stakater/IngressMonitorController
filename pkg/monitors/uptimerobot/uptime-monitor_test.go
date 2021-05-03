@@ -5,13 +5,15 @@ import (
 	"strings"
 	"testing"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/util"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
+
+var log = logf.Log.WithName("uptimerobot-monitor")
 
 // Not a test case. Cleanup to remove added dummy Monitors
 func TestRemoveDanglingMonitors(t *testing.T) {
@@ -27,9 +29,9 @@ func TestRemoveDanglingMonitors(t *testing.T) {
 
 	mons, err := service.GetAllByName("google-test")
 
-	log.Println(mons)
+	log.Info(mons)
 	if err == nil && mons == nil {
-		log.Println("No Dangling Monitors")
+		log.Info("No Dangling Monitors")
 	}
 	if err == nil && mons != nil {
 		for _, mon := range mons {

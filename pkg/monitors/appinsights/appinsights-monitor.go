@@ -11,7 +11,6 @@ import (
 	insightsAlert "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
 	"github.com/kelseyhightower/envconfig"
-	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
@@ -101,7 +100,7 @@ func (monitor *AppinsightsMonitorService) Equal(oldMonitor models.Monitor, newMo
 // Setup method will initialize a appinsights's go client
 func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 
-	log.Println("AppInsights Monitor's Setup has been called. Initializing AppInsights Client..")
+	log.Info("AppInsights Monitor's Setup has been called. Initializing AppInsights Client..")
 
 	var azConfig AzureConfig
 	err := envconfig.Process("AZURE", &azConfig)
@@ -138,7 +137,7 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 		log.Fatal("Error initializing AppInsights Client")
 	}
 
-	log.Println("AppInsights Insights Client has been initialized")
+	log.Info("AppInsights Insights Client has been initialized")
 
 	// initialize monitoring alertrule client only if Email Action or Webhook Action is specified.
 	if aiService.isAlertEnabled() {
@@ -147,17 +146,17 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 		if err != nil {
 			log.Fatal("Error initializing AppInsights Alertrules Client")
 		}
-		log.Println("AppInsights Alertrules Client has been initialized")
+		log.Info("AppInsights Alertrules Client has been initialized")
 	}
 
-	log.Println("AppInsights Monitor has been initialized")
+	log.Info("AppInsights Monitor has been initialized")
 }
 
 // GetAll function will return all monitors (appinsights webtest) object in an array
 // GetAll for AppInsights returns all webtest for specific component in a resource group.
 func (aiService *AppinsightsMonitorService) GetAll() []models.Monitor {
 
-	log.Println("AppInsight monitor's GetAll method has been called")
+	log.Info("AppInsight monitor's GetAll method has been called")
 
 	var monitors []models.Monitor
 
@@ -186,7 +185,7 @@ func (aiService *AppinsightsMonitorService) GetAll() []models.Monitor {
 // GetAll for AppInsights returns a webtest for specific resource group.
 func (aiService *AppinsightsMonitorService) GetByName(monitorName string) (*models.Monitor, error) {
 
-	log.Println("AppInsights Monitor's GetByName method has been called")
+	log.Info("AppInsights Monitor's GetByName method has been called")
 	webtest, err := aiService.insightsClient.Get(aiService.ctx, aiService.resourceGroup, monitorName)
 	if err != nil {
 		if webtest.Response.StatusCode == http.StatusNotFound {
@@ -230,7 +229,7 @@ func (aiService *AppinsightsMonitorService) Add(monitor models.Monitor) {
 // Update method will update a monitor
 func (aiService *AppinsightsMonitorService) Update(monitor models.Monitor) {
 
-	log.Println("AppInsights Monitor's Update method has been called")
+	log.Info("AppInsights Monitor's Update method has been called")
 	log.Printf("Updating Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
 
 	webtest := aiService.createWebTest(monitor)
@@ -255,7 +254,7 @@ func (aiService *AppinsightsMonitorService) Update(monitor models.Monitor) {
 // Remove method will remove a monitor
 func (aiService *AppinsightsMonitorService) Remove(monitor models.Monitor) {
 
-	log.Println("AppInsights Monitor's Remove method has been called")
+	log.Info("AppInsights Monitor's Remove method has been called")
 	log.Printf("Deleting Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
 	r, err := aiService.insightsClient.Delete(aiService.ctx, aiService.resourceGroup, monitor.Name)
 	if err != nil {

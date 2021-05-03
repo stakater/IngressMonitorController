@@ -3,9 +3,10 @@ package gcloud
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
+
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	monitoring "cloud.google.com/go/monitoring/apiv3"
 	"google.golang.org/api/iterator"
@@ -13,10 +14,12 @@ import (
 	monitoredres "google.golang.org/genproto/googleapis/api/monitoredres"
 	monitoringpb "google.golang.org/genproto/googleapis/monitoring/v3"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
+
+var log = logf.Log.WithName("gcloud-monitor")
 
 type MonitorService struct {
 	client    *monitoring.UptimeCheckClient
@@ -35,7 +38,7 @@ func (service *MonitorService) Setup(provider config.Provider) {
 	client, err := monitoring.NewUptimeCheckClient(service.ctx, option.WithCredentialsJSON([]byte(provider.ApiKey)))
 
 	if err != nil {
-		log.Println("Error Seting Up Monitor Service: ", err.Error())
+		log.Info("Error Seting Up Monitor Service: ", err.Error())
 	} else {
 		service.client = client
 	}
@@ -76,7 +79,7 @@ func (service *MonitorService) GetAll() (monitors []models.Monitor) {
 			break
 		}
 		if err != nil {
-			log.Println("Error received while listing checks: ", err.Error())
+			log.Info("Error received while listing checks: ", err.Error())
 			return nil
 		}
 		monitors = append(monitors, transformToMonitor(uptimeCheckConfig))
@@ -88,7 +91,7 @@ func (service *MonitorService) GetAll() (monitors []models.Monitor) {
 func (service *MonitorService) Add(monitor models.Monitor) {
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Println("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: ", err.Error())
 		return
 	}
 
@@ -100,13 +103,13 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 		} else if url.Scheme == "https" {
 			port = 443
 		} else {
-			log.Println("Error Adding Monitor: unknown protocol ", url.Scheme)
+			log.Info("Error Adding Monitor: unknown protocol ", url.Scheme)
 			return
 		}
 	} else {
 		port, err = strconv.Atoi(portString)
 		if err != nil {
-			log.Println("Error Adding Monitor: ", err.Error())
+			log.Info("Error Adding Monitor: ", err.Error())
 			return
 		}
 	}
@@ -139,27 +142,27 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 		},
 	})
 	if err != nil {
-		log.Println("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: ", err.Error())
 		return
 	}
 
-	log.Println("Added monitor for: ", monitor.Name)
+	log.Info("Added monitor for: ", monitor.Name)
 }
 
 func (service *MonitorService) Update(monitor models.Monitor) {
 	uptimeCheckConfig, err := service.client.GetUptimeCheckConfig(service.ctx, &monitoringpb.GetUptimeCheckConfigRequest{Name: monitor.ID})
 	if err != nil {
-		log.Println("Error updating Monitor: ", err.Error())
+		log.Info("Error updating Monitor: ", err.Error())
 	}
 
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Println("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: ", err.Error())
 		return
 	}
 
 	if uptimeCheckConfig.GetMonitoredResource().Labels["host"] != url.Hostname() {
-		log.Println("Error Adding Monitor: URL Host is immutable")
+		log.Info("Error Adding Monitor: URL Host is immutable")
 		return
 	}
 
@@ -171,13 +174,13 @@ func (service *MonitorService) Update(monitor models.Monitor) {
 		} else if url.Scheme == "https" {
 			port = 443
 		} else {
-			log.Println("Error Adding Monitor: unknown protocol ", url.Scheme)
+			log.Info("Error Adding Monitor: unknown protocol ", url.Scheme)
 			return
 		}
 	} else {
 		port, err = strconv.Atoi(portString)
 		if err != nil {
-			log.Println("Error Adding Monitor: ", err.Error())
+			log.Info("Error Adding Monitor: ", err.Error())
 			return
 		}
 	}
@@ -190,11 +193,11 @@ func (service *MonitorService) Update(monitor models.Monitor) {
 		UptimeCheckConfig: uptimeCheckConfig,
 	})
 	if err != nil {
-		log.Println("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: ", err.Error())
 		return
 	}
 
-	log.Println("Updated Monitor: ", uptimeCheckConfig)
+	log.Info("Updated Monitor: ", uptimeCheckConfig)
 }
 
 func (service *MonitorService) Remove(monitor models.Monitor) {
@@ -202,10 +205,10 @@ func (service *MonitorService) Remove(monitor models.Monitor) {
 		Name: monitor.ID,
 	})
 	if err != nil {
-		log.Println("Error deleting Monitor: ", err.Error())
+		log.Info("Error deleting Monitor: ", err.Error())
 		return
 	}
-	log.Println("Deleted Monitor: ", monitor.Name)
+	log.Info("Deleted Monitor: ", monitor.Name)
 }
 
 func transformToMonitor(uptimeCheckConfig *monitoringpb.UptimeCheckConfig) (monitor models.Monitor) {

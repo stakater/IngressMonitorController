@@ -10,9 +10,7 @@ import (
 )
 
 func (r *EndpointMonitorReconciler) handleUpdate(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitor models.Monitor, monitorService monitors.MonitorServiceProxy) error {
-	log := r.Log.WithValues("endpointMonitor", instance.ObjectMeta.Namespace)
-
-	url, err := util.GetMonitorURL(r.client, instance)
+	url, err := util.GetMonitorURL(r.Client, instance)
 	if err != nil {
 		return err
 	}

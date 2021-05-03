@@ -14,7 +14,7 @@ func (r *EndpointMonitorReconciler) handleCreate(request reconcile.Request, inst
 
 	log.Info("Creating Monitor: " + monitorName)
 
-	url, err := util.GetMonitorURL(r.client, instance)
+	url, err := util.GetMonitorURL(r.Client, instance)
 	if err != nil {
 		return err
 	}

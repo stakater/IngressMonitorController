@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	routev1 "github.com/openshift/api/route/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,6 +16,7 @@ import (
 
 var (
 	IsOpenshift = isOpenshift()
+	log = logf.Log.WithName("kube")
 )
 
 func getConfig() (*rest.Config, error) {
@@ -66,7 +67,7 @@ func IsRoute(resource interface{}) bool {
 func isOpenshift() bool {
 	kubeClient, err := GetClient()
 	if err != nil {
-		log.Fatalf("Unable to create Kubernetes client error = %v", err)
+		panic("Unable to create Kubernetes client error = " + err.Error())
 	}
 
 	res, err := kubeClient.RESTClient().Get().AbsPath("").DoRaw(context.TODO())

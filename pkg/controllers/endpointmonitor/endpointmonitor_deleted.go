@@ -25,12 +25,14 @@ func (r *EndpointMonitorReconciler) handleDelete(request reconcile.Request, inst
 
 	// Remove monitor if it exists
 	for index := 0; index < len(r.monitorServices); index++ {
-		removeMonitorIfExists(r.monitorServices[index], monitorName)
+		r.removeMonitorIfExists(r.monitorServices[index], monitorName)
 	}
 	return reconcile.Result{}, nil
 }
 
-func removeMonitorIfExists(monitorService monitors.MonitorServiceProxy, monitorName string) {
+func (r *EndpointMonitorReconciler) removeMonitorIfExists(monitorService monitors.MonitorServiceProxy, monitorName string) {
+	log := r.Log.WithValues("monitor", monitorName)
+
 	monitor, _ := monitorService.GetByName(monitorName)
 	// Monitor Exists
 	if monitor != nil {

@@ -3,13 +3,12 @@ package updown
 
 import (
 	"fmt"
-	"net/http"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
+		"net/http"
 	"net/url"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/antoineaugusti/updown"
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
@@ -36,29 +35,29 @@ func (monitor *UpdownMonitorService) Equal(oldMonitor models.Monitor, newMonitor
 func (updownService *UpdownMonitorService) Setup(confProvider config.Provider) {
 
 	// initializeCustomLog(os.Stdout)
-	log.Println("Updown monitor's Setup has been called. Updown monitor initializing")
+	log.Info("Updown monitor's Setup has been called. Updown monitor initializing")
 
 	// updown go client apiKey
 	updownService.apiKey = confProvider.ApiKey
 
 	// creating updown go client
 	updownService.client = updown.NewClient(updownService.apiKey, http.DefaultClient)
-	log.Println("Updown monitor has been initialized")
+	log.Info("Updown monitor has been initialized")
 }
 
 // GetAll function will return all monitors (updown checks) object in an array
 func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 
-	log.Println("Updown monitor's GetAll method has been called")
+	log.Info("Updown monitor's GetAll method has been called")
 
 	var monitors []models.Monitor
 
 	// getting all monitors(checks) list
 	updownChecks, httpResponse, err := updownService.client.Check.List()
-	log.Println("Monitors (updown checks) object list has been pulled")
+	log.Info("Monitors (updown checks) object list has been pulled")
 
 	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
-		log.Println("Populating monitors list using the updownChecks object given in updownChecks list")
+		log.Info("Populating monitors list using the updownChecks object given in updownChecks list")
 
 		// populating a monitors slice using the updownChecks objects given in updownChecks slice
 		for _, updownCheck := range updownChecks {
@@ -72,7 +71,7 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 		return monitors
 
 	} else {
-		log.Println("Unable to get updown provider checks(monitor) list")
+		log.Info("Unable to get updown provider checks(monitor) list")
 		return nil
 
 	}
@@ -82,12 +81,12 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 // GetByName function will return a monitor(updown check) object based on the name provided
 func (updownService *UpdownMonitorService) GetByName(monitorName string) (*models.Monitor, error) {
 
-	log.Println("Updown monitor's GetByName method has been called")
+	log.Info("Updown monitor's GetByName method has been called")
 
 	updownMonitors := updownService.GetAll()
-	log.Println("Monitors (updown checks) object list has been pulled")
+	log.Info("Monitors (updown checks) object list has been pulled")
 
-	log.Println("Searching the monitor from monitors object list using its name")
+	log.Info("Searching the monitor from monitors object list using its name")
 	for _, updownMonitor := range updownMonitors {
 		if updownMonitor.Name == monitorName {
 			// Test the code below
@@ -101,12 +100,12 @@ func (updownService *UpdownMonitorService) GetByName(monitorName string) (*model
 // Add function method will add a monitor (updown check)
 func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 
-	log.Println("Updown monitor's Add method has been called")
+	log.Info("Updown monitor's Add method has been called")
 
 	updownCheckItemObj := service.createHttpCheck(updownMonitor)
 
 	_, httpResponse, err := service.client.Check.Add(updownCheckItemObj)
-	log.Println("Monitor addition request has been completed")
+	log.Info("Monitor addition request has been completed")
 
 	if (httpResponse.StatusCode == http.StatusCreated) && (err == nil) {
 		log.Printf("Monitor %s has been added.", updownMonitor.Name)
@@ -125,17 +124,17 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 // and config
 func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.Monitor) updown.CheckItem {
 
-	log.Println("Updown monitor's createHttpCheck method has been called")
+	log.Info("Updown monitor's createHttpCheck method has been called")
 
 	// populating updownCheckItemObj object attributes using updownMonitor object
-	log.Println("Populating updownCheckItemObj object attributes using updownMonitor object")
+	log.Info("Populating updownCheckItemObj object attributes using updownMonitor object")
 	updownCheckItemObj := updown.CheckItem{}
 
-	log.Println("Parsing URL")
+	log.Info("Parsing URL")
 	_, err := url.Parse(updownMonitor.URL)
 
 	if err != nil {
-		log.Println("Unable to parse the URL : ", updownMonitor.URL)
+		log.Info("Unable to parse the URL : ", updownMonitor.URL)
 		return updownCheckItemObj
 	}
 
@@ -160,21 +159,21 @@ func (service *UpdownMonitorService) addConfigToHttpCheck(updownCheckItemObj *up
 	if providerConfig != nil {
 		updownCheckItemObj.Enabled = providerConfig.Enable
 	} else {
-		log.Println("Using default value `true` for enable")
+		log.Info("Using default value `true` for enable")
 		updownCheckItemObj.Enabled = UpdownEnableDefaultValue
 	}
 
 	if providerConfig != nil {
 		updownCheckItemObj.Published = providerConfig.PublishPage
 	} else {
-		log.Println("Using default value `true` for publish-page")
+		log.Info("Using default value `true` for publish-page")
 		updownCheckItemObj.Published = UpdownPublishedDefaultValue
 	}
 
 	if providerConfig != nil && providerConfig.Period > 0 {
 		updownCheckItemObj.Period = providerConfig.Period
 	} else {
-		log.Println("Using default value `15` for period")
+		log.Info("Using default value `15` for period")
 		updownCheckItemObj.Period = UpdownPeriodDefaultValue
 	}
 }
@@ -182,11 +181,11 @@ func (service *UpdownMonitorService) addConfigToHttpCheck(updownCheckItemObj *up
 // Update method will update a monitor (updown check)
 func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 
-	log.Println("Updown's Update method has been called")
+	log.Info("Updown's Update method has been called")
 
 	httpCheckItemObj := service.createHttpCheck(updownMonitor)
 	_, httpResponse, err := service.client.Check.Update(updownMonitor.ID, httpCheckItemObj)
-	log.Println("Updown's check Update request has been completed")
+	log.Info("Updown's check Update request has been completed")
 
 	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
 		log.Printf("Monitor %s has been updated with following parameters", updownMonitor.Name)
@@ -201,10 +200,10 @@ func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 // Remove method will remove a monitor (updown check)
 func (updownService *UpdownMonitorService) Remove(updownMonitor models.Monitor) {
 
-	log.Println("Updown's Remove method has been called")
+	log.Info("Updown's Remove method has been called")
 
 	_, httpResponse, err := updownService.client.Check.Remove(updownMonitor.ID)
-	log.Println("Updown's check Remove request has been completed")
+	log.Info("Updown's check Remove request has been completed")
 
 	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
 		log.Printf("Monitor %v has been deleted.", updownMonitor.Name)

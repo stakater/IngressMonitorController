@@ -4,11 +4,14 @@ import (
 	"strings"
 	"testing"
 
-	log "github.com/sirupsen/logrus"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
+
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 )
+
+var log = logf.Log.WithName("uptime-status-page-test")
 
 // Not a test case. Cleanup to remove added dummy StatusPages
 func TestRemoveDanglingStatusPages(t *testing.T) {
@@ -20,7 +23,7 @@ func TestRemoveDanglingStatusPages(t *testing.T) {
 	statusPages, err := service.GetAllStatusPages("status-page-test")
 
 	if err == nil && statusPages == nil {
-		log.Println("No dangling StatusPages named: status-page-test")
+		log.Info("No dangling StatusPages named: status-page-test")
 	}
 	if err != nil && statusPages != nil {
 		for _, statusPage := range statusPages {
@@ -31,7 +34,7 @@ func TestRemoveDanglingStatusPages(t *testing.T) {
 	statusPages1, err := service.GetAllStatusPages("status-page-test-1")
 
 	if err == nil && statusPages1 == nil {
-		log.Println("No dangling StatusPages named: status-page-test-1")
+		log.Info("No dangling StatusPages named: status-page-test-1")
 	}
 	if err != nil && statusPages1 != nil {
 		for _, statusPage := range statusPages1 {
@@ -42,7 +45,7 @@ func TestRemoveDanglingStatusPages(t *testing.T) {
 	statusPages2, err := service.GetAllStatusPages("status-page-test-2")
 
 	if err == nil && statusPages2 == nil {
-		log.Println("No dangling StatusPages named: status-page-test-2")
+		log.Info("No dangling StatusPages named: status-page-test-2")
 	}
 	if err != nil && statusPages2 != nil {
 		for _, statusPage := range statusPages2 {
@@ -53,7 +56,7 @@ func TestRemoveDanglingStatusPages(t *testing.T) {
 	statusPages3, err := service.GetAllStatusPages("status-page-test-3")
 
 	if err == nil && statusPages3 == nil {
-		log.Println("No dangling StatusPages named: status-page-test-3")
+		log.Info("No dangling StatusPages named: status-page-test-3")
 	}
 	if err == nil && statusPages3 != nil {
 		for _, statusPage := range statusPages3 {

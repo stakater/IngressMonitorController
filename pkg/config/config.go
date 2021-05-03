@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
+	util "github.com/stakater/operator-utils/util"
 	yaml "gopkg.in/yaml.v2"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	util "github.com/stakater/operator-utils/util"
 
 	"github.com/stakater/IngressMonitorController/pkg/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -100,10 +100,8 @@ func LoadControllerConfig(apiReader client.Reader) {
 	if len(operatorNamespace) == 0 {
 		operatorNamespaceTemp, err := util.GetOperatorNamespace()
 		if err != nil {
-			if err == util.ErrNoNamespace {
-				log.Info("Skipping leader election; not running in a cluster.")
-			}
-			panic(err)
+			log.Error(err, "Unable to get operator namespace")
+			os.Exit(1)
 		}
 		operatorNamespace = operatorNamespaceTemp
 	}

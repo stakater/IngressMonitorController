@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/apex/log"
 	"github.com/go-logr/logr"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
@@ -54,7 +53,7 @@ const (
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log = r.Log.WithValues("endpointmonitor", req.NamespacedName)
+	log := r.Log.WithValues("endpointmonitor", req.NamespacedName)
 
 	// Fetch the EndpointMonitor instance
 	instance := &endpointmonitorv1alpha1.EndpointMonitor{}
@@ -62,7 +61,7 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	var monitorName string
 	format, err := util.GetNameTemplateFormat(config.GetControllerConfig().MonitorNameTemplate)
 	if err != nil {
-		log.Error("Failed to parse MonitorNameTemplate, using default template `{{.Name}}-{{.Namespace}}`")
+		log.Error(err, "Failed to parse MonitorNameTemplate, using default template `{{.Name}}-{{.Namespace}}`")
 		monitorName = req.Name + "-" + req.Namespace
 	} else {
 		monitorName = fmt.Sprintf(format, req.Name, req.Namespace)

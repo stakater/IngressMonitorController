@@ -1,7 +1,6 @@
 package monitors
 
 import (
-	log "github.com/sirupsen/logrus"
 	"strings"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
@@ -26,7 +25,7 @@ func CreateMonitorService(p *config.Provider) MonitorServiceProxy {
 
 func SetupMonitorServicesForProviders(providers []config.Provider) []MonitorServiceProxy {
 	if len(providers) < 1 {
-		log.Panic("Cannot Instantiate controller with no providers")
+		panic("Cannot Instantiate controller with no providers")
 	}
 
 	monitorServices := []MonitorServiceProxy{}
@@ -41,7 +40,7 @@ func SetupMonitorServicesForProviders(providers []config.Provider) []MonitorServ
 
 func SetupMonitorServicesForProvidersTest(providers []config.Provider) []MonitorServiceProxy {
 	if len(providers) < 1 {
-		log.Panic("Cannot Instantiate controller with no providers")
+		panic("Cannot Instantiate controller with no providers")
 	}
 	// TODO: Fix provider specific implementation and then add them to this list
 	allowedProviders := []string{"UptimeRobot", "StatusCake"}
