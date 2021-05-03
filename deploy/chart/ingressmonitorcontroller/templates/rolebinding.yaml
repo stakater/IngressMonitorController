@@ -1,0 +1,17 @@
+{{- if and ( .Values.rbac.create ) (ne .Values.watchNamespace "") }}
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ template "name" . }}-role-binding
+  labels:
+{{ include "labels" $ | indent 4 }}
+roleRef:
+  kind: Role
+  name: {{ template "name" . }}-role
+  apiGroup: rbac.authorization.k8s.io
+  namespace: {{ .Release.Namespace }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}
