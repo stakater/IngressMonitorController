@@ -1,4 +1,4 @@
-{{- if and ( .Values.rbac.create ) (eq .Values.watchNamespace "") }}
+{{- if and ( .Values.rbac.create ) (eq .Values.watchNamespaces "") }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -41,7 +41,8 @@ rules:
   - replicasets
   - statefulsets
   verbs:
-  - "*"
+  - "list"
+  - "get"
 - apiGroups:
   - monitoring.coreos.com
   resources:

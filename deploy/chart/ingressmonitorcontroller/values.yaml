@@ -2,10 +2,9 @@ global:
 # labels added on all components of chart in addition to some default labels
   labels: {}
 
+# can have comma separated namespace names
 # if empty, IMC will look in all namespaces, 
-# you can restrict to single namespace
-# if setting this, you need to deploy IMC also in that namespace
-watchNamespace: ""
+watchNamespaces: ""
 useFullName: false
 deployment:
   labels: {}

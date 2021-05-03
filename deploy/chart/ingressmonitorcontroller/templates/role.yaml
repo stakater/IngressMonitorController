@@ -1,8 +1,10 @@
-{{- if and ( .Values.rbac.create ) ( ne .Values.watchNamespace "") }}
+{{- if and ( .Values.rbac.create ) ( ne .Values.watchNamespaces "") }}
+{{- range .Values.watchNamespaces | split "," }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ template "name" . }}-role
+  name: {{ template "name" $ }}-role
+  namespace: {{ . | quote }}
   labels:
 {{ include "labels" $ | indent 4 }}
 rules:
@@ -41,7 +43,8 @@ rules:
   - replicasets
   - statefulsets
   verbs:
-  - "*"
+  - "list"
+  - "get"
 - apiGroups:
   - monitoring.coreos.com
   resources:
@@ -78,4 +81,6 @@ rules:
   - patch
   - update
   - watch
+---
+{{- end }}
 {{- end }}

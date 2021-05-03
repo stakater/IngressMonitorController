@@ -31,8 +31,8 @@ spec:
       containers:
       - env:
         - name: WATCH_NAMESPACE
-        {{- if .Values.watchNamespace }}
-          value: {{ .Values.watchNamespace | quote }}
+        {{- if .Values.watchNamespaces }}
+          value: {{ .Values.watchNamespaces | quote }}
         {{- else }}
           valueFrom:
             fieldRef:

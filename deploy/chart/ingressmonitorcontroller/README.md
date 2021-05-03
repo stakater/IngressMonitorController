@@ -28,7 +28,7 @@ helm install stakater/ingressmonitorcontroller
 | Key | Default | Description |
 |-----|---------|-------------|
 | global.labels | `` | Labels to be added to all components |
-| watchNamespace | `` | Whether to watch any single namespace, set empty to watch all namespaces |
+| watchNamespaces | `` | comma separated namespace names, set empty to watch all namespaces |
 | useFullName | `false` |  |
 | deployment.annotations | `"configmap.reloader.stakater.com/reload": "ingressmonitorcontroller"` |  Additional annotations on deployment |
 | deployment.labels | `` | Additional labels on deployment |

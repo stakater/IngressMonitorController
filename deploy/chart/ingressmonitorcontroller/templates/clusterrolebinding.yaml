@@ -1,4 +1,4 @@
-{{- if and ( .Values.rbac.create ) (eq .Values.watchNamespace "") }}
+{{- if and ( .Values.rbac.create ) (eq .Values.watchNamespaces "") }}
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:

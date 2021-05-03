@@ -1,17 +1,21 @@
-{{- if and ( .Values.rbac.create ) (ne .Values.watchNamespace "") }}
+{{- if and ( .Values.rbac.create ) (ne .Values.watchNamespaces "") }}
+{{- range .Values.watchNamespaces | split "," }}
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{ template "name" . }}-role-binding
+  name: {{ template "name" $ }}-role-binding
+  namespace: {{ . | quote }}
   labels:
 {{ include "labels" $ | indent 4 }}
 roleRef:
   kind: Role
-  name: {{ template "name" . }}-role
+  name: {{ template "name" $ }}-role
   apiGroup: rbac.authorization.k8s.io
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ . | quote }}
 subjects:
 - kind: ServiceAccount
-  name: {{ template "serviceAccountName" . }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ template "serviceAccountName" $ }}
+  namespace: {{ $.Release.Namespace }}
+---
+{{- end }}
 {{- end }}
