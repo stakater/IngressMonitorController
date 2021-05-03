@@ -16,7 +16,7 @@ import (
 
 var (
 	IsOpenshift = isOpenshift()
-	log = logf.Log.WithName("kube")
+	log         = logf.Log.WithName("kube")
 )
 
 func getConfig() (*rest.Config, error) {

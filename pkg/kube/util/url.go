@@ -15,7 +15,6 @@ import (
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 )
 
-
 var log = logf.Log.WithName("config")
 
 func GetMonitorURL(client client.Client, ingressMonitor *endpointmonitorv1alpha1.EndpointMonitor) (string, error) {
