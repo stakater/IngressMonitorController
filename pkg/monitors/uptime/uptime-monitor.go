@@ -14,7 +14,7 @@ import (
 	"net/url"
 
 	gocache "github.com/patrickmn/go-cache"
-	"github.com/rs/zerolog/log"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
@@ -24,6 +24,7 @@ import (
 )
 
 var cache = gocache.New(5*time.Minute, 5*time.Minute)
+var log = logf.Log.WithName("uptime-monitor")
 
 type UpTimeMonitorService struct {
 	apiKey        string
@@ -130,7 +131,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 			if !f.Errors {
 				log.Info("Monitor Added: " + m.Name)
 			} else {
-				log.Print("Monitor couldn't be added: " + m.Name +
+				log.Info("Monitor couldn't be added: " + m.Name +
 					"Response: ")
 				log.Info(string(response.Bytes))
 			}

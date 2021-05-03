@@ -3,15 +3,11 @@ package uptime
 import (
 	"testing"
 
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 )
-
-var log = logf.Log.WithName("config")
 
 func TestGetAllMonitors(t *testing.T) {
 	config := config.GetControllerConfigTest()
@@ -27,7 +23,6 @@ func TestGetAllMonitors(t *testing.T) {
 	}
 	service.Setup(*provider)
 	monitors := service.GetAll()
-	log.Info(monitors)
 
 	if len(monitors) == 0 {
 		t.Log("No Monitors Exist")
