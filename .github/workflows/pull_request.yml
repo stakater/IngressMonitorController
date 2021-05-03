@@ -59,7 +59,7 @@ jobs:
     - name: Set up Cluster
       run: |
         kubectl cluster-info
-        kubectl apply -f deploy/crds
+        make install
         mkdir -p .local
         echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
         
