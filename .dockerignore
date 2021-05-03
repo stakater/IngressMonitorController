@@ -1,0 +1,10 @@
+### Git ###
+.git*
+
+### GitHub Actions ###
+/.github/
+
+# Dependency directories
+.local
+/bin/
+/config/
