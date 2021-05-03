@@ -41,7 +41,7 @@ jobs:
 
       - name: Helm Lint
         run: |
-          helm lint deploy/chart/ingressmonitorcontroller
+          helm lint charts/ingressmonitorcontroller
 
       - name: Install kubectl
         run: |
