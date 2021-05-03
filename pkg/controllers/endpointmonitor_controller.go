@@ -37,9 +37,9 @@ import (
 // EndpointMonitorReconciler reconciles a EndpointMonitor object
 type EndpointMonitorReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
-	monitorServices []monitors.MonitorServiceProxy
+	Log             logr.Logger
+	Scheme          *runtime.Scheme
+	MonitorServices []monitors.MonitorServiceProxy
 }
 
 const (
@@ -83,11 +83,11 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	createTime := instance.CreationTimestamp
 	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))
 
-	for index := 0; index < len(r.monitorServices); index++ {
-		monitor := findMonitorByName(r.monitorServices[index], monitorName)
+	for index := 0; index < len(r.MonitorServices); index++ {
+		monitor := findMonitorByName(r.MonitorServices[index], monitorName)
 		if monitor != nil {
 			// Monitor already exists, update if required
-			err = r.handleUpdate(req, instance, *monitor, r.monitorServices[index])
+			err = r.handleUpdate(req, instance, *monitor, r.MonitorServices[index])
 		} else {
 			// Monitor doesn't exist, create monitor
 			if delay.Nanoseconds() > 0 {
@@ -95,7 +95,7 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				log.Info("Requeuing request to add monitor " + monitorName + " for " + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
 				return reconcile.Result{RequeueAfter: delay}, nil
 			}
-			err = r.handleCreate(req, instance, monitorName, r.monitorServices[index])
+			err = r.handleCreate(req, instance, monitorName, r.MonitorServices[index])
 		}
 	}
 

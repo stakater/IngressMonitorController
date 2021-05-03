@@ -24,8 +24,8 @@ func (r *EndpointMonitorReconciler) handleDelete(request reconcile.Request, inst
 	log.Info("Removing Monitor: " + monitorName)
 
 	// Remove monitor if it exists
-	for index := 0; index < len(r.monitorServices); index++ {
-		r.removeMonitorIfExists(r.monitorServices[index], monitorName)
+	for index := 0; index < len(r.MonitorServices); index++ {
+		r.removeMonitorIfExists(r.MonitorServices[index], monitorName)
 	}
 	return reconcile.Result{}, nil
 }
