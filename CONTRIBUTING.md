@@ -148,7 +148,7 @@ And then handle this configuration as handled in `processProviderConfig` in [upt
 
 1. Create a namespace `test`
 2. Create a secret with name `imc-config` and add your desired config in there
-3. Run `make run-local`
+3. Run `make run`
 
 **NOTE**: Ensure that all required resources are re-generated
 
