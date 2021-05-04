@@ -1,11 +1,10 @@
 # ![](docs/images/IMC-round-100px.png) Ingress Monitor Controller
 
-### DEPRECATION NOTICE: 
+## DEPRECATION NOTICE
 
 **IMC has now been converted to an Operator and we have stopped support from our side for the controller based implementation
 , although support from community for the controller is still appreciated. Using Operator is recommended and existing users can follow
 [Migration To Operator](./docs/migration-guide.md) for migrating to Operator. Although, Controller based implementation is maintained at [release-v1](https://github.com/stakater/IngressMonitorController/tree/release-v1) instead.**
-
 
 An operator to watch ingresses/routes and create liveness alerts for your apps/microservices in Uptime checkers.
 
@@ -17,10 +16,10 @@ We want to monitor ingresses in a kubernetes cluster and routes in openshift clu
 
 ## Solution
 
-This operator will continuously watch ingresses/routes based on defined `EndpointMonitor` custom resource, and 
+This operator will continuously watch ingresses/routes based on defined `EndpointMonitor` custom resource, and
 automatically add / remove monitors in any of the uptime checkers. With the help of this solution, you can keep a check
- on your services and see whether they're up and running and live, without worrying about manually registering them on
-  the Uptime checker.
+on your services and see whether they're up and running and live, without worrying about manually registering them on
+the Uptime checker.
 
 ## Supported Uptime Checkers
 
@@ -38,7 +37,7 @@ Currently we support the following monitors:
 
 ### Adding configuration
 
-Configure the uptime checker configuration in the `config.yaml` based on your uptime provider. Add create a secret 
+Configure the uptime checker configuration in the `config.yaml` based on your uptime provider. Add create a secret
 `imc-config` that holds `config.yaml` key:
 
 ```yaml
@@ -56,16 +55,15 @@ type: Opaque
 
 Following are the available options that you can use to customize the controller:
 
-| Key                   |Description                                                                    |
-|-----------------------|-------------------------------------------------------------------------------|
-| providers             | An array of uptime providers that you want to add to your controller          |
+| Key                   | Description                                                                                                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| providers             | An array of uptime providers that you want to add to your controller                                                                                                              |
 | enableMonitorDeletion | A safeguard flag that is used to enable or disable monitor deletion on ingress deletion (Useful for prod environments where you don't want to remove monitor on ingress deletion) |
-| resyncPeriod          | Resync period in seconds, allows to re-sync periodically the monitors with the Routes. Defaults to 0 (= disabled) |
-| creationDelay        | CreationDelay is a duration string to add a delay before creating new monitor (e.g., to allow DNS to catch up first) |
-| monitorNameTemplate    | Template for monitor name eg, `{{.Namespace}}-{{.Name}}`          |  
+| resyncPeriod          | Resync period in seconds, allows to re-sync periodically the monitors with the Routes. Defaults to 0 (= disabled)                                                                 |
+| creationDelay         | CreationDelay is a duration string to add a delay before creating new monitor (e.g., to allow DNS to catch up first)                                                              |
+| monitorNameTemplate   | Template for monitor name eg, `{{.Namespace}}-{{.Name}}`                                                                                                                          |
 
-
-- Replace `BASE64_ENCODED_CONFIG.YAML` with your config.yaml file that is encoded in base64. 
+- Replace `BASE64_ENCODED_CONFIG.YAML` with your config.yaml file that is encoded in base64.
 - For detailed guide for the configuration refer to [Docs](./docs) and go through configuration guidelines for your uptime provider.
 - For sample `config.yaml` files refer to [Sample Configs](examples/configs).
 - Name of secret can be changed by setting environment variable `CONFIG_SECRET_NAME`.
@@ -138,33 +136,26 @@ helm install stakater/ingressmonitorcontroller
 
 ## Vanilla Manifests
 
-1) Clone this repository
+1. Clone this repository
+
 ```terminal
     $ git clone git@github.com:stakater/IngressMonitorController.git
 ```
 
-2) Deploy dependencies(crds):
+2. Deploy dependencies(crds):
+
 ```terminal
-    $ oc apply -f deploy/crds
-```
- 
-3) Deploy ServiceAccount, Role, RoleBinding and Operator:
-```terminal
-   $ oc apply -f deploy/service_account.yaml
-   $ oc apply -f deploy/role.yaml
-   $ oc apply -f deploy/role_binding.yaml
-   $ oc apply -f deploy/operator.yaml
+    $ make deploy
 ```
 
 ### Environment Variables
 
-| Key                   |Description                                                                    |
-|-----------------------|-------------------------------------------------------------------------------|
-| WATCH_NAMESPACE             | Use comma separated list of namespaces or leave the field empty to watch all namespaces(cluster scope)          |
-| CONFIG_SECRET_NAME | Name of secret that holds the configuration |
-| LOG_LEVEL          | Set logging level from debug,info,warn,error,fatal. Default value is Info |
-| LOG_FORMAT        | Set logging format from text,json. Default value is text |
-
+| Key                | Description                                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------------------------ |
+| WATCH_NAMESPACE    | Use comma separated list of namespaces or leave the field empty to watch all namespaces(cluster scope) |
+| CONFIG_SECRET_NAME | Name of secret that holds the configuration                                                            |
+| LOG_LEVEL          | Set logging level from debug,info,warn,error,fatal. Default value is Info                              |
+| LOG_FORMAT         | Set logging format from text,json. Default value is text                                               |
 
 ## Help
 
