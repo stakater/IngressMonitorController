@@ -283,6 +283,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Error(err, "Unable to read response")
+			os.Exit(1)
 		}
 		log.Error(nil, "Insert Request failed for name: "+m.Name+" with status code "+strconv.Itoa(resp.StatusCode))
 		log.Error(nil, string(bodyBytes))

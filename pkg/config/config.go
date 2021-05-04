@@ -101,7 +101,7 @@ func LoadControllerConfig(apiReader client.Reader) {
 		operatorNamespaceTemp, err := util.GetOperatorNamespace()
 		if err != nil {
 			log.Error(err, "Unable to get operator namespace")
-			os.Exit(1)
+			panic("Unable to get operator namespace")
 		}
 		operatorNamespace = operatorNamespaceTemp
 	}

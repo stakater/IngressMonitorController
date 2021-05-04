@@ -84,9 +84,8 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
-test: manifests generate fmt vet ## Run tests.
-	GOFLAGS="-count=1" "$(GOCMD)" test -v ./... -coverprofile cover.out
+test: generate fmt vet manifests
+	go test -v ./... -coverprofile cover.out
 
 ##@ Build
 

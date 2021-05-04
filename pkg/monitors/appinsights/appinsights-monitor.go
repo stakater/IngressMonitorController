@@ -109,7 +109,7 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 	var azConfig AzureConfig
 	err := envconfig.Process("AZURE", &azConfig)
 	if err != nil {
-		log.Info("Error fetching environment variable: %s", err.Error())
+		log.Error(err, "Error fetching environment variable")
 		os.Exit(1)
 	}
 
@@ -129,19 +129,19 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 	// initialize appinsights client
 	err = aiService.insightsClient.AddToUserAgent("appInsightsMonitor")
 	if err != nil {
-		log.Info("Error adding UserAgent in AppInsights Client")
+		log.Error(err, "Error adding UserAgent in AppInsights Client")
 		os.Exit(1)
 	}
 
 	aiService.insightsClient = insights.NewWebTestsClient(azConfig.Subscription_ID)
 	if err != nil {
-		log.Info("Error initializing AppInsights Client")
+		log.Error(err, "Error initializing AppInsights Client")
 		os.Exit(1)
 	}
 
 	aiService.insightsClient.Authorizer, err = clientConfig.Authorizer()
 	if err != nil {
-		log.Info("Error initializing AppInsights Client")
+		log.Error(err, "Error initializing AppInsights Client")
 		os.Exit(1)
 	}
 

@@ -67,7 +67,8 @@ func IsRoute(resource interface{}) bool {
 func isOpenshift() bool {
 	kubeClient, err := GetClient()
 	if err != nil {
-		panic("Unable to create Kubernetes client error = " + err.Error())
+		log.Error(err, "Unable to create Kubernetes client")
+		os.Exit(1)
 	}
 
 	res, err := kubeClient.RESTClient().Get().AbsPath("").DoRaw(context.TODO())
