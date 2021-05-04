@@ -7,7 +7,7 @@ metadata:
 {{ include "labels" $ | indent 4 }}
 roleRef:
   kind: ClusterRole
-  name: {{ template "name" . }}-cluster--role
+  name: {{ template "name" . }}-cluster-role
   apiGroup: rbac.authorization.k8s.io
 subjects:
 - kind: ServiceAccount
