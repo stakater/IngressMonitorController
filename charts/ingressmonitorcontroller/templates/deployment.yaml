@@ -7,7 +7,7 @@ metadata:
     {{- include "ingress-monitor-controller.labels" . | nindent 4 }}
     control-plane: controller-manager
 spec:
-	replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "ingress-monitor-controller.selectorLabels" . | nindent 6 }}
@@ -28,7 +28,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-			- args:
+      - args:
         - --secure-listen-address=0.0.0.0:8443
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
@@ -39,7 +39,7 @@ spec:
         ports:
         - containerPort: 8443
             name: https
-			- args:
+      - args:
         - --health-probe-bind-address=:8081
         - --metrics-bind-address=127.0.0.1:8080
         - --leader-elect
@@ -48,28 +48,28 @@ spec:
         env:
         - name: WATCH_NAMESPACE
         {{- if .Values.watchNamespaces }}
-      	  value: {{ .Values.watchNamespaces | quote }}
+          value: {{ .Values.watchNamespaces | quote }}
         {{- else }}
-        	valueFrom:
+          valueFrom:
             fieldRef:
             fieldPath: metadata.namespace
         - name: CONFIG_SECRET_NAME
-					value: {{ default "imc-config" .Values.configSecretName }}
+          value: {{ default "imc-config" .Values.configSecretName }}
         name: manager
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         livenessProbe:
-					httpGet:
-						path: /healthz
-						port: 8081
-					initialDelaySeconds: 15
-					periodSeconds: 20
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
         readinessProbe:
-					httpGet:
-						path: /readyz
-						port: 8081
-					initialDelaySeconds: 5
-					periodSeconds: 10
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
         resources:
 					{{- toYaml .Values.resources | nindent 12 }}
       terminationGracePeriodSeconds: 10
