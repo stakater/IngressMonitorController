@@ -1,4 +1,6 @@
 {{- if .Values.rbac.create -}}
+{{- if  eq .Values.watchNamespaces "" }}
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -12,6 +14,7 @@ subjects:
 - kind: ServiceAccount
   name: {{ include "ingress-monitor-controller.serviceAccountName" . }}
   namespace: {{ .Release.Namespace }}
+{{- end }}
 
 ---
 {{- if .Values.rbac.allowProxyRole }}
