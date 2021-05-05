@@ -6,11 +6,13 @@ on:
       - master
 
 env:
-  DOCKER_FILE_PATH: build/Dockerfile
-  GOLANG_VERSION: 1.15.2
-  OPERATOR_SDK_VERSION: "0.15.2"
-  KUBERNETES_VERSION: "1.18.0"
-  KIND_VERSION: "0.7.0"
+  DOCKER_FILE_PATH: Dockerfile
+  GOLANG_VERSION: 1.16
+  OPERATOR_SDK_VERSION: "1.6.2"
+  KUSTOMIZE_VERSION: "3.5.4"
+  KUBERNETES_VERSION: "1.20.2"
+  KIND_VERSION: "0.10.0"
+  GOLANG_CI_LINT_VERSION: v1.39.0
   HELM_REGISTRY_URL: "https://stakater.github.io/stakater-charts"
 
 jobs:
@@ -34,12 +36,12 @@ jobs:
 
       - name: Lint
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.26.0
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin ${{ env.GOLANG_CI_LINT_VERSION }}
           golangci-lint run --timeout=10m ./...
 
       - name: Helm Lint
         run: |
-          helm lint deploy/chart/ingressmonitorcontroller
+          helm lint charts/ingressmonitorcontroller
 
       - name: Install kubectl
         run: |
@@ -62,7 +64,7 @@ jobs:
       - name: Set up Cluster
         run: |
           kubectl cluster-info
-          kubectl apply -f deploy/crds
+          make install
           mkdir -p .local
           echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
     
@@ -134,12 +136,25 @@ jobs:
           operator-sdk version
           operator-sdk version | grep -q "${OPERATOR_SDK_VERSION}"
 
-      # Update chart tag to the latest semver tag
-      - name: Update Resources
+      # Install kustomize
+      - uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: ${{ env.KUSTOMIZE_VERSION }}
+
+      - name: Generate Bundle
         env:
           VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
-        run: make update-resources-ci
+        run: make bundle
 
+      # Update chart tag to the latest semver tag
+      - name: Update Chart Version
+        env:
+          VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
+        run: make bump-chart
+
+      - name: Update Chart CRDs
+        run: make generate-crds
+        
       # Publish helm chart
       - name: Publish Helm chart
         uses: stefanprodan/helm-gh-pages@master
@@ -148,7 +163,7 @@ jobs:
           repository: stakater-charts
           target_dir: docs
           token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
-          charts_dir: deploy/chart/
+          charts_dir: charts/
           charts_url: ${{ env.HELM_REGISTRY_URL }}
           owner: stakater
           linting: on
@@ -163,6 +178,7 @@ jobs:
           git status 
           git add .
           git commit -m "[skip-ci] Update artifacts" -a
+          
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
