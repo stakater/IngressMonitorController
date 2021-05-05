@@ -8,13 +8,14 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
+
+var log = logf.Log.WithName("uptime-monitor-test")
 
 type UpTimeStatusPageService struct {
 	apiKey string
@@ -52,19 +53,19 @@ func (statusPageService *UpTimeStatusPageService) Add(statusPage UpTimeStatusPag
 		var f UptimeStatusPageResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Error(err)
+			log.Error(err, "Unable to unmarshal JSON")
 		}
 		if f.Stat == "ok" {
-			log.Println("Status Page Added: " + statusPage.Name)
+			log.Info("Status Page Added: " + statusPage.Name)
 			return strconv.Itoa(f.UptimePublicStatusPage.ID), nil
 		} else {
 			errorString := "Status Page couldn't be added: " + statusPage.Name
-			log.Println(errorString)
+			log.Info(errorString)
 			return "", errors.New(errorString)
 		}
 	} else {
 		errorString := "Add Status Page Request failed. Status Code: " + strconv.Itoa(response.StatusCode)
-		log.Println(errorString)
+		log.Info(errorString)
 		return "", errors.New(errorString)
 	}
 }
@@ -82,17 +83,17 @@ func (statusPageService *UpTimeStatusPageService) Remove(statusPage UpTimeStatus
 		var f UptimeStatusPageResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Error(err)
+			log.Error(err, "Unable to unmarshal JSON")
 		}
 
 		if f.Stat == "ok" {
-			log.Println("Status Page Removed: " + statusPage.Name)
+			log.Info("Status Page Removed: " + statusPage.Name)
 		} else {
-			log.Println("Status Page couldn't be removed: " + statusPage.Name)
-			log.Println(string(body))
+			log.Info("Status Page couldn't be removed: " + statusPage.Name)
+			log.Info(string(body))
 		}
 	} else {
-		log.Println("Remove Status Page Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+		log.Info("Remove Status Page Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
 
@@ -100,11 +101,11 @@ func (statusPageService *UpTimeStatusPageService) AddMonitorToStatusPage(statusP
 	existingStatusPage, err := statusPageService.Get(statusPage.ID)
 	if err != nil {
 		errorString := "Updated Page Request failed. Error: " + err.Error()
-		log.Println(errorString)
+		log.Info(errorString)
 		return "", errors.New(errorString)
 	}
 	if util.ContainsString(existingStatusPage.Monitors, monitor.ID) {
-		log.Println("Status Page Already Up To Date: " + statusPage.ID)
+		log.Info("Status Page Already Up To Date: " + statusPage.ID)
 		return statusPage.ID, nil
 	} else {
 		existingStatusPage.Monitors = append(existingStatusPage.Monitors, monitor.ID)
@@ -128,20 +129,20 @@ func (statusPageService *UpTimeStatusPageService) AddMonitorToStatusPage(statusP
 			var f UptimeStatusPageResponse
 			err := json.Unmarshal(response.Bytes, &f)
 			if err != nil {
-				log.Error(err)
+				log.Error(err, "Unable to unmarshal JSON")
 			}
 
 			if f.Stat == "ok" {
-				log.Println("Status Page Updated: " + statusPage.Name)
+				log.Info("Status Page Updated: " + statusPage.Name)
 				return strconv.Itoa(f.UptimePublicStatusPage.ID), nil
 			} else {
 				errorString := "Status Page couldn't be updated: " + statusPage.Name
-				log.Println(errorString)
+				log.Info(errorString)
 				return "", errors.New(errorString)
 			}
 		} else {
 			errorString := "Updated Page Request failed. Status Code: " + strconv.Itoa(response.StatusCode)
-			log.Println(errorString)
+			log.Info(errorString)
 			return "", errors.New(errorString)
 		}
 	}
@@ -151,7 +152,7 @@ func (statusPageService *UpTimeStatusPageService) RemoveMonitorFromStatusPage(st
 	existingStatusPage, err := statusPageService.Get(statusPage.ID)
 	if err != nil {
 		errorString := "Updated Page Request failed. Error: " + err.Error()
-		log.Println(errorString)
+		log.Info(errorString)
 		return "", errors.New(errorString)
 	}
 	existingStatusPage.Monitors = remove(existingStatusPage.Monitors, monitor.ID)
@@ -175,19 +176,19 @@ func (statusPageService *UpTimeStatusPageService) RemoveMonitorFromStatusPage(st
 		var f UptimeStatusPageResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Error(err)
+			log.Error(err, "Unable to unmarshal JSON")
 		}
 		if f.Stat == "ok" {
-			log.Println("Status Page Updated: " + statusPage.Name)
+			log.Info("Status Page Updated: " + statusPage.Name)
 			return strconv.Itoa(f.UptimePublicStatusPage.ID), nil
 		} else {
 			errorString := "Status Page couldn't be updated: " + statusPage.Name
-			log.Println(errorString)
+			log.Info(errorString)
 			return "", errors.New(errorString)
 		}
 	} else {
 		errorString := "Updated Page Request failed. Status Code: " + strconv.Itoa(response.StatusCode)
-		log.Println(errorString)
+		log.Info(errorString)
 		return "", errors.New(errorString)
 	}
 }
@@ -205,7 +206,7 @@ func (statusPageService *UpTimeStatusPageService) Get(ID string) (*UpTimeStatusP
 		var f UptimeStatusPagesResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Error(err)
+			log.Error(err, "Unable to unmarshal JSON")
 		}
 
 		if f.StatusPages != nil {
@@ -219,7 +220,7 @@ func (statusPageService *UpTimeStatusPageService) Get(ID string) (*UpTimeStatusP
 
 	errorString := "GetByName Request failed for ID: " + ID + ". Status Code: " + strconv.Itoa(response.StatusCode)
 
-	log.Println(errorString)
+	log.Info(errorString)
 	return nil, errors.New(errorString)
 }
 
@@ -252,7 +253,7 @@ func (statusPageService *UpTimeStatusPageService) GetAllStatusPages(name string)
 
 	errorString := "GetAllStatusPages Request failed for: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
 
-	log.Println(errorString)
+	log.Info(errorString)
 	return nil, errors.New(errorString)
 }
 
@@ -283,7 +284,7 @@ func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID st
 
 				err := json.Unmarshal(response.Bytes, &f)
 				if err != nil {
-					log.Error(err)
+					log.Error(err, "Unable to unmarshall JSON")
 				}
 
 				for _, statusPage := range f.StatusPages {
@@ -298,7 +299,7 @@ func (statusPageService *UpTimeStatusPageService) GetStatusPagesForMonitor(ID st
 
 	errorString := "GetStatusPagesForMonitor Request failed for ID: " + ID
 
-	log.Println(errorString)
+	log.Info(errorString)
 	return nil, errors.New(errorString)
 }
 

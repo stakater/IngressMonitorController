@@ -1,0 +1,20 @@
+# permissions for end users to view endpointmonitors.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: endpointmonitor-viewer-role
+rules:
+- apiGroups:
+  - endpointmonitor.stakater.com
+  resources:
+  - endpointmonitors
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - endpointmonitor.stakater.com
+  resources:
+  - endpointmonitors/status
+  verbs:
+  - get

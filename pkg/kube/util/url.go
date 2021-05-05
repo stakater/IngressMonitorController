@@ -5,25 +5,27 @@ import (
 	"errors"
 
 	routev1 "github.com/openshift/api/route/v1"
-	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 )
+
+var log = logf.Log.WithName("config")
 
 func GetMonitorURL(client client.Client, ingressMonitor *endpointmonitorv1alpha1.EndpointMonitor) (string, error) {
 	if len(ingressMonitor.Spec.URL) == 0 {
 		return discoverURLFromRefs(client, ingressMonitor)
 	}
 	if ingressMonitor.Spec.URLFrom != nil {
-		log.Warn("Both url and urlFrom fields are specified. Using url over urlFrom")
+		log.V(1).Info("Both url and urlFrom fields are specified. Using url over urlFrom")
 	}
 	if len(ingressMonitor.Spec.HealthEndpoint) > 0 {
-		log.Warn("Ignoring HealthEndpoint since url field is specified")
+		log.V(1).Info("Ignoring HealthEndpoint since url field is specified")
 	}
 	return ingressMonitor.Spec.URL, nil
 }
@@ -32,7 +34,7 @@ func discoverURLFromIngressRef(client client.Client, ingressRef *endpointmonitor
 	ingressObject := &v1beta1.Ingress{}
 	err := client.Get(context.TODO(), types.NamespacedName{Name: ingressRef.Name, Namespace: namespace}, ingressObject)
 	if err != nil {
-		log.Warn("Ingress not found with name " + ingressRef.Name)
+		log.V(1).Info("Ingress not found with name " + ingressRef.Name)
 		return "", err
 	}
 
@@ -44,7 +46,7 @@ func discoverURLFromRouteRef(client client.Client, routeRef *endpointmonitorv1al
 	routeObject := &routev1.Route{}
 	err := client.Get(context.TODO(), types.NamespacedName{Name: routeRef.Name, Namespace: namespace}, routeObject)
 	if err != nil {
-		log.Warn("Route not found with name " + routeRef.Name)
+		log.V(1).Info("Route not found with name " + routeRef.Name)
 		return "", err
 	}
 
@@ -55,7 +57,7 @@ func discoverURLFromRouteRef(client client.Client, routeRef *endpointmonitorv1al
 func discoverURLFromRefs(client client.Client, ingressMonitor *endpointmonitorv1alpha1.EndpointMonitor) (string, error) {
 	urlFrom := ingressMonitor.Spec.URLFrom
 	if urlFrom == nil {
-		log.Warn("No URL sources set for ingressMonitor: " + ingressMonitor.Name)
+		log.V(1).Info("No URL sources set for ingressMonitor: " + ingressMonitor.Name)
 		return "", errors.New("No URL sources set for ingressMonitor: " + ingressMonitor.Name)
 	}
 
@@ -66,6 +68,6 @@ func discoverURLFromRefs(client client.Client, ingressMonitor *endpointmonitorv1
 		return discoverURLFromRouteRef(client, urlFrom.RouteRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS, ingressMonitor.Spec.HealthEndpoint)
 	}
 
-	log.Warn("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
+	log.V(1).Info("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
 	return "", errors.New("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
 }

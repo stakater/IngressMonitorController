@@ -8,14 +8,16 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/russellcardullo/go-pingdom/pingdom"
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 )
+
+var log = logf.Log.WithName("pingdom")
 
 // PingdomMonitorService interfaces with MonitorService
 type PingdomMonitorService struct {
@@ -45,7 +47,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 		BaseURL:  service.url,
 	})
 	if err != nil {
-		log.Println("Error Seting Up Monitor Service: ", err.Error())
+		log.Info("Error Seting Up Monitor Service: ", err.Error())
 	}
 }
 
@@ -67,7 +69,7 @@ func (service *PingdomMonitorService) GetAll() []models.Monitor {
 
 	checks, err := service.client.Checks.List()
 	if err != nil {
-		log.Println("Error received while listing checks: ", err.Error())
+		log.Info("Error received while listing checks: ", err.Error())
 		return nil
 	}
 	for _, mon := range checks {
@@ -87,9 +89,9 @@ func (service *PingdomMonitorService) Add(m models.Monitor) {
 
 	_, err := service.client.Checks.Create(&httpCheck)
 	if err != nil {
-		log.Println("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: ", err.Error())
 	} else {
-		log.Println("Added monitor for: ", m.Name)
+		log.Info("Added monitor for: ", m.Name)
 	}
 }
 
@@ -99,9 +101,9 @@ func (service *PingdomMonitorService) Update(m models.Monitor) {
 
 	resp, err := service.client.Checks.Update(monitorID, &httpCheck)
 	if err != nil {
-		log.Println("Error updating Monitor: ", err.Error())
+		log.Info("Error updating Monitor: ", err.Error())
 	} else {
-		log.Println("Updated Monitor: ", resp)
+		log.Info("Updated Monitor: ", resp)
 	}
 }
 
@@ -110,9 +112,9 @@ func (service *PingdomMonitorService) Remove(m models.Monitor) {
 
 	resp, err := service.client.Checks.Delete(monitorID)
 	if err != nil {
-		log.Println("Error deleting Monitor: ", err.Error())
+		log.Info("Error deleting Monitor: ", err.Error())
 	} else {
-		log.Println("Delete Monitor: ", resp)
+		log.Info("Delete Monitor: ", resp)
 	}
 }
 
@@ -120,7 +122,7 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck := pingdom.HttpCheck{}
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Println("Unable to parse the URL: ", service.url)
+		log.Info("Unable to parse the URL: ", service.url)
 	}
 
 	if url.Scheme == "https" {
@@ -139,7 +141,7 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 		userIdsStringArray := strings.Split(service.alertContacts, "-")
 
 		if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-			log.Println(err.Error())
+			log.Info(err.Error())
 		} else {
 			httpCheck.UserIds = userIds
 		}
@@ -149,7 +151,7 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 		integrationIdsStringArray := strings.Split(service.alertIntegrations, "-")
 
 		if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
-			log.Println(err.Error())
+			log.Info(err.Error())
 		} else {
 			httpCheck.IntegrationIds = integrationIds
 		}
@@ -159,7 +161,7 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 		teamAlertContactsStringArray := strings.Split(service.teamAlertContacts, "-")
 
 		if teamAlertsIds, err := util.SliceAtoi(teamAlertContactsStringArray); err != nil {
-			log.Println(err.Error())
+			log.Info(err.Error())
 		} else {
 			httpCheck.TeamIds = teamAlertsIds
 		}
@@ -180,7 +182,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		userIdsStringArray := strings.Split(providerConfig.AlertContacts, "-")
 
 		if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-			log.Println("Error decoding user alert contact IDs from config", err.Error())
+			log.Info("Error decoding user alert contact IDs from config", err.Error())
 		} else {
 			httpCheck.UserIds = userIds
 		}
@@ -190,7 +192,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		integrationIdsStringArray := strings.Split(providerConfig.AlertIntegrations, "-")
 
 		if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
-			log.Println("Error decoding integration ids into integers", err.Error())
+			log.Info("Error decoding integration ids into integers", err.Error())
 		} else {
 			httpCheck.IntegrationIds = integrationIds
 		}
@@ -200,7 +202,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		integrationTeamIdsStringArray := strings.Split(providerConfig.TeamAlertContacts, "-")
 
 		if integrationTeamIdsStringArray, err := util.SliceAtoi(integrationTeamIdsStringArray); err != nil {
-			log.Println("Error decoding integration ids into integers", err.Error())
+			log.Info("Error decoding integration ids into integers", err.Error())
 		} else {
 			httpCheck.TeamIds = integrationTeamIdsStringArray
 		}
@@ -222,7 +224,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		httpCheck.RequestHeaders = make(map[string]string)
 		err := json.Unmarshal([]byte(providerConfig.RequestHeaders), &httpCheck.RequestHeaders)
 		if err != nil {
-			log.Println("Error Converting from string to JSON object")
+			log.Info("Error Converting from string to JSON object")
 		}
 	}
 
@@ -235,24 +237,24 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 			// Env variable set, pass user/pass to httpCheck
 			httpCheck.Username = providerConfig.BasicAuthUser
 			httpCheck.Password = passwordValue
-			log.Println("Basic auth requirement detected. Setting username and password for httpCheck")
+			log.Info("Basic auth requirement detected. Setting username and password for httpCheck")
 		} else {
-			log.Println("Error reading basic auth password from environment variable")
+			log.Info("Error reading basic auth password from environment variable")
 		}
 	}
 
 	if providerConfig != nil && len(providerConfig.ShouldContain) > 0 {
 		httpCheck.ShouldContain = providerConfig.ShouldContain
-		log.Println("Should contain detected. Setting Should Contain string: ", providerConfig.ShouldContain)
+		log.Info("Should contain detected. Setting Should Contain string: ", providerConfig.ShouldContain)
 	}
 
 	// Tags should be a single word or multiple comma-seperated words
 	if providerConfig != nil && len(providerConfig.Tags) > 0 {
 		if !strings.Contains(providerConfig.Tags, " ") {
 			httpCheck.Tags = providerConfig.Tags
-			log.Println("Tags detected. Setting Tags as: ", providerConfig.Tags)
+			log.Info("Tags detected. Setting Tags as: ", providerConfig.Tags)
 		} else {
-			log.Println("Tag string should not contain spaces. Not applying tags.")
+			log.Info("Tag string should not contain spaces. Not applying tags.")
 		}
 	}
 

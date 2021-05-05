@@ -1,13 +1,14 @@
 # Contributing
 
 ## Workflow
+
 Pull Requests are welcome. In general, we follow the "fork-and-pull" Git workflow.
 
- 1. **Fork** the repo on GitHub
- 2. **Clone** the project to your own machine
- 3. **Commit** changes to your own branch
- 4. **Push** your work back up to your fork
- 5. Submit a **Pull request** so that we can review your changes
+1.  **Fork** the repo on GitHub
+2.  **Clone** the project to your own machine
+3.  **Commit** changes to your own branch
+4.  **Push** your work back up to your fork
+5.  Submit a **Pull request** so that we can review your changes
 
 NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 
@@ -15,9 +16,9 @@ NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 
 Follow this [tour](https://tour.golang.org/) to practice golang.
 
-# Extending Ingress Monitor Controller
+## Extending Ingress Monitor Controller
 
-## Adding support for a new Monitor
+### Adding support for a new Monitor
 
 You can easily implement a new monitor and use it via the controller. First of all you will need to create a folder under `/pkg/monitors/` with the name of the new monitor and then you will create a new service struct inside this folder that implements the following monitor service interface
 
@@ -33,7 +34,7 @@ type MonitorService interface {
 }
 ```
 
-*Note:* While developing, make sure to follow the conventions mentioned below in the [Naming Conventions section](#naming-conventions)
+_Note:_ While developing, make sure to follow the conventions mentioned below in the [Naming Conventions section](#naming-conventions)
 
 Once the implementation of your service is done, you have to open up `monitor-proxy.go` and add a new case inside `OfType` method for your new monitor. Lets say you have named your service `MyNewMonitorService`, then you have to add the case like in the example below:
 
@@ -46,7 +47,7 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
     case "MyNewMonitor":
         mp.monitor = &MyNewMonitorService{}
     default:
-        log.Panic("No such provider found")
+        panic("No such provider found")
     }
     return *mp
 }
@@ -86,9 +87,9 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 }
 ```
 
-## Naming Conventions
+### Naming Conventions
 
-### Configuration
+#### Configuration
 
 You can add additional configuration in [endpointmonitor_types.go](./pkg/apis/endpointmonitor/v1alpha1/endpointmonitor_types.go)
 And then handle it accordingly in your monitor's implementation.
@@ -100,65 +101,60 @@ In [endpointmonitor_types.go](./pkg/apis/endpointmonitor/v1alpha1/endpointmonito
 ```yaml
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
 type UptimeRobotConfig struct {
-	// The uptimerobot alertContacts to be associated with this monitor
-	// +optional
-	AlertContacts string `json:"alertContacts,omitempty"`
+// The uptimerobot alertContacts to be associated with this monitor
+// +optional
+AlertContacts string `json:"alertContacts,omitempty"`
 
-	// The uptimerobot check interval in seconds
-	// +kubebuilder:validation:Minimum=60
-	// +optional
-	Interval int `json:"interval,omitempty"`
+// The uptimerobot check interval in seconds
+// +kubebuilder:validation:Minimum=60
+// +optional
+Interval int `json:"interval,omitempty"`
 
-	// Specify maintenanceWindows i.e. once or recurring “do-not-monitor periods”
-	// +optional
-	MaintenanceWindows string `json:"maintenanceWindows,omitempty"`
+// Specify maintenanceWindows i.e. once or recurring “do-not-monitor periods”
+// +optional
+MaintenanceWindows string `json:"maintenanceWindows,omitempty"`
 
-	// The uptimerobot monitor type (http or keyword)
-	// +kubebuilder:validation:Enum=http;keyword
-	// +optional
-	MonitorType string `json:"monitorType,omitempty"`
+// The uptimerobot monitor type (http or keyword)
+// +kubebuilder:validation:Enum=http;keyword
+// +optional
+MonitorType string `json:"monitorType,omitempty"`
 
-	// Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)
-	// +kubebuilder:validation:Enum=yes;no
-	// +optional
-	KeywordExists string `json:"keywordExists,omitempty"`
+// Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)
+// +kubebuilder:validation:Enum=yes;no
+// +optional
+KeywordExists string `json:"keywordExists,omitempty"`
 
-	// keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)
-	// +optional
-	KeywordValue string `json:"keywordValue,omitempty"`
+// keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)
+// +optional
+KeywordValue string `json:"keywordValue,omitempty"`
 
-	// The uptimerobot public status page ID to add this monitor to
-	// +optional
-	StatusPages string `json:"statusPages,omitempty"`
+// The uptimerobot public status page ID to add this monitor to
+// +optional
+StatusPages string `json:"statusPages,omitempty"`
 }
 ```
 
 And then handle this configuration as handled in `processProviderConfig` in [uptime-monitor.go](./pkg/monitors/uptimerobot/uptime-monitor.go)
 
-# Development
+## Development
 
-## Dependencies: 
-1. GoLang v1.15.2
+### Dependencies:
+
+1. GoLang v1.16
 2. kubectl
-3. operator-sdk v0.15.x
+3. operator-sdk v1.6.2
 
-## Running Operator Locally
+### Running Operator Locally
 
 1. Create a namespace `test`
 2. Create a secret with name `imc-config` and add your desired config in there
-3. Run `make run-local`
+3. Run `make run`
 
-**NOTE**: Ensure that all required resources are re-generated 
+**NOTE**: Ensure that all required resources are re-generated
 
-# Creating a New Release
+## Testing
 
-1. Update CSV version in `./hack/update-resources.sh`
-2. Update image tag in `./deploy/operator.yaml`(look for `image:`)
-3. Update dependencies and resources by running `./hack/update-resources.sh` script from root directory
-
-# Testing
-
-## Running Tests Locally
+### Running Tests Locally
 
 Tests require a Kubernetes instance to talk to with a `test` namespace created, and a config with a valid UptimeRobot `apiKey` and `alertContacts`. For example, on MacOS with Homebrew and Minikube, you could accomplish this like
 
@@ -166,16 +162,16 @@ Tests require a Kubernetes instance to talk to with a `test` namespace created, 
 # while still in the root folder, configure test setup
 $ export CONFIG_FILE_PATH=$(pwd)/examples/configs/test-config.yaml
 # update the apikey and alertContacts in this file and the config_test.go file (`correctTestAPIKey` and `correctTestAlertContacts` contstants)
-$ minikube start
 $ kubectl create namespace test
 
 # run the following command in the root folder
 $ make test
 ```
 
-## Test config for monitors
+### Test config for monitors
 
 When running monitor test cases, make sure to provide a config similar to the following:
+
 ```yaml
 providers:
   - name: UptimeRobot

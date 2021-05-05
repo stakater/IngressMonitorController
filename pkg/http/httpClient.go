@@ -2,10 +2,13 @@ package http
 
 import (
 	"bytes"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
+
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
+
+var log = logf.Log.WithName("http-client")
 
 type HttpClient struct {
 	url string
@@ -30,13 +33,13 @@ func (client *HttpClient) addHeaders(request *http.Request, headers map[string]s
 func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, headers map[string]string) HttpResponse {
 	reader := bytes.NewReader(body)
 
-	//   log.Println("NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
+	//   log.Info("NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
 
 	request, err := http.NewRequest(requestType, client.url, reader)
 	if err != nil {
-		log.Error("Failed to craft HTTP Request. METHOD: " + requestType +
-			" URL: " + client.url +
-			" PAYLOAD: " + string(body))
+		log.Error(err, "Failed to craft HTTP Request. METHOD: "+requestType+
+			" URL: "+client.url+
+			" PAYLOAD: "+string(body))
 	}
 
 	if headers != nil {
@@ -45,7 +48,7 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error(err, "")
 	}
 
 	httpResponse := HttpResponse{StatusCode: response.StatusCode}

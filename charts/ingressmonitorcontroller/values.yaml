@@ -1,0 +1,76 @@
+global:
+  # labels added on all components of chart in addition to some default labels
+  labels: {}
+
+replicaCount: 1
+
+image:
+  repository: stakater/ingressmonitorcontroller
+  tag: v2.0.16
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+# Partial override for ingress-monitor-controller.fullname template (will keep the release name)
+nameOverride: ""
+
+# Full override for ingress-monitor-controller.fullname template
+fullnameOverride: ""
+
+# Specifies which namespaces IMC should have access to
+# Leave empty for full access or specify a comma separated list of namespaces to watch
+watchNamespaces: ""
+
+# Name of secret containing
+configSecretName: "imc-config"
+
+# Monitoring Configuration
+serviceMonitor:
+  enabled: false
+
+rbac:
+  create: true
+  allowProxyRole: true
+  allowMetricsReaderRole: true
+  allowLeaderElectionRole: true
+  secretViewerRole: true
+
+serviceAccount:
+  create: true
+  annotations: {}
+  labels: {}
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+resources:
+  {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+podAnnotations: {}
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+service:
+  type: ClusterIP
+  port: 443

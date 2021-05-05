@@ -1,9 +1,10 @@
 vendor
 .idea
 \.vscode/
-build/package/ingressmonitorcontroller
 out
 /IngressMonitorController
 /build/_output/bin/
 /_output/
 .local
+bin
+cover.out

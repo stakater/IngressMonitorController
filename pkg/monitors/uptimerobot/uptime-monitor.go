@@ -8,9 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -49,7 +47,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		var f UptimeMonitorGetMonitorsResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Error(err)
+			log.Error(err, "Unable to unmarshal JSON")
 		}
 
 		if f.Monitors != nil {
@@ -65,7 +63,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	errorString := "GetByName Request failed for name: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
 
-	log.Println(errorString)
+	log.Info(errorString)
 	return nil, errors.New(errorString)
 }
 
@@ -82,7 +80,7 @@ func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor
 		var f UptimeMonitorGetMonitorsResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Error(err)
+			log.Error(err, "Unable to unmarshal JSON")
 		}
 
 		if len(f.Monitors) > 0 {
@@ -93,7 +91,7 @@ func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor
 
 	errorString := "GetAllByName Request failed for name: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
 
-	log.Println(errorString)
+	log.Info(errorString)
 	return nil, errors.New(errorString)
 }
 
@@ -112,14 +110,14 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		var f UptimeMonitorGetMonitorsResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Error(err)
+			log.Error(err, "Unable to unmarshal list monitors response")
 		}
 
 		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
 
 	}
 
-	log.Println("GetAllMonitors Request for UptimeRobot failed. Status Code: " + strconv.Itoa(response.StatusCode))
+	log.Info("GetAllMonitors Request for UptimeRobot failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	return nil
 
 }
@@ -141,13 +139,13 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 		}
 
 		if f.Stat == "ok" {
-			log.Println("Monitor Added: " + m.Name)
+			log.Info("Monitor Added: " + m.Name)
 			monitor.handleStatusPagesConfig(m, strconv.Itoa(f.Monitor.ID))
 		} else {
-			log.Println("Monitor couldn't be added: " + m.Name + ". Error: " + f.Error.Message)
+			log.Info("Monitor couldn't be added: " + m.Name + ". Error: " + f.Error.Message)
 		}
 	} else {
-		log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+		log.Info("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
 
@@ -167,13 +165,13 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 			log.Error(err, "Monitor couldn't be updated: "+m.Name)
 		}
 		if f.Stat == "ok" {
-			log.Println("Monitor Updated: " + m.Name)
+			log.Info("Monitor Updated: " + m.Name)
 			monitor.handleStatusPagesConfig(m, strconv.Itoa(f.Monitor.ID))
 		} else {
-			log.Println("Monitor couldn't be updated: " + m.Name + ". Error: " + f.Error.Message)
+			log.Info("Monitor couldn't be updated: " + m.Name + ". Error: " + f.Error.Message)
 		}
 	} else {
-		log.Println("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+		log.Info("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
 
@@ -229,7 +227,7 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 			if providerConfig != nil && len(providerConfig.KeywordValue) != 0 {
 				body += "&keyword_value=" + providerConfig.KeywordValue
 			} else {
-				log.Error("Monitor is of type Keyword but the `keyword-value` is missing")
+				log.Error(nil, "Monitor is of type Keyword but the `keyword-value` is missing")
 			}
 		}
 	} else {
@@ -243,7 +241,7 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	log.Println(m.ID)
+	log.Info(m.ID)
 	body := "api_key=" + monitor.apiKey + "&format=json&id=" + m.ID
 
 	response := client.PostUrlEncodedFormBody(body)
@@ -255,13 +253,13 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 			log.Error(err, "Monitor couldn't be removed: "+m.Name)
 		}
 		if f.Stat == "ok" {
-			log.Println("Monitor Removed: " + m.Name)
+			log.Info("Monitor Removed: " + m.Name)
 		} else {
-			log.Println("Monitor couldn't be removed: " + m.Name + ". Error: " + f.Error.Message)
-			log.Println(string(body))
+			log.Info("Monitor couldn't be removed: " + m.Name + ". Error: " + f.Error.Message)
+			log.Info(string(body))
 		}
 	} else {
-		log.Println("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+		log.Info("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
 
@@ -281,6 +279,6 @@ func (monitor *UpTimeMonitorService) updateStatusPages(statusPages string, monit
 	statusPage := UpTimeStatusPage{ID: statusPages}
 	_, err := monitor.statusPageService.AddMonitorToStatusPage(statusPage, monitorToAdd)
 	if err != nil {
-		log.Println("Monitor couldn't be added to status page: " + err.Error())
+		log.Info("Monitor couldn't be added to status page: " + err.Error())
 	}
 }

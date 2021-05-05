@@ -3,8 +3,7 @@ package uptime
 import (
 	"testing"
 
-	log "github.com/sirupsen/logrus"
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
@@ -24,7 +23,6 @@ func TestGetAllMonitors(t *testing.T) {
 	}
 	service.Setup(*provider)
 	monitors := service.GetAll()
-	log.Println(monitors)
 
 	if len(monitors) == 0 {
 		t.Log("No Monitors Exist")

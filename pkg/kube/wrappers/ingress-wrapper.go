@@ -6,7 +6,6 @@ import (
 	"path"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -76,7 +75,7 @@ func (iw *IngressWrapper) getIngressSubPath() string {
 
 func (iw *IngressWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	if !iw.rulesExist() {
-		log.Println("No rules exist in ingress: " + iw.Ingress.GetName())
+		log.Info("No rules exist in ingress: " + iw.Ingress.GetName())
 		return ""
 	}
 
@@ -92,7 +91,7 @@ func (iw *IngressWrapper) GetURL(forceHttps bool, healthEndpoint string) string 
 	u, err := url.Parse(URL)
 
 	if err != nil {
-		log.Printf("URL parsing error in getURL() :%v", err)
+		log.Info("URL parsing error in getURL() :%v", err)
 		return ""
 	}
 
@@ -135,7 +134,7 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 	service := &corev1.Service{}
 	err := iw.Client.Get(context.TODO(), types.NamespacedName{Name: serviceName, Namespace: iw.Ingress.Namespace}, service)
 	if err != nil {
-		log.Printf("Get service from kubernetes cluster error:%v", err)
+		log.Info("Get service from kubernetes cluster error:%v", err)
 		return "", false
 	}
 
@@ -148,7 +147,7 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 	}
 	err = iw.Client.List(context.TODO(), podList, listOps)
 	if err != nil {
-		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
+		log.Info("List Pods of service[%s] error:%v", service.GetName(), err)
 	} else if len(podList.Items) > 0 {
 		pod := podList.Items[0]
 
@@ -159,7 +158,7 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 				return podContainers[0].ReadinessProbe.HTTPGet.Path, true
 			}
 		} else {
-			log.Printf("Pod has %d containers so skipping health endpoint", len(podContainers))
+			log.Info("Pod has %d containers so skipping health endpoint", len(podContainers))
 		}
 	}
 

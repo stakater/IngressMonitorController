@@ -5,10 +5,10 @@ import (
 	"os"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	util "github.com/stakater/operator-utils/util"
 	yaml "gopkg.in/yaml.v2"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/stakater/IngressMonitorController/pkg/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -20,6 +20,7 @@ const (
 
 var (
 	IngressMonitorControllerConfig Config
+	log                            = logf.Log.WithName("config")
 )
 
 type Config struct {
@@ -97,12 +98,10 @@ func LoadControllerConfig(apiReader client.Reader) {
 	// Retrieve operator namespace
 	operatorNamespace, _ := os.LookupEnv("OPERATOR_NAMESPACE")
 	if len(operatorNamespace) == 0 {
-		operatorNamespaceTemp, err := k8sutil.GetOperatorNamespace()
+		operatorNamespaceTemp, err := util.GetOperatorNamespace()
 		if err != nil {
-			if err == k8sutil.ErrNoNamespace {
-				log.Info("Skipping leader election; not running in a cluster.")
-			}
-			log.Panic(err)
+			log.Error(err, "Unable to get operator namespace")
+			panic("Unable to get operator namespace")
 		}
 		operatorNamespace = operatorNamespaceTemp
 	}
@@ -110,19 +109,19 @@ func LoadControllerConfig(apiReader client.Reader) {
 	configSecretName, _ := os.LookupEnv("CONFIG_SECRET_NAME")
 	if len(configSecretName) == 0 {
 		configSecretName = IngressMonitorControllerSecretDefaultName
-		log.Warn("CONFIG_SECRET_NAME is unset, using default value: imc-config")
+		log.Info("CONFIG_SECRET_NAME is unset, using default value: imc-config")
 	}
 
 	// Retrieve config key from secret
 	configKey, err := secret.LoadSecretData(apiReader, configSecretName, operatorNamespace, IngressMonitorControllerSecretConfigKey)
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 
 	// Unmarshall
 	err = yaml.Unmarshal([]byte(configKey), &config)
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 	IngressMonitorControllerConfig = config
 }
@@ -148,13 +147,13 @@ func ReadConfig(filePath string) Config {
 	log.Info("Reading YAML Configuration: ", filePath)
 	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 
 	// Unmarshall
 	err = yaml.Unmarshal(source, &config)
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 	IngressMonitorControllerConfig = config
 	return config

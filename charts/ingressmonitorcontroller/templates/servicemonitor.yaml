@@ -1,0 +1,28 @@
+{{- if .Values.serviceMonitor.enabled -}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: '{{ .Release.Name }}'
+  namespace: '{{ .Release.Namespace }}'
+  labels:
+    app: '{{ .Chart.Name }}'
+    app.kubernetes.io/name: '{{ .Chart.Name }}'
+    app.kubernetes.io/instance: '{{ .Release.Name }}'
+spec:
+  selector:
+    matchLabels:
+      app: '{{ .Chart.Name }}'
+      app.kubernetes.io/name: '{{ .Chart.Name }}'
+      app.kubernetes.io/instance: '{{ .Release.Name }}'
+  endpoints:
+    - path: /metrics
+      port: https
+      scheme: https
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tlsConfig:
+        insecureSkipVerify: true
+  namespaceSelector:
+    matchNames:
+    - '{{ .Release.Namespace }}'
+{{- end }}

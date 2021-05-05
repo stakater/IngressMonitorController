@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - master
-
+    paths-ignore:
+      - '*.md'
+      - 'docs/'
+      - 'examples/'
+      - 'hack/'
 env:
   DOCKER_FILE_PATH: Dockerfile
   GOLANG_VERSION: 1.16

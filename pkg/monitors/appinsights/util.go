@@ -5,8 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
-	log "github.com/sirupsen/logrus"
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 )
 
@@ -44,7 +43,7 @@ func getURL(rawXmlData string) string {
 	var w WebTest
 	err := xml.Unmarshal([]byte(rawXmlData), &w)
 	if err != nil {
-		log.Errorf("Failed to parse XML configuration for WebTest")
+		log.Error(err, "Failed to parse XML configuration for WebTest")
 	}
 	return w.Items.Request.URL
 }

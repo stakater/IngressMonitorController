@@ -14,9 +14,9 @@ import (
 	"net/url"
 
 	gocache "github.com/patrickmn/go-cache"
-	log "github.com/sirupsen/logrus"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/http"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -24,6 +24,7 @@ import (
 )
 
 var cache = gocache.New(5*time.Minute, 5*time.Minute)
+var log = logf.Log.WithName("uptime-monitor")
 
 type UpTimeMonitorService struct {
 	apiKey        string
@@ -36,7 +37,7 @@ func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor
 	// using processed config to avoid unnecessary update call because of default values
 	// like contacts and sorted locations
 	if !(reflect.DeepEqual(processProviderConfig(oldMonitor), processProviderConfig(newMonitor))) {
-		log.Printf("There are some new changes in %s monitor", newMonitor.Name)
+		log.Info("There are some new changes in %s monitor", newMonitor.Name)
 		return false
 	}
 	return true
@@ -59,7 +60,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 	}
 
 	errorString := name + " not found"
-	log.Println(errorString)
+	log.Info(errorString)
 	return nil, errors.New(errorString)
 }
 
@@ -85,13 +86,13 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		client := http.CreateHttpClient(checksUrl)
 		response := client.GetUrl(headers, []byte(""))
 		if response.StatusCode != Http.StatusOK {
-			log.Println("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
+			log.Info("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
 			return nil
 		}
 
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Printf("Could not Unmarshal Json Response with error: %v", err)
+			log.Info("Could not Unmarshal Json Response with error: %v", err)
 		}
 		monitors = append(monitors, f.Monitors...)
 		pageNo++
@@ -116,7 +117,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	jsonBody, err := json.Marshal(body)
 	if err == nil {
-		log.Println(string(jsonBody))
+		log.Info(string(jsonBody))
 		response := client.PostUrl(headers, jsonBody)
 
 		if response.StatusCode == Http.StatusOK {
@@ -124,21 +125,21 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 			err := json.Unmarshal(response.Bytes, &f)
 			if err != nil {
-				log.Println("Failed to Unmarshal Response Json Object")
+				log.Info("Failed to Unmarshal Response Json Object")
 			}
 
 			if !f.Errors {
-				log.Println("Monitor Added: " + m.Name)
+				log.Info("Monitor Added: " + m.Name)
 			} else {
-				log.Print("Monitor couldn't be added: " + m.Name +
+				log.Info("Monitor couldn't be added: " + m.Name +
 					"Response: ")
-				log.Println(string(response.Bytes))
+				log.Info(string(response.Bytes))
 			}
 		} else {
-			log.Printf("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode) + "\n" + string(response.Bytes))
+			log.Info("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode) + "\n" + string(response.Bytes))
 		}
 	} else {
-		log.Println(err.Error())
+		log.Info(err.Error())
 	}
 
 }
@@ -158,7 +159,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 	body := processProviderConfig(m)
 
 	jsonBody, err := json.Marshal(body)
-	log.Println(string(jsonBody))
+	log.Info(string(jsonBody))
 	if err == nil {
 		response := client.PutUrl(headers, jsonBody)
 
@@ -166,18 +167,18 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 			var f UptimeMonitorMonitorResponse
 			err := json.Unmarshal(response.Bytes, &f)
 			if err != nil {
-				log.Println("Failed to Unmarshal Response Json Object")
+				log.Info("Failed to Unmarshal Response Json Object")
 			}
 			if !f.Errors {
-				log.Println("Monitor Updated: " + m.Name)
+				log.Info("Monitor Updated: " + m.Name)
 			} else {
-				log.Println("Monitor couldn't be updated: " + m.Name)
+				log.Info("Monitor couldn't be updated: " + m.Name)
 			}
 		} else {
-			log.Println("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+			log.Info("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 		}
 	} else {
-		log.Println("Failed to Marshal JSON Object")
+		log.Info("Failed to Marshal JSON Object")
 	}
 }
 
@@ -198,15 +199,15 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 		var f UptimeMonitorMonitorResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Error(err)
+			log.Error(err, "Unable to unmarshal JSON")
 		}
 		if !f.Errors {
-			log.Println("Monitor Removed: " + m.Name)
+			log.Info("Monitor Removed: " + m.Name)
 		} else {
-			log.Println("Monitor couldn't be removed: " + m.Name)
+			log.Info("Monitor couldn't be removed: " + m.Name)
 		}
 	} else {
-		log.Println("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
+		log.Info("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
 

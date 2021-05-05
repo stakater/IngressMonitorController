@@ -1,0 +1,7 @@
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: endpointmonitor-sample
+spec:
+  # Add fields here
+  foo: bar

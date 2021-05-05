@@ -6,14 +6,15 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
 	insightsAlert "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
 	"github.com/kelseyhightower/envconfig"
-	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 const (
@@ -22,6 +23,8 @@ const (
 	AppInsightsRetryEnabledDefaultValue = true
 	AppInsightsFrequencyDefaultValue    = 300
 )
+
+var log = logf.Log.WithName("appinsights-monitor")
 
 // Configuration holds appinsights specific configuration
 type Configuration struct {
@@ -101,12 +104,13 @@ func (monitor *AppinsightsMonitorService) Equal(oldMonitor models.Monitor, newMo
 // Setup method will initialize a appinsights's go client
 func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 
-	log.Println("AppInsights Monitor's Setup has been called. Initializing AppInsights Client..")
+	log.Info("AppInsights Monitor's Setup has been called. Initializing AppInsights Client..")
 
 	var azConfig AzureConfig
 	err := envconfig.Process("AZURE", &azConfig)
 	if err != nil {
-		log.Fatalf("Error fetching environment variable: %s", err.Error())
+		log.Error(err, "Error fetching environment variable")
+		os.Exit(1)
 	}
 
 	aiService.ctx = context.Background()
@@ -125,39 +129,43 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 	// initialize appinsights client
 	err = aiService.insightsClient.AddToUserAgent("appInsightsMonitor")
 	if err != nil {
-		log.Fatal("Error adding UserAgent in AppInsights Client")
+		log.Error(err, "Error adding UserAgent in AppInsights Client")
+		os.Exit(1)
 	}
 
 	aiService.insightsClient = insights.NewWebTestsClient(azConfig.Subscription_ID)
 	if err != nil {
-		log.Fatal("Error initializing AppInsights Client")
+		log.Error(err, "Error initializing AppInsights Client")
+		os.Exit(1)
 	}
 
 	aiService.insightsClient.Authorizer, err = clientConfig.Authorizer()
 	if err != nil {
-		log.Fatal("Error initializing AppInsights Client")
+		log.Error(err, "Error initializing AppInsights Client")
+		os.Exit(1)
 	}
 
-	log.Println("AppInsights Insights Client has been initialized")
+	log.Info("AppInsights Insights Client has been initialized")
 
 	// initialize monitoring alertrule client only if Email Action or Webhook Action is specified.
 	if aiService.isAlertEnabled() {
 		aiService.alertrulesClient = insightsAlert.NewAlertRulesClient(azConfig.Subscription_ID)
 		aiService.alertrulesClient.Authorizer, err = clientConfig.Authorizer()
 		if err != nil {
-			log.Fatal("Error initializing AppInsights Alertrules Client")
+			log.Error(err, "Error initializing AppInsights Alertrules Client")
+			os.Exit(1)
 		}
-		log.Println("AppInsights Alertrules Client has been initialized")
+		log.Info("AppInsights Alertrules Client has been initialized")
 	}
 
-	log.Println("AppInsights Monitor has been initialized")
+	log.Info("AppInsights Monitor has been initialized")
 }
 
 // GetAll function will return all monitors (appinsights webtest) object in an array
 // GetAll for AppInsights returns all webtest for specific component in a resource group.
 func (aiService *AppinsightsMonitorService) GetAll() []models.Monitor {
 
-	log.Println("AppInsight monitor's GetAll method has been called")
+	log.Info("AppInsight monitor's GetAll method has been called")
 
 	var monitors []models.Monitor
 
@@ -186,7 +194,7 @@ func (aiService *AppinsightsMonitorService) GetAll() []models.Monitor {
 // GetAll for AppInsights returns a webtest for specific resource group.
 func (aiService *AppinsightsMonitorService) GetByName(monitorName string) (*models.Monitor, error) {
 
-	log.Println("AppInsights Monitor's GetByName method has been called")
+	log.Info("AppInsights Monitor's GetByName method has been called")
 	webtest, err := aiService.insightsClient.Get(aiService.ctx, aiService.resourceGroup, monitorName)
 	if err != nil {
 		if webtest.Response.StatusCode == http.StatusNotFound {
@@ -206,22 +214,22 @@ func (aiService *AppinsightsMonitorService) GetByName(monitorName string) (*mode
 func (aiService *AppinsightsMonitorService) Add(monitor models.Monitor) {
 
 	log.Info("AppInsights Monitor's Add method has been called")
-	log.Printf("Adding Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
+	log.Info("Adding Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
 	webtest := aiService.createWebTest(monitor)
 	_, err := aiService.insightsClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, monitor.Name, webtest)
 	if err != nil {
-		log.Errorf("Error adding Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
+		log.Error(err, "Error adding Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 	} else {
-		log.Printf("Successfully added Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+		log.Info("Successfully added Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		if aiService.isAlertEnabled() {
-			log.Printf("Adding alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
+			log.Info("Adding alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
 			alertName := fmt.Sprintf("%s-alert", monitor.Name)
 			webtestAlert := aiService.createAlertRuleResource(monitor)
 			_, err := aiService.alertrulesClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, alertName, webtestAlert)
 			if err != nil {
-				log.Errorf("Error adding alert rule for WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
+				log.Error(err, "Error adding alert rule for WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 			}
-			log.Printf("Successfully added Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+			log.Info("Successfully added Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		}
 	}
 
@@ -230,24 +238,24 @@ func (aiService *AppinsightsMonitorService) Add(monitor models.Monitor) {
 // Update method will update a monitor
 func (aiService *AppinsightsMonitorService) Update(monitor models.Monitor) {
 
-	log.Println("AppInsights Monitor's Update method has been called")
-	log.Printf("Updating Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
+	log.Info("AppInsights Monitor's Update method has been called")
+	log.Info("Updating Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
 
 	webtest := aiService.createWebTest(monitor)
 	_, err := aiService.insightsClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, monitor.Name, webtest)
 	if err != nil {
-		log.Errorf("Error updating Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
+		log.Error(err, "Error updating Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 	} else {
-		log.Printf("Successfully updated Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+		log.Info("Successfully updated Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		if aiService.isAlertEnabled() {
-			log.Printf("Updating alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
+			log.Info("Updating alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
 			alertName := fmt.Sprintf("%s-alert", monitor.Name)
 			webtestAlert := aiService.createAlertRuleResource(monitor)
 			_, err := aiService.alertrulesClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, alertName, webtestAlert)
 			if err != nil {
-				log.Errorf("Error updating alert rule for WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
+				log.Error(err, "Error updating alert rule for WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 			}
-			log.Printf("Successfully updating Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+			log.Info("Successfully updating Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		}
 	}
 }
@@ -255,27 +263,27 @@ func (aiService *AppinsightsMonitorService) Update(monitor models.Monitor) {
 // Remove method will remove a monitor
 func (aiService *AppinsightsMonitorService) Remove(monitor models.Monitor) {
 
-	log.Println("AppInsights Monitor's Remove method has been called")
-	log.Printf("Deleting Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
+	log.Info("AppInsights Monitor's Remove method has been called")
+	log.Info("Deleting Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name)
 	r, err := aiService.insightsClient.Delete(aiService.ctx, aiService.resourceGroup, monitor.Name)
 	if err != nil {
 		if r.Response.StatusCode == http.StatusNotFound {
-			log.Errorf("Application Insights WebTest %s was not found in Resource Group %s", monitor.Name, aiService.resourceGroup)
+			log.Error(err, "Application Insights WebTest %s was not found in Resource Group %s", monitor.Name, aiService.resourceGroup)
 		}
-		log.Errorf("Error deleting Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
+		log.Error(err, "Error deleting Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err)
 	} else {
-		log.Printf("Successfully removed Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+		log.Info("Successfully removed Application Insights WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		if aiService.isAlertEnabled() {
-			log.Printf("Deleting alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
+			log.Info("Deleting alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name)
 			alertName := fmt.Sprintf("%s-alert", monitor.Name)
 			r, err := aiService.alertrulesClient.Delete(aiService.ctx, aiService.resourceGroup, alertName)
 			if err != nil {
 				if r.Response.StatusCode == http.StatusNotFound {
-					log.Errorf("WebTest Alert rule %s was not found in Resource Group %s", alertName, aiService.resourceGroup)
+					log.Error(err, "WebTest Alert rule %s was not found in Resource Group %s", alertName, aiService.resourceGroup)
 				}
-				log.Errorf("Error deleting alert rule for WebTests %s (Resource Group %s): %v", alertName, aiService.resourceGroup, err)
+				log.Error(err, "Error deleting alert rule for WebTests %s (Resource Group %s): %v", alertName, aiService.resourceGroup, err)
 			}
-			log.Printf("Successfully removed Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
+			log.Info("Successfully removed Alert rule for WebTest %s (Resource Group %s)", monitor.Name, aiService.resourceGroup)
 		}
 	}
 }
@@ -293,7 +301,7 @@ func (aiService *AppinsightsMonitorService) createWebTest(monitor models.Monitor
 
 	xmlByte, err := xml.Marshal(webtest)
 	if err != nil {
-		log.Error("Error encoding XML WebTest Configuration")
+		log.Error(err, "Error encoding XML WebTest Configuration")
 	}
 	webtestConfig := string(xmlByte)
 	return insights.WebTest{

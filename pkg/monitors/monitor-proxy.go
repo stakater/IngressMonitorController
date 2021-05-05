@@ -1,8 +1,7 @@
 package monitors
 
 import (
-	log "github.com/sirupsen/logrus"
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/pkg/apis/endpointmonitor/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/appinsights"
@@ -12,7 +11,10 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/monitors/updown"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/uptime"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/uptimerobot"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
+
+var log = logf.Log.WithName("monitors")
 
 type MonitorServiceProxy struct {
 	monitorType string
@@ -41,7 +43,7 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	case "gcloud":
 		mp.monitor = &gcloud.MonitorService{}
 	default:
-		log.Panic("No such provider found: ", mType)
+		panic("No such provider found: " + mType)
 	}
 	return *mp
 }
