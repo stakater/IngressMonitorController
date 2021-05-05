@@ -152,7 +152,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: controller:latest
+                image: stakater/ingressmonitorcontroller:v2.1.0
                 livenessProbe:
                   httpGet:
                     path: /healthz
