@@ -204,12 +204,12 @@ verify-golangci-lint: $(GOLANGCI_LINT)
 verify: verify-golangci-lint
 
 bump-chart-operator:
-	sed -i "s/^version:.*/version:  $(VERSION)/" charts/IngressMonitorController/Chart.yaml
-	sed -i "s/^appVersion:.*/appVersion:  $(VERSION)/" charts/IngressMonitorController/Chart.yaml
-	sed -i "s/tag:.*/tag:  v$(VERSION)/" charts/IngressMonitorController/values.yaml
+	sed -i "s/^version:.*/version:  $(VERSION)/" charts/ingressmonitorcontroller/Chart.yaml
+	sed -i "s/^appVersion:.*/appVersion:  $(VERSION)/" charts/ingressmonitorcontroller/Chart.yaml
+	sed -i "s/tag:.*/tag:  v$(VERSION)/" charts/ingressmonitorcontroller/values.yaml
 
 # Bump Chart
 bump-chart: bump-chart-operator 
 
 generate-crds: controller-gen
-	$(CONTROLLER_GEN) crd paths="./..." output:crd:artifacts:config=charts/IngressMonitorController/crds
+	$(CONTROLLER_GEN) crd paths="./..." output:crd:artifacts:config=charts/ingressmonitorcontroller/crds
