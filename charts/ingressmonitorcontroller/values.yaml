@@ -32,6 +32,7 @@ rbac:
   allowProxyRole: true
   allowMetricsReaderRole: true
   allowLeaderElectionRole: true
+  secretViewerRole: true
 
 serviceAccount:
   create: true
