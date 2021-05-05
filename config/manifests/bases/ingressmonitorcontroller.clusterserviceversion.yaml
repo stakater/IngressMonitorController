@@ -1,0 +1,53 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: ingressmonitorcontroller.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: EndpointMonitor is the Schema for the endpointmonitors API
+      displayName: Endpoint Monitor
+      kind: EndpointMonitor
+      name: endpointmonitors.endpointmonitor.stakater.com
+      version: v1alpha1
+  description: IngressMonitorController automates the process of creating monitors for routes/ingress
+  displayName: ingress-monitor-controller
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - imc
+  - endpoint
+  - route
+  - ingress
+  - IngressMonitorController
+  - Operator
+  links:
+  - name: Ingressmonitorcontroller
+    url: https://ingressmonitorcontroller.domain
+  maintainers:
+  - email: waleed@stakater.com
+    name: ahmedwaleedmalik
+  maturity: alpha
+  provider:
+    name: stakater
+    url: https://stakater.com
+  version: 0.0.0
