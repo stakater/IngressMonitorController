@@ -47,13 +47,7 @@ spec:
         - /manager
         env:
         - name: WATCH_NAMESPACE
-        {{- if .Values.watchNamespaces }}
           value: {{ .Values.watchNamespaces | quote }}
-        {{- else }}
-          valueFrom:
-            fieldRef:
-            fieldPath: metadata.namespace
-				{{- end }}
         - name: CONFIG_SECRET_NAME
           value: {{ default "imc-config" .Values.configSecretName }}
         name: manager
