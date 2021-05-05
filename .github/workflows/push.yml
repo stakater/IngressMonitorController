@@ -188,6 +188,7 @@ jobs:
         with:
           github_token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
 
+      # Push Latest Tag
       - name: Push Latest Tag
         uses: anothrNick/github-tag-action@1.26.0
         env:
