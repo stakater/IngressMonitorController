@@ -1,5 +1,3 @@
-
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
@@ -22,14 +20,10 @@ spec:
         description: EndpointMonitor is the Schema for the endpointmonitors API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -40,12 +34,10 @@ spec:
                 description: Configuration for AppInsights Monitor Provider
                 properties:
                   frequency:
-                    description: 'Sets how often the test should run from each test
-                      location. Possible values: `300,600,900` seconds'
+                    description: 'Sets how often the test should run from each test location. Possible values: `300,600,900` seconds'
                     type: integer
                   retryEnable:
-                    description: 'If its `true`, falied test will be retry after a
-                      short interval. Possible values: `true, false`'
+                    description: 'If its `true`, falied test will be retry after a short interval. Possible values: `true, false`'
                     type: boolean
                   statusCode:
                     description: Returned status code that is counted as a success
@@ -70,8 +62,7 @@ spec:
                     description: '`-` separated contact id''s (e.g. "1234567_8_9-9876543_2_1")'
                     type: string
                   alertIntegrations:
-                    description: '`-` separated set list of integrations ids (e.g.
-                      "91166-12168")'
+                    description: '`-` separated set list of integrations ids (e.g. "91166-12168")'
                     type: string
                   basicAuthUser:
                     description: Required for basic-authentication
@@ -92,12 +83,10 @@ spec:
                     description: How many failed check attempts before notifying
                     type: integer
                   shouldContain:
-                    description: Set to text string that has to be present in the
-                      HTML code of the page
+                    description: Set to text string that has to be present in the HTML code of the page
                     type: string
                   tags:
-                    description: Comma separated set of tags to apply to check (e.g.
-                      "testing,aws")
+                    description: Comma separated set of tags to apply to check (e.g. "testing,aws")
                     type: string
                   teamAlertContacts:
                     description: '`-` separated team id''s (e.g. "1234567_8_9-9876543_2_1")'
@@ -145,8 +134,7 @@ spec:
                     description: Enable Real Browser
                     type: boolean
                   statusCodes:
-                    description: Comma seperated list of HTTP codes to trigger error
-                      on
+                    description: Comma seperated list of HTTP codes to trigger error on
                     type: string
                   testTags:
                     description: Comma separated list of tags
@@ -197,32 +185,26 @@ spec:
                 description: Configuration for UptimeRobot Monitor Provider
                 properties:
                   alertContacts:
-                    description: The uptimerobot alertContacts to be associated with
-                      this monitor
+                    description: The uptimerobot alertContacts to be associated with this monitor
                     type: string
                   customHTTPStatuses:
-                    description: 'Defines which http status codes are treated as up
-                      or down For ex: 200:0_401:1_503:1 (to accept 200 as down and
-                      401 and 503 as up)'
+                    description: 'Defines which http status codes are treated as up or down For ex: 200:0_401:1_503:1 (to accept 200 as down and 401 and 503 as up)'
                     type: string
                   interval:
                     description: The uptimerobot check interval in seconds
                     minimum: 60
                     type: integer
                   keywordExists:
-                    description: Alert if value exist (yes) or doesn't exist (no)
-                      (Only if monitor-type is keyword)
+                    description: Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)
                     enum:
                     - "yes"
                     - "no"
                     type: string
                   keywordValue:
-                    description: keyword to check on URL (e.g.'search' or '404') (Only
-                      if monitor-type is keyword)
+                    description: keyword to check on URL (e.g.'search' or '404') (Only if monitor-type is keyword)
                     type: string
                   maintenanceWindows:
-                    description: Specify maintenanceWindows i.e. once or recurring
-                      “do-not-monitor periods”
+                    description: Specify maintenanceWindows i.e. once or recurring “do-not-monitor periods”
                     type: string
                   monitorType:
                     description: The uptimerobot monitor type (http or keyword)
@@ -231,8 +213,7 @@ spec:
                     - keyword
                     type: string
                   statusPages:
-                    description: The uptimerobot public status page ID to add this
-                      monitor to
+                    description: The uptimerobot public status page ID to add this monitor to
                     type: string
                 type: object
               url:
@@ -242,8 +223,7 @@ spec:
                 description: URL to monitor from either an ingress or route reference
                 properties:
                   ingressRef:
-                    description: IngressURLSource selects an Ingress to populate the
-                      URL with
+                    description: IngressURLSource selects an Ingress to populate the URL with
                     properties:
                       name:
                         type: string
@@ -251,8 +231,7 @@ spec:
                     - name
                     type: object
                   routeRef:
-                    description: RouteURLSource selects a Route to populate the URL
-                      with
+                    description: RouteURLSource selects a Route to populate the URL with
                     properties:
                       name:
                         type: string
