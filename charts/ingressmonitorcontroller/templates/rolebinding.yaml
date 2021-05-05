@@ -1,21 +1,19 @@
-{{- if and ( .Values.rbac.create ) (ne .Values.watchNamespaces "") }}
-{{- range .Values.watchNamespaces | split "," }}
-kind: RoleBinding
+{{- if .Values.rbac.create -}}
+{{- if .Values.rbac.allowLeaderElectionRole }}
+---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
 metadata:
-  name: {{ template "name" $ }}-role-binding
-  namespace: {{ . | trim }}
-  labels:
-{{ include "labels" $ | indent 4 }}
+  name: {{ include "ingress-monitor-controller.fullname" . }}-leader-election-rolebinding
+  namespace: {{ .Release.Namespace }}
 roleRef:
-  kind: Role
-  name: {{ template "name" $ }}-role
   apiGroup: rbac.authorization.k8s.io
-  namespace: {{ . | trim }}
+  kind: Role
+  name: {{ include "ingress-monitor-controller.fullname" . }}-leader-election-role
 subjects:
 - kind: ServiceAccount
-  name: {{ template "serviceAccountName" $ }}
-  namespace: {{ $.Release.Namespace }}
----
+  name: {{ include "ingress-monitor-controller.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
 {{- end }}
+  
 {{- end }}

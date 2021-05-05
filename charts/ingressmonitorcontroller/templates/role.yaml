@@ -1,86 +1,33 @@
-{{- if and ( .Values.rbac.create ) ( ne .Values.watchNamespaces "") }}
-{{- range .Values.watchNamespaces | split "," }}
+{{- if .Values.rbac.create -}}
+{{- if .Values.rbac.allowLeaderElectionRole }}
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ template "name" $ }}-role
-  namespace: {{ . | trim }}
-  labels:
-{{ include "labels" $ | indent 4 }}
+  name: {{ include "ingress-monitor-controller.fullname" . }}-leader-election-role
+  namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups:
   - ""
-  - "extensions"
-  - "route.openshift.io"
+  - coordination.k8s.io
   resources:
-  - ingresses
-  - routes
-  - secrets
+  - configmaps
+  - leases
   verbs:
-  - list
   - get
+  - list
   - watch
+  - create
+  - update
+  - patch
+  - delete
 - apiGroups:
   - ""
   resources:
   - events
-  - services
-  - configmaps
-  - services/finalizers
   verbs:
   - create
-  - delete
-  - get
-  - list
   - patch
-  - update
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  - daemonsets
-  - replicasets
-  - statefulsets
-  verbs:
-  - "list"
-  - "get"
-- apiGroups:
-  - monitoring.coreos.com
-  resources:
-  - servicemonitors
-  verbs:
-  - get
-  - create
-  - list
-- apiGroups:
-  - apps
-  resourceNames:
-  - ingressmonitorcontroller
-  resources:
-  - deployments/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - endpointmonitor.stakater.com
-  resources:
-  - '*'
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
----
 {{- end }}
+  
 {{- end }}

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "ingress-monitor-controller.fullname" . }}-test-connection"
+  labels:
+    {{- include "ingress-monitor-controller.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "ingress-monitor-controller.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

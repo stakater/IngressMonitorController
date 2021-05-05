@@ -1,66 +1,80 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-{{- if .Values.deployment.annotations }}
-{{ toYaml .Values.deployment.annotations | indent 4 }}
-{{- end }}
+  name: {{ include "ingress-monitor-controller.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
-{{ include "labels" $ | indent 4 }}
-{{- if .Values.deployment.labels }}
-{{ toYaml .Values.deployment.labels | indent 4 }}
-{{- end }}
-  name: {{ template "name" . }}
+    {{- include "ingress-monitor-controller.labels" . | nindent 4 }}
+    control-plane: controller-manager
 spec:
-  replicas: {{ .Values.deployment.replicas }}
+  replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
   selector:
     matchLabels:
-{{ include "labels" $ | indent 6 }}
-{{- if .Values.deployment.labels }}
-{{ toYaml .Values.deployment.labels | indent 6 }}
-{{- end }}
+      {{- include "ingress-monitor-controller.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
-{{ include "labels" $ | indent 8 }}
-{{- if .Values.deployment.labels }}
-{{ toYaml .Values.deployment.labels | indent 8 }}
-{{- end }}
+        {{- include "ingress-monitor-controller.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "ingress-monitor-controller.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-      - env:
-        - name: WATCH_NAMESPACE
-        {{- if .Values.watchNamespaces }}
-          value: {{ .Values.watchNamespaces | quote }}
-        {{- else }}
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        {{- end }}
-        - name: POD_NAME
-        {{- if .Values.deployment.podName }}
-          value: {{ .Values.deployment.podName | quote }}
-        {{- else }}
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        {{- end }}
-        - name: CONFIG_SECRET_NAME
-        {{- if .Values.secret.name }}
-          value: {{ .Values.secret.name | quote }}
-        {{- else }}
-          value: {{ template "name" . }}
-        {{- end }}
-        - name: OPERATOR_NAME
-          value: {{ .Values.deployment.operatorName | quote }}
-        - name: LOG_LEVEL
-          value: {{ .Values.deployment.logLevel | quote }}
-        - name: LOG_FORMAT
-          value: {{ .Values.deployment.logFormat | quote }}
-        image: "{{ .Values.deployment.image.name }}:{{ .Values.deployment.image.tag }}"
-        command:
-          - IngressMonitorController
-        imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
-        name: {{ template "name" . }}
-      serviceAccountName: {{ template "serviceAccountName" . }}
+        - args:
+            - --secure-listen-address=0.0.0.0:8443
+            - --upstream=http://127.0.0.1:8080/
+            - --logtostderr=true
+            - --v=10
+          image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
+          name: kube-rbac-proxy
+          ports:
+            - containerPort: 8443
+              name: https
+        - args:
+            - --health-probe-bind-address=:8081
+            - --metrics-bind-address=127.0.0.1:8080
+            - --leader-elect
+          command:
+            - /manager
+          env:
+            - name: WATCH_NAMESPACE
+            {{- if .Values.watchNamespaces }}
+            value: {{ .Values.watchNamespaces | quote }}
+            {{- else }}
+            valueFrom:
+                fieldRef:
+                fieldPath: metadata.namespace
+            - name: CONFIG_SECRET_NAME
+            value: {{ default "imc-config" .Values.configSecretName }}
+          image: controller:latest
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          name: manager
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+              {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: ingressmonitorcontroller-controller-manager
+      terminationGracePeriodSeconds: 10

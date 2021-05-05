@@ -1,30 +1,15 @@
-{{- if and ( .Values.rbac.create ) (eq .Values.watchNamespaces "") }}
+
+{{- if .Values.rbac.create -}}
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "name" . }}-cluster-role
-  labels:
-{{ include "labels" $ | indent 4 }}
+  name: {{ include "ingress-monitor-controller.fullname" . }}-manager-role
 rules:
 - apiGroups:
-  - ""
-  - "extensions"
-  - "route.openshift.io"
+  - endpointmonitor.stakater.com
   resources:
-  - ingresses
-  - routes
-  - secrets
-  verbs:
-  - list
-  - get
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - events
-  - services
-  - configmaps
-  - services/finalizers
+  - endpointmonitors
   verbs:
   - create
   - delete
@@ -32,51 +17,54 @@ rules:
   - list
   - patch
   - update
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  - daemonsets
-  - replicasets
-  - statefulsets
-  verbs:
-  - "list"
-  - "get"
-- apiGroups:
-  - monitoring.coreos.com
-  resources:
-  - servicemonitors
-  verbs:
-  - get
-  - create
-  - list
-- apiGroups:
-  - apps
-  resourceNames:
-  - ingressmonitorcontroller
-  resources:
-  - deployments/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-  - list
   - watch
 - apiGroups:
   - endpointmonitor.stakater.com
   resources:
-  - '*'
+  - endpointmonitors/finalizers
   verbs:
-  - create
-  - delete
+  - update
+- apiGroups:
+  - endpointmonitor.stakater.com
+  resources:
+  - endpointmonitors/status
+  verbs:
   - get
-  - list
   - patch
   - update
-  - watch
+
+---
+{{- if .Values.rbac.allowMetricsReaderRole }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "ingress-monitor-controller.fullname" . }}-metrics-reader
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+{{- end }}
+
+---
+{{- if .Values.rbac.allowProxyRole }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "ingress-monitor-controller.fullname" . }}-proxy-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+{{- end }}
+
 {{- end }}
