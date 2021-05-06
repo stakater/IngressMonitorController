@@ -9,6 +9,7 @@ on:
       - 'docs/'
       - 'examples/'
       - 'hack/'
+      - 'config/'
 env:
   DOCKER_FILE_PATH: Dockerfile
   GOLANG_VERSION: 1.16
