@@ -9,30 +9,16 @@ metadata:
   name: {{ include "ingress-monitor-controller.fullname" . }}-manager-role
 rules:
 - apiGroups:
-  - apps
+  - ""
   resources:
-  - daemonsets
+  - pods
   verbs:
   - get
   - list
 - apiGroups:
-  - apps
+  - ""
   resources:
-  - deployments
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - apps
-  resources:
-  - replicasets
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - apps
-  resources:
-  - statefulsets
+  - services
   verbs:
   - get
   - list
@@ -48,12 +34,8 @@ rules:
   resources:
   - endpointmonitors
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - endpointmonitor.stakater.com
@@ -71,6 +53,14 @@ rules:
   - update
 - apiGroups:
   - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
   resources:
   - ingresses
   verbs:

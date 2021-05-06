@@ -46,16 +46,14 @@ const (
 	defaultRequeueTime = 60 * time.Second
 )
 
-//+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors,verbs=get;list;watch
 //+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors/finalizers,verbs=update
 //+kubebuilder:rbac:groups=route.openshift.io,resources=routes,verbs=get;list;watch
 //+kubebuilder:rbac:groups=extensions,resources=ingresses,verbs=get;list;watch
-//+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list
-//+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list
-//+kubebuilder:rbac:groups=apps,resources=replicasets,verbs=get;list
-//+kubebuilder:rbac:groups=apps,resources=statefulsets,verbs=get;list
+//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=get;list
+//+kubebuilder:rbac:groups="",resources=pods,verbs=get;list
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

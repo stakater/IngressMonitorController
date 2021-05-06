@@ -7,37 +7,16 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - apps
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+- apiGroups:
   - ""
   resources:
   - services
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - apps
-  resources:
-  - daemonsets
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - apps
-  resources:
-  - replicasets
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - apps
-  resources:
-  - statefulsets
   verbs:
   - get
   - list
@@ -46,12 +25,8 @@ rules:
   resources:
   - endpointmonitors
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - endpointmonitor.stakater.com
@@ -69,6 +44,14 @@ rules:
   - update
 - apiGroups:
   - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
   resources:
   - ingresses
   verbs:
