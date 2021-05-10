@@ -50,6 +50,13 @@ spec:
           value: {{ .Values.watchNamespaces | quote }}
         - name: CONFIG_SECRET_NAME
           value: {{ default "imc-config" .Values.configSecretName }}
+        {{- if gt (len .Values.env) 0 }}
+        {{- toYaml .Values.env | nindent 8 }}
+        {{- end }}
+        {{- if gt (len .Values.envFrom) 0 }}
+        envFrom:
+        {{- toYaml .Values.envFrom | nindent 8 }}
+        {{- end }}
         name: manager
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -66,7 +73,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
         resources:
-					{{- toYaml .Values.resources | nindent 12 }}
+          {{- toYaml .Values.resources | nindent 10 }}
       terminationGracePeriodSeconds: 10
       {{- with .Values.nodeSelector }}
       nodeSelector:

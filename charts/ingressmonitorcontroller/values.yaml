@@ -74,3 +74,7 @@ affinity: {}
 service:
   type: ClusterIP
   port: 443
+
+env: []
+
+envFrom: []
