@@ -17,6 +17,10 @@ helm repo add stakater https://stakater.github.io/stakater-charts
 
 helm repo update
 
+# Helm 2
+helm install --set installCRDs=true stakater/ingressmonitorcontroller
+
+# Helm 3
 helm install stakater/ingressmonitorcontroller
 ```
 
@@ -25,6 +29,7 @@ helm install stakater/ingressmonitorcontroller
 | Key                          | Default                               | Description                                                                                    |
 | ---------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | global.labels                | ``                                    | Labels to be added to all components                                                           |
+| installCRDs                  | false                                 | Whether to install CRDs (Helm 2)                                                               |
 | replicaCount                 | `1`                                   | Replicas for operator                                                                          |
 | image.name                   | `"stakater/ingressmonitorcontroller"` | Image repository                                                                               |
 | image.tag                    | `LATEST_CHART_VERSION`                | Tag of the Image                                                                               |
@@ -50,3 +55,5 @@ helm install stakater/ingressmonitorcontroller
 | nodeSelector                 | `{}`                                  | Override for NodeSelector                                                                      |
 | tolerations                  | `{}`                                  | Override for Tolerations                                                                       |
 | affinity                     | `{}`                                  | Override for Affinity                                                                          |
+| env                          | `{}`                                  | Additional environment variables in the manager container                                      |
+| envFrom                      | `{}`                                  | Additional sources to populate environment variables in the manager container                  |

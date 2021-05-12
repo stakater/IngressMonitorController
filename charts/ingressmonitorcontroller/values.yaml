@@ -2,6 +2,8 @@ global:
   # labels added on all components of chart in addition to some default labels
   labels: {}
 
+installCRDs: false
+
 replicaCount: 1
 
 image:

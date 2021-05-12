@@ -1,0 +1,6 @@
+{{- if .Values.installCRDs -}}
+{{- range $path, $_ :=  .Files.Glob  "crds/*.yaml" }}
+{{- $crd := merge (dict "metadata" (dict "annotations" (dict "helm.sh/hook" "crd-install"))) (fromYaml ($.Files.Get $path)) -}}
+{{ toYaml $crd }}
+{{- end }}
+{{- end -}}

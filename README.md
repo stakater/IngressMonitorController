@@ -123,14 +123,15 @@ The following quickstart let's you set up Ingress Monitor Controller to register
 If you have configured helm on your cluster, you can deploy IngressMonitorController via helm using below mentioned commands. For details on chart, see [IMC Helm Chart](https://github.com/stakater/IngressMonitorController/tree/master/deploy/chart/ingressmonitorcontroller)
 
 ```sh
-# Install CRDs
-kubectl apply -f https://raw.githubusercontent.com/stakater/IngressMonitorController/master/deploy/crds/endpointmonitor.stakater.com_endpointmonitors_crd.yaml
-
 # Install chart
 helm repo add stakater https://stakater.github.io/stakater-charts
 
 helm repo update
 
+# Helm 2
+helm install --set installCRDs=true stakater/ingressmonitorcontroller
+
+# Helm 3
 helm install stakater/ingressmonitorcontroller
 ```
 
