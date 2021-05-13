@@ -134,6 +134,16 @@ helm repo update
 helm install stakater/ingressmonitorcontroller
 ```
 
+### OpenStack
+
+Due to [a bug](https://github.com/operator-framework/operator-sdk/issues/4684),
+installation on OpenStack requires using an image of [kube-rbac-proxy](https://github.com/brancz/kube-rbac-proxy)
+provided by Red Hat:
+
+```
+helm install --set kube-rbac-proxy.image.repository=registry.redhat.io/openshift4/ose-kube-rbac-proxy,kube-rbac-proxy.image.tag=v4.7.0 stakater/ingressmonitorcontroller
+```
+
 ## Vanilla Manifests
 
 1. Clone this repository

@@ -78,3 +78,9 @@ service:
 env: []
 
 envFrom: []
+
+kube-rbac-proxy:
+  image:
+    repository: quay.io/brancz/kube-rbac-proxy
+    tag: v0.10.0
+    pullPolicy: IfNotPresent

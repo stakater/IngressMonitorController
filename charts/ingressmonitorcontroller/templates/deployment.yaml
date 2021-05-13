@@ -28,18 +28,19 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
+      {{- with (index .Values "kube-rbac-proxy") }}
       - args:
         - --secure-listen-address=0.0.0.0:8443
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
         - --v=10
-        # Issue: https://github.com/operator-framework/operator-sdk/issues/4813
-        image: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.7.0
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: {{ printf "%s:%s" .image.repository .image.tag | quote }}
+        imagePullPolicy: {{ .image.pullPolicy | quote }}
         name: kube-rbac-proxy
         ports:
         - containerPort: 8443
           name: https
+      {{- end }}
       - args:
         - --health-probe-bind-address=:8081
         - --metrics-bind-address=127.0.0.1:8080
