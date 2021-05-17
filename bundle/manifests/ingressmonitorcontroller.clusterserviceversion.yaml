@@ -18,7 +18,7 @@ metadata:
     capabilities: Basic Install
     operators.operatorframework.io/builder: operator-sdk-v1.6.1+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
-  name: ingressmonitorcontroller.v2.1.4
+  name: ingressmonitorcontroller.v2.1.5
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -130,7 +130,7 @@ spec:
                 - --upstream=http://127.0.0.1:8080/
                 - --logtostderr=true
                 - --v=10
-                image: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.7.0
+                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
                 name: kube-rbac-proxy
                 ports:
                 - containerPort: 8443
@@ -142,7 +142,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: stakater/ingressmonitorcontroller:v2.1.4
+                image: stakater/ingressmonitorcontroller:v2.1.5
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -230,4 +230,4 @@ spec:
   provider:
     name: stakater
     url: https://stakater.com
-  version: 2.1.4
+  version: 2.1.5
