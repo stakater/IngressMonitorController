@@ -13,7 +13,7 @@ imagePullSecrets: []
 kube-rbac-proxy:
   image:
     repository: gcr.io/kubebuilder/kube-rbac-proxy
-    tag: v2.1.5
+    tag: v0.8.0
     pullPolicy: IfNotPresent
 
 # Partial override for ingress-monitor-controller.fullname template (will keep the release name)
