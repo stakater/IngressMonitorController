@@ -205,9 +205,9 @@ verify-golangci-lint: $(GOLANGCI_LINT)
 verify: verify-golangci-lint
 
 bump-chart-operator:
-	sed -i "s/^version:.*/version:  $(VERSION)/" charts/ingressmonitorcontroller/Chart.yaml
-	sed -i "s/^appVersion:.*/appVersion:  $(VERSION)/" charts/ingressmonitorcontroller/Chart.yaml
-	sed -i "s/tag:.*/tag:  v$(VERSION)/" charts/ingressmonitorcontroller/values.yaml
+	sed -i "s/^version:.*/version: $(VERSION)/" charts/ingressmonitorcontroller/Chart.yaml
+	sed -i "s/^appVersion:.*/appVersion: $(VERSION)/" charts/ingressmonitorcontroller/Chart.yaml
+	sed -i "s/tag:.*/tag: v$(VERSION)/" charts/ingressmonitorcontroller/values.yaml
 
 # Bump Chart
 bump-chart: bump-chart-operator 

@@ -68,8 +68,8 @@ jobs:
         mkdir -p .local
         echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
         
-    - name: Test
-      run: make test
+    # - name: Test
+    #   run: make test
 
     - name: Generate Tag
       id: generate_tag
