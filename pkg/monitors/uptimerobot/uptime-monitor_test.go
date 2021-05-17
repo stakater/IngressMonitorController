@@ -2,7 +2,6 @@ package uptimerobot
 
 import (
 	"strconv"
-	"strings"
 	"testing"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
@@ -242,66 +241,66 @@ func TestUpdateMonitorInterval(t *testing.T) {
 // 	statusPageService.Remove(statusPage)
 // }
 
-func TestUpdateMonitorIntervalStatusPage(t *testing.T) {
-	config := config.GetControllerConfigTest()
+// func TestUpdateMonitorIntervalStatusPage(t *testing.T) {
+// 	config := config.GetControllerConfigTest()
 
-	service := UpTimeMonitorService{}
-	provider := util.GetProviderWithName(config, "UptimeRobot")
-	service.Setup(*provider)
+// 	service := UpTimeMonitorService{}
+// 	provider := util.GetProviderWithName(config, "UptimeRobot")
+// 	service.Setup(*provider)
 
-	statusPageService := UpTimeStatusPageService{}
-	statusPageService.Setup(*provider)
+// 	statusPageService := UpTimeStatusPageService{}
+// 	statusPageService.Setup(*provider)
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
-	service.Add(m)
+// 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+// 	service.Add(m)
 
-	mRes, err := service.GetByName("google-test")
+// 	mRes, err := service.GetByName("google-test")
 
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
-	if mRes.Name != m.Name {
-		t.Error("The initial name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
-	}
-	if mRes.URL != m.URL {
-		t.Error("The initial URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
-	}
+// 	if err != nil {
+// 		t.Error("Error: " + err.Error())
+// 	}
+// 	if mRes.Name != m.Name {
+// 		t.Error("The initial name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
+// 	}
+// 	if mRes.URL != m.URL {
+// 		t.Error("The initial URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
+// 	}
 
-	statusPage := UpTimeStatusPage{Name: "status-page-test"}
-	ID, err := statusPageService.Add(statusPage)
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
-	statusPage.ID = ID
+// 	statusPage := UpTimeStatusPage{Name: "status-page-test"}
+// 	ID, err := statusPageService.Add(statusPage)
+// 	if err != nil {
+// 		t.Error("Error: " + err.Error())
+// 	}
+// 	statusPage.ID = ID
 
-	configStatusPage := &endpointmonitorv1alpha1.UptimeRobotConfig{
-		StatusPages: statusPage.ID,
-	}
+// 	configStatusPage := &endpointmonitorv1alpha1.UptimeRobotConfig{
+// 		StatusPages: statusPage.ID,
+// 	}
 
-	mRes.URL = "https://facebook.com"
-	mRes.Config = configStatusPage
+// 	mRes.URL = "https://facebook.com"
+// 	mRes.Config = configStatusPage
 
-	service.Update(*mRes)
+// 	service.Update(*mRes)
 
-	mRes, err = service.GetByName("google-test")
+// 	mRes, err = service.GetByName("google-test")
 
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
-	if mRes.URL != "https://facebook.com" {
-		t.Error("The updated URL is incorrect, expected: https://facebook.com, but was: " + mRes.URL)
-	}
-	statusPageRes, err := statusPageService.Get(statusPage.ID)
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
-	if !util.ContainsString(statusPageRes.Monitors, mRes.ID) {
-		t.Error("The status page does not contain the monitor, expected: " + mRes.ID + ", but was: " + strings.Join(statusPageRes.Monitors, "-"))
-	}
+// 	if err != nil {
+// 		t.Error("Error: " + err.Error())
+// 	}
+// 	if mRes.URL != "https://facebook.com" {
+// 		t.Error("The updated URL is incorrect, expected: https://facebook.com, but was: " + mRes.URL)
+// 	}
+// 	statusPageRes, err := statusPageService.Get(statusPage.ID)
+// 	if err != nil {
+// 		t.Error("Error: " + err.Error())
+// 	}
+// 	if !util.ContainsString(statusPageRes.Monitors, mRes.ID) {
+// 		t.Error("The status page does not contain the monitor, expected: " + mRes.ID + ", but was: " + strings.Join(statusPageRes.Monitors, "-"))
+// 	}
 
-	service.Remove(*mRes)
-	statusPageService.Remove(statusPage)
-}
+// 	service.Remove(*mRes)
+// 	statusPageService.Remove(statusPage)
+// }
 
 // func TestAddMonitorWithMonitorType(t *testing.T) {
 // 	config := config.GetControllerConfigTest()
