@@ -176,6 +176,10 @@ Join and talk to us on the #tools-ingressmonitor channel for discussing the Ingr
 [![Join Slack](https://stakater.github.io/README/stakater-join-slack-btn.png)](https://slack.stakater.com/)
 [![Chat](https://stakater.github.io/README/stakater-chat-btn.png)](https://stakater-community.slack.com/messages/CA66MMYSE)
 
+## Known Issues
+
+- Latest image of kube-rbac-proxy fails on openshift with permission issues. To resolve use `registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.7.0` instead of kube-rbac-proxy. This issue can be tracked [here](https://github.com/operator-framework/operator-sdk/issues/4684).
+
 ## License
 
 Apache2 © [Stakater](http://stakater.com)
