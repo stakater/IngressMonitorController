@@ -6,14 +6,14 @@ replicaCount: 1
 
 image:
   repository: stakater/ingressmonitorcontroller
-  tag: v2.1.5
+  tag: v2.1.6
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 
 kube-rbac-proxy:
   image:
     repository: gcr.io/kubebuilder/kube-rbac-proxy
-    tag: v0.8.0
+    tag: v2.1.6
     pullPolicy: IfNotPresent
 
 # Partial override for ingress-monitor-controller.fullname template (will keep the release name)
