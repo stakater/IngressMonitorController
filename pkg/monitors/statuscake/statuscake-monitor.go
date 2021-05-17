@@ -321,7 +321,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 			return
 		}
 		if fa.Success {
-			log.Info("Monitor Updated:" + m.Name)
+			log.Info("Monitor Updated: " + m.Name)
 		} else {
 			log.V(1).Info("Monitor couldn't be updated: " + m.Name)
 			log.V(1).Info(fa.Message)
