@@ -274,7 +274,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 			return
 		}
 		if fa.Success {
-			log.Info("Monitor Added:", fa.InsertID)
+			log.Info("Monitor Added: " + strconv.Itoa(fa.InsertID))
 		} else {
 			log.Info("Monitor couldn't be added: " + m.Name)
 			log.Info(fa.Message)
@@ -363,7 +363,7 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 			return
 		}
 		if fa.Success {
-			log.Info("Monitor Deleted:", m.ID)
+			log.Info("Monitor Deleted: " + m.ID)
 		} else {
 			log.V(1).Info("Monitor couldn't be deleted: " + m.Name)
 			log.V(1).Info(fa.Message)
