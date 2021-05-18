@@ -274,7 +274,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 			return
 		}
 		if fa.Success {
-			log.Info("Monitor Added: " + fa.InsertID)
+			log.Info("Monitor Added: " + strconv.Itoa(fa.InsertID))
 		} else {
 			log.Info("Monitor couldn't be added: " + m.Name)
 			log.Info(fa.Message)
