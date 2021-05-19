@@ -124,7 +124,7 @@ If you have configured helm on your cluster, you can deploy IngressMonitorContro
 
 ```sh
 # Install CRDs
-kubectl apply -f https://raw.githubusercontent.com/stakater/IngressMonitorController/master/deploy/crds/endpointmonitor.stakater.com_endpointmonitors_crd.yaml
+kubectl apply -f https://raw.githubusercontent.com/stakater/IngressMonitorController/master/charts/ingressmonitorcontroller/crds/endpointmonitor.stakater.com_endpointmonitors.yaml
 
 # Install chart
 helm repo add stakater https://stakater.github.io/stakater-charts

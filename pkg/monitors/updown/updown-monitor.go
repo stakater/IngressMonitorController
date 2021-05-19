@@ -111,13 +111,13 @@ func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 	log.Info("Monitor addition request has been completed")
 
 	if (httpResponse.StatusCode == http.StatusCreated) && (err == nil) {
-		log.Info("Monitor %s has been added.", updownMonitor.Name)
+		log.Info(fmt.Sprintf("Monitor %s has been added.", updownMonitor.Name))
 
 	} else if (httpResponse.StatusCode == http.StatusBadRequest) && (err != nil) {
-		log.Info("Monitor %s is not created because of invalid parameters or it exists.", updownMonitor.Name)
+		log.Info(fmt.Sprintf("Monitor %s is not created because of invalid parameters or it exists.", updownMonitor.Name))
 
 	} else {
-		log.Info("Unable to create monitor %s ", updownMonitor.Name)
+		log.Info(fmt.Sprintf("Unable to create monitor %s ", updownMonitor.Name))
 
 	}
 
@@ -137,7 +137,7 @@ func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.
 	_, err := url.Parse(updownMonitor.URL)
 
 	if err != nil {
-		log.Info("Unable to parse the URL : ", updownMonitor.URL)
+		log.Info("Unable to parse the URL : " + updownMonitor.URL)
 		return updownCheckItemObj
 	}
 
@@ -191,10 +191,10 @@ func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 	log.Info("Updown's check Update request has been completed")
 
 	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
-		log.Info("Monitor %s has been updated with following parameters", updownMonitor.Name)
+		log.Info(fmt.Sprintf("Monitor %s has been updated with following parameters", updownMonitor.Name))
 
 	} else {
-		log.Info("Monitor %s is not updated because of %s", updownMonitor.Name, err.Error())
+		log.Info(fmt.Sprintf("Monitor %s is not updated because of %s", updownMonitor.Name, err.Error()))
 
 	}
 
@@ -209,13 +209,13 @@ func (updownService *UpdownMonitorService) Remove(updownMonitor models.Monitor) 
 	log.Info("Updown's check Remove request has been completed")
 
 	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
-		log.Info("Monitor %v has been deleted.", updownMonitor.Name)
+		log.Info(fmt.Sprintf("Monitor %v has been deleted.", updownMonitor.Name))
 
 	} else if (httpResponse.StatusCode == http.StatusNotFound) && (err != nil) {
-		log.Info("Monitor %v is not found.", updownMonitor.Name)
+		log.Info(fmt.Sprintf("Monitor %v is not found.", updownMonitor.Name))
 
 	} else {
-		log.Info("Unable to delete %v monitor: ", updownMonitor.Name)
+		log.Info("Unable to delete %v monitor: " + updownMonitor.Name)
 	}
 
 }

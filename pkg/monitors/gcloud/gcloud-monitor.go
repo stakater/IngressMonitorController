@@ -38,7 +38,7 @@ func (service *MonitorService) Setup(provider config.Provider) {
 	client, err := monitoring.NewUptimeCheckClient(service.ctx, option.WithCredentialsJSON([]byte(provider.ApiKey)))
 
 	if err != nil {
-		log.Info("Error Seting Up Monitor Service: ", err.Error())
+		log.Info("Error Seting Up Monitor Service: " + err.Error())
 	} else {
 		service.client = client
 	}
@@ -79,7 +79,7 @@ func (service *MonitorService) GetAll() (monitors []models.Monitor) {
 			break
 		}
 		if err != nil {
-			log.Info("Error received while listing checks: ", err.Error())
+			log.Info("Error received while listing checks: " + err.Error())
 			return nil
 		}
 		monitors = append(monitors, transformToMonitor(uptimeCheckConfig))
@@ -91,7 +91,7 @@ func (service *MonitorService) GetAll() (monitors []models.Monitor) {
 func (service *MonitorService) Add(monitor models.Monitor) {
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Info("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: " + err.Error())
 		return
 	}
 
@@ -103,13 +103,13 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 		} else if url.Scheme == "https" {
 			port = 443
 		} else {
-			log.Info("Error Adding Monitor: unknown protocol ", url.Scheme)
+			log.Info("Error Adding Monitor: unknown protocol " + url.Scheme)
 			return
 		}
 	} else {
 		port, err = strconv.Atoi(portString)
 		if err != nil {
-			log.Info("Error Adding Monitor: ", err.Error())
+			log.Info("Error Adding Monitor: " + err.Error())
 			return
 		}
 	}
@@ -142,22 +142,22 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 		},
 	})
 	if err != nil {
-		log.Info("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: " + err.Error())
 		return
 	}
 
-	log.Info("Added monitor for: ", monitor.Name)
+	log.Info("Added monitor for: " + monitor.Name)
 }
 
 func (service *MonitorService) Update(monitor models.Monitor) {
 	uptimeCheckConfig, err := service.client.GetUptimeCheckConfig(service.ctx, &monitoringpb.GetUptimeCheckConfigRequest{Name: monitor.ID})
 	if err != nil {
-		log.Info("Error updating Monitor: ", err.Error())
+		log.Info("Error updating Monitor: " + err.Error())
 	}
 
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Info("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: " + err.Error())
 		return
 	}
 
@@ -174,13 +174,13 @@ func (service *MonitorService) Update(monitor models.Monitor) {
 		} else if url.Scheme == "https" {
 			port = 443
 		} else {
-			log.Info("Error Adding Monitor: unknown protocol ", url.Scheme)
+			log.Info("Error Adding Monitor: unknown protocol " + url.Scheme)
 			return
 		}
 	} else {
 		port, err = strconv.Atoi(portString)
 		if err != nil {
-			log.Info("Error Adding Monitor: ", err.Error())
+			log.Info("Error Adding Monitor: " + err.Error())
 			return
 		}
 	}
@@ -193,11 +193,11 @@ func (service *MonitorService) Update(monitor models.Monitor) {
 		UptimeCheckConfig: uptimeCheckConfig,
 	})
 	if err != nil {
-		log.Info("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: " + err.Error())
 		return
 	}
 
-	log.Info("Updated Monitor: ", uptimeCheckConfig)
+	log.Info(fmt.Sprintf("Updated Monitor: %v", uptimeCheckConfig))
 }
 
 func (service *MonitorService) Remove(monitor models.Monitor) {
@@ -205,10 +205,10 @@ func (service *MonitorService) Remove(monitor models.Monitor) {
 		Name: monitor.ID,
 	})
 	if err != nil {
-		log.Info("Error deleting Monitor: ", err.Error())
+		log.Info("Error deleting Monitor: " + err.Error())
 		return
 	}
-	log.Info("Deleted Monitor: ", monitor.Name)
+	log.Info("Deleted Monitor: " + monitor.Name)
 }
 
 func transformToMonitor(uptimeCheckConfig *monitoringpb.UptimeCheckConfig) (monitor models.Monitor) {

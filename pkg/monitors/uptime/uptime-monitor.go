@@ -37,7 +37,7 @@ func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor
 	// using processed config to avoid unnecessary update call because of default values
 	// like contacts and sorted locations
 	if !(reflect.DeepEqual(processProviderConfig(oldMonitor), processProviderConfig(newMonitor))) {
-		log.Info("There are some new changes in %s monitor", newMonitor.Name)
+		log.Info(fmt.Sprintf("There are some new changes in %s monitor", newMonitor.Name))
 		return false
 	}
 	return true
@@ -92,7 +92,7 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Info("Could not Unmarshal Json Response with error: %v", err)
+			log.Info(fmt.Sprintf("Could not Unmarshal Json Response with error: %v", err))
 		}
 		monitors = append(monitors, f.Monitors...)
 		pageNo++
