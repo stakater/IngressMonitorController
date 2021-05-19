@@ -47,7 +47,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 		BaseURL:  service.url,
 	})
 	if err != nil {
-		log.Info("Error Seting Up Monitor Service: ", err.Error())
+		log.Info("Error Seting Up Monitor Service: " + err.Error())
 	}
 }
 
@@ -69,7 +69,7 @@ func (service *PingdomMonitorService) GetAll() []models.Monitor {
 
 	checks, err := service.client.Checks.List()
 	if err != nil {
-		log.Info("Error received while listing checks: ", err.Error())
+		log.Info("Error received while listing checks: " + err.Error())
 		return nil
 	}
 	for _, mon := range checks {
@@ -89,9 +89,9 @@ func (service *PingdomMonitorService) Add(m models.Monitor) {
 
 	_, err := service.client.Checks.Create(&httpCheck)
 	if err != nil {
-		log.Info("Error Adding Monitor: ", err.Error())
+		log.Info("Error Adding Monitor: " + err.Error())
 	} else {
-		log.Info("Added monitor for: ", m.Name)
+		log.Info("Added monitor for: " + m.Name)
 	}
 }
 
@@ -101,9 +101,9 @@ func (service *PingdomMonitorService) Update(m models.Monitor) {
 
 	resp, err := service.client.Checks.Update(monitorID, &httpCheck)
 	if err != nil {
-		log.Info("Error updating Monitor: ", err.Error())
+		log.Info("Error updating Monitor: " + err.Error())
 	} else {
-		log.Info("Updated Monitor: ", resp)
+		log.Info(fmt.Sprintf("Updated Monitor: %v", resp))
 	}
 }
 
@@ -112,9 +112,9 @@ func (service *PingdomMonitorService) Remove(m models.Monitor) {
 
 	resp, err := service.client.Checks.Delete(monitorID)
 	if err != nil {
-		log.Info("Error deleting Monitor: ", err.Error())
+		log.Info("Error deleting Monitor: " + err.Error())
 	} else {
-		log.Info("Delete Monitor: ", resp)
+		log.Info(fmt.Sprintf("Delete Monitor: %v", resp))
 	}
 }
 
@@ -122,7 +122,7 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck := pingdom.HttpCheck{}
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Info("Unable to parse the URL: ", service.url)
+		log.Info("Unable to parse the URL: " + service.url)
 	}
 
 	if url.Scheme == "https" {
@@ -182,7 +182,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		userIdsStringArray := strings.Split(providerConfig.AlertContacts, "-")
 
 		if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-			log.Info("Error decoding user alert contact IDs from config", err.Error())
+			log.Info("Error decoding user alert contact IDs from config" + err.Error())
 		} else {
 			httpCheck.UserIds = userIds
 		}
@@ -192,7 +192,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		integrationIdsStringArray := strings.Split(providerConfig.AlertIntegrations, "-")
 
 		if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
-			log.Info("Error decoding integration ids into integers", err.Error())
+			log.Info("Error decoding integration ids into integers" + err.Error())
 		} else {
 			httpCheck.IntegrationIds = integrationIds
 		}
@@ -202,7 +202,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		integrationTeamIdsStringArray := strings.Split(providerConfig.TeamAlertContacts, "-")
 
 		if integrationTeamIdsStringArray, err := util.SliceAtoi(integrationTeamIdsStringArray); err != nil {
-			log.Info("Error decoding integration ids into integers", err.Error())
+			log.Info("Error decoding integration ids into integers" + err.Error())
 		} else {
 			httpCheck.TeamIds = integrationTeamIdsStringArray
 		}
@@ -245,14 +245,14 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 
 	if providerConfig != nil && len(providerConfig.ShouldContain) > 0 {
 		httpCheck.ShouldContain = providerConfig.ShouldContain
-		log.Info("Should contain detected. Setting Should Contain string: ", providerConfig.ShouldContain)
+		log.Info("Should contain detected. Setting Should Contain string: " + providerConfig.ShouldContain)
 	}
 
 	// Tags should be a single word or multiple comma-seperated words
 	if providerConfig != nil && len(providerConfig.Tags) > 0 {
 		if !strings.Contains(providerConfig.Tags, " ") {
 			httpCheck.Tags = providerConfig.Tags
-			log.Info("Tags detected. Setting Tags as: ", providerConfig.Tags)
+			log.Info("Tags detected. Setting Tags as: " + providerConfig.Tags)
 		} else {
 			log.Info("Tag string should not contain spaces. Not applying tags.")
 		}
