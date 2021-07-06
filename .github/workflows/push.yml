@@ -78,6 +78,9 @@ jobs:
       - name: Test
         run: make test
 
+      - name: Set up Yaml Processor YQ
+        uses: mikefarah/yq@v4.9.6
+
       - name: Generate Tag
         id: generate_tag
         uses: anothrNick/github-tag-action@1.26.0
