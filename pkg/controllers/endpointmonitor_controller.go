@@ -42,10 +42,6 @@ type EndpointMonitorReconciler struct {
 	MonitorServices []monitors.MonitorServiceProxy
 }
 
-const (
-	defaultRequeueTime = 60 * time.Second
-)
-
 //+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors,verbs=get;list;watch
 //+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors/finalizers,verbs=update
@@ -104,7 +100,7 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		}
 	}
 
-	return reconcile.Result{RequeueAfter: defaultRequeueTime}, err
+	return reconcile.Result{RequeueAfter: config.ReconciliationRequeueTime}, err
 }
 
 // SetupWithManager sets up the controller with the Manager.
