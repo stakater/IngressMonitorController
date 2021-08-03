@@ -3,6 +3,7 @@ package config
 import (
 	"io/ioutil"
 	"os"
+	"strconv"
 	"time"
 
 	util "github.com/stakater/operator-utils/util"
@@ -16,7 +17,11 @@ import (
 const (
 	IngressMonitorControllerSecretConfigKey   = "config.yaml"
 	IngressMonitorControllerSecretDefaultName = "imc-config"
+	requeueTimeEnvVariable                    = "REQUEUE_TIME"
+	defaultRequeueTime                        = 300
 )
+
+var ReconciliationRequeueTime = getRequeueTime()
 
 var (
 	IngressMonitorControllerConfig Config
@@ -157,4 +162,19 @@ func ReadConfig(filePath string) Config {
 	}
 	IngressMonitorControllerConfig = config
 	return config
+}
+
+// getRequeueTime returns the Requeue Time for the objects
+// https://sdk.operatorframework.io/docs/building-operators/golang/tutorial/#reconcile-loop
+func getRequeueTime() time.Duration {
+	output := defaultRequeueTime * time.Second
+	requeueTime, found := os.LookupEnv(requeueTimeEnvVariable)
+	if found && len(requeueTime) > 0 {
+		requeueTimeInt, err := strconv.ParseInt(requeueTime, 10, 64)
+		if err == nil {
+			output = time.Duration(requeueTimeInt) * time.Second
+		}
+	}
+	log.Info("Reconciliation requeue time is set to %v", output)
+	return output
 }

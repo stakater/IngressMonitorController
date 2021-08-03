@@ -1,4 +1,4 @@
-# ![](docs/images/IMC-round-100px.png) Ingress Monitor Controller
+# ![imc-logo](docs/images/IMC-round-100px.png) Ingress Monitor Controller
 
 An operator to watch ingresses/routes and create liveness alerts for your apps/microservices in Uptime checkers.
 
@@ -144,10 +144,11 @@ helm install stakater/ingressmonitorcontroller
 
 ### Environment Variables
 
-| Key                | Description                                                                                            |
-| ------------------ | ------------------------------------------------------------------------------------------------------ |
-| WATCH_NAMESPACE    | Use comma separated list of namespaces or leave the field empty to watch all namespaces(cluster scope) |
-| CONFIG_SECRET_NAME | Name of secret that holds the configuration                                                            |
+| Key                | Default                                 | Description                                                                                            |
+| ------------------ | --------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| WATCH_NAMESPACE    | Namespace in which operator is deployed | Use comma separated list of namespaces or leave the field empty to watch all namespaces(cluster scope) |
+| CONFIG_SECRET_NAME | imc-config                              | Name of secret that holds the configuration                                                            |
+| REQUEUE_TIME       | 300 seconds                             | Integer value to specify number of seconds after which the resource should be reconciled again         |
 
 ## Help
 
