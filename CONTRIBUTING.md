@@ -4,11 +4,11 @@
 
 Pull Requests are welcome. In general, we follow the "fork-and-pull" Git workflow.
 
-1.  **Fork** the repo on GitHub
-2.  **Clone** the project to your own machine
-3.  **Commit** changes to your own branch
-4.  **Push** your work back up to your fork
-5.  Submit a **Pull request** so that we can review your changes
+1. **Fork** the repo on GitHub
+2. **Clone** the project to your own machine
+3. **Commit** changes to your own branch
+4. **Push** your work back up to your fork
+5. Submit a **Pull request** so that we can review your changes
 
 NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 
@@ -138,7 +138,7 @@ And then handle this configuration as handled in `processProviderConfig` in [upt
 
 ## Development
 
-### Dependencies:
+### Dependencies
 
 1. GoLang v1.16
 2. kubectl
@@ -146,9 +146,10 @@ And then handle this configuration as handled in `processProviderConfig` in [upt
 
 ### Running Operator Locally
 
-1. Create a namespace `test`
-2. Create a secret with name `imc-config` and add your desired config in there
-3. Run `make run`
+1. Install CRDs by running `make install`
+2. Create a namespace `test`
+3. Create a secret with name `imc-config` and add your desired config in there
+4. Run `OPERATOR_NAMESPACE=test make run`
 
 **NOTE**: Ensure that all required resources are re-generated
 
