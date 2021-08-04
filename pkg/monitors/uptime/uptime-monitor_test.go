@@ -15,8 +15,10 @@ func TestGetAllMonitors(t *testing.T) {
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "Uptime")
 	if provider == nil {
-		panic("Failed to find provider")
+		log.Error(nil, "Failed to find provider")
+		return
 	}
+
 	// If test Config is passed skip the test
 	if provider.ApiKey == "API_KEY" {
 		return
@@ -37,9 +39,11 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "Uptime")
-	if nil == provider {
-		panic("Failed to find provider")
+	if provider == nil {
+		log.Error(nil, "Failed to find provider")
+		return
 	}
+
 	// If test Config is passed skip the test
 	if provider.ApiKey == "API_KEY" {
 		return
@@ -75,8 +79,10 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "Uptime")
 	if provider == nil {
-		panic("Failed to find provider")
+		log.Error(nil, "Failed to find provider")
+		return
 	}
+
 	// If test Config is passed skip the test
 	if provider.ApiKey == "API_KEY" {
 		return
@@ -143,8 +149,10 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 
 	provider := util.GetProviderWithName(config, "Uptime")
 	if provider == nil {
-		panic("Failed to find provider")
+		log.Error(nil, "Failed to find provider")
+		return
 	}
+
 	// If test Config is passed skip the test
 	if provider.ApiKey == "API_KEY" {
 		return
@@ -176,8 +184,10 @@ func TestEqualMonitor(t *testing.T) {
 
 	provider := util.GetProviderWithName(config, "Uptime")
 	if provider == nil {
-		panic("Failed to find provider")
+		log.Error(nil, "Failed to find provider")
+		return
 	}
+
 	// If test Config is passed skip the test
 	if provider.ApiKey == "API_KEY" {
 		return
