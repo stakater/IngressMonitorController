@@ -3,8 +3,10 @@ package uptimerobot
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	Http "net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -21,9 +23,15 @@ type UpTimeMonitorService struct {
 	statusPageService UpTimeStatusPageService
 }
 
+// Default Interval for status checking
+const DefaultInterval = 300
+
 func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
-	// TODO: Retrieve oldMonitor config and compare it here
-	return false
+	if !(reflect.DeepEqual(monitor.processProviderConfig(oldMonitor, false), monitor.processProviderConfig(newMonitor, false))) {
+		log.Info(fmt.Sprintf("There are some new changes in %s monitor", newMonitor.Name))
+		return false
+	}
+	return true
 }
 
 func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
@@ -196,6 +204,9 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 
 	if providerConfig != nil && providerConfig.Interval > 0 {
 		body += "&interval=" + strconv.Itoa(providerConfig.Interval)
+	} else {
+		// Uptime robot adds a default interval of 5 minutes, if it is not specified
+		body += "&interval=" + strconv.Itoa(DefaultInterval)
 	}
 
 	if providerConfig != nil && len(providerConfig.MaintenanceWindows) != 0 {
