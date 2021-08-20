@@ -3,11 +3,12 @@ package pingdom
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/russellcardullo/go-pingdom/pingdom"
 	"github.com/stakater/IngressMonitorController/pkg/config"
@@ -56,7 +57,7 @@ func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, e
 
 	monitors := service.GetAll()
 	for _, mon := range monitors {
-		if mon.Name == name {
+		if strings.EqualFold(mon.Name, name) {
 			return &mon, nil
 		}
 	}
@@ -135,25 +136,25 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck.Url = url.Path
 	httpCheck.Name = monitor.Name
 
-    if service.alertContacts != "" {
-    	userIdsStringArray := strings.Split(service.alertContacts, "-")
-    
-    	if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-    		log.Println(err.Error())
-    	} else {
-    		httpCheck.UserIds = userIds
-    	}
-    }
+	if service.alertContacts != "" {
+		userIdsStringArray := strings.Split(service.alertContacts, "-")
 
-    if service.alertIntegrations != "" {
-    	integrationIdsStringArray := strings.Split(service.alertIntegrations, "-")
-    
-    	if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
-    		log.Println(err.Error())
-    	} else {
-    		httpCheck.IntegrationIds = integrationIds
-    	}
-    }
+		if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
+			log.Println(err.Error())
+		} else {
+			httpCheck.UserIds = userIds
+		}
+	}
+
+	if service.alertIntegrations != "" {
+		integrationIdsStringArray := strings.Split(service.alertIntegrations, "-")
+
+		if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
+			log.Println(err.Error())
+		} else {
+			httpCheck.IntegrationIds = integrationIds
+		}
+	}
 	service.addAnnotationConfigToHttpCheck(&httpCheck, monitor.Annotations)
 
 	return httpCheck
