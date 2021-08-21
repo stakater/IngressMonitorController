@@ -164,7 +164,7 @@ func (c *MonitorController) removeMonitorsIfExist(monitorName string) {
 func (c *MonitorController) removeMonitorIfExists(monitorService monitors.MonitorServiceProxy, monitorName string) {
 	m, err := monitorService.GetByName(monitorName)
 	if err != nil {
-		log.Println(err)
+		log.Info(err)
 	}
 
 	if m != nil { // Monitor Exists
@@ -184,7 +184,7 @@ func (c *MonitorController) createOrUpdateMonitors(monitorName string, oldMonito
 func (c *MonitorController) createOrUpdateMonitor(monitorService monitors.MonitorServiceProxy, monitorName string, oldMonitorName string, monitorURL string, annotations map[string]string) {
 	m, err := monitorService.GetByName(oldMonitorName)
 	if err != nil {
-		log.Println(err)
+		log.Info(err)
 	}
 
 	if m != nil { // Monitor Already Exists
