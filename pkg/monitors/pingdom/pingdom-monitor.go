@@ -258,6 +258,19 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		}
 	}
 
+	// Enable SSL validation
+	if providerConfig != nil {
+		httpCheck.VerifyCertificate = &providerConfig.VerifyCertificate
+	}
+
+	// Set certificate not valid before, default to 28 days to accommodate Let's Encrypt 30 day renewals + 2 days grace period.
+	defaultSSLDownDaysBefore := 28
+	if providerConfig != nil && providerConfig.SSLDownDaysBefore > 0 {
+		httpCheck.SSLDownDaysBefore = &providerConfig.SSLDownDaysBefore
+	} else {
+		httpCheck.SSLDownDaysBefore = &defaultSSLDownDaysBefore
+	}
+
 	if providerConfig != nil {
 		httpCheck.Paused = providerConfig.Paused
 		httpCheck.NotifyWhenBackup = providerConfig.NotifyWhenBackUp

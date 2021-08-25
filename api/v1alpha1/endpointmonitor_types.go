@@ -259,6 +259,19 @@ type PingdomConfig struct {
 	// `-` separated team id's (e.g. "1234567_8_9-9876543_2_1")
 	// +optional
 	TeamAlertContacts string `json:"teamAlertContacts,omitempty"`
+
+	// Monitor SSL/TLS certificate
+	// Monitor the validity of your SSL/TLS certificate. With this enabled Uptime checks will be considered DOWN when
+	// the certificate becomes invalid or expires.
+	// SSL/TLS certificate monitoring is available for HTTP checks.
+	// +optional
+	VerifyCertificate bool `json:"verifyCertificate,omitempty"`
+
+	// Consider down prior to certificate expiring
+	// Select the number of days prior to your certificate expiry date that you want to consider the check down.
+	// At this day your check will be considered down and if applicable a down alert will be sent.
+	// +optional
+	SSLDownDaysBefore int `json:"sslDownDaysBefore,omitempty"`
 }
 
 // AppInsightsConfig defines the configuration for AppInsights Monitor Provider
