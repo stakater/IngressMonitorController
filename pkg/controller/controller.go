@@ -2,6 +2,8 @@ package controller
 
 import (
 	"fmt"
+	"time"
+
 	routev1 "github.com/openshift/api/route/v1"
 	log "github.com/sirupsen/logrus"
 	"github.com/stakater/IngressMonitorController/pkg/callbacks"
@@ -20,7 +22,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
-	"time"
 )
 
 // MonitorController which can be used for monitoring ingresses
@@ -161,7 +162,10 @@ func (c *MonitorController) removeMonitorsIfExist(monitorName string) {
 }
 
 func (c *MonitorController) removeMonitorIfExists(monitorService monitors.MonitorServiceProxy, monitorName string) {
-	m, _ := monitorService.GetByName(monitorName)
+	m, err := monitorService.GetByName(monitorName)
+	if err != nil {
+		log.Info(err)
+	}
 
 	if m != nil { // Monitor Exists
 		monitorService.Remove(*m) // Remove the monitor
@@ -178,7 +182,10 @@ func (c *MonitorController) createOrUpdateMonitors(monitorName string, oldMonito
 }
 
 func (c *MonitorController) createOrUpdateMonitor(monitorService monitors.MonitorServiceProxy, monitorName string, oldMonitorName string, monitorURL string, annotations map[string]string) {
-	m, _ := monitorService.GetByName(oldMonitorName)
+	m, err := monitorService.GetByName(oldMonitorName)
+	if err != nil {
+		log.Info(err)
+	}
 
 	if m != nil { // Monitor Already Exists
 		log.Info("Monitor already exists for ingress: " + monitorName)

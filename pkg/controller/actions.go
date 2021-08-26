@@ -55,7 +55,6 @@ func (r ResourceUpdatedAction) handle(c *MonitorController) error {
 		}
 
 	} else {
-		c.removeMonitorsIfExist(oldMonitorName)
 		log.Info("Not doing anything with this ingress because no annotation exists with name: " + constants.MonitorEnabledAnnotation)
 	}
 
