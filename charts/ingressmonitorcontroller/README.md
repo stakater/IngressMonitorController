@@ -29,6 +29,9 @@ helm install stakater/ingressmonitorcontroller
 | image.name                   | `"stakater/ingressmonitorcontroller"` | Image repository                                                                               |
 | image.tag                    | `LATEST_CHART_VERSION`                | Tag of the Image                                                                               |
 | image.pullPolicy             | `Always`                              | Pull policy for the image                                                                      |
+| kube-rbac-proxy.image.repository             | `gcr.io/kubebuilder/kube-rbac-proxy`                              | Image repository for kube-rbac-proxy                                                                      |
+| kube-rbac-proxy.image.tag            | `v0.8.0`                              | Tag of the kube-rbac-proxy image                                                                      |
+| kube-rbac-proxy.image.pullPolicy             | `IfNotPresent`                              | Pull policy for the image                                                                      |
 | imagePullSecrets             | ``                                    | List of secrets used to pull images                                                            |
 | nameOverride                 | `""`                                  | Partial override for ingress-monitor-controller.fullname template (will keep the release name) |
 | fullnameOverride             | `""`                                  | Full override for ingress-monitor-controller.fullname template                                 |
