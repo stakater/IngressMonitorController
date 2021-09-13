@@ -15,13 +15,7 @@ rules:
   verbs:
   - get
   - list
-- apiGroups:
-  - ""
-  resources:
-  - services
-  verbs:
-  - get
-  - list
+  - watch
 - apiGroups:
   - ""
   resources:
