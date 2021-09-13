@@ -23,6 +23,7 @@ rules:
   verbs:
   - get
   - list
+  - watch
 - apiGroups:
   - endpointmonitor.stakater.com
   resources:
