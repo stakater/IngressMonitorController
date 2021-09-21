@@ -6,7 +6,7 @@ description: IngressMonitorController Operator chart that runs on kubernetes
 version: 2.1.12
 
 # Application version to be deployed
-appVersion: 2.1.11
+appVersion: 2.1.12
 
 keywords:
   - IngressMonitorController
