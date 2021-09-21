@@ -3,7 +3,7 @@ name: ingressmonitorcontroller
 description: IngressMonitorController Operator chart that runs on kubernetes
 
 # Helm chart Version
-version: 2.1.11
+version: 2.1.12
 
 # Application version to be deployed
 appVersion: 2.1.11

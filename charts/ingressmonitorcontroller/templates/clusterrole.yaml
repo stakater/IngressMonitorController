@@ -15,6 +15,7 @@ rules:
   verbs:
   - get
   - list
+  - watch
 - apiGroups:
   - ""
   resources:
@@ -22,13 +23,7 @@ rules:
   verbs:
   - get
   - list
-- apiGroups:
-  - ""
-  resources:
-  - services
-  verbs:
-  - get
-  - list
+  - watch
 - apiGroups:
   - endpointmonitor.stakater.com
   resources:
