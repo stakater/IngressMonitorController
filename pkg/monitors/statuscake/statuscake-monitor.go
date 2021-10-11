@@ -200,48 +200,52 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 
 // GetByName function will Get a monitor by it's name
 func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor, error) {
-	monitors := service.GetAll()
+	monitors, err := service.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
 	for _, monitor := range monitors {
 		if monitor.Name == name {
 			return &monitor, nil
 		}
 	}
-	errorString := "GetByName Request failed for name: " + name
-	return nil, errors.New(errorString)
+
+	return nil, errors.New("GetByName Request failed for name: " + name)
 }
 
 // GetAll function will fetch all monitors
-func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
+func (service *StatusCakeMonitorService) GetAll() ([]models.Monitor, error) {
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
-		return nil
+		return nil, err
 	}
 	u.Path = "/API/Tests/"
 	u.Scheme = "https"
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		log.Error(err, "Unable to retrieve monitor")
-		return nil
+		return nil, err
 	}
 	req.Header.Add("API", service.apiKey)
 	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
 		log.Error(err, "Unable to retrieve monitor")
-		return nil
+		return nil, err
 	}
 	if resp.StatusCode == http.StatusOK {
 		f := make([]StatusCakeMonitorMonitor, 0)
 		err := json.NewDecoder(resp.Body).Decode(&f)
 		if err != nil {
 			log.Error(err, "Unable to retrieve monitor")
-			return nil
+			return nil, err
 		}
-		return StatusCakeMonitorMonitorsToBaseMonitorsMapper(f)
+		return StatusCakeMonitorMonitorsToBaseMonitorsMapper(f), err
 	}
 	log.Error(nil, "GetAll Request failed")
-	return nil
+	return nil, err
 }
 
 // Add will create a new Monitor
