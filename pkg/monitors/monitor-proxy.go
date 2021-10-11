@@ -4,13 +4,7 @@ import (
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
-	"github.com/stakater/IngressMonitorController/pkg/monitors/appinsights"
-	"github.com/stakater/IngressMonitorController/pkg/monitors/gcloud"
-	"github.com/stakater/IngressMonitorController/pkg/monitors/pingdom"
 	"github.com/stakater/IngressMonitorController/pkg/monitors/statuscake"
-	"github.com/stakater/IngressMonitorController/pkg/monitors/updown"
-	"github.com/stakater/IngressMonitorController/pkg/monitors/uptime"
-	"github.com/stakater/IngressMonitorController/pkg/monitors/uptimerobot"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -28,20 +22,8 @@ func (mp *MonitorServiceProxy) GetType() string {
 func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	mp.monitorType = mType
 	switch mType {
-	case "UptimeRobot":
-		mp.monitor = &uptimerobot.UpTimeMonitorService{}
-	case "Pingdom":
-		mp.monitor = &pingdom.PingdomMonitorService{}
 	case "StatusCake":
 		mp.monitor = &statuscake.StatusCakeMonitorService{}
-	case "Uptime":
-		mp.monitor = &uptime.UpTimeMonitorService{}
-	case "Updown":
-		mp.monitor = &updown.UpdownMonitorService{}
-	case "AppInsights":
-		mp.monitor = &appinsights.AppinsightsMonitorService{}
-	case "gcloud":
-		mp.monitor = &gcloud.MonitorService{}
 	default:
 		panic("No such provider found: " + mType)
 	}
@@ -52,20 +34,8 @@ func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.Endpoi
 	var config interface{}
 
 	switch mp.monitorType {
-	case "UptimeRobot":
-		config = spec.UptimeRobotConfig
-	case "Pingdom":
-		config = spec.PingdomConfig
 	case "StatusCake":
 		config = spec.StatusCakeConfig
-	case "Uptime":
-		config = spec.UptimeConfig
-	case "Updown":
-		config = spec.UpdownConfig
-	case "AppInsights":
-		config = spec.AppInsightsConfig
-	case "gcloud":
-		config = spec.GCloudConfig
 	default:
 		return config
 	}
@@ -76,7 +46,7 @@ func (mp *MonitorServiceProxy) Setup(p config.Provider) {
 	mp.monitor.Setup(p)
 }
 
-func (mp *MonitorServiceProxy) GetAll() []models.Monitor {
+func (mp *MonitorServiceProxy) GetAll() ([]models.Monitor, error) {
 	return mp.monitor.GetAll()
 }
 
