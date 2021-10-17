@@ -175,7 +175,11 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		f.Add("NodeLocations", providerConfig.NodeLocations)
 	}
 
-	if providerConfig != nil && providerConfig.TriggerRate > 0 {
+	if providerConfig != nil && providerConfig.Timeout > 0 {
+		f.Add("Timeout", strconv.Itoa(providerConfig.Timeout))
+	}
+
+	if providerConfig != nil && providerConfig.TriggerRate >= 0 {
 		f.Add("TriggerRate", strconv.Itoa(providerConfig.TriggerRate))
 	}
 

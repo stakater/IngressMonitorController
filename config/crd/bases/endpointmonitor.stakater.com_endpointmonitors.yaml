@@ -135,7 +135,7 @@ spec:
                     minimum: 0
                     type: integer
                   contactGroup:
-                    description: Contact Group to be alerted.
+                    description: Contact Group ID to be alerted.
                     type: string
                   enableSslAlert:
                     description: Enable SSL Alert
@@ -168,6 +168,9 @@ spec:
                   testType:
                     description: Set Test type - HTTP, TCP, PING
                     type: string
+                  timeout:
+                    description: Timeout for test in seconds
+                    type: integer
                   triggerRate:
                     description: Minutes to wait before sending an alert
                     type: integer

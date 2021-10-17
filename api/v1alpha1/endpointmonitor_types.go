@@ -163,6 +163,10 @@ type StatusCakeConfig struct {
 	// +optional
 	TestType string `json:"testType,omitempty"`
 
+	// Timeout for test in seconds
+	// +optional
+	Timeout int `json:"timeout,omitempty"`
+
 	// Pause the service
 	// +optional
 	Paused bool `json:"paused,omitempty"`
@@ -183,7 +187,7 @@ type StatusCakeConfig struct {
 	// +optional
 	TriggerRate int `json:"triggerRate,omitempty"`
 
-	// Contact Group to be alerted.
+	// Contact Group ID to be alerted.
 	// +optional
 	ContactGroup string `json:"contactGroup,omitempty"`
 
