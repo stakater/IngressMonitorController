@@ -265,10 +265,13 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 
 	// Set certificate not valid before, default to 28 days to accommodate Let's Encrypt 30 day renewals + 2 days grace period.
 	defaultSSLDownDaysBefore := 28
-	if providerConfig != nil && providerConfig.SSLDownDaysBefore > 0 {
-		httpCheck.SSLDownDaysBefore = &providerConfig.SSLDownDaysBefore
-	} else {
-		httpCheck.SSLDownDaysBefore = &defaultSSLDownDaysBefore
+	// Pingdom doesn't allow SSLDownDaysBefore to be set if VerifyCertificate isn't set to true
+	if providerConfig != nil && providerConfig.VerifyCertificate {
+		if providerConfig.SSLDownDaysBefore > 0 {
+			httpCheck.SSLDownDaysBefore = &providerConfig.SSLDownDaysBefore
+		} else {
+			httpCheck.SSLDownDaysBefore = &defaultSSLDownDaysBefore
+		}
 	}
 
 	if providerConfig != nil {
