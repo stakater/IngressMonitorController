@@ -36,8 +36,10 @@ func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor
 
 	// using processed config to avoid unnecessary update call because of default values
 	// like contacts and sorted locations
-	if !(reflect.DeepEqual(processProviderConfig(oldMonitor), processProviderConfig(newMonitor))) {
-		log.Info(fmt.Sprintf("There are some new changes in %s monitor", newMonitor.Name))
+	oldConfig := processProviderConfig(oldMonitor)
+	newConfig := processProviderConfig(newMonitor)
+	if !(reflect.DeepEqual(oldConfig, newConfig)) {
+		log.Info(fmt.Sprintf("There are some new changes in %s monitor: old: %s, new: %s", newMonitor.Name, oldConfig, newConfig))
 		return false
 	}
 	return true
@@ -85,7 +87,11 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		checksUrl := fmt.Sprintf("%schecks/?page=%d", monitor.url, pageNo)
 		client := http.CreateHttpClient(checksUrl)
 		response := client.GetUrl(headers, []byte(""))
-		if response.StatusCode != Http.StatusOK {
+		if response.StatusCode == Http.StatusTooManyRequests {
+			log.Info("failed getting monitors due to rate limit")
+			ObserveRateLimit(response)
+			return nil
+		} else if response.StatusCode != Http.StatusOK {
 			log.Info("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
 			return nil
 		}
@@ -135,6 +141,12 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 					"Response: ")
 				log.Info(string(response.Bytes))
 			}
+		} else if response.StatusCode == Http.StatusTooManyRequests {
+			log.Info("failed adding monitor due to rate limit")
+			err := ObserveRateLimit(response)
+			if err == nil {
+				monitor.Add(m)
+			}
 		} else {
 			log.Info("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode) + "\n" + string(response.Bytes))
 		}
@@ -174,6 +186,12 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 			} else {
 				log.Info("Monitor couldn't be updated: " + m.Name)
 			}
+		} else if response.StatusCode == Http.StatusTooManyRequests {
+			log.Info("failed updating monitor due to rate limit")
+			err := ObserveRateLimit(response)
+			if err == nil {
+				monitor.Update(m)
+			}
 		} else {
 			log.Info("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 		}
@@ -205,6 +223,12 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 			log.Info("Monitor Removed: " + m.Name)
 		} else {
 			log.Info("Monitor couldn't be removed: " + m.Name)
+		}
+	} else if response.StatusCode == Http.StatusTooManyRequests {
+		log.Info("failed removing monitor due to rate limit")
+		err := ObserveRateLimit(response)
+		if err == nil {
+			monitor.Remove(m)
 		}
 	} else {
 		log.Info("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
@@ -247,5 +271,21 @@ func processProviderConfig(m models.Monitor) map[string]interface{} {
 	}
 
 	return body
+}
 
+func ObserveRateLimit(resp http.HttpResponse) error {
+	strDuration := resp.Headers["retry-after"]
+	if strDuration == "" {
+		log.Info("No retry-after header was present in the rate limited response")
+		return errors.New("No retry-after header was present in the rate limited response")
+	}
+	intDuration, err := strconv.Atoi(strDuration)
+	if err != nil {
+		log.Info(fmt.Sprintf("error parsing duration from value: %s", strDuration))
+		return errors.New("failed parsing duration value from the retry-after response header")
+	}
+	log.Info(fmt.Sprintf("rate limit hit, backing off for %s seconds", strDuration))
+	time.Sleep(time.Duration(intDuration) * time.Second)
+
+	return nil
 }

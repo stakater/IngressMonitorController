@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
@@ -17,6 +18,7 @@ type HttpClient struct {
 type HttpResponse struct {
 	StatusCode int
 	Bytes      []byte
+	Headers    map[string]string
 }
 
 func CreateHttpClient(url string) *HttpClient {
@@ -31,6 +33,8 @@ func (client *HttpClient) addHeaders(request *http.Request, headers map[string]s
 }
 
 func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, headers map[string]string) HttpResponse {
+	respHeaders := make(map[string]string)
+
 	reader := bytes.NewReader(body)
 
 	//   log.Info("NewRequest: METHOD: " + requestType + " URL: " + client.url + " PAYLOAD: " + string(body))
@@ -47,11 +51,15 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 	}
 
 	response, err := http.DefaultClient.Do(request)
+
+	for k, v := range response.Header {
+		respHeaders[strings.ToLower(k)] = string(v[0])
+	}
 	if err != nil {
 		log.Error(err, "")
 	}
 
-	httpResponse := HttpResponse{StatusCode: response.StatusCode}
+	httpResponse := HttpResponse{StatusCode: response.StatusCode, Headers: respHeaders}
 
 	defer response.Body.Close()
 	responseBytes, _ := ioutil.ReadAll(response.Body)
