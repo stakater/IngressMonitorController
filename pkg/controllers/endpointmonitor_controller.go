@@ -80,6 +80,10 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		return reconcile.Result{}, err
 	}
 
+	if instance.Spec.MonitorName != "" {
+		monitorName = instance.Spec.MonitorName
+	}
+
 	// Handle CreationDelay
 	createTime := instance.CreationTimestamp
 	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))

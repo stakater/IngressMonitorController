@@ -3,6 +3,7 @@ kind: EndpointMonitor
 metadata:
   name: uptimerobot-config-example
 spec:
+  monitorName: "custom-overwrite-name-P2"
   forceHttps: true
   providers: "UptimeRobot"
   healthEndpoint: "/healthzzz"

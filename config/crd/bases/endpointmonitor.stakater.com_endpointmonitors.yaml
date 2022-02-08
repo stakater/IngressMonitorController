@@ -54,6 +54,9 @@ spec:
               forceHttps:
                 description: Force monitor endpoint to use HTTPS
                 type: boolean
+              monitorName:
+                description: Allow montor name override
+                type: string
               gcloudConfig:
                 description: Configuration for Google Cloud Monitor Provider
                 properties:

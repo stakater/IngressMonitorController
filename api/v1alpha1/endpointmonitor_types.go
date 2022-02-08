@@ -25,6 +25,10 @@ type EndpointMonitorSpec struct {
 	// URL to monitor
 	URL string `json:"url,omitempty"`
 
+	// The override monitor name
+	// +optional
+	MonitorName string `json:"monitorName,omitempty"`
+
 	// Force monitor endpoint to use HTTPS
 	// +optional
 	ForceHTTPS bool `json:"forceHttps,omitempty"`
