@@ -32,6 +32,10 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: ${{ env.GOLANG_VERSION }}
+    
+    - name: Install Dependencies
+      run: |
+        make install
 
     - name: Lint
       run: |
