@@ -37,6 +37,8 @@ spec:
         image: {{ printf "%s:%s" .image.repository .image.tag | default "gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0" | quote }}
         imagePullPolicy: {{ .image.pullPolicy | quote }}
         name: kube-rbac-proxy
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
         ports:
         - containerPort: 8443
           name: https
