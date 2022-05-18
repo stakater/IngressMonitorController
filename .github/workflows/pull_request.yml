@@ -34,9 +34,11 @@ jobs:
         go-version: ${{ env.GOLANG_VERSION }}
 
     - name: Lint
-      run: |
-        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.39.0
-        golangci-lint run --timeout=10m ./...
+      uses: golangci/golangci-lint-action@v2.3.0
+      with:
+        version: v1.39.0
+        only-new-issues: false
+        args: --timeout 10m
 
     - name: Helm Lint
       run: |
