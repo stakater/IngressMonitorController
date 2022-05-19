@@ -62,7 +62,7 @@ spec:
         {{ if .Values.kube-rbac-proxy.resources }}
          resources:
 {{ toYaml .Values.kube-rbac-proxy.resources | indent 10 }}
-        {{- end }}   
+        {{ end }}   
         name: manager
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -81,7 +81,7 @@ spec:
         {{ if .Values.manager.resources }}
          resources:
 {{ toYaml .Values.manager.resources | indent 10 }}
-        {{- end }}   
+        {{ end }}   
       terminationGracePeriodSeconds: 10
       {{- with .Values.nodeSelector }}
       nodeSelector:
