@@ -59,10 +59,10 @@ spec:
         envFrom:
         {{- toYaml .Values.envFrom | nindent 8 }}
         {{- end }}
-        {{ if .Values.kube-rbac-proxy.resources }}
+        {{- if .Values.resources }}
          resources:
-{{ toYaml .Values.kube-rbac-proxy.resources | indent 10 }}
-        {{ end }}   
+{{ toYaml .Values.resources | indent 10 }}
+        {{- end }}   
         name: manager
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -78,10 +78,10 @@ spec:
             port: 8081
           initialDelaySeconds: 5
           periodSeconds: 10
-        {{ if .Values.manager.resources }}
-         resources:
-{{ toYaml .Values.manager.resources | indent 10 }}
-        {{ end }}   
+        {{- if .Values.resources }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        {{- end }}   
       terminationGracePeriodSeconds: 10
       {{- with .Values.nodeSelector }}
       nodeSelector:
