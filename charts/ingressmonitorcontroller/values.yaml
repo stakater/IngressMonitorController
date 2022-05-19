@@ -8,6 +8,7 @@ image:
   repository: stakater/ingressmonitorcontroller
   tag: v2.1.15
   pullPolicy: IfNotPresent
+
 imagePullSecrets: []
 
 kube-rbac-proxy:
@@ -15,6 +16,13 @@ kube-rbac-proxy:
     repository: gcr.io/kubebuilder/kube-rbac-proxy
     tag: v0.8.0
     pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 512Mi
 
 # Partial override for ingress-monitor-controller.fullname template (will keep the release name)
 nameOverride: ""
