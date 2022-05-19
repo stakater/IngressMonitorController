@@ -59,9 +59,9 @@ spec:
         envFrom:
         {{- toYaml .Values.envFrom | nindent 8 }}
         {{- end }}
-        {{- if .Values.resources }}
+        {{- if .Values.kube-rbac-proxy.image.resources }}
          resources:
-{{ toYaml .Values.resources | indent 10 }}
+{{ toYaml .Values.kube-rbac-proxy.image.resources | indent 10 }}
         {{- end }}   
         name: manager
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
