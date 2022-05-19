@@ -59,7 +59,7 @@ spec:
         envFrom:
         {{- toYaml .Values.envFrom | nindent 8 }}
         {{- end }}
-        {{- if .Values.kube-rbac-proxy.resources }}
+        {{ if .Values.kube-rbac-proxy.resources }}
          resources:
 {{ toYaml .Values.kube-rbac-proxy.resources | indent 10 }}
         {{- end }}   
@@ -78,7 +78,7 @@ spec:
             port: 8081
           initialDelaySeconds: 5
           periodSeconds: 10
-        {{- if .Values.manager.resources }}
+        {{ if .Values.manager.resources }}
          resources:
 {{ toYaml .Values.manager.resources | indent 10 }}
         {{- end }}   
