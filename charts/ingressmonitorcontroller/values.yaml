@@ -15,6 +15,13 @@ kube-rbac-proxy:
     repository: gcr.io/kubebuilder/kube-rbac-proxy
     tag: v0.8.0
     pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 
 # Partial override for ingress-monitor-controller.fullname template (will keep the release name)
 nameOverride: ""
