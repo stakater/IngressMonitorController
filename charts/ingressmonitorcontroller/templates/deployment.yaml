@@ -40,9 +40,9 @@ spec:
         ports:
         - containerPort: 8443
           name: https
-      {{- end }}
-        resources:
-          {{- toYaml .Values.resources | nindent 10 }}
+        resources: 
+          {{- toYaml .resources | nindent 10 }}       
+      {{- end }}    
       - args:
         - --health-probe-bind-address=:8081
         - --metrics-bind-address=127.0.0.1:8080
