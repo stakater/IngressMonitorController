@@ -85,8 +85,8 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-#test: generate fmt vet manifests
-#	go test -v ./... -coverprofile cover.out
+test: generate fmt vet manifests
+	go test -v ./... -coverprofile cover.out
 
 ##@ Build
 
