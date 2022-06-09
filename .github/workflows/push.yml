@@ -18,7 +18,7 @@ env:
   OPERATOR_SDK_VERSION: "1.6.2"
   KUSTOMIZE_VERSION: "3.5.4"
   KUBERNETES_VERSION: "1.20.2"
-  KIND_VERSION: "0.10.0"
+  KIND_VERSION: "0.11.1"
   HELM_REGISTRY_URL: "https://stakater.github.io/stakater-charts"
 
 jobs:
