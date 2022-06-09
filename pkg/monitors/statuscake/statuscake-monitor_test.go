@@ -21,10 +21,10 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		return
 	}
 	service.Setup(*provider)
-	m := models.Monitor{Name: "google-test-statuscake", URL: "https://google1.com"}
+	m := models.Monitor{Name: "google-test", URL: "https://google1.com"}
 	service.Add(m)
 
-	mRes, err := service.GetByName("google-test-statuscake")
+	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
 		t.Error("Error: " + err.Error())
@@ -54,10 +54,10 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	}
 	service.Setup(*provider)
 
-	m := models.Monitor{Name: "google-test-statuscake", URL: "https://google.com"}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
-	mRes, err := service.GetByName("google-test-statuscake")
+	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
 		t.Error("Error: " + err.Error())
@@ -70,7 +70,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 
 	service.Update(*mRes)
 
-	mRes, err = service.GetByName("google-test-statuscake")
+	mRes, err = service.GetByName("google-test")
 
 	if err != nil {
 		t.Error("Error: " + err.Error())
