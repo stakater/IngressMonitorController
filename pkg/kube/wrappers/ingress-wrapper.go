@@ -8,14 +8,14 @@ import (
 	"strings"
 
 	"github.com/stakater/IngressMonitorController/pkg/constants"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 )
 
 type IngressWrapper struct {
-	Ingress    *v1beta1.Ingress
+	Ingress    *v1.Ingress
 	Namespace  string
 	KubeClient kubernetes.Interface
 }
@@ -126,8 +126,8 @@ func (iw *IngressWrapper) hasService() (string, bool) {
 	if ingress.Spec.Rules[0].HTTP != nil &&
 		ingress.Spec.Rules[0].HTTP.Paths != nil &&
 		len(ingress.Spec.Rules[0].HTTP.Paths) > 0 &&
-		ingress.Spec.Rules[0].HTTP.Paths[0].Backend.ServiceName != "" {
-		return ingress.Spec.Rules[0].HTTP.Paths[0].Backend.ServiceName, true
+		ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Name != "" {
+		return ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Name, true
 	}
 	return "", false
 }

@@ -15,7 +15,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 	"github.com/stakater/IngressMonitorController/pkg/util"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	net_v1 "k8s.io/api/networking/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
@@ -73,7 +73,7 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -87,7 +87,7 @@ func TestAddIngressWithNoAnnotationShouldNotCreateMonitor(t *testing.T) {
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 }
 
 func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
@@ -110,7 +110,7 @@ func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -125,7 +125,7 @@ func TestAddIngressWithCorrectMonitorTemplate(t *testing.T) {
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 }
 
 func TestInvalidMonitorTemplateShouldPanic(t *testing.T) {
@@ -155,7 +155,7 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -169,7 +169,7 @@ func TestAddIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testing.
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	time.Sleep(10 * time.Second)
 
@@ -194,7 +194,7 @@ func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
 
 	ingress = addMonitorAnnotationToIngress(ingress, false)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -208,7 +208,7 @@ func TestAddIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 }
 
 func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T) {
@@ -222,7 +222,7 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
-	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	_, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -237,7 +237,7 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 
 	ingress = addMonitorAnnotationToIngress(ingress, false)
 
-	ingress, err = controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
+	ingress, err = controller.kubeClient.NetworkingV1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -248,7 +248,7 @@ func TestUpdateIngressWithAnnotationDisabledShouldNotCreateMonitor(t *testing.T)
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 }
 
 func TestAddIngressWithNameAnnotationShouldCreateMonitorAndDelete(t *testing.T) {
@@ -271,7 +271,7 @@ func TestAddIngressWithNameAnnotationShouldCreateMonitorAndDelete(t *testing.T) 
 	monitorName := "monitor-friendly-name"
 	ingress = addMonitorNameAnnotationToIngress(ingress, monitorName)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -283,7 +283,7 @@ func TestAddIngressWithNameAnnotationShouldCreateMonitorAndDelete(t *testing.T) 
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	time.Sleep(10 * time.Second)
 
@@ -311,12 +311,12 @@ func TestUpdateIngressNameAnnotationShouldUpdateMonitorAndDelete(t *testing.T) {
 	monitorName := "monitor-friendly-name"
 	ingress = addMonitorNameAnnotationToIngress(ingress, monitorName)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 	log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
 
 	updatedMonitorName := "monitor-friendly-name-updated"
 	ingress = addMonitorNameAnnotationToIngress(ingress, updatedMonitorName)
-	result, err = controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
+	result, err = controller.kubeClient.NetworkingV1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -330,7 +330,7 @@ func TestUpdateIngressNameAnnotationShouldUpdateMonitorAndDelete(t *testing.T) {
 	// Monitor with updated name should exist
 	checkMonitorWithName(controller.monitorServices, t, updatedMonitorName, true)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	time.Sleep(10 * time.Second)
 
@@ -350,7 +350,7 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 
-	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	_, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -365,7 +365,7 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
-	ingress, err = controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
+	ingress, err = controller.kubeClient.NetworkingV1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -378,7 +378,7 @@ func TestUpdateIngressWithAnnotationEnabledShouldCreateMonitorAndDelete(t *testi
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	time.Sleep(10 * time.Second)
 
@@ -399,7 +399,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
-	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	_, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -421,7 +421,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 
 	ingress = updateMonitorAnnotationInIngress(ingress, false)
 
-	ingress, err = controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
+	ingress, err = controller.kubeClient.NetworkingV1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -432,7 +432,7 @@ func TestUpdateIngressWithAnnotationFromEnabledToDisabledShouldDeleteMonitor(t *
 	// Should not exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 }
 
 func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
@@ -449,7 +449,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
-	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	_, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -472,7 +472,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 	// Update url
 	ingress.Spec.Rules[0].Host = newURL
 
-	ingress, err = controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
+	ingress, err = controller.kubeClient.NetworkingV1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -499,7 +499,7 @@ func TestUpdateIngressWithNewURLShouldUpdateMonitor(t *testing.T) {
 
 	}
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	time.Sleep(10 * time.Second)
 
@@ -520,7 +520,7 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 
 	ingress = addMonitorAnnotationToIngress(ingress, false)
 
-	_, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	_, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -535,7 +535,7 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 
 	ingress = updateMonitorAnnotationInIngress(ingress, true)
 
-	ingress, err = controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
+	ingress, err = controller.kubeClient.NetworkingV1().Ingresses(namespace).Update(context.TODO(), ingress, meta_v1.UpdateOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -548,7 +548,7 @@ func TestUpdateIngressWithEnabledAnnotationShouldCreateMonitorAndDelete(t *testi
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	time.Sleep(10 * time.Second)
 
@@ -573,7 +573,7 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -587,7 +587,7 @@ func TestAddIngressWithAnnotationEnabledButDisableDeletionShouldCreateMonitorAnd
 	// Should exist
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	time.Sleep(10 * time.Second)
 
@@ -633,7 +633,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonit
 
 	ingress = addServiceToIngress(ingress, serviceName, 80)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -660,7 +660,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodShouldCreateMonit
 		}
 	}
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	controller.kubeClient.CoreV1().Pods(namespace).Delete(context.TODO(), podName, meta_v1.DeleteOptions{})
 
@@ -708,7 +708,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 
 	ingress = addServiceToIngress(ingress, serviceName, 80)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -735,7 +735,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasPodButNoProbesShould
 		}
 	}
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	controller.kubeClient.CoreV1().Pods(namespace).Delete(context.TODO(), podName, meta_v1.DeleteOptions{})
 
@@ -786,7 +786,7 @@ func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreat
 
 	ingress = addServiceToIngress(ingress, serviceName, 80)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -812,7 +812,7 @@ func TestAddIngressWithHealthAnnotationAssociatedWithServiceAndHasPodShouldCreat
 		}
 	}
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	controller.kubeClient.CoreV1().Pods(namespace).Delete(context.TODO(), podName, meta_v1.DeleteOptions{})
 
@@ -855,7 +855,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMon
 
 	ingress = addServiceToIngress(ingress, serviceName, 80)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -881,7 +881,7 @@ func TestAddIngressWithAnnotationAssociatedWithServiceAndHasNoPodShouldCreateMon
 		}
 	}
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	controller.kubeClient.CoreV1().Services(namespace).Delete(context.TODO(), serviceName, meta_v1.DeleteOptions{})
 
@@ -916,7 +916,7 @@ func TestAddIngressWithCreationDelayShouldCreateMonitorAndDelete(t *testing.T) {
 
 	ingress = addMonitorAnnotationToIngress(ingress, true)
 
-	result, err := controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
+	result, err := controller.kubeClient.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, meta_v1.CreateOptions{})
 
 	if err != nil {
 		panic(err)
@@ -935,7 +935,7 @@ func TestAddIngressWithCreationDelayShouldCreateMonitorAndDelete(t *testing.T) {
 
 	checkMonitorWithName(controller.monitorServices, t, monitorName, true)
 
-	controller.kubeClient.ExtensionsV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
+	controller.kubeClient.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), ingressName, meta_v1.DeleteOptions{})
 
 	time.Sleep(15 * time.Second)
 
@@ -943,13 +943,17 @@ func TestAddIngressWithCreationDelayShouldCreateMonitorAndDelete(t *testing.T) {
 	checkMonitorWithName(controller.monitorServices, t, monitorName, false)
 }
 
-func addServiceToIngress(ingress *v1beta1.Ingress, serviceName string, servicePort int) *v1beta1.Ingress {
-	ingress.Spec.Rules[0].HTTP = &v1beta1.HTTPIngressRuleValue{
-		Paths: []v1beta1.HTTPIngressPath{
-			v1beta1.HTTPIngressPath{
-				Backend: v1beta1.IngressBackend{
-					ServiceName: serviceName,
-					ServicePort: intstr.FromInt(servicePort),
+func addServiceToIngress(ingress *net_v1.Ingress, serviceName string, servicePort int32) *net_v1.Ingress {
+	ingress.Spec.Rules[0].HTTP = &net_v1.HTTPIngressRuleValue{
+		Paths: []net_v1.HTTPIngressPath{
+			net_v1.HTTPIngressPath{
+				Backend: net_v1.IngressBackend{
+					Service: &net_v1.IngressServiceBackend{
+						Name: serviceName,
+						Port: net_v1.ServiceBackendPort{
+							Number: servicePort,
+						},
+					},
 				},
 			},
 		},
@@ -1059,7 +1063,7 @@ func createPodObject(podName string, namespace string) *v1.Pod {
 	return pod
 }
 
-func addMonitorAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue bool) *v1beta1.Ingress {
+func addMonitorAnnotationToIngress(ingress *net_v1.Ingress, annotationValue bool) *net_v1.Ingress {
 	if ingress.Annotations == nil {
 		annotations := make(map[string]string)
 		ingress.Annotations = annotations
@@ -1068,7 +1072,7 @@ func addMonitorAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue boo
 	return ingress
 }
 
-func addMonitorNameAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue string) *v1beta1.Ingress {
+func addMonitorNameAnnotationToIngress(ingress *net_v1.Ingress, annotationValue string) *net_v1.Ingress {
 	if ingress.Annotations == nil {
 		annotations := make(map[string]string)
 		ingress.Annotations = annotations
@@ -1077,7 +1081,7 @@ func addMonitorNameAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue
 	return ingress
 }
 
-func addHealthAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue string) *v1beta1.Ingress {
+func addHealthAnnotationToIngress(ingress *net_v1.Ingress, annotationValue string) *net_v1.Ingress {
 	if ingress.Annotations == nil {
 		annotations := make(map[string]string)
 		ingress.Annotations = annotations
@@ -1086,7 +1090,7 @@ func addHealthAnnotationToIngress(ingress *v1beta1.Ingress, annotationValue stri
 	return ingress
 }
 
-func updateMonitorAnnotationInIngress(ingress *v1beta1.Ingress, newValue bool) *v1beta1.Ingress {
+func updateMonitorAnnotationInIngress(ingress *net_v1.Ingress, newValue bool) *net_v1.Ingress {
 	monitorAnnotation := "monitor.stakater.com/enabled"
 	if _, ok := ingress.Annotations[monitorAnnotation]; ok {
 		ingress.Annotations[monitorAnnotation] = strconv.FormatBool(newValue)
@@ -1095,7 +1099,7 @@ func updateMonitorAnnotationInIngress(ingress *v1beta1.Ingress, newValue bool) *
 	return ingress
 }
 
-func removeMonitorAnnotationFromIngress(ingress *v1beta1.Ingress) *v1beta1.Ingress {
+func removeMonitorAnnotationFromIngress(ingress *net_v1.Ingress) *net_v1.Ingress {
 	monitorAnnotation := "monitor.stakater.com/enabled"
 	if _, ok := ingress.Annotations[monitorAnnotation]; ok {
 		delete(ingress.Annotations, monitorAnnotation)
@@ -1141,7 +1145,7 @@ func getControllerWithNamespace(namespace string, enableDeletion bool, options .
 	c.EnableMonitorDeletion = enableDeletion
 
 	// create the monitoring controller
-	controller := NewMonitorController(namespace, kubeClient, c, "ingresses", kubeClient.ExtensionsV1beta1().RESTClient())
+	controller := NewMonitorController(namespace, kubeClient, c, "ingresses", kubeClient.NetworkingV1().RESTClient())
 
 	return controller
 }

@@ -14,7 +14,7 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -148,8 +148,8 @@ func (c *MonitorController) getMonitorURL(resource interface{}) string {
 	}
 
 	ingressWrapper := wrappers.IngressWrapper{
-		Ingress:    resource.(*v1beta1.Ingress),
-		Namespace:  resource.(*v1beta1.Ingress).Namespace,
+		Ingress:    resource.(*v1.Ingress),
+		Namespace:  resource.(*v1.Ingress).Namespace,
 		KubeClient: c.kubeClient,
 	}
 	return ingressWrapper.GetURL()

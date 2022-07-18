@@ -5,7 +5,7 @@ import (
 
 	"github.com/stakater/IngressMonitorController/pkg/kube"
 	"github.com/stakater/IngressMonitorController/pkg/util"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -14,12 +14,12 @@ const (
 	testUrl = "testurl.stackator.com"
 )
 
-func createIngressObjectWithPath(ingressName string, namespace string, url string, path string) *v1beta1.Ingress {
+func createIngressObjectWithPath(ingressName string, namespace string, url string, path string) *v1.Ingress {
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
-	ingress.Spec.Rules[0].IngressRuleValue = v1beta1.IngressRuleValue{
-		HTTP: &v1beta1.HTTPIngressRuleValue{
-			Paths: []v1beta1.HTTPIngressPath{
-				v1beta1.HTTPIngressPath{
+	ingress.Spec.Rules[0].IngressRuleValue = v1.IngressRuleValue{
+		HTTP: &v1.HTTPIngressRuleValue{
+			Paths: []v1.HTTPIngressPath{
+				v1.HTTPIngressPath{
 					Path: path,
 				},
 			},
@@ -29,17 +29,17 @@ func createIngressObjectWithPath(ingressName string, namespace string, url strin
 	return ingress
 }
 
-func createIngressObjectWithAnnotations(ingressName string, namespace string, url string, annotations map[string]string) *v1beta1.Ingress {
+func createIngressObjectWithAnnotations(ingressName string, namespace string, url string, annotations map[string]string) *v1.Ingress {
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
 	ingress.ObjectMeta.SetAnnotations(annotations)
 
 	return ingress
 }
 
-func createIngressObjectWithTLS(ingressName string, namespace string, url string, tlsHostname string) *v1beta1.Ingress {
+func createIngressObjectWithTLS(ingressName string, namespace string, url string, tlsHostname string) *v1.Ingress {
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
-	ingress.Spec.TLS = []v1beta1.IngressTLS{
-		v1beta1.IngressTLS{
+	ingress.Spec.TLS = []v1.IngressTLS{
+		v1.IngressTLS{
 			Hosts: []string{
 				tlsHostname,
 			},
@@ -50,7 +50,7 @@ func createIngressObjectWithTLS(ingressName string, namespace string, url string
 
 func TestIngressWrapper_getURL(t *testing.T) {
 	type fields struct {
-		ingress    *v1beta1.Ingress
+		ingress    *v1.Ingress
 		namespace  string
 		kubeClient kubernetes.Interface
 	}
