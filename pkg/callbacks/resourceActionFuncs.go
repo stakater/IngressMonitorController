@@ -2,7 +2,7 @@ package callbacks
 
 import (
 	routev1 "github.com/openshift/api/route/v1"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1"
 	"time"
 )
 
@@ -28,22 +28,22 @@ type ResourceActionFuncs struct {
 
 // GetIngressAnnotation returns the ingress annotations
 func GetIngressAnnotation(resource interface{}) map[string]string {
-	return resource.(*v1beta1.Ingress).GetAnnotations()
+	return resource.(*v1.Ingress).GetAnnotations()
 }
 
 // GetIngressName returns the ingress name
 func GetIngressName(resource interface{}) string {
-	return resource.(*v1beta1.Ingress).GetName()
+	return resource.(*v1.Ingress).GetName()
 }
 
 // GetIngressNamespace returns the ingress namespace
 func GetIngressNamespace(resource interface{}) string {
-	return resource.(*v1beta1.Ingress).GetNamespace()
+	return resource.(*v1.Ingress).GetNamespace()
 }
 
 // GetIngressCreationTimestamp returns the ingress CreationTimestamp
 func GetIngressCreationTimestamp(resource interface{}) time.Time {
-	return resource.(*v1beta1.Ingress).CreationTimestamp.Time
+	return resource.(*v1.Ingress).CreationTimestamp.Time
 }
 
 // GetRouteAnnotation returns the route annotations

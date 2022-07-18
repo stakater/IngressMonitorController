@@ -2,7 +2,10 @@ module github.com/stakater/IngressMonitorController
 
 go 1.17
 
-replace github.com/stakater/IngressMonitorController/pkg/util => ./pkg/util
+replace (
+	github.com/stakater/IngressMonitorController/pkg/callbacks => ./pkg/callbacks
+	github.com/stakater/IngressMonitorController/pkg/util => ./pkg/util
+)
 
 require (
 	cloud.google.com/go v0.54.0
