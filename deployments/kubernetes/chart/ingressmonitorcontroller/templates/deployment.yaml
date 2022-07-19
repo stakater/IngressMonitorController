@@ -33,6 +33,8 @@ spec:
 {{- end }}
   template:
     metadata:
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
       labels:
         app: {{ template "ingressmonitorcontroller.name" . }}
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
