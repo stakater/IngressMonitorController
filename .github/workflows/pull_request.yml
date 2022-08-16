@@ -67,7 +67,7 @@ jobs:
         kubectl cluster-info
         make install
         mkdir -p .local
-        echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
+        echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" > .local/test-config.yaml
         
     - name: Test
       run: make test
