@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"testing"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
-	"github.com/stakater/IngressMonitorController/pkg/models"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
 
 func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
