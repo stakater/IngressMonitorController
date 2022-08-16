@@ -36,12 +36,12 @@ jobs:
 
       - name: Set up Go
         id: go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GOLANG_VERSION }}
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v2.3.0
+        uses: golangci/golangci-lint-action@v3
         with:
           version: v1.45.2
           only-new-issues: false
