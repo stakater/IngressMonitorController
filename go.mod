@@ -1,4 +1,4 @@
-module github.com/stakater/IngressMonitorController
+module github.com/stakater/IngressMonitorController/v2
 
 go 1.18
 

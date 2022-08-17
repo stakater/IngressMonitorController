@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/stakater/IngressMonitorController/pkg/util"
+	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 )

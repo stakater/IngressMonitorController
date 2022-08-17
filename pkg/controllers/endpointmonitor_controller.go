@@ -22,16 +22,16 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/monitors"
-	"github.com/stakater/IngressMonitorController/pkg/util"
+	"github.com/stakater/IngressMonitorController/v2/pkg/config"
+	"github.com/stakater/IngressMonitorController/v2/pkg/monitors"
+	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 )
 
 // EndpointMonitorReconciler reconciles a EndpointMonitor object

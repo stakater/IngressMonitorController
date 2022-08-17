@@ -16,11 +16,11 @@ import (
 	gocache "github.com/patrickmn/go-cache"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
-	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/http"
-	"github.com/stakater/IngressMonitorController/pkg/models"
-	"github.com/stakater/IngressMonitorController/pkg/util"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
+	"github.com/stakater/IngressMonitorController/v2/pkg/config"
+	"github.com/stakater/IngressMonitorController/v2/pkg/http"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 )
 
 var cache = gocache.New(5*time.Minute, 5*time.Minute)

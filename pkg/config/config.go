@@ -10,7 +10,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/stakater/IngressMonitorController/pkg/secret"
+	"github.com/stakater/IngressMonitorController/v2/pkg/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 

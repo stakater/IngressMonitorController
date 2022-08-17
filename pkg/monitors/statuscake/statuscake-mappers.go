@@ -3,7 +3,7 @@ package statuscake
 import (
 	"strconv"
 
-	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
 
 // StatusCakeMonitorMonitorToBaseMonitorMapper function to map Statuscake structure to Monitor

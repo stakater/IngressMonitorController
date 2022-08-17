@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
-	"github.com/stakater/IngressMonitorController/pkg/kube/util"
-	"github.com/stakater/IngressMonitorController/pkg/models"
-	"github.com/stakater/IngressMonitorController/pkg/monitors"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
+	"github.com/stakater/IngressMonitorController/v2/pkg/kube/util"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/monitors"
 
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )

@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
-	"github.com/stakater/IngressMonitorController/pkg/models"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
 
 // isAlertEnabled returns true if Alertrule is required
