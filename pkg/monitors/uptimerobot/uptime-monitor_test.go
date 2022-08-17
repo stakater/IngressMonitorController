@@ -145,6 +145,9 @@ func TestUpdateMonitorInterval(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		return
+	}
 	service.Setup(*provider)
 
 	configInterval := &endpointmonitorv1alpha1.UptimeRobotConfig{
@@ -307,6 +310,9 @@ func TestAddMonitorWithMonitorType(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		return
+	}
 	service.Setup(*provider)
 
 	configKeyword := &endpointmonitorv1alpha1.UptimeRobotConfig{
@@ -353,6 +359,9 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		return
+	}
 	provider.ApiKey = "dummy-api-key"
 	service.Setup(*provider)
 
@@ -375,6 +384,9 @@ func TestAddMonitorWithAlertContacts(t *testing.T) {
 
 	service := UpTimeMonitorService{}
 	provider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		return
+	}
 	service.Setup(*provider)
 
 	configAlertContacts := &endpointmonitorv1alpha1.UptimeRobotConfig{

@@ -6,7 +6,7 @@ import (
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
 
-//StatusCakeMonitorMonitorToBaseMonitorMapper function to map Statuscake structure to Monitor
+// StatusCakeMonitorMonitorToBaseMonitorMapper function to map Statuscake structure to Monitor
 func StatusCakeMonitorMonitorToBaseMonitorMapper(statuscakeMonitor StatusCakeMonitorMonitor) *models.Monitor {
 	var m models.Monitor
 	m.Name = statuscakeMonitor.WebsiteName
@@ -15,7 +15,7 @@ func StatusCakeMonitorMonitorToBaseMonitorMapper(statuscakeMonitor StatusCakeMon
 	return &m
 }
 
-//StatusCakeMonitorMonitorsToBaseMonitorsMapper function to map Statuscake structure to Monitor
+// StatusCakeMonitorMonitorsToBaseMonitorsMapper function to map Statuscake structure to Monitor
 func StatusCakeMonitorMonitorsToBaseMonitorsMapper(statuscakeMonitors []StatusCakeMonitorMonitor) []models.Monitor {
 	var monitors []models.Monitor
 	for index := 0; index < len(statuscakeMonitors); index++ {

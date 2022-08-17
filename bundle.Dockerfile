@@ -7,9 +7,9 @@ LABEL operators.operatorframework.io.bundle.metadata.v1=metadata/
 LABEL operators.operatorframework.io.bundle.package.v1=ingressmonitorcontroller
 LABEL operators.operatorframework.io.bundle.channels.v1=alpha
 LABEL operators.operatorframework.io.bundle.channel.default.v1=alpha
-LABEL operators.operatorframework.io.metrics.mediatype.v1=metrics+v1
 LABEL operators.operatorframework.io.metrics.builder=operator-sdk-v1.6.1+git
 LABEL operators.operatorframework.io.metrics.project_layout=go.kubebuilder.io/v3
+LABEL operators.operatorframework.io.metrics.mediatype.v1=metrics+v1
 
 # Labels for testing.
 LABEL operators.operatorframework.io.test.mediatype.v1=scorecard+v1

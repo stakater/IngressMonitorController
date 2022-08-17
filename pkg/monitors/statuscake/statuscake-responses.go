@@ -1,6 +1,6 @@
 package statuscake
 
-//StatusCakeMonitorMonitor response Structure for GetAll and GetByName API's for Statuscake
+// StatusCakeMonitorMonitor response Structure for GetAll and GetByName API's for Statuscake
 type StatusCakeMonitorMonitor struct {
 	TestID       int      `json:"TestID"`
 	Paused       bool     `json:"Paused"`

@@ -50,7 +50,6 @@ jobs:
         sudo install ./kubectl /usr/local/bin/ && rm kubectl
         kubectl version --short --client
         kubectl version --short --client | grep -q ${KUBERNETES_VERSION}
-
     - name: Install Kind
       run: |
         curl -L -o kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64
