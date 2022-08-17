@@ -14,7 +14,7 @@ on:
 env:
   DOCKER_FILE_PATH: Dockerfile
   BUNDLE_DOCKER_FILE_PATH: bundle.Dockerfile
-  GOLANG_VERSION: 1.16
+  GOLANG_VERSION: 1.18
   OPERATOR_SDK_VERSION: "1.6.2"
   KUSTOMIZE_VERSION: "3.5.4"
   KUBERNETES_VERSION: "1.20.2"
@@ -41,7 +41,7 @@ jobs:
           go-version: ${{ env.GOLANG_VERSION }}
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v2.3.0
+        uses: golangci/golangci-lint-action@v2.5.2
         with:
           version: v1.45.2
           only-new-issues: false
@@ -74,7 +74,7 @@ jobs:
           kubectl cluster-info
           make install
           mkdir -p .local
-          echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" > .local/test-config.yaml
+          echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
     
       - name: Test
         run: make test
