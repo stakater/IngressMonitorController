@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/stakater/IngressMonitorController/v2/pkg/kube"
-	"github.com/stakater/IngressMonitorController/v2/pkg/kube/wrappers"
-	"k8s.io/api/extensions/v1beta1"
+	"github.com/stakater/IngressMonitorController/pkg/kube"
+	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
+	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -31,7 +31,7 @@ func GetMonitorURL(client client.Client, ingressMonitor *endpointmonitorv1alpha1
 }
 
 func discoverURLFromIngressRef(client client.Client, ingressRef *endpointmonitorv1alpha1.IngressURLSource, namespace string, forceHttps bool, healthEndpoint string) (string, error) {
-	ingressObject := &v1beta1.Ingress{}
+	ingressObject := &v1.Ingress{}
 	err := client.Get(context.TODO(), types.NamespacedName{Name: ingressRef.Name, Namespace: namespace}, ingressObject)
 	if err != nil {
 		log.V(1).Info("Ingress not found with name " + ingressRef.Name)
