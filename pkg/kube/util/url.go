@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/stakater/IngressMonitorController/pkg/kube"
-	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
+	"github.com/stakater/IngressMonitorController/v2/pkg/kube"
+	"github.com/stakater/IngressMonitorController/v2/pkg/kube/wrappers"
 	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
