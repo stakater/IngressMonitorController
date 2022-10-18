@@ -119,6 +119,7 @@ func (iw *IngressWrapper) hasService() (string, bool) {
 	if ingress.Spec.Rules[0].HTTP != nil &&
 		ingress.Spec.Rules[0].HTTP.Paths != nil &&
 		len(ingress.Spec.Rules[0].HTTP.Paths) > 0 &&
+		ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service != nil &&
 		ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Name != "" {
 		return ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Name, true
 	}

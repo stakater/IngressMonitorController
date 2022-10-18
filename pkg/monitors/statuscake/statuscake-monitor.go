@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -37,35 +39,35 @@ func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMon
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
 func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	f := url.Values{}
-	f.Add("WebsiteName", m.Name)
+	f.Add("name", m.Name)
 	unEscapedURL, _ := url.QueryUnescape(m.URL)
-	f.Add("WebsiteURL", unEscapedURL)
+	f.Add("website_url", unEscapedURL)
 
 	// Retrieve provider configuration
 	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
 
 	if providerConfig != nil && providerConfig.CheckRate > 0 {
-		f.Add("CheckRate", strconv.Itoa(providerConfig.CheckRate))
+		f.Add("check_rate", strconv.Itoa(providerConfig.CheckRate))
 	} else {
-		f.Add("CheckRate", "300")
+		f.Add("check_rate", "300")
 	}
 
 	if providerConfig != nil && len(providerConfig.TestType) > 0 {
-		f.Add("TestType", providerConfig.TestType)
+		f.Add("test_type", providerConfig.TestType)
 	} else {
-		f.Add("TestType", "HTTP")
+		f.Add("test_type", "HTTP")
 	}
 
 	if providerConfig != nil && len(providerConfig.ContactGroup) > 0 {
-		f.Add("ContactGroup", providerConfig.ContactGroup)
+		f.Add("contact_groups", providerConfig.ContactGroup)
 	} else {
 		if cgroup != "" {
-			f.Add("ContactGroup", cgroup)
+			f.Add("contact_groups", cgroup)
 		}
 	}
 
 	if providerConfig != nil && len(providerConfig.TestTags) > 0 {
-		f.Add("TestTags", providerConfig.TestTags)
+		f.Add("tags", providerConfig.TestTags)
 	}
 
 	if providerConfig != nil && len(providerConfig.BasicAuthUser) > 0 {
@@ -74,8 +76,8 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		// Mounted via a secret; key is the username, value is the password
 		basicPass := os.Getenv(providerConfig.BasicAuthUser)
 		if basicPass != "" {
-			f.Add("BasicUser", providerConfig.BasicAuthUser)
-			f.Add("BasicPass", basicPass)
+			f.Add("basic_username", providerConfig.BasicAuthUser)
+			f.Add("basic_password", basicPass)
 			log.Info("Basic auth requirement detected. Setting username and password")
 		} else {
 			log.Info("Error reading basic auth password from environment variable")
@@ -83,7 +85,7 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	}
 
 	if providerConfig != nil && len(providerConfig.StatusCodes) > 0 {
-		f.Add("StatusCodes", providerConfig.StatusCodes)
+		f.Add("status_codes_csv", providerConfig.StatusCodes)
 	} else {
 		statusCodes := []string{
 			"204", // No content
@@ -149,42 +151,32 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 			"598",
 			"599",
 		}
-		f.Add("StatusCodes", strings.Join(statusCodes, ","))
+		f.Add("status_codes_csv", strings.Join(statusCodes, ","))
 	}
 
 	if providerConfig != nil {
 		if providerConfig.Paused {
-			f.Add("Paused", "1")
+			f.Add("paused", "1")
 		}
 		if providerConfig.FollowRedirect {
-			f.Add("FollowRedirect", "1")
+			f.Add("follow_redirects", "1")
 		}
 		if providerConfig.EnableSSLAlert {
-			f.Add("EnableSSLAlert", "1")
-		}
-		if providerConfig.RealBrowser {
-			f.Add("RealBrowser", "1")
+			f.Add("enable_ssl_alert", "1")
 		}
 	}
 
 	if providerConfig != nil && len(providerConfig.PingURL) > 0 {
-		f.Add("PingURL", providerConfig.PingURL)
+		f.Add("ping_url", providerConfig.PingURL)
 	}
-
-	if providerConfig != nil && len(providerConfig.NodeLocations) > 0 {
-		f.Add("NodeLocations", providerConfig.NodeLocations)
-	}
-
 	if providerConfig != nil && providerConfig.TriggerRate > 0 {
-		f.Add("TriggerRate", strconv.Itoa(providerConfig.TriggerRate))
+		f.Add("trigger_rate", strconv.Itoa(providerConfig.TriggerRate))
 	}
-
 	if providerConfig != nil && providerConfig.Port > 0 {
-		f.Add("Port", strconv.Itoa(providerConfig.Port))
+		f.Add("port", strconv.Itoa(providerConfig.Port))
 	}
-
 	if providerConfig != nil && providerConfig.Confirmation > 0 {
-		f.Add("Confirmation", strconv.Itoa(providerConfig.Confirmation))
+		f.Add("confirmation", strconv.Itoa(providerConfig.Confirmation))
 	}
 	return f
 }
@@ -210,6 +202,18 @@ func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor
 	return nil, errors.New(errorString)
 }
 
+// GetByID function will Get a monitor by it's ID
+func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, error) {
+	monitors := service.GetAll()
+	for _, monitor := range monitors {
+		if monitor.ID == id {
+			return &monitor, nil
+		}
+	}
+	errorString := "GetByName Request failed for id: " + id
+	return nil, errors.New(errorString)
+}
+
 // GetAll function will fetch all monitors
 func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 	u, err := url.Parse(service.url)
@@ -217,29 +221,41 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 		log.Error(err, "Unable to Parse monitor URL")
 		return nil
 	}
-	u.Path = "/API/Tests/"
+	u.Path = "/v1/uptime/"
 	u.Scheme = "https"
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		log.Error(err, "Unable to retrieve monitor")
 		return nil
 	}
-	req.Header.Add("API", service.apiKey)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 	req.Header.Add("Username", service.username)
+
 	resp, err := service.client.Do(req)
 	if err != nil {
 		log.Error(err, "Unable to retrieve monitor")
 		return nil
 	}
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err, "Unable to read response body")
+	}
+
 	if resp.StatusCode == http.StatusOK {
-		f := make([]StatusCakeMonitorMonitor, 0)
-		err := json.NewDecoder(resp.Body).Decode(&f)
+		var StatusCakeMonitor StatusCakeMonitor
+		var StatusCakeMonitorData []StatusCakeMonitorData
+		err = json.Unmarshal(bodyBytes, &StatusCakeMonitor)
 		if err != nil {
 			log.Error(err, "Unable to retrieve monitor")
 			return nil
 		}
-		return StatusCakeMonitorMonitorsToBaseMonitorsMapper(f)
+
+		StatusCakeMonitorData = append(StatusCakeMonitorData, StatusCakeMonitor.StatusCakeData...)
+
+		return StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData)
 	}
+
 	log.Error(nil, "GetAll Request failed")
 	return nil
 }
@@ -251,15 +267,15 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		log.Error(err, "Unable to Parse monitor URL")
 		return
 	}
-	u.Path = "/API/Tests/Update"
+	u.Path = "/v1/uptime"
 	u.Scheme = "https"
 	data := buildUpsertForm(m, service.cgroup)
-	req, err := http.NewRequest("PUT", u.String(), bytes.NewBufferString(data.Encode()))
+	req, err := http.NewRequest("POST", u.String(), bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		log.Error(err, "Unable to create http request")
 		return
 	}
-	req.Header.Add("API", service.apiKey)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
@@ -297,35 +313,23 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		log.Error(err, "Unable to Parse monitor URL")
 		return
 	}
-	u.Path = "/API/Tests/Update"
+	u.Path = fmt.Sprintf("/v1/uptime/%s", m.ID)
 	u.Scheme = "https"
 	data := buildUpsertForm(m, service.cgroup)
-	data.Add("TestID", m.ID)
 	req, err := http.NewRequest("PUT", u.String(), bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		log.Error(err, "Unable to create http request")
 		return
 	}
-	req.Header.Add("API", service.apiKey)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
 		log.Error(err, "Unable to make HTTP call")
 		return
 	}
-	if resp.StatusCode == http.StatusOK {
-		var fa StatusCakeUpsertResponse
-		err := json.NewDecoder(resp.Body).Decode(&fa)
-		if err != nil {
-			log.Error(err, "Unable to decode http response")
-			return
-		}
-		if fa.Success {
-			log.Info("Monitor Updated: " + m.Name)
-		} else {
-			log.V(1).Info("Monitor couldn't be updated: " + m.Name)
-			log.V(1).Info(fa.Message)
-		}
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusNoContent {
+		log.Info("Monitor Updated: " + m.Name)
 	} else {
 		log.Error(nil, "Update Request failed for name: "+m.Name)
 	}
@@ -338,17 +342,15 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 		log.Error(err, "Unable to Parse monitor URL")
 		return
 	}
-	u.Path = "/API/Tests/Details"
+	u.Path = fmt.Sprintf("/v1/uptime/%s", m.ID)
 	u.Scheme = "https"
-	query := u.Query()
-	query.Set("TestID", m.ID)
-	u.RawQuery = query.Encode()
+
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		log.Error(err, "Unable to create http request")
 		return
 	}
-	req.Header.Add("API", service.apiKey)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {

@@ -1,6 +1,6 @@
 providers:
   - name: StatusCake
     apiKey: API_KEY
-    apiURL: https://app.statuscake.com/API/
+    apiURL: https://api.statuscake.com/v1/uptime
     username: USERNAME
 enableMonitorDeletion: true
