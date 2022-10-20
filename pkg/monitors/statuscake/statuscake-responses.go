@@ -1,5 +1,9 @@
 package statuscake
 
+import (
+	statuscake "github.com/StatusCakeDev/statuscake-go"
+)
+
 // StatusCakeMonitor response Structure for GetAll and GetByName API's for Statuscake
 
 type StatusCakeMonitor struct {
@@ -26,12 +30,7 @@ type StatusCakeMonitorMetadata struct {
 	TotalCount int `json:"total_count"`
 }
 
-// StatusCakeUpsertResponse response Structure for Insert API for Statuscake
-
-// we dont need it anymore because of statuscake api changes
-type StatusCakeUpsertResponse struct {
-	Issues   interface{} `json:"Issues"`
-	Success  bool        `json:"Success"`
-	Message  string      `json:"Message"`
-	InsertID int         `json:"InsertID"`
+// TODO use statuscake managed structs, rather than managing own structs
+type StatusCakeData struct {
+	statuscake.UptimeTest
 }

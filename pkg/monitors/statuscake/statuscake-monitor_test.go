@@ -59,7 +59,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	m := models.Monitor{Name: "google-test-statuscake", URL: "https://google.com"}
 	service.Add(m)
 
-	mRes, err := service.GetByName("google-test-statuscake")
+	mRes, err := service.GetByName(m.Name)
 
 	if err != nil {
 		t.Error("Error: " + err.Error())
@@ -123,14 +123,14 @@ func TestBuildUpsertForm(t *testing.T) {
 	assert.Equal(t, "testpass", vals.Get("basic_password"))
 	assert.Equal(t, "60", vals.Get("check_rate"))
 	assert.Equal(t, "2", vals.Get("confirmation"))
-	assert.Equal(t, "123456,654321", vals.Get("contact_groups"))
+	assert.Equal(t, "123456,654321", convertUrlValuesToString(vals, "contact_groups[]"))
 	assert.Equal(t, "1", vals.Get("enable_ssl_alert"))
 	assert.Equal(t, "1", vals.Get("follow_redirects"))
 	assert.Equal(t, "1", vals.Get("paused"))
 	assert.Equal(t, "", vals.Get("ping_url"))
 	assert.Equal(t, "7070", vals.Get("port"))
 	assert.Equal(t, "500,501,502,503,504,505", vals.Get("status_codes_csv"))
-	assert.Equal(t, "test,testrun,uptime", vals.Get("tags"))
+	assert.Equal(t, "test,testrun,uptime", convertUrlValuesToString(vals, "tags[]"))
 	assert.Equal(t, "TCP", vals.Get("test_type"))
 	assert.Equal(t, "1", vals.Get("trigger_rate"))
 }

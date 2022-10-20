@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go v0.81.0
 	github.com/Azure/azure-sdk-for-go v44.0.0+incompatible
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.0
+	github.com/StatusCakeDev/statuscake-go v1.1.0
 	github.com/antoineaugusti/updown v0.0.0-20190412074625-d590ab97f115
 	github.com/go-logr/logr v1.2.0
 	github.com/kelseyhightower/envconfig v1.4.0

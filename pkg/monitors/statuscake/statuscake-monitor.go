@@ -15,6 +15,7 @@ import (
 
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
+	statuscake "github.com/StatusCakeDev/statuscake-go"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
@@ -65,7 +66,10 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		}
 	} else {
 		if cgroup != "" {
-			f.Add("contact_groups[]", cgroup)
+			contactGroups := convertStringToArray(cgroup)
+			for _, contactgroups := range contactGroups {
+				f.Add("contact_groups[]", contactgroups)
+			}
 		}
 	}
 
@@ -192,6 +196,17 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	return f
 }
 
+// convertValuesToString changes multiple values returned by same key to string for validation purposes
+func convertUrlValuesToString(vals url.Values, key string) string {
+	var valuesArray []string
+	for k, v := range vals {
+		if k == key {
+			valuesArray = append(valuesArray, v...)
+		}
+	}
+	return strings.Join(valuesArray, ",")
+}
+
 // convertStringToArray function is used to convert string to []string
 func convertStringToArray(stringValues string) []string {
 	stringArray := strings.Split(stringValues, ",")
@@ -221,14 +236,47 @@ func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor
 
 // GetByID function will Get a monitor by it's ID
 func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, error) {
-	monitors := service.GetAll()
-	for _, monitor := range monitors {
-		if monitor.ID == id {
-			return &monitor, nil
-		}
+	u, err := url.Parse(service.url)
+	if err != nil {
+		log.Error(err, "Unable to Parse monitor URL")
+		return nil, err
 	}
-	errorString := "GetByName Request failed for id: " + id
-	return nil, errors.New(errorString)
+	u.Path = fmt.Sprintf("/v1/uptime/%s", id)
+	u.Scheme = "https"
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		log.Error(err, "Unable to retrieve monitor")
+		return nil, err
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+
+	resp, err := service.client.Do(req)
+	if err != nil {
+		log.Error(err, "Unable to retrieve monitor")
+		return nil, err
+	}
+
+	BodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err, "Unable to read response body")
+	}
+	bodyString := string(BodyBytes)
+
+	if resp.StatusCode == http.StatusOK {
+
+		// TODO use statuscake managed structs, rather than managing own structs
+
+		var StatusCakeMonitorData statuscake.UptimeTestResponse
+		err = json.Unmarshal(BodyBytes, &StatusCakeMonitorData)
+		if err != nil {
+			log.Error(err, "Unable to unmarshal response")
+			return nil, err
+		}
+		return StatusCakeApiResponseDataToBaseMonitorMapper(StatusCakeMonitorData), nil
+	}
+	log.Info(fmt.Sprintf("Request failed with response: %s for id: %s", bodyString, id))
+
+	return nil, errors.New("GetByID Request failed")
 }
 
 // GetAll function will fetch all monitors
@@ -246,7 +294,6 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 		return nil
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
-	req.Header.Add("Username", service.username)
 
 	resp, err := service.client.Do(req)
 	if err != nil {
@@ -264,16 +311,13 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 		var StatusCakeMonitorData []StatusCakeMonitorData
 		err = json.Unmarshal(bodyBytes, &StatusCakeMonitor)
 		if err != nil {
-			log.Error(err, "Unable to retrieve monitor")
+			log.Error(err, "Unable to unmarshal response")
 			return nil
 		}
 
 		StatusCakeMonitorData = append(StatusCakeMonitorData, StatusCakeMonitor.StatusCakeData...)
-
 		return StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData)
 	}
-
-	log.Error(nil, "GetAll Request failed")
 	return nil
 }
 
@@ -288,31 +332,18 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 	u.Scheme = "https"
 	data := buildUpsertForm(m, service.cgroup)
 	req, err := http.NewRequest("POST", u.String(), bytes.NewBufferString(data.Encode()))
-	fmt.Print(req.Body)
 	if err != nil {
 		log.Error(err, "Unable to create http request")
 		return
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
-	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
 		log.Error(err, "Unable to make HTTP call")
 		return
 	}
-	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
-		var fa StatusCakeUpsertResponse
-		err := json.NewDecoder(resp.Body).Decode(&fa)
-		if err != nil {
-			log.Error(err, "Unable to decode http response")
-			return
-		}
-		if fa.Success {
-			log.Info("Monitor Added: " + strconv.Itoa(fa.InsertID))
-		} else {
-			log.Info("Monitor couldn't be added: " + m.Name)
-			log.Info(fa.Message)
-		}
+	if resp.StatusCode == http.StatusCreated {
+		log.Info("Monitor Added: " + m.ID)
 	} else {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -340,16 +371,21 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		return
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
-	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
 		log.Error(err, "Unable to make HTTP call")
 		return
 	}
-	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusNoContent {
-		log.Info("Monitor Updated: " + m.Name)
+	if resp.StatusCode == http.StatusNoContent {
+		log.Info("Monitor Updated: " + m.ID)
 	} else {
-		log.Error(nil, "Update Request failed for name: "+m.Name)
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error(err, "Unable to read response")
+			os.Exit(1)
+		}
+		log.Error(nil, "Update Request failed for name: "+m.Name+" with status code "+strconv.Itoa(resp.StatusCode))
+		log.Error(nil, string(bodyBytes))
 	}
 }
 
@@ -369,26 +405,20 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 		return
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
-	req.Header.Add("Username", service.username)
 	resp, err := service.client.Do(req)
 	if err != nil {
 		log.Error(err, "Unable to make HTTP call")
 		return
 	}
-	if resp.StatusCode == http.StatusOK {
-		var fa StatusCakeUpsertResponse
-		err := json.NewDecoder(resp.Body).Decode(&fa)
-		if err != nil {
-			log.Error(err, "Unable to decode http response")
-			return
-		}
-		if fa.Success {
+	if resp.StatusCode != http.StatusNoContent {
+		log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
+
+	} else {
+		_, err = service.GetByID(m.ID)
+		if strings.Contains(err.Error(), "Request failed") {
 			log.Info("Monitor Deleted: " + m.ID)
 		} else {
-			log.V(1).Info("Monitor couldn't be deleted: " + m.Name)
-			log.V(1).Info(fa.Message)
+			log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
 		}
-	} else {
-		log.Error(nil, "Delete Request failed for name: "+m.Name)
 	}
 }

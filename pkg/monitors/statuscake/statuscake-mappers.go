@@ -1,6 +1,7 @@
 package statuscake
 
 import (
+	statuscake "github.com/StatusCakeDev/statuscake-go"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
 
@@ -10,6 +11,15 @@ func StatusCakeMonitorMonitorToBaseMonitorMapper(statuscakeData StatusCakeMonito
 	m.Name = statuscakeData.WebsiteName
 	m.URL = statuscakeData.WebsiteURL
 	m.ID = statuscakeData.TestID
+	return &m
+}
+
+// StatusCakeApiResponseDataToBaseMonitorMapper function to map Statuscake Uptime Test Response to Monitor
+func StatusCakeApiResponseDataToBaseMonitorMapper(statuscakeData statuscake.UptimeTestResponse) *models.Monitor {
+	var m models.Monitor
+	m.Name = statuscakeData.Data.Name
+	m.URL = statuscakeData.Data.WebsiteURL
+	m.ID = statuscakeData.Data.ID
 	return &m
 }
 
