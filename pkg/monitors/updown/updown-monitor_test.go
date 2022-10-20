@@ -173,7 +173,7 @@ func TestGetAllMonitorWhileCheckExists(t *testing.T) {
 	}
 	UpdownService.Setup(*provider)
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(40 * time.Second)
 	monitorSlice := UpdownService.GetAll()
 	firstElement := 0
 	oneElement := 1
@@ -277,7 +277,7 @@ func TestGetAllMonitorWhenCheckAreRemoved(t *testing.T) {
 
 	UpdownService.Setup(*provider)
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(45 * time.Second)
 	monitorSlice1 := UpdownService.GetAll()
 
 	assert.Equal(t, 0, len(monitorSlice1))

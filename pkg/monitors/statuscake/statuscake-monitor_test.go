@@ -102,14 +102,15 @@ func TestBuildUpsertForm(t *testing.T) {
 		FollowRedirect: true,
 		Port:           7070,
 		TriggerRate:    1,
-		ContactGroup:   "123456,654321",
 		BasicAuthUser:  "testuser",
-		NodeLocations:  "",
-		StatusCodes:    "500,501,502,503,504,505",
 		Confirmation:   2,
 		EnableSSLAlert: true,
-		RealBrowser:    true,
-		TestTags:       "test,testrun,uptime",
+
+		// changed to string array type on statuscake api
+		// TODO: release new apiVersion to cater new type in apiVersion struct
+		ContactGroup: "123456,654321",
+		TestTags:     "test,testrun,uptime",
+		StatusCodes:  "500,501,502,503,504,505",
 	}
 	m.Config = monitorConfig
 

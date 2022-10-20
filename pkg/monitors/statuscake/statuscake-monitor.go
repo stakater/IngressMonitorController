@@ -59,15 +59,21 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	}
 
 	if providerConfig != nil && len(providerConfig.ContactGroup) > 0 {
-		f.Add("contact_groups", providerConfig.ContactGroup)
+		contactGroups := convertStringToArray(providerConfig.ContactGroup)
+		for _, contactgroups := range contactGroups {
+			f.Add("contact_groups[]", contactgroups)
+		}
 	} else {
 		if cgroup != "" {
-			f.Add("contact_groups", cgroup)
+			f.Add("contact_groups[]", cgroup)
 		}
 	}
 
 	if providerConfig != nil && len(providerConfig.TestTags) > 0 {
-		f.Add("tags", providerConfig.TestTags)
+		testTags := convertStringToArray(providerConfig.TestTags)
+		for _, testTag := range testTags {
+			f.Add("tags[]", testTag)
+		}
 	}
 
 	if providerConfig != nil && len(providerConfig.BasicAuthUser) > 0 {
@@ -86,6 +92,7 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 
 	if providerConfig != nil && len(providerConfig.StatusCodes) > 0 {
 		f.Add("status_codes_csv", providerConfig.StatusCodes)
+
 	} else {
 		statusCodes := []string{
 			"204", // No content
@@ -166,9 +173,13 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		}
 	}
 
-	if providerConfig != nil && len(providerConfig.PingURL) > 0 {
-		f.Add("ping_url", providerConfig.PingURL)
-	}
+	// Shifted to contact groups api
+	// TODO: create proper structs to cater contact groups api
+	/*
+		if providerConfig != nil && len(providerConfig.PingURL) > 0 {
+			f.Add("ping_url", providerConfig.PingURL)
+		}
+	*/
 	if providerConfig != nil && providerConfig.TriggerRate > 0 {
 		f.Add("trigger_rate", strconv.Itoa(providerConfig.TriggerRate))
 	}
@@ -179,6 +190,12 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		f.Add("confirmation", strconv.Itoa(providerConfig.Confirmation))
 	}
 	return f
+}
+
+// convertStringToArray function is used to convert string to []string
+func convertStringToArray(stringValues string) []string {
+	stringArray := strings.Split(stringValues, ",")
+	return stringArray
 }
 
 // Setup function is used to initialise the StatusCake service
@@ -271,6 +288,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 	u.Scheme = "https"
 	data := buildUpsertForm(m, service.cgroup)
 	req, err := http.NewRequest("POST", u.String(), bytes.NewBufferString(data.Encode()))
+	fmt.Print(req.Body)
 	if err != nil {
 		log.Error(err, "Unable to create http request")
 		return
@@ -282,7 +300,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		log.Error(err, "Unable to make HTTP call")
 		return
 	}
-	if resp.StatusCode == http.StatusOK {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
 		var fa StatusCakeUpsertResponse
 		err := json.NewDecoder(resp.Body).Decode(&fa)
 		if err != nil {
