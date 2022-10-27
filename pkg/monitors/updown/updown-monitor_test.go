@@ -87,7 +87,7 @@ func TestRemoveCleanUp(t *testing.T) {
 			Name: monitor.Name}
 		UpdownService.Remove(monitorObj)
 	}
-	time.Sleep(10 * time.Second)
+	time.Sleep(20 * time.Second)
 	monitorSlice = UpdownService.GetAll()
 
 	assert.Equal(t, 0, len(monitorSlice))
@@ -103,6 +103,7 @@ func TestGetAllMonitorWhileNoCheckExists(t *testing.T) {
 	}
 	UpdownService.Setup(*provider)
 
+	time.Sleep(20 * time.Second)
 	monitorSlice := UpdownService.GetAll()
 
 	assert.Equal(t, 0, len(monitorSlice))
