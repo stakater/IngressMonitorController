@@ -225,13 +225,16 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 // GetByName function will Get a monitor by it's name
 func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor, error) {
 	monitors := service.GetAll()
-	for _, monitor := range monitors {
-		if monitor.Name == name {
-			return &monitor, nil
+	if len(monitors) != 0 {
+		for _, monitor := range monitors {
+			if monitor.Name == name {
+				return &monitor, nil
+			}
 		}
 	}
 	errorString := "GetByName Request failed for name: " + name
 	return nil, errors.New(errorString)
+
 }
 
 // GetByID function will Get a monitor by it's ID
@@ -304,6 +307,7 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Error(err, "Unable to read response body")
+		return nil
 	}
 
 	if resp.StatusCode == http.StatusOK {
