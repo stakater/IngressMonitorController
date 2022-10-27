@@ -1,13 +1,12 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"strconv"
 	"time"
 
-	util "github.com/stakater/operator-utils/util"
-	yaml "gopkg.in/yaml.v2"
+	"github.com/stakater/operator-utils/util"
+	"gopkg.in/yaml.v2"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/stakater/IngressMonitorController/v2/pkg/secret"
@@ -150,7 +149,7 @@ func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML
 	log.Info("Reading YAML Configuration: " + filePath)
-	source, err := ioutil.ReadFile(filePath)
+	source, err := os.ReadFile(filePath)
 	if err != nil {
 		panic(err)
 	}
