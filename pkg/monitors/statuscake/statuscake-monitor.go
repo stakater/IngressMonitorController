@@ -311,7 +311,7 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 		var StatusCakeMonitorData []StatusCakeMonitorData
 		err = json.Unmarshal(bodyBytes, &StatusCakeMonitor)
 		if err != nil {
-			log.Error(err, "Unable to unmarshal response")
+			log.Error(err, "Failed to unmarshal response")
 			return nil
 		}
 
