@@ -343,7 +343,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		return
 	}
 	if resp.StatusCode == http.StatusCreated {
-		log.Info("Monitor Added: " + m.ID)
+		log.Info("Monitor Added: " + m.Name)
 	} else {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
