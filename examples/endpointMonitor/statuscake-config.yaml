@@ -1,0 +1,22 @@
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: test
+spec:
+  forceHttps: true
+  statusCakeConfig:
+    port: 123
+    basicAuthUser: my-service-username
+    checkRate: 300
+    realBrowser: true
+    testTags: 'abc,def'
+    testType: HTTP
+    followRedirect: false
+    paused: false
+    enableSslAlert: true
+    statusCodes: '202,200'
+    confirmation: 1
+    triggerRate: 1
+    pingUrl: 'https://stakater2.com/'
+    contactGroup: '123456,654321'
+  url: 'https://stakater1.com/'

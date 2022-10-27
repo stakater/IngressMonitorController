@@ -61,7 +61,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 
 	mRes, err := service.GetByName("google-test")
 
-	if err != nil {
+	if err != nil || mRes != nil {
 		t.Error("Error: " + err.Error())
 	}
 	if mRes.Name != m.Name {
