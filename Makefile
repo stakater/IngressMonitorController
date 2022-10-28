@@ -99,7 +99,6 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-## ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_ASSETS_DIR = $(shell pwd)/testbin
 .PHONY: test
 test: generate fmt vet manifests

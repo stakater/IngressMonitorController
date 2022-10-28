@@ -48,7 +48,7 @@ spec:
   - email: muneeb@stakater.com
     name: muneebAijaz
   - email: hussnain@stakater.com
-    name: hussnainahmad
+    name: hussnainAhmad
   - email: hello@stakater.com
     name: stakater
   maturity: alpha

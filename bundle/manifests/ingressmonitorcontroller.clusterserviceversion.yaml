@@ -151,7 +151,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: controller:latest
+                image: stakater/ingressmonitorcontroller:v2.1.19
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -243,7 +243,7 @@ spec:
   - email: muneeb@stakater.com
     name: muneebAijaz
   - email: hussnain@stakater.com
-    name: hussnainahmad
+    name: hussnainAhmad
   - email: hello@stakater.com
     name: stakater
   maturity: alpha
@@ -251,4 +251,4 @@ spec:
   provider:
     name: stakater
     url: https://stakater.com
-  version: 0.0.1
+  version: 2.1.19
