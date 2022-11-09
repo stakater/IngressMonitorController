@@ -61,13 +61,18 @@ func discoverURLFromRefs(client client.Client, ingressMonitor *endpointmonitorv1
 		return "", errors.New("No URL sources set for ingressMonitor: " + ingressMonitor.Name)
 	}
 
-	if urlFrom.IngressRef != nil && !kube.IsOpenshift {
+	if urlFrom.IngressRef != nil {
+		// if ingressRef is mentioned, it can be openshift or non openshift cluster
 		return discoverURLFromIngressRef(client, urlFrom.IngressRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS, ingressMonitor.Spec.HealthEndpoint)
-	}
-	if urlFrom.RouteRef != nil && kube.IsOpenshift {
+
+	} else if kube.IsOpenshift && urlFrom.RouteRef != nil {
+		// if routeRef is mentioned in openshift cluster
 		return discoverURLFromRouteRef(client, urlFrom.RouteRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS, ingressMonitor.Spec.HealthEndpoint)
+
 	}
 
-	log.V(1).Info("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
+	// if routeRef is mentioned in non openshift cluster
+	log.V(1).Info("RouteRef is only supported for openshift. Found non-openshift kubernetes cluster for ingressMonitor: " + ingressMonitor.Name)
+
 	return "", errors.New("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
 }
