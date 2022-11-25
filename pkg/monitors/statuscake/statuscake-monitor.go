@@ -284,12 +284,30 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 
 // GetAll function will fetch all monitors
 func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
+	var StatusCakeMonitorData []StatusCakeMonitorData
+	page := 1
+	for true {
+		res := service.fetchMonitors(page)
+		StatusCakeMonitorData = append(StatusCakeMonitorData, res.StatusCakeData...)
+		if page >= res.StatusCakeMetadata.PageCount {
+			break
+		}
+		page += 1
+	}
+	return StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData)
+}
+
+func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMonitor {
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
 		return nil
 	}
 	u.Path = "/v1/uptime/"
+	query := u.Query()
+	query.Add("limit", "100")
+	query.Add("page", strconv.Itoa(page))
+	u.RawQuery = query.Encode()
 	u.Scheme = "https"
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -310,19 +328,17 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 		return nil
 	}
 
-	if resp.StatusCode == http.StatusOK {
-		var StatusCakeMonitor StatusCakeMonitor
-		var StatusCakeMonitorData []StatusCakeMonitorData
-		err = json.Unmarshal(bodyBytes, &StatusCakeMonitor)
-		if err != nil {
-			log.Error(err, "Failed to unmarshal response")
-			return nil
-		}
-
-		StatusCakeMonitorData = append(StatusCakeMonitorData, StatusCakeMonitor.StatusCakeData...)
-		return StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData)
+	if resp.StatusCode != http.StatusOK {
+		return nil
 	}
-	return nil
+	var StatusCakeMonitor StatusCakeMonitor
+	err = json.Unmarshal(bodyBytes, &StatusCakeMonitor)
+	if err != nil {
+		log.Error(err, "Failed to unmarshal response")
+		return nil
+	}
+
+	return &StatusCakeMonitor
 }
 
 // Add will create a new Monitor
