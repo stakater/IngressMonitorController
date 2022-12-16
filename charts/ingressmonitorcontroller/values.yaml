@@ -84,3 +84,7 @@ service:
 env: []
 
 envFrom: []
+
+namespace: stakater-ingress-monitor-controller
+
+serviceManagedBy: helm

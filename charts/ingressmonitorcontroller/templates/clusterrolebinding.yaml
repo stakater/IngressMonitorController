@@ -13,7 +13,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: {{ include "ingress-monitor-controller.serviceAccountName" . }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
 {{- end }}
 
 ---
@@ -29,7 +29,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: {{ include "ingress-monitor-controller.serviceAccountName" . }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
 {{- end }}
 
 ---
@@ -45,7 +45,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: {{ include "ingress-monitor-controller.serviceAccountName" . }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}
 {{- end }}
-  
+
 {{- end }}

@@ -3,18 +3,18 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: '{{ .Release.Name }}'
-  namespace: '{{ .Release.Namespace }}'
+  name: '{{ .Values.name }}'
+  namespace: '{{ .Values.namespace }}'
   labels:
     app: '{{ .Chart.Name }}'
     app.kubernetes.io/name: '{{ .Chart.Name }}'
-    app.kubernetes.io/instance: '{{ .Release.Name }}'
+    app.kubernetes.io/instance: '{{ .Values.name }}'
 spec:
   selector:
     matchLabels:
       app: '{{ .Chart.Name }}'
       app.kubernetes.io/name: '{{ .Chart.Name }}'
-      app.kubernetes.io/instance: '{{ .Release.Name }}'
+      app.kubernetes.io/instance: '{{ .Values.name }}'
   endpoints:
     - path: /metrics
       port: https
@@ -24,5 +24,5 @@ spec:
         insecureSkipVerify: true
   namespaceSelector:
     matchNames:
-    - '{{ .Release.Namespace }}'
+    - '{{ .Values.namespace }}'
 {{- end }}
