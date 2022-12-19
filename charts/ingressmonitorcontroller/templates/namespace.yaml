@@ -3,4 +3,4 @@ kind: Namespace
 metadata:
   labels:
     stakater.com/tenant: alpha
-  name: {{ .Values.namespace }}
+  name: {{ .Values.namespace | default .Release.Namespace }}

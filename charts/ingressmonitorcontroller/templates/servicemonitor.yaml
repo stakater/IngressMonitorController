@@ -4,7 +4,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: '{{ .Values.name }}'
-  namespace: '{{ .Values.namespace }}'
+  namespace: '{{ .Values.namespace | default .Release.Namespace }}'
   labels:
     app: '{{ .Chart.Name }}'
     app.kubernetes.io/name: '{{ .Chart.Name }}'
@@ -24,5 +24,5 @@ spec:
         insecureSkipVerify: true
   namespaceSelector:
     matchNames:
-    - '{{ .Values.namespace }}'
+    - '{{ .Values.namespace | default .Release.Namespace }}'
 {{- end }}
