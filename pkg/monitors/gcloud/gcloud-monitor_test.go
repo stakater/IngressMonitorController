@@ -1,6 +1,6 @@
 package gcloud
 
-import (
+/*import (
 	"testing"
 
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
@@ -18,7 +18,10 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	}
 
 	service.Setup(*provider)
-	m := models.Monitor{Name: "google-test-gcloud", URL: "https://google1.com/"}
+	m := models.Monitor{
+		URL:  "https://google1.com/",
+		Name: "google-test-gcloud",
+	}
 	service.Add(m)
 
 	mRes, err := service.GetByName("google-test-gcloud")
@@ -95,3 +98,4 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 		t.Error("Monitor should've been deleted ", monitor, err)
 	}
 }
+*/
