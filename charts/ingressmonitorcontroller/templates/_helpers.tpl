@@ -46,7 +46,7 @@ Selector labels
 */}}
 {{- define "ingress-monitor-controller.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "ingress-monitor-controller.name" . }}
-app.kubernetes.io/instance: {{ .Values.name }}
+app.kubernetes.io/instance: {{ .Values.name | default .Release.Name }}
 {{- end }}
 
 {{/*

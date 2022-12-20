@@ -1,3 +1,5 @@
+name: ingress-monitor-controller
+
 global:
   # labels added on all components of chart in addition to some default labels
   labels: {}
