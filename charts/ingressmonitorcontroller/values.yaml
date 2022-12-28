@@ -1,3 +1,5 @@
+name: ingress-monitor-controller
+
 global:
   # labels added on all components of chart in addition to some default labels
   labels: {}
@@ -6,7 +8,7 @@ replicaCount: 1
 
 image:
   repository: stakater/ingressmonitorcontroller
-  tag: v2.1.21
+  tag: v2.1.23
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 
@@ -84,3 +86,7 @@ service:
 env: []
 
 envFrom: []
+
+namespace: stakater-ingress-monitor-controller
+
+serviceManagedBy: helm
