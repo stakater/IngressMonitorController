@@ -13,7 +13,7 @@ require (
 	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/russellcardullo/go-pingdom v1.3.0
-	github.com/stakater/operator-utils v0.1.13
+	github.com/stakater/operator-utils v0.1.14
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/api v0.44.0
 	google.golang.org/genproto v0.0.0-20210831024726-fe130286e0e2
