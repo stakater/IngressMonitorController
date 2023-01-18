@@ -21,7 +21,7 @@ type StatusCakeMonitorData struct {
 	ContactGroup []string `json:"contact_groups"`
 	Status       string   `json:"status"`
 	Tags         []string `json:"tags"`
-	Uptime       int      `json:"uptime"`
+	Uptime       float64  `json:"uptime"`
 }
 type StatusCakeMonitorMetadata struct {
 	Page       int `json:"page"`
