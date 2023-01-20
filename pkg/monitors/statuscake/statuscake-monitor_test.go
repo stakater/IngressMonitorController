@@ -105,6 +105,7 @@ func TestBuildUpsertForm(t *testing.T) {
 		BasicAuthUser:  "testuser",
 		Confirmation:   2,
 		EnableSSLAlert: true,
+		FindString:     "",
 
 		// changed to string array type on statuscake api
 		// TODO: release new apiVersion to cater new type in apiVersion struct
@@ -125,6 +126,7 @@ func TestBuildUpsertForm(t *testing.T) {
 	assert.Equal(t, "2", vals.Get("confirmation"))
 	assert.Equal(t, "123456,654321", convertUrlValuesToString(vals, "contact_groups[]"))
 	assert.Equal(t, "1", vals.Get("enable_ssl_alert"))
+	assert.Equal(t, "", vals.Get("find_string"))
 	assert.Equal(t, "1", vals.Get("follow_redirects"))
 	assert.Equal(t, "1", vals.Get("paused"))
 	assert.Equal(t, "", vals.Get("ping_url"))

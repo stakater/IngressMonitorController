@@ -23,6 +23,7 @@ Currently additional Statuscake configurations can be added through these fields
 | TriggerRate             | Minutes to wait before sending an alert          |
 | ContactGroup            | Contact Group to be alerted.                     |
 | TestTags                | Comma separated list of tags                     |
+| FindString              | String to look for within the response           |
 | BasicAuthUser          | Required for [basic-authenticationchecks](#basic-auth-checks)  |
 
 

@@ -193,6 +193,9 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	if providerConfig != nil && providerConfig.Confirmation > 0 {
 		f.Add("confirmation", strconv.Itoa(providerConfig.Confirmation))
 	}
+	if providerConfig != nil {
+		f.Add("find_string", providerConfig.FindString)
+	}
 	return f
 }
 
