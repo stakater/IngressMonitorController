@@ -64,6 +64,8 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	if err != nil {
 		log.Error(err, "Failed to parse MonitorNameTemplate, using default template `{{.Name}}-{{.Namespace}}`")
 		monitorName = req.Name + "-" + req.Namespace
+	} else if instance.Spec.MonitorName != "" {
+		monitorName = instance.Spec.MonitorName
 	} else {
 		monitorName = fmt.Sprintf(format, req.Name, req.Namespace)
 	}
@@ -78,10 +80,6 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		}
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
-	}
-
-	if instance.Spec.MonitorName != "" {
-		monitorName = instance.Spec.MonitorName
 	}
 
 	// Handle CreationDelay
