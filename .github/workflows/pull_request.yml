@@ -3,7 +3,7 @@ name: Pull Request
 on:
   pull_request_target:
     branches:
-      - master
+      - 'master'
     paths-ignore:
       - '*.md'
       - 'docs/'
@@ -12,15 +12,15 @@ on:
       - 'config/'
 env:
   DOCKER_FILE_PATH: Dockerfile
-  GOLANG_VERSION: 1.16
-  KUBERNETES_VERSION: "1.20.2"
-  KIND_VERSION: "0.10.0"
+  GOLANG_VERSION: 1.18
+  KUBERNETES_VERSION: "1.23.5"
+  KIND_VERSION: "0.16.0"
 
 jobs:
   build:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     name: Build
-    if: "! contains(toJSON(github.event.commits.*.message), '[skip-ci]')"    
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip-ci]')"
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -34,9 +34,9 @@ jobs:
         go-version: ${{ env.GOLANG_VERSION }}
 
     - name: Lint
-      uses: golangci/golangci-lint-action@v2.3.0
+      uses: golangci/golangci-lint-action@v2.5.2
       with:
-        version: v1.39.0
+        version: v1.45.2
         only-new-issues: false
         args: --timeout 10m
 
@@ -50,7 +50,6 @@ jobs:
         sudo install ./kubectl /usr/local/bin/ && rm kubectl
         kubectl version --short --client
         kubectl version --short --client | grep -q ${KUBERNETES_VERSION}
-
     - name: Install Kind
       run: |
         curl -L -o kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64
@@ -68,7 +67,7 @@ jobs:
         make install
         mkdir -p .local
         echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
-        
+
     - name: Test
       run: make test
 
@@ -78,7 +77,7 @@ jobs:
         sha=${{ github.event.pull_request.head.sha }}
         tag="SNAPSHOT-PR-${{ github.event.pull_request.number }}-${sha:0:8}"
         echo "##[set-output name=GIT_TAG;]$(echo ${tag})"
-    
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
 
@@ -116,7 +115,7 @@ jobs:
       env:
        GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
       with:
-        message: '@${{ github.actor }} Image is available for testing. `docker pull ${{ github.repository }}:${{ steps.generate_tag.outputs.GIT_TAG }}`'
+        message: '@${{ github.actor }} Image is available for testing. `docker pull ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.GIT_TAG }}`'
         allow-repeats: false
 
     - name: Notify Failure

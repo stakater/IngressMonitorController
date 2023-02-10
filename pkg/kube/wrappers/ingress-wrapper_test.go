@@ -3,8 +3,8 @@ package wrappers
 import (
 	"testing"
 
-	"github.com/stakater/IngressMonitorController/pkg/util"
-	"k8s.io/api/extensions/v1beta1"
+	"github.com/stakater/IngressMonitorController/v2/pkg/util"
+	v1 "k8s.io/api/networking/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -13,11 +13,11 @@ const (
 	testUrl = "testurl.stackator.com"
 )
 
-func createIngressObjectWithPath(ingressName string, namespace string, url string, path string) *v1beta1.Ingress {
+func createIngressObjectWithPath(ingressName string, namespace string, url string, path string) *v1.Ingress {
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
-	ingress.Spec.Rules[0].IngressRuleValue = v1beta1.IngressRuleValue{
-		HTTP: &v1beta1.HTTPIngressRuleValue{
-			Paths: []v1beta1.HTTPIngressPath{
+	ingress.Spec.Rules[0].IngressRuleValue = v1.IngressRuleValue{
+		HTTP: &v1.HTTPIngressRuleValue{
+			Paths: []v1.HTTPIngressPath{
 				{
 					Path: path,
 				},
@@ -28,9 +28,9 @@ func createIngressObjectWithPath(ingressName string, namespace string, url strin
 	return ingress
 }
 
-func createIngressObjectWithTLS(ingressName string, namespace string, url string, tlsHostname string) *v1beta1.Ingress {
+func createIngressObjectWithTLS(ingressName string, namespace string, url string, tlsHostname string) *v1.Ingress {
 	ingress := util.CreateIngressObject(ingressName, namespace, url)
-	ingress.Spec.TLS = []v1beta1.IngressTLS{
+	ingress.Spec.TLS = []v1.IngressTLS{
 		{
 			Hosts: []string{
 				tlsHostname,
@@ -42,7 +42,7 @@ func createIngressObjectWithTLS(ingressName string, namespace string, url string
 
 func TestIngressWrapper_getURL(t *testing.T) {
 	type fields struct {
-		ingress *v1beta1.Ingress
+		ingress *v1.Ingress
 		Client  client.Client
 	}
 	tests := []struct {

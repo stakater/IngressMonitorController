@@ -3,7 +3,7 @@ package monitors
 import (
 	"testing"
 
-	"github.com/stakater/IngressMonitorController/pkg/util"
+	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 )
 
 func TestMonitorServiceProxyOfTypeWithCorrectType(t *testing.T) {

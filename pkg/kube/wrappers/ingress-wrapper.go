@@ -8,18 +8,18 @@ import (
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type IngressWrapper struct {
-	Ingress *v1beta1.Ingress
+	Ingress *v1.Ingress
 	Client  client.Client
 }
 
-func NewIngressWrapper(ingress *v1beta1.Ingress, client client.Client) *IngressWrapper {
+func NewIngressWrapper(ingress *v1.Ingress, client client.Client) *IngressWrapper {
 	return &IngressWrapper{
 		Ingress: ingress,
 		Client:  client,
@@ -119,8 +119,9 @@ func (iw *IngressWrapper) hasService() (string, bool) {
 	if ingress.Spec.Rules[0].HTTP != nil &&
 		ingress.Spec.Rules[0].HTTP.Paths != nil &&
 		len(ingress.Spec.Rules[0].HTTP.Paths) > 0 &&
-		ingress.Spec.Rules[0].HTTP.Paths[0].Backend.ServiceName != "" {
-		return ingress.Spec.Rules[0].HTTP.Paths[0].Backend.ServiceName, true
+		ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service != nil &&
+		ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Name != "" {
+		return ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Name, true
 	}
 	return "", false
 }

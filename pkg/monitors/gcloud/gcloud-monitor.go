@@ -14,9 +14,9 @@ import (
 	monitoredres "google.golang.org/genproto/googleapis/api/monitoredres"
 	monitoringpb "google.golang.org/genproto/googleapis/monitoring/v3"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
-	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/models"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
+	"github.com/stakater/IngressMonitorController/v2/pkg/config"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
 
 var log = logf.Log.WithName("gcloud-monitor")

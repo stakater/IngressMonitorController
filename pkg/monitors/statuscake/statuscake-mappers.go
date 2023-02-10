@@ -1,25 +1,33 @@
 package statuscake
 
 import (
-	"strconv"
-
-	"github.com/stakater/IngressMonitorController/pkg/models"
+	statuscake "github.com/StatusCakeDev/statuscake-go"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
 
-//StatusCakeMonitorMonitorToBaseMonitorMapper function to map Statuscake structure to Monitor
-func StatusCakeMonitorMonitorToBaseMonitorMapper(statuscakeMonitor StatusCakeMonitorMonitor) *models.Monitor {
+// StatusCakeMonitorMonitorToBaseMonitorMapper function to map Statuscake structure to Monitor
+func StatusCakeMonitorMonitorToBaseMonitorMapper(statuscakeData StatusCakeMonitorData) *models.Monitor {
 	var m models.Monitor
-	m.Name = statuscakeMonitor.WebsiteName
-	m.URL = statuscakeMonitor.WebsiteURL
-	m.ID = strconv.Itoa(statuscakeMonitor.TestID)
+	m.Name = statuscakeData.WebsiteName
+	m.URL = statuscakeData.WebsiteURL
+	m.ID = statuscakeData.TestID
 	return &m
 }
 
-//StatusCakeMonitorMonitorsToBaseMonitorsMapper function to map Statuscake structure to Monitor
-func StatusCakeMonitorMonitorsToBaseMonitorsMapper(statuscakeMonitors []StatusCakeMonitorMonitor) []models.Monitor {
+// StatusCakeApiResponseDataToBaseMonitorMapper function to map Statuscake Uptime Test Response to Monitor
+func StatusCakeApiResponseDataToBaseMonitorMapper(statuscakeData statuscake.UptimeTestResponse) *models.Monitor {
+	var m models.Monitor
+	m.Name = statuscakeData.Data.Name
+	m.URL = statuscakeData.Data.WebsiteURL
+	m.ID = statuscakeData.Data.ID
+	return &m
+}
+
+// StatusCakeMonitorMonitorsToBaseMonitorsMapper function to map Statuscake structure to Monitor
+func StatusCakeMonitorMonitorsToBaseMonitorsMapper(statuscakeData []StatusCakeMonitorData) []models.Monitor {
 	var monitors []models.Monitor
-	for index := 0; index < len(statuscakeMonitors); index++ {
-		monitors = append(monitors, *StatusCakeMonitorMonitorToBaseMonitorMapper(statuscakeMonitors[index]))
+	for _, payloadData := range statuscakeData {
+		monitors = append(monitors, *StatusCakeMonitorMonitorToBaseMonitorMapper(payloadData))
 	}
 	return monitors
 }

@@ -14,11 +14,11 @@ on:
 env:
   DOCKER_FILE_PATH: Dockerfile
   BUNDLE_DOCKER_FILE_PATH: bundle.Dockerfile
-  GOLANG_VERSION: 1.16
-  OPERATOR_SDK_VERSION: "1.6.2"
-  KUSTOMIZE_VERSION: "3.5.4"
-  KUBERNETES_VERSION: "1.20.2"
-  KIND_VERSION: "0.10.0"
+  GOLANG_VERSION: 1.18
+  OPERATOR_SDK_VERSION: "1.19.0"
+  KUSTOMIZE_VERSION: "4.5.7"
+  KUBERNETES_VERSION: "1.23.5"
+  KIND_VERSION: "0.16.0"
   HELM_REGISTRY_URL: "https://stakater.github.io/stakater-charts"
 
 jobs:
@@ -41,9 +41,9 @@ jobs:
           go-version: ${{ env.GOLANG_VERSION }}
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v2.3.0
+        uses: golangci/golangci-lint-action@v2.5.2
         with:
-          version: v1.39.0
+          version: v1.45.2
           only-new-issues: false
           args: --timeout 10m
 
@@ -75,13 +75,13 @@ jobs:
           make install
           mkdir -p .local
           echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
-    
+
       - name: Test
         run: make test
 
       - name: Generate Tag
         id: generate_tag
-        uses: anothrNick/github-tag-action@1.26.0
+        uses: anothrNick/github-tag-action@1.36.0
         env:
           GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
           WITH_V: true
@@ -127,7 +127,7 @@ jobs:
       # Generate tag for operator without "v"
       - name: Generate Operator Tag
         id: generate_operator_tag
-        uses: anothrNick/github-tag-action@1.26.0
+        uses: anothrNick/github-tag-action@1.36.0
         env:
           GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
           WITH_V: false
@@ -153,8 +153,8 @@ jobs:
         env:
           VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
           IMG: ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
-        run: make bundle 
-      
+        run: make bundle
+
       - name: Verify bundle
         run: operator-sdk bundle validate ./bundle --select-optional name=operatorhub
 
@@ -181,7 +181,7 @@ jobs:
 
       - name: Update Chart CRDs
         run: make generate-crds
-        
+
       # Publish helm chart
       - name: Publish Helm chart
         uses: stefanprodan/helm-gh-pages@master
@@ -202,10 +202,10 @@ jobs:
         run: |
           git config --local user.email "stakater@gmail.com"
           git config --local user.name "stakater-user"
-          git status 
+          git status
           git add .
           git commit -m "[skip-ci] Update artifacts" -a
-          
+
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
@@ -213,7 +213,7 @@ jobs:
 
       # Push Latest Tag
       - name: Push Latest Tag
-        uses: anothrNick/github-tag-action@1.26.0
+        uses: anothrNick/github-tag-action@1.36.0
         env:
           GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
           WITH_V: true

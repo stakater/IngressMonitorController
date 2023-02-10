@@ -5,14 +5,14 @@ import (
 	"errors"
 
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/stakater/IngressMonitorController/pkg/kube"
-	"github.com/stakater/IngressMonitorController/pkg/kube/wrappers"
-	"k8s.io/api/extensions/v1beta1"
+	"github.com/stakater/IngressMonitorController/v2/pkg/kube"
+	"github.com/stakater/IngressMonitorController/v2/pkg/kube/wrappers"
+	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 )
 
 var log = logf.Log.WithName("config")
@@ -31,7 +31,7 @@ func GetMonitorURL(client client.Client, ingressMonitor *endpointmonitorv1alpha1
 }
 
 func discoverURLFromIngressRef(client client.Client, ingressRef *endpointmonitorv1alpha1.IngressURLSource, namespace string, forceHttps bool, healthEndpoint string) (string, error) {
-	ingressObject := &v1beta1.Ingress{}
+	ingressObject := &v1.Ingress{}
 	err := client.Get(context.TODO(), types.NamespacedName{Name: ingressRef.Name, Namespace: namespace}, ingressObject)
 	if err != nil {
 		log.V(1).Info("Ingress not found with name " + ingressRef.Name)
@@ -61,13 +61,18 @@ func discoverURLFromRefs(client client.Client, ingressMonitor *endpointmonitorv1
 		return "", errors.New("No URL sources set for ingressMonitor: " + ingressMonitor.Name)
 	}
 
-	if urlFrom.IngressRef != nil && !kube.IsOpenshift {
+	if urlFrom.IngressRef != nil {
+		// if ingressRef is mentioned, it can be openshift or non openshift cluster
 		return discoverURLFromIngressRef(client, urlFrom.IngressRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS, ingressMonitor.Spec.HealthEndpoint)
-	}
-	if urlFrom.RouteRef != nil && kube.IsOpenshift {
+
+	} else if kube.IsOpenshift && urlFrom.RouteRef != nil {
+		// if routeRef is mentioned in openshift cluster
 		return discoverURLFromRouteRef(client, urlFrom.RouteRef, ingressMonitor.Namespace, ingressMonitor.Spec.ForceHTTPS, ingressMonitor.Spec.HealthEndpoint)
+
 	}
 
-	log.V(1).Info("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
+	// if routeRef is mentioned in non openshift cluster
+	log.V(1).Info("RouteRef is only supported for openshift. Found non-openshift kubernetes cluster for ingressMonitor: " + ingressMonitor.Name)
+
 	return "", errors.New("Unsupported Ref set on ingressMonitor: " + ingressMonitor.Name)
 }
