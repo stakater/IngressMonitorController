@@ -4,7 +4,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ .Values.name | default .Release.Name }}
-  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  namespace: {{ include "ingress-monitor-controller.namespace" . }}
   labels:
     app: '{{ .Chart.Name }}'
     app.kubernetes.io/name: '{{ .Chart.Name }}'
