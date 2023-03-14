@@ -24,5 +24,5 @@ spec:
         insecureSkipVerify: true
   namespaceSelector:
     matchNames:
-    - '{{ .Values.namespace | default .Release.Namespace }}'
+    - '{{ include "ingress-monitor-controller.namespace" . }}'
 {{- end }}
