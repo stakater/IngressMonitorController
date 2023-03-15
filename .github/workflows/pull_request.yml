@@ -14,7 +14,7 @@ env:
   DOCKER_FILE_PATH: Dockerfile
   GOLANG_VERSION: 1.18
   HELM_VERSION: v3.8.2
-  KIND_VERSION: "0.17.0"
+  KIND_VERSION: "v0.17.0"
 
 jobs:
   build:
