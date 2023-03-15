@@ -13,53 +13,52 @@ on:
 env:
   DOCKER_FILE_PATH: Dockerfile
   GOLANG_VERSION: 1.18
-  KUBERNETES_VERSION: "1.23.5"
-  KIND_VERSION: "0.16.0"
+  HELM_VERSION: v3.8.2
+  KIND_VERSION: "0.17.0"
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build
-    if: "! contains(toJSON(github.event.commits.*.message), '[skip-ci]')"
+    name: Pull Request
+
     steps:
     - name: Check out code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: ${{github.event.pull_request.head.sha}}
 
     - name: Set up Go
-      id: go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
         go-version: ${{ env.GOLANG_VERSION }}
 
     - name: Lint
-      uses: golangci/golangci-lint-action@v2.5.2
+      uses: golangci/golangci-lint-action@v3
       with:
-        version: v1.45.2
+        version: v1.50.1
         only-new-issues: false
         args: --timeout 10m
+
+    # Set up helm binary
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: ${{ env.HELM_VERSION }}
 
     - name: Helm Lint
       run: |
         helm lint charts/ingressmonitorcontroller
 
-    - name: Install kubectl
+    - name: Install kind
+      uses: engineerd/setup-kind@v0.5.0
+      with:
+        version:  ${{ env.KIND_VERSION }}
+
+    - name: Check cluster info
       run: |
-        curl -LO "https://storage.googleapis.com/kubernetes-release/release/v${KUBERNETES_VERSION}/bin/linux/amd64/kubectl"
-        sudo install ./kubectl /usr/local/bin/ && rm kubectl
         kubectl version --short --client
-        kubectl version --short --client | grep -q ${KUBERNETES_VERSION}
-    - name: Install Kind
-      run: |
-        curl -L -o kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64
-        sudo install ./kind /usr/local/bin && rm kind
         kind version
         kind version | grep -q ${KIND_VERSION}
-
-    - name: Create Kind Cluster
-      run: |
-        kind create cluster
 
     - name: Set up Cluster
       run: |
@@ -76,16 +75,20 @@ jobs:
       run: |
         sha=${{ github.event.pull_request.head.sha }}
         tag="SNAPSHOT-PR-${{ github.event.pull_request.number }}-${sha:0:8}"
-        echo "##[set-output name=GIT_TAG;]$(echo ${tag})"
+        echo "GIT_TAG=$(echo ${tag})" >> $GITHUB_OUTPUT
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@v2
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
+      with:
+        driver-opts: |
+            image=moby/buildkit:v0.9.3
+        buildkitd-flags: --debug
 
     - name: Login to Registry
-      uses: docker/login-action@v1
+      uses: docker/login-action@v2
       with:
         username: ${{ secrets.STAKATER_DOCKERHUB_USERNAME }}
         password: ${{ secrets.STAKATER_DOCKERHUB_PASSWORD }}
@@ -95,13 +98,12 @@ jobs:
         echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
 
     - name: Build and Push Docker Image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v4
       with:
         context: .
         file: ${{ env.DOCKER_FILE_PATH  }}
         pull: true
         push: true
-        build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}
         cache-to: type=inline
         tags: |
           ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.GIT_TAG }}
@@ -111,20 +113,13 @@ jobs:
           org.opencontainers.image.revision=${{ github.sha }}
 
     - name: Comment on PR
-      uses: mshick/add-pr-comment@v1
+      uses: mshick/add-pr-comment@v2
+      if: always()
       env:
        GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
       with:
-        message: '@${{ github.actor }} Image is available for testing. `docker pull ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.GIT_TAG }}`'
-        allow-repeats: false
-
-    - name: Notify Failure
-      if: failure()
-      uses: mshick/add-pr-comment@v1
-      env:
-       GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
-      with:
-        message: '@${{ github.actor }} Yikes! You better fix it before anyone else finds out! [Build](https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}/checks) has Failed!'
+        message-success: '@${{ github.actor }} Image is available for testing. `docker pull ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.GIT_TAG }}`'
+        message-failure: '@${{ github.actor }} Yikes! You better fix it before anyone else finds out! [Build](https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}/checks) has Failed!'
         allow-repeats: false
 
     - name: Notify Slack
@@ -134,5 +129,4 @@ jobs:
         status: ${{ job.status }}
         fields: repo,author,action,eventName,ref,workflow
       env:
-        GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
         SLACK_WEBHOOK_URL: ${{ secrets.STAKATER_DELIVERY_SLACK_WEBHOOK }}
