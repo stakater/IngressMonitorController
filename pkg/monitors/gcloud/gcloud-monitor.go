@@ -8,7 +8,7 @@ import (
 
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	monitoring "cloud.google.com/go/monitoring/apiv3"
+	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	monitoredres "google.golang.org/genproto/googleapis/api/monitoredres"
