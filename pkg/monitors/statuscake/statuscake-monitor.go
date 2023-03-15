@@ -286,7 +286,7 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 	var StatusCakeMonitorData []StatusCakeMonitorData
 	page := 1
-	for true {
+	for {
 		res := service.fetchMonitors(page)
 		StatusCakeMonitorData = append(StatusCakeMonitorData, res.StatusCakeData...)
 		if page >= res.StatusCakeMetadata.PageCount {
