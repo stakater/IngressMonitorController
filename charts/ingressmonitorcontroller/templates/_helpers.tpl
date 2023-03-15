@@ -68,3 +68,10 @@ Verify that CRDs are installed
     true
   {{- end -}}
 {{- end -}}
+
+{{/*
+Allow the release namespace to be overridden
+*/}}
+{{- define "ingress-monitor-controller.namespace" -}}
+{{- default .Release.Namespace .Values.namespaceOverride -}}
+{{- end -}}

@@ -24,6 +24,9 @@ nameOverride: ""
 # Full override for ingress-monitor-controller.fullname template
 fullnameOverride: ""
 
+# Same as nameOverride but for the namespace.
+namespaceOverride: ""
+
 # Specifies which namespaces IMC should have access to
 # Leave empty for full access or specify a comma separated list of namespaces to watch
 watchNamespaces: ""
@@ -86,7 +89,5 @@ service:
 env: []
 
 envFrom: []
-
-namespace: stakater-ingress-monitor-controller
 
 serviceManagedBy: helm
