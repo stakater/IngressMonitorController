@@ -18,8 +18,9 @@ env:
   OPERATOR_SDK_VERSION: "1.19.0"
   KUSTOMIZE_VERSION: "4.5.7"
   KUBERNETES_VERSION: "1.23.5"
-  KIND_VERSION: "0.16.0"
+  KIND_VERSION: "v0.17.0"
   HELM_REGISTRY_URL: "https://stakater.github.io/stakater-charts"
+  HELM_VERSION: v3.8.2
 
 jobs:
   build:
@@ -28,203 +29,201 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
-          fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+        fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
 
-      - name: Set up Go
-        id: go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GOLANG_VERSION }}
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ env.GOLANG_VERSION }}
 
-      - name: Lint
-        uses: golangci/golangci-lint-action@v2.5.2
-        with:
-          version: v1.45.2
-          only-new-issues: false
-          args: --timeout 10m
+    - name: Lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: v1.50.1
+        only-new-issues: false
+        args: --timeout 10m
 
-      - name: Helm Lint
-        run: |
-          helm lint charts/ingressmonitorcontroller
+    # Set up helm binary
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: ${{ env.HELM_VERSION }}
 
-      - name: Install kubectl
-        run: |
-          curl -LO "https://storage.googleapis.com/kubernetes-release/release/v${KUBERNETES_VERSION}/bin/linux/amd64/kubectl"
-          sudo install ./kubectl /usr/local/bin/ && rm kubectl
-          kubectl version --short --client
-          kubectl version --short --client | grep -q ${KUBERNETES_VERSION}
+    - name: Helm Lint
+      run: |
+        helm lint charts/ingressmonitorcontroller
 
-      - name: Install Kind
-        run: |
-          curl -L -o kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64
-          sudo install ./kind /usr/local/bin && rm kind
-          kind version
-          kind version | grep -q ${KIND_VERSION}
+    - name: Install kind
+      uses: engineerd/setup-kind@v0.5.0
+      with:
+        version:  ${{ env.KIND_VERSION }}
 
-      - name: Create Kind Cluster
-        run: |
-          kind create cluster
+    - name: Check cluster info
+      run: |
+        kubectl version --short --client
+        kind version
+        kind version | grep -q ${KIND_VERSION}
 
-      - name: Set up Cluster
-        run: |
-          kubectl cluster-info
-          make install
-          mkdir -p .local
-          echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
+    - name: Set up Cluster
+      run: |
+        kubectl cluster-info
+        make install
+        mkdir -p .local
+        echo "${{ secrets.SECRET_KUBERNETES_RESOURCES }}" | base64 --decode > .local/test-config.yaml
 
-      - name: Test
-        run: make test
+    - name: Test
+      run: make test
 
-      - name: Generate Tag
-        id: generate_tag
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: patch
-          DRY_RUN: true
+    - name: Generate Tag
+      id: generate_tag
+      uses: anothrNick/github-tag-action@1.61.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WITH_V: true
+        DEFAULT_BUMP: patch
+        DRY_RUN: true
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      with:
+        driver-opts: |
+            image=moby/buildkit:v0.9.3
+        buildkitd-flags: --debug
 
-      - name: Login to Registry
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.STAKATER_DOCKERHUB_USERNAME }}
-          password: ${{ secrets.STAKATER_DOCKERHUB_PASSWORD }}
+    - name: Login to Registry
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.STAKATER_DOCKERHUB_USERNAME }}
+        password: ${{ secrets.STAKATER_DOCKERHUB_PASSWORD }}
 
-      - name: Generate image repository path
-        run: |
-          echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+    - name: Generate image repository path
+      run: |
+        echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ${{ env.DOCKER_FILE_PATH  }}
-          pull: true
-          push: true
-          build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}
-          cache-to: type=inline
-          tags: |
-            ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
-          labels: |
-            org.opencontainers.image.source=${{ github.event.repository.clone_url }}
-            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
-            org.opencontainers.image.revision=${{ github.sha }}
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ${{ env.DOCKER_FILE_PATH  }}
+        pull: true
+        push: true
+        cache-to: type=inline
+        tags: |
+          ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
+        labels: |
+          org.opencontainers.image.source=${{ github.event.repository.clone_url }}
+          org.opencontainers.image.created=${{ steps.prep.outputs.created }}
+          org.opencontainers.image.revision=${{ github.sha }}
 
-      ##############################
-      ## Add steps to generate required artifacts for a release here(helm chart, operator manifest etc.)
-      ##############################
+    ##############################
+    ## Add steps to generate required artifacts for a release here(helm chart, operator manifest etc.)
+    ##############################
 
-      # Generate tag for operator without "v"
-      - name: Generate Operator Tag
-        id: generate_operator_tag
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
-          WITH_V: false
-          DEFAULT_BUMP: patch
-          DRY_RUN: true
+    # Generate tag for operator without "v"
+    - name: Generate Operator Tag
+      id: generate_operator_tag
+      uses: anothrNick/github-tag-action@1.61.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+        WITH_V: false
+        DEFAULT_BUMP: patch
+        DRY_RUN: true
 
-      # Install operator-sdk
-      - name: Install operator-sdk
-        env:
-          OPERATOR_SDK_VERSION: ${{ env.OPERATOR_SDK_VERSION }}
-        run: |
-          curl -fL -o /tmp/operator-sdk "https://github.com/operator-framework/operator-sdk/releases/download/v${OPERATOR_SDK_VERSION}/operator-sdk_linux_amd64"
-          sudo install /tmp/operator-sdk /usr/local/bin && rm -f /tmp/operator-sdk
-          operator-sdk version
-          operator-sdk version | grep -q "${OPERATOR_SDK_VERSION}"
+    # Install operator-sdk
+    - name: Install operator-sdk
+      uses: redhat-actions/openshift-tools-installer@v1
+      with:
+        source: "github"
+        operator-sdk: ${{ env.OPERATOR_SDK_VERSION }}
 
-      # Install kustomize
-      - uses: imranismail/setup-kustomize@v1
-        with:
-          kustomize-version: ${{ env.KUSTOMIZE_VERSION }}
+    # Install kustomize
+    - name: Install kustomize
+      uses: imranismail/setup-kustomize@v2
+      with:
+        kustomize-version: ${{ env.KUSTOMIZE_VERSION }}
 
-      - name: Generate Bundle
-        env:
-          VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
-          IMG: ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
-        run: make bundle
+    - name: Generate Bundle
+      env:
+        VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
+        IMG: ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
+      run: make bundle
 
-      - name: Verify bundle
-        run: operator-sdk bundle validate ./bundle --select-optional name=operatorhub
+    - name: Verify bundle
+      run: operator-sdk bundle validate ./bundle --select-optional name=operatorhub
 
-      - name: Build and push Bundle Image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ${{ env.BUNDLE_DOCKER_FILE_PATH  }}
-          pull: true
-          push: true
-          cache-to: type=inline
-          tags: |
-            ${{ env.IMAGE_REPOSITORY }}-bundle:${{ steps.generate_tag.outputs.new_tag }}
-          labels: |
-            org.opencontainers.image.source=${{ github.event.repository.clone_url }}
-            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
-            org.opencontainers.image.revision=${{ github.sha }}
+    - name: Build and push Bundle Image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ${{ env.BUNDLE_DOCKER_FILE_PATH  }}
+        pull: true
+        push: true
+        cache-to: type=inline
+        tags: |
+          ${{ env.IMAGE_REPOSITORY }}-bundle:${{ steps.generate_tag.outputs.new_tag }}
+        labels: |
+          org.opencontainers.image.source=${{ github.event.repository.clone_url }}
+          org.opencontainers.image.created=${{ steps.prep.outputs.created }}
+          org.opencontainers.image.revision=${{ github.sha }}
 
-      # Update chart tag to the latest semver tag
-      - name: Update Chart Version
-        env:
-          VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
-        run: make bump-chart
+    # Update chart tag to the latest semver tag
+    - name: Update Chart Version
+      env:
+        VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
+      run: make bump-chart
 
-      - name: Update Chart CRDs
-        run: make generate-crds
+    - name: Update Chart CRDs
+      run: make generate-crds
 
-      # Publish helm chart
-      - name: Publish Helm chart
-        uses: stefanprodan/helm-gh-pages@master
-        with:
-          branch: master
-          repository: stakater-charts
-          target_dir: docs
-          token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
-          charts_dir: charts/
-          charts_url: ${{ env.HELM_REGISTRY_URL }}
-          owner: stakater
-          linting: on
-          commit_username: stakater-user
-          commit_email: stakater@gmail.com
+    # Publish helm chart
+    - name: Publish Helm chart
+      uses: stefanprodan/helm-gh-pages@master
+      with:
+        branch: master
+        repository: stakater-charts
+        target_dir: docs
+        token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+        charts_dir: charts/
+        charts_url: ${{ env.HELM_REGISTRY_URL }}
+        owner: stakater
+        linting: on
+        commit_username: stakater-user
+        commit_email: stakater@gmail.com
 
-      # Commit back changes
-      - name: Commit files
-        run: |
-          git config --local user.email "stakater@gmail.com"
-          git config --local user.name "stakater-user"
-          git status
-          git add .
-          git commit -m "[skip-ci] Update artifacts" -a
+    # Commit back changes
+    - name: Commit files
+      run: |
+        git config --local user.email "stakater@gmail.com"
+        git config --local user.name "stakater-user"
+        git status
+        git add .
+        git commit -m "[skip-ci] Update artifacts" -a
 
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.STAKATER_GITHUB_TOKEN }}
 
-      # Push Latest Tag
-      - name: Push Latest Tag
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: patch
+    # Push Latest Tag
+    - name: Push Latest Tag
+      uses: anothrNick/github-tag-action@1.61.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+        WITH_V: true
+        DEFAULT_BUMP: patch
 
-      - name: Notify Slack
-        uses: 8398a7/action-slack@v3
-        if: always() # Pick up events even if the job fails or is canceled.
-        with:
-          status: ${{ job.status }}
-          fields: repo,author,action,eventName,ref,workflow
-        env:
-          GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.STAKATER_DELIVERY_SLACK_WEBHOOK }}
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3
+      if: always() # Pick up events even if the job fails or is canceled.
+      with:
+        status: ${{ job.status }}
+        fields: repo,author,action,eventName,ref,workflow
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.STAKATER_DELIVERY_SLACK_WEBHOOK }}

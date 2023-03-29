@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "ingress-monitor-controller.fullname" . }}
-  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  namespace: {{ include "ingress-monitor-controller.namespace" . }}
   labels:
     {{- include "ingress-monitor-controller.labels" . | nindent 4 }}
     control-plane: controller-manager
