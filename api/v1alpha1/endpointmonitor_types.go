@@ -212,6 +212,10 @@ type StatusCakeConfig struct {
 	// Enable Real Browser
 	// +optional
 	RealBrowser bool `json:"realBrowser,omitempty"`
+
+	// String to look for within the response. Considered down if not found
+	// +optional
+	FindString string `json:"findString,omitempty"`
 }
 
 // PingdomConfig defines the configuration for Pingdom Monitor Provider
