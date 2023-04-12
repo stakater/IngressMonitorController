@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
   name: endpointmonitors.endpointmonitor.stakater.com
 spec:
@@ -140,6 +139,10 @@ spec:
                   enableSslAlert:
                     description: Enable SSL Alert
                     type: boolean
+                  findString:
+                    description: String to look for within the response. Considered
+                      down if not found
+                    type: string
                   followRedirect:
                     description: Enable ingress redirects
                     type: boolean

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "ingress-monitor-controller.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ include "ingress-monitor-controller.namespace" . }}
   labels:
     {{- include "ingress-monitor-controller.labels" . | nindent 4 }}
     control-plane: controller-manager
@@ -33,7 +33,7 @@ spec:
         - --secure-listen-address=0.0.0.0:8443
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
-        - --v=10
+        - --v=0
         image: {{ printf "%s:%s" .image.repository .image.tag | default "gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0" | quote }}
         imagePullPolicy: {{ .image.pullPolicy | quote }}
         name: kube-rbac-proxy

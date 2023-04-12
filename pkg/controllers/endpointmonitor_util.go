@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/stakater/IngressMonitorController/pkg/models"
-	"github.com/stakater/IngressMonitorController/pkg/monitors"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/monitors"
 )
 
 func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) *models.Monitor {

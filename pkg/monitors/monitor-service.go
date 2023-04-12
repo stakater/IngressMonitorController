@@ -3,8 +3,8 @@ package monitors
 import (
 	"strings"
 
-	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/config"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
 
 type MonitorService interface {

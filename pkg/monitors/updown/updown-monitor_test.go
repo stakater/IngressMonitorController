@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
-	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/models"
-	"github.com/stakater/IngressMonitorController/pkg/util"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
+	"github.com/stakater/IngressMonitorController/v2/pkg/config"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -87,7 +87,7 @@ func TestRemoveCleanUp(t *testing.T) {
 			Name: monitor.Name}
 		UpdownService.Remove(monitorObj)
 	}
-	time.Sleep(10 * time.Second)
+	time.Sleep(20 * time.Second)
 	monitorSlice = UpdownService.GetAll()
 
 	assert.Equal(t, 0, len(monitorSlice))
@@ -103,6 +103,7 @@ func TestGetAllMonitorWhileNoCheckExists(t *testing.T) {
 	}
 	UpdownService.Setup(*provider)
 
+	time.Sleep(20 * time.Second)
 	monitorSlice := UpdownService.GetAll()
 
 	assert.Equal(t, 0, len(monitorSlice))
@@ -173,7 +174,7 @@ func TestGetAllMonitorWhileCheckExists(t *testing.T) {
 	}
 	UpdownService.Setup(*provider)
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(40 * time.Second)
 	monitorSlice := UpdownService.GetAll()
 	firstElement := 0
 	oneElement := 1
@@ -277,7 +278,7 @@ func TestGetAllMonitorWhenCheckAreRemoved(t *testing.T) {
 
 	UpdownService.Setup(*provider)
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(45 * time.Second)
 	monitorSlice1 := UpdownService.GetAll()
 
 	assert.Equal(t, 0, len(monitorSlice1))

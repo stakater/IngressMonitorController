@@ -4,9 +4,9 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/models"
-	"github.com/stakater/IngressMonitorController/pkg/util"
+	"github.com/stakater/IngressMonitorController/v2/pkg/config"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 )
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {

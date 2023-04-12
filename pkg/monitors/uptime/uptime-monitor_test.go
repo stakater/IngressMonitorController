@@ -3,10 +3,10 @@ package uptime
 import (
 	"testing"
 
-	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
-	"github.com/stakater/IngressMonitorController/pkg/config"
-	"github.com/stakater/IngressMonitorController/pkg/models"
-	"github.com/stakater/IngressMonitorController/pkg/util"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
+	"github.com/stakater/IngressMonitorController/v2/pkg/config"
+	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 )
 
 func TestGetAllMonitors(t *testing.T) {
@@ -61,7 +61,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 
 	mRes, err := service.GetByName("google-test")
 
-	if err != nil {
+	if err != nil || mRes != nil {
 		t.Error("Error: " + err.Error())
 	}
 	if mRes.Name != m.Name {

@@ -49,6 +49,8 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		log.Error(err, "")
+	} else if response == nil {
+		log.Error(nil, "got empty response")
 	}
 
 	httpResponse := HttpResponse{StatusCode: response.StatusCode}

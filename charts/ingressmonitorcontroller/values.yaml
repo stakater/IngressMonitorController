@@ -1,3 +1,5 @@
+name: ingress-monitor-controller
+
 global:
   # labels added on all components of chart in addition to some default labels
   labels: {}
@@ -6,7 +8,7 @@ replicaCount: 1
 
 image:
   repository: stakater/ingressmonitorcontroller
-  tag: v2.1.15
+  tag: v2.1.28
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 
@@ -23,6 +25,9 @@ nameOverride: ""
 
 # Full override for ingress-monitor-controller.fullname template
 fullnameOverride: ""
+
+# Same as nameOverride but for the namespace.
+namespaceOverride: ""
 
 # Specifies which namespaces IMC should have access to
 # Leave empty for full access or specify a comma separated list of namespaces to watch
@@ -86,3 +91,5 @@ service:
 env: []
 
 envFrom: []
+
+serviceManagedBy: helm
