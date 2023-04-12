@@ -8,7 +8,7 @@ replicaCount: 1
 
 image:
   repository: stakater/ingressmonitorcontroller
-  tag: v2.1.28
+  tag: v2.1.29
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 
