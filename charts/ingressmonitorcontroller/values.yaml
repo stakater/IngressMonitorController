@@ -17,6 +17,8 @@ kube-rbac-proxy:
     repository: gcr.io/kubebuilder/kube-rbac-proxy
     tag: v0.8.0
     pullPolicy: IfNotPresent
+  resources: 
+    {}
 
 # Partial override for ingress-monitor-controller.fullname template (will keep the release name)
 nameOverride: ""
