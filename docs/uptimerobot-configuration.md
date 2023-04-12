@@ -29,7 +29,7 @@ You will get a response similar to what is shown below
 ]
 ```
 
-Copy values of `id` field of your alert contacts which you want to use for Ingress Monitor Controller and append `_0_0` to them and seperate them by `-`. You will now have a string similar to `12345_0_0-23564_0_0`. This is basically the value you will need to specify in Ingress Monitor Controller's ConfigMap as `alertContacts`.
+Copy values of `id` field of your alert contacts which you want to use for Ingress Monitor Controller and append `_0_0` to them and separate them by `-`. You will now have a string similar to `12345_0_0-23564_0_0`. This is basically the value you will need to specify in Ingress Monitor Controller's ConfigMap as `alertContacts`.
 
 ## Configuration
 
@@ -82,7 +82,7 @@ You will get a response similar to what is shown below
 }
 ```
 
-Copy values of `id` field of your public status page which you want to use for Ingress Monitor Controller into the relevant EndpointMonitor CR. 
+Copy values of `id` field of your public status page which you want to use for Ingress Monitor Controller into the relevant EndpointMonitor CR.
 
 ### Fetching maintenance windows from UpTime Robot
 
@@ -121,7 +121,7 @@ You will get a response similar to what is shown below
 Copy values of `id` field of the maintenance windows which you want to use for Ingress Monitor Controller and separate them by `-`. You will now have a string similar to `12345-23564`. This is basically the value you will need to specify in the maintenance-windows EndpointMonitor CR.
 
 
-## Example: 
+## Example:
 
 ```yaml
 apiVersion: endpointmonitor.stakater.com/v1alpha1
@@ -139,5 +139,5 @@ spec:
     keywordExists: true
     keywordValue: 404
     statusPages: "status-page"
-    
+
 ```

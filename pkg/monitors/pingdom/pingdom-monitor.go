@@ -248,7 +248,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		log.Info("Should contain detected. Setting Should Contain string: " + providerConfig.ShouldContain)
 	}
 
-	// Tags should be a single word or multiple comma-seperated words
+	// Tags should be a single word or multiple comma-separated words
 	if providerConfig != nil && len(providerConfig.Tags) > 0 {
 		if !strings.Contains(providerConfig.Tags, " ") {
 			httpCheck.Tags = providerConfig.Tags
