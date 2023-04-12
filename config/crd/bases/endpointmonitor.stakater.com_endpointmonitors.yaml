@@ -162,7 +162,7 @@ spec:
                     description: Enable Real Browser
                     type: boolean
                   statusCodes:
-                    description: Comma seperated list of HTTP codes to trigger error
+                    description: Comma separated list of HTTP codes to trigger error
                       on
                     type: string
                   testTags:
