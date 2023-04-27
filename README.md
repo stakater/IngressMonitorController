@@ -2,7 +2,7 @@
 
 An operator to watch ingresses/routes and create liveness alerts for your apps/microservices in Uptime checkers.
 
-[![Get started with Stakater](https://stakater.github.io/README/stakater-github-banner.png)](http://stakater.com/?utm_source=IngressMonitorController&utm_medium=github)
+[![Get started with Stakater](https://stakater.github.io/README/stakater-github-banner.png)](https://stakater.com/?utm_source=IngressMonitorController&utm_medium=github)
 
 ## Problem Statement
 
@@ -22,7 +22,7 @@ Currently we support the following monitors:
 - [UptimeRobot](https://uptimerobot.com) ([Additional Config](docs/uptimerobot-configuration.md))
 - [Pingdom](https://pingdom.com) ([Additional Config](docs/pingdom-configuration.md)) (Not fully tested)
 - [StatusCake](https://www.statuscake.com) ([Additional Config](docs/statuscake-configuration.md))
-- [Uptime](http://uptime.com) ([Additional Config](docs/uptime-configurations.md))
+- [Uptime](https://uptime.com) ([Additional Config](docs/uptime-configurations.md))
 - [Updown](https://updown.io/) ([Additional Config](docs/updown-configuration.md))
 - [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/monitor-web-app-availability) ([Additional Config](docs/appinsights-configuration.md))
 - [gcloud](https://cloud.google.com/monitoring/uptime-checks) ([Additional Config](docs/gcloud-configuration.md))
@@ -162,7 +162,7 @@ If you'd like to contribute any fixes or enhancements, please refer to the docum
 
 ### Have a question?
 
-File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues), or send us an [email](mailto:hello@stakater.com).
+File a GitHub [issue](https://github.com/stakater/IngressMonitorController/issues).
 
 ### Talk to us on Slack
 
@@ -175,27 +175,18 @@ Join and talk to us on the #tools-ingressmonitor channel for discussing the Ingr
 
 - Latest image of kube-rbac-proxy fails on openshift with permission issues. To resolve use `registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.7.0` instead of kube-rbac-proxy. This issue can be tracked [here](https://github.com/operator-framework/operator-sdk/issues/4684).
 
-## From Controller to Operator
-
-IMC has now been converted to an Operator and we have stopped support from our side for the controller based implementation
-, although support from community for the controller is still appreciated. Using Operator is recommended and existing users can follow
-[Migration To Operator](./docs/migration-guide.md) for migrating to Operator. Although, Controller based implementation is maintained at [release-v1](https://github.com/stakater/IngressMonitorController/tree/release-v1) instead.
-
 ## License
 
-Apache2 © [Stakater](http://stakater.com)
+Apache2 © [Stakater][website]
 
 ## About
 
 The `IngressMonitorController` is maintained by [Stakater][website]. Like it? Please let us know at <hello@stakater.com>
 
-See [our other projects][community]
+See [our other projects](https://github.com/stakater)
 or contact us in case of professional services and queries on <hello@stakater.com>
 
-[website]: http://stakater.com/
-[community]: https://www.stakater.com/projects-overview.html
-
-The Google Cloud test infrastructure is sponsored by [JOSHMARTIN](https://github.com/jshmrtn).
+[website]: https://stakater.com/
 
 ## Contributors
 
