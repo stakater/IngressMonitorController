@@ -306,7 +306,7 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 
 func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMonitor {
 	u, err := url.Parse(service.url)
-	if err == nil {
+	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
 		return nil
 	}
@@ -404,7 +404,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		return
 	}
 	if resp.StatusCode == http.StatusNoContent {
-		log.Info("Monitor Updated: " + m.ID)
+		log.Info("Monitor Updated: " + m.ID + m.Name)
 	} else {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
