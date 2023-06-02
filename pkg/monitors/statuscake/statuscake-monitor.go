@@ -291,9 +291,13 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 	page := 1
 	for {
 		res := service.fetchMonitors(page)
-		StatusCakeMonitorData = append(StatusCakeMonitorData, res.StatusCakeData...)
-		if page >= res.StatusCakeMetadata.PageCount {
-			break
+		if res != nil {
+			StatusCakeMonitorData = append(StatusCakeMonitorData, res.StatusCakeData...)
+			if page >= res.StatusCakeMetadata.PageCount {
+				break
+			}
+		} else {
+			return nil
 		}
 		page += 1
 	}
@@ -302,7 +306,7 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 
 func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMonitor {
 	u, err := url.Parse(service.url)
-	if err != nil {
+	if err == nil {
 		log.Error(err, "Unable to Parse monitor URL")
 		return nil
 	}
@@ -439,7 +443,7 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 	} else {
 		_, err = service.GetByID(m.ID)
 		if strings.Contains(err.Error(), "Request failed") {
-			log.Info("Monitor Deleted: " + m.ID)
+			log.Info("Monitor Deleted: " + m.ID + m.Name)
 		} else {
 			log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
 		}
