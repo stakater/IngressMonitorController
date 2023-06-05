@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -85,18 +86,33 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))
 
 	for index := 0; index < len(r.MonitorServices); index++ {
-		monitor := findMonitorByName(r.MonitorServices[index], monitorName)
+		monitor, err := findMonitorByName(r.MonitorServices[index], monitorName)
+		if err != nil {
+			// Monitor doesn't exist. create it
+			if strings.Contains(err.Error(), "GetByName Request failed") {
+				if delay.Nanoseconds() > 0 {
+					// Requeue request to add creation delay
+					log.Info("Requeuing request to add monitor " + monitorName + " for" + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
+					return reconcile.Result{RequeueAfter: delay}, nil
+				}
+				err = r.handleCreate(req, instance, monitorName, r.MonitorServices[index]) // return after this OR remove the error before final return
+				if err != nil {
+					log.Error(err, "Error while handling create")
+				}
+			} else { // GetAll request failed. Reconcile without creating monitor
+				log.Error(err, "GetAll request failed")
+				return reconcile.Result{RequeueAfter: config.ReconciliationRequeueTime}, err
+			}
+
+			return reconcile.Result{RequeueAfter: config.ReconciliationRequeueTime}, err
+		}
+
 		if monitor != nil {
 			// Monitor already exists, update if required
 			err = r.handleUpdate(req, instance, *monitor, r.MonitorServices[index])
-		} else {
-			// Monitor doesn't exist, create monitor
-			if delay.Nanoseconds() > 0 {
-				// Requeue request to add creation delay
-				log.Info("Requeuing request to add monitor " + monitorName + " for " + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
-				return reconcile.Result{RequeueAfter: delay}, nil
+			if err != nil {
+				log.Error(err, "Error while handling update")
 			}
-			err = r.handleCreate(req, instance, monitorName, r.MonitorServices[index])
 		}
 	}
 

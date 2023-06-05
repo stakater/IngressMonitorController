@@ -227,7 +227,11 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 
 // GetByName function will Get a monitor by it's name
 func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor, error) {
-	monitors := service.GetAll()
+	monitors, err := service.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
 	if len(monitors) != 0 {
 		for _, monitor := range monitors {
 			if monitor.Name == name {
@@ -235,8 +239,8 @@ func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor
 			}
 		}
 	}
-	errorString := "GetByName Request failed for name: " + name
-	return nil, errors.New(errorString)
+
+	return nil, errors.New("GetByName Request failed for name: " + name)
 
 }
 
@@ -286,25 +290,30 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 }
 
 // GetAll function will fetch all monitors
-func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
+func (service *StatusCakeMonitorService) GetAll() ([]models.Monitor, error) {
 	var StatusCakeMonitorData []StatusCakeMonitorData
 	page := 1
 	for {
-		res := service.fetchMonitors(page)
+		res, err := service.fetchMonitors(page)
+		if err != nil {
+			log.Error(err, "Failed to fetch monitors")
+			return nil, err
+		}
+
 		StatusCakeMonitorData = append(StatusCakeMonitorData, res.StatusCakeData...)
 		if page >= res.StatusCakeMetadata.PageCount {
 			break
 		}
 		page += 1
 	}
-	return StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData)
+	return StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData), nil
 }
 
-func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMonitor {
+func (service *StatusCakeMonitorService) fetchMonitors(page int) (*StatusCakeMonitor, error) {
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
-		return nil
+		return nil, err
 	}
 	u.Path = "/v1/uptime/"
 	query := u.Query()
@@ -315,33 +324,33 @@ func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMoni
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		log.Error(err, "Unable to retrieve monitor")
-		return nil
+		return nil, err
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 
 	resp, err := service.client.Do(req)
 	if err != nil {
 		log.Error(err, "Unable to retrieve monitor")
-		return nil
+		return nil, err
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Error(err, "Unable to read response body")
-		return nil
+		return nil, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil
+		return nil, err
 	}
 	var StatusCakeMonitor StatusCakeMonitor
 	err = json.Unmarshal(bodyBytes, &StatusCakeMonitor)
 	if err != nil {
 		log.Error(err, "Failed to unmarshal response")
-		return nil
+		return nil, err
 	}
 
-	return &StatusCakeMonitor
+	return &StatusCakeMonitor, err
 }
 
 // Add will create a new Monitor

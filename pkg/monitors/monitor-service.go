@@ -8,7 +8,7 @@ import (
 )
 
 type MonitorService interface {
-	GetAll() []models.Monitor
+	GetAll() ([]models.Monitor, error)
 	Add(m models.Monitor)
 	Update(m models.Monitor)
 	GetByName(name string) (*models.Monitor, error)
