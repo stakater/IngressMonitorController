@@ -3,4 +3,9 @@
   "extends": [
     "config:base"
   ]
+  "schedule": ["monthly"]
+  "vulnerabilityAlerts": {
+    "enabled": true
+    "labels": ["security"],
+  }
 }
