@@ -2,10 +2,10 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
-  ]
-  "schedule": ["monthly"]
+  ],
+  "schedule": ["monthly"],
   "vulnerabilityAlerts": {
-    "enabled": true
-    "labels": ["security"],
+    "enabled": true,
+    "labels": ["security"]
   }
 }
