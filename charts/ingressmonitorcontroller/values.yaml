@@ -19,6 +19,14 @@ kube-rbac-proxy:
     pullPolicy: IfNotPresent
   resources: 
     {}
+  securityContext:
+    {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
 
 # Partial override for ingress-monitor-controller.fullname template (will keep the release name)
 nameOverride: ""
