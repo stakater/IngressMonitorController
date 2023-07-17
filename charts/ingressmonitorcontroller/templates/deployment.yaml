@@ -40,7 +40,9 @@ spec:
         - containerPort: 8443
           name: https
         resources: 
-          {{- toYaml .resources | nindent 10 }}       
+          {{- toYaml .resources | nindent 10 }}
+        securityContext:
+          {{- toYaml .securityContext | nindent 10 }}  
       {{- end }}    
       - args:
         - --health-probe-bind-address=:8081
@@ -77,6 +79,8 @@ spec:
           periodSeconds: 10
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}  
       terminationGracePeriodSeconds: 10
       {{- with .Values.nodeSelector }}
       nodeSelector:
