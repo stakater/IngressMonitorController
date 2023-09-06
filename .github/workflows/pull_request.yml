@@ -56,7 +56,7 @@ jobs:
 
     - name: Check cluster info
       run: |
-        kubectl version --short --client
+        kubectl version --client
         kind version
         kind version | grep -q ${KIND_VERSION}
 
