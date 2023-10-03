@@ -15,7 +15,8 @@ COPY api/ api/
 COPY pkg/ pkg/
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -mod=mod -a -o manager main.go
+ARG $BUILDPLATFORM
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$BUILDPLATFORM GO111MODULE=on go build -mod=mod -a -o manager main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
