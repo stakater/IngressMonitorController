@@ -28,12 +28,6 @@ jobs:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip-ci]')"
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        platform:
-          - arm64
-          - amd64
-
     steps:
     - name: Check out code
       uses: actions/checkout@v3
@@ -119,10 +113,11 @@ jobs:
         file: ${{ env.DOCKER_FILE_PATH  }}
         pull: true
         push: true
+        build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}
         cache-to: type=inline
-        platforms: linux/${{ matrix.platform }}
+        platforms: linux/amd64,linux/arm,linux/arm64
         tags: |
-          ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}-${{ matrix.platform }}
+          ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
         labels: |
           org.opencontainers.image.source=${{ github.event.repository.clone_url }}
           org.opencontainers.image.created=${{ steps.prep.outputs.created }}
