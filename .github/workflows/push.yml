@@ -115,6 +115,7 @@ jobs:
         pull: true
         push: true
         cache-to: type=inline
+        platforms: linux/amd64,linux/arm,linux/arm64        
         tags: |
           ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
         labels: |
