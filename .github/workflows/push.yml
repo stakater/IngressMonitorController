@@ -93,7 +93,6 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
       with:
-        driver-opts: 'image=moby/buildkit:v0.11.5'
         buildkitd-flags: --debug
 
     - name: Login to Registry
@@ -122,7 +121,6 @@ jobs:
           org.opencontainers.image.source=${{ github.event.repository.clone_url }}
           org.opencontainers.image.created=${{ steps.prep.outputs.created }}
           org.opencontainers.image.revision=${{ github.sha }}
-          org.opencontainers.image.platform=${{ matrix.platform }}
 
     ##############################
     ## Add steps to generate required artifacts for a release here(helm chart, operator manifest etc.)
