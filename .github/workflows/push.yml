@@ -93,8 +93,6 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
       with:
-        driver-opts: |
-            image=moby/buildkit:v0.9.3
         buildkitd-flags: --debug
 
     - name: Login to Registry
@@ -114,7 +112,9 @@ jobs:
         file: ${{ env.DOCKER_FILE_PATH  }}
         pull: true
         push: true
+        build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}
         cache-to: type=inline
+        platforms: linux/amd64,linux/arm,linux/arm64
         tags: |
           ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
         labels: |
