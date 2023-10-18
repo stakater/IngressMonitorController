@@ -114,7 +114,7 @@ The following quickstart let's you set up Ingress Monitor Controller to register
 
 ## Helm Chart
 
-If you have configured helm on your cluster, you can deploy IngressMonitorController via helm using below mentioned commands. For details on chart, see [IMC Helm Chart](https://github.com/stakater/IngressMonitorController/tree/master/deploy/chart/ingressmonitorcontroller)
+If you have configured helm on your cluster, you can deploy IngressMonitorController via helm using below mentioned commands. For details on chart, see [IMC Helm Chart](https://github.com/stakater/IngressMonitorController/tree/master/charts/ingressmonitorcontroller)
 
 ```sh
 # Install CRDs
@@ -154,7 +154,7 @@ helm install stakater/ingressmonitorcontroller
 
 ### Documentation
 
-You can find more detailed documentation for configuration, extension, and support for other Uptime checkers etc. [here](docs/Deploying-to-Kubernetes.md)
+You can find more detailed documentation for configuration, extension, and support for other Uptime checkers etc. [here](https://github.com/stakater/IngressMonitorController/tree/master/docs)
 
 ### Contributing
 
