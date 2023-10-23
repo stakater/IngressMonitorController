@@ -60,6 +60,9 @@ spec:
                     description: Google Cloud Project ID
                     type: string
                 type: object
+              grafanaConfig:
+                description: Configuration for Grafana Cloud Monitor Provider
+                type: object
               healthEndpoint:
                 type: string
               pingdomConfig:
