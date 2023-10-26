@@ -197,7 +197,7 @@ type StatusCakeConfig struct {
 
 	// Comma separated list of Node Location IDs
 	// +optional
-	NodeLocations string `json:"nodeLocations,omitempty"`
+	Regions string `json:"regions,omitempty"`
 
 	// Comma separated list of HTTP codes to trigger error on
 	// +optional
