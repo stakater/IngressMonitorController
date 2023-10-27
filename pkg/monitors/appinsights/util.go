@@ -83,7 +83,7 @@ func getConfiguration(monitor models.Monitor) Configuration {
 
 	// frequency is configurable via config, Default value 300
 	if providerConfig != nil && providerConfig.StatusCode > 0 {
-		config.frequency = int32(providerConfig.StatusCode)
+		config.frequency = int32(providerConfig.Frequency)
 	} else {
 		config.frequency = AppInsightsFrequencyDefaultValue
 	}

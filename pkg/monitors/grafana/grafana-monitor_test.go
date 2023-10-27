@@ -11,6 +11,7 @@ import (
 
 func TestAddMonitorWithCorrectValues(t *testing.T) {
 	config := config.GetControllerConfigTest()
+	t.Errorf("Insta fail")
 
 	service := GrafanaMonitorService{}
 	provider := util.GetProviderWithName(config, "Grafana")

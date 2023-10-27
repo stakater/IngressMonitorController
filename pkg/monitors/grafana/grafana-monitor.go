@@ -17,13 +17,19 @@ import (
 
 var log = logf.Log.WithName("gcloud-monitor")
 
+const (
+	// Default value for monitor configuration
+	FrequencyDefaultValue = 300
+)
+
 type GrafanaMonitorService struct {
-	apiKey   string
-	baseURL  string
-	client   http.Client
-	ctx      context.Context
-	smClient *smapi.Client                // Synthetic Monitoring client
-	tenant   *synthetic_monitoring.Tenant // Tenant ID for Synthetic Monitoring
+	apiKey    string
+	baseURL   string
+	client    http.Client
+	ctx       context.Context
+	smClient  *smapi.Client                // Synthetic Monitoring client
+	tenant    *synthetic_monitoring.Tenant // Tenant ID for Synthetic Monitoring
+	frequency int32
 }
 
 func (service *GrafanaMonitorService) Setup(provider config.Provider) {
@@ -43,6 +49,10 @@ func (service *GrafanaMonitorService) Setup(provider config.Provider) {
 	}
 	service.smClient = client
 	service.tenant = tenant
+	//CHECK if freq is set
+
+	service.frequency = provider.GrafanaConfig.Frequency
+	fmt.Fprintln(os.Stderr, "Setup complete", service.frequency)
 }
 
 func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {

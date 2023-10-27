@@ -71,6 +71,7 @@ type Provider struct {
 	AccountEmail      string      `yaml:"accountEmail"`
 	AppInsightsConfig AppInsights `yaml:"appInsightsConfig"`
 	GcloudConfig      Gcloud      `yaml:"gcloudConfig"`
+	GrafanaConfig     Grafana     `yaml:"grafanaConfig"`
 }
 
 type AppInsights struct {
@@ -85,6 +86,10 @@ type AppInsights struct {
 
 type Gcloud struct {
 	ProjectID string `yaml:"projectId"`
+}
+
+type Grafana struct {
+	Frequency int32 `yaml:"frequency"`
 }
 
 type EmailAction struct {
