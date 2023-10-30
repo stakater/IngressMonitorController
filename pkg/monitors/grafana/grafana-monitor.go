@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"strconv"
 
@@ -98,12 +97,9 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		checkId = idResult
 	}
 	var tentantId int64
-	fmt.Fprintln(os.Stderr, "What is config before", monitor.Config)
 	grafanaConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
-	fmt.Fprintln(os.Stderr, "What is config after", grafanaConfig)
 	if grafanaConfig != nil && &grafanaConfig.TenantId != nil {
 		tentantId = grafanaConfig.TenantId
-		fmt.Fprintln(os.Stderr, "Sets tenantId", tentantId)
 	}
 	// Creating a new Check object
 	return &synthetic_monitoring.Check{
@@ -129,12 +125,10 @@ func (service *GrafanaMonitorService) Add(monitor models.Monitor) {
 	newCheck, err := service.CreateSyntheticCheck(monitor)
 	if err != nil {
 		log.Error(err, "Failed to create synthetic check")
-		fmt.Fprintln(os.Stderr, "Failed create", err)
 		return
 	}
 
 	// Using the synthetic monitoring client to add the new check
-	fmt.Fprintln(os.Stderr, "Result add check", newCheck)
 	createdCheck, err := service.smClient.AddCheck(service.ctx, *newCheck)
 	if err != nil {
 		log.Error(err, "Failed to add new monitor")
@@ -150,12 +144,10 @@ func (service *GrafanaMonitorService) Update(monitor models.Monitor) {
 		log.Error(err, "Failed to create synthetic check")
 		return
 	}
-	fmt.Fprintln(os.Stderr, "Result update check", newCheck)
 	// Using the synthetic monitoring client to update the old check
 	createdCheck, err := service.smClient.UpdateCheck(service.ctx, *newCheck)
 	if err != nil {
 		log.Error(err, "Failed to update monitor")
-		fmt.Fprintln(os.Stderr, "Failed to update monitor", err)
 		return
 	}
 
