@@ -98,7 +98,7 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 	}
 	var tentantId int64
 	grafanaConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
-	if grafanaConfig != nil && &grafanaConfig.TenantId != nil {
+	if grafanaConfig != nil {
 		tentantId = grafanaConfig.TenantId
 	}
 	// Creating a new Check object
@@ -172,10 +172,15 @@ func (service *GrafanaMonitorService) Remove(monitor models.Monitor) {
 		log.Info("Failed to parse int", monitor.ID)
 		return
 	}
-	service.smClient.DeleteCheck(service.ctx, Id)
+	err = service.smClient.DeleteCheck(service.ctx, Id)
+	if err != nil {
+		log.Error(err, "Failed to delete monitor")
+		return
+	}
+
 }
 
 func (service *GrafanaMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
 	// TODO Implement Deep equal for config as well
-	return oldMonitor.Name == newMonitor.Name && oldMonitor.URL == oldMonitor.URL && oldMonitor.ID == newMonitor.ID
+	return oldMonitor.Name == newMonitor.Name && oldMonitor.URL == newMonitor.URL && oldMonitor.ID == newMonitor.ID
 }
