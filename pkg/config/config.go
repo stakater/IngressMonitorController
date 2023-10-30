@@ -1,7 +1,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"strconv"
 	"time"
@@ -155,7 +154,7 @@ func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML
 	log.Info("Reading YAML Configuration: " + filePath)
-	source, err := ioutil.ReadFile(filePath)
+	source, err := os.ReadFile(filePath)
 	if err != nil {
 		panic(err)
 	}
