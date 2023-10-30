@@ -12,7 +12,7 @@ on:
       - 'config/'
 env:
   DOCKER_FILE_PATH: Dockerfile
-  GOLANG_VERSION: 1.18
+  GOLANG_VERSION: 1.21
   HELM_VERSION: v3.8.2
   KIND_VERSION: "v0.17.0"
 
@@ -35,7 +35,7 @@ jobs:
     - name: Lint
       uses: golangci/golangci-lint-action@v3
       with:
-        version: v1.50.1
+        version: v1.54
         only-new-issues: false
         args: --timeout 10m
 
