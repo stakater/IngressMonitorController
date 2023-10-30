@@ -1,0 +1,7 @@
+providers: 
+  - name: Grafana
+    apiKey: <ACCESS TOKEN>
+    apiURL: https://synthetic-monitoring-api-eu-north-0.grafana.net
+    grafanaConfig:
+      frequency: 5000
+enableMonitorDeletion: true
