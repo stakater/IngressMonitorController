@@ -62,6 +62,10 @@ spec:
                 type: object
               grafanaConfig:
                 description: Configuration for Grafana Cloud Monitor Provider
+                properties:
+                  TenantId:
+                    format: int64
+                    type: integer
                 type: object
               healthEndpoint:
                 type: string
