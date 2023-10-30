@@ -10,7 +10,7 @@ import (
 
 	"github.com/grafana/synthetic-monitoring-agent/pkg/pb/synthetic_monitoring"
 	smapi "github.com/grafana/synthetic-monitoring-api-go-client"
-
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
@@ -19,7 +19,7 @@ var log = logf.Log.WithName("gcloud-monitor")
 
 const (
 	// Default value for monitor configuration
-	FrequencyDefaultValue = 300
+	FrequencyDefaultValue = 10000
 )
 
 type GrafanaMonitorService struct {
@@ -29,7 +29,7 @@ type GrafanaMonitorService struct {
 	ctx       context.Context
 	smClient  *smapi.Client                // Synthetic Monitoring client
 	tenant    *synthetic_monitoring.Tenant // Tenant ID for Synthetic Monitoring
-	frequency int32
+	frequency int64
 }
 
 func (service *GrafanaMonitorService) Setup(provider config.Provider) {
@@ -40,35 +40,39 @@ func (service *GrafanaMonitorService) Setup(provider config.Provider) {
 	client := smapi.NewClient(service.baseURL, service.apiKey, http.DefaultClient)
 	tenant, err := client.GetTenant(service.ctx)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Cannot get tennant", err)
+		log.Error(err, "Cannot get tennant")
 		return
 	}
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to initialize Synthetic Monitoring client", err)
+		log.Error(err, "Failed to initialize Synthetic Monitoring client")
 		return
 	}
 	service.smClient = client
 	service.tenant = tenant
 	//CHECK if freq is set
-
-	service.frequency = provider.GrafanaConfig.Frequency
-	fmt.Fprintln(os.Stderr, "Setup complete", service.frequency)
+	if provider.GrafanaConfig.Frequency > 0 {
+		service.frequency = provider.GrafanaConfig.Frequency
+	} else {
+		service.frequency = FrequencyDefaultValue
+	}
 }
 
 func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
 	// Using the synthetic monitoring library to list all checks
 	checks, err := service.smClient.ListChecks(service.ctx)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error getting monitors", err)
+		log.Error(err, "Error getting monitors")
 		return nil
 	}
 
-	fmt.Fprintln(os.Stderr, "Result of List checks", checks)
 	for _, check := range checks {
 		monitors = append(monitors, models.Monitor{
 			Name: check.Job,
 			URL:  check.Target,
 			ID:   fmt.Sprintf("%v", check.Id),
+			Config: &endpointmonitorv1alpha1.GrafanaConfig{
+				TenantId: check.TenantId,
+			},
 		})
 	}
 	return monitors
@@ -85,11 +89,29 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		probeIDs[i] = p.Id
 	}
 
+	var checkId int64
+	if len(monitor.ID) > 0 {
+		idResult, err := strconv.ParseInt(monitor.ID, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Error converting ID %v %v", monitor.ID, err)
+		}
+		checkId = idResult
+	}
+	var tentantId int64
+	fmt.Fprintln(os.Stderr, "What is config before", monitor.Config)
+	grafanaConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
+	fmt.Fprintln(os.Stderr, "What is config after", grafanaConfig)
+	if grafanaConfig != nil && &grafanaConfig.TenantId != nil {
+		tentantId = grafanaConfig.TenantId
+		fmt.Fprintln(os.Stderr, "Sets tenantId", tentantId)
+	}
 	// Creating a new Check object
 	return &synthetic_monitoring.Check{
+		Id:        checkId,
 		Target:    monitor.URL,
 		Job:       monitor.Name,
-		Frequency: 10000,
+		Frequency: service.frequency,
+		TenantId:  tentantId,
 		Timeout:   2000,
 		Enabled:   true,
 		Probes:    probeIDs,
@@ -106,35 +128,38 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 func (service *GrafanaMonitorService) Add(monitor models.Monitor) {
 	newCheck, err := service.CreateSyntheticCheck(monitor)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to create synthetic check", err)
+		log.Error(err, "Failed to create synthetic check")
+		fmt.Fprintln(os.Stderr, "Failed create", err)
 		return
 	}
 
 	// Using the synthetic monitoring client to add the new check
+	fmt.Fprintln(os.Stderr, "Result add check", newCheck)
 	createdCheck, err := service.smClient.AddCheck(service.ctx, *newCheck)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to add new monitor", err)
+		log.Error(err, "Failed to add new monitor")
 		return
 	}
 
-	fmt.Fprintln(os.Stderr, "Successfully added new monitor", "monitorID", createdCheck.Id)
+	log.Info(fmt.Sprintf("Successfully added new monitor %v %v", monitor.ID, createdCheck.Id))
 }
 
 func (service *GrafanaMonitorService) Update(monitor models.Monitor) {
 	newCheck, err := service.CreateSyntheticCheck(monitor)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to create synthetic check", err)
+		log.Error(err, "Failed to create synthetic check")
 		return
 	}
-
+	fmt.Fprintln(os.Stderr, "Result update check", newCheck)
 	// Using the synthetic monitoring client to update the old check
 	createdCheck, err := service.smClient.UpdateCheck(service.ctx, *newCheck)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to add new monitor", err)
+		log.Error(err, "Failed to update monitor")
+		fmt.Fprintln(os.Stderr, "Failed to update monitor", err)
 		return
 	}
 
-	fmt.Fprintln(os.Stderr, "Successfully updated monitor", "monitorID", createdCheck.Id)
+	log.Info(fmt.Sprintf("Successfully updated monitor %v %v", monitor.ID, createdCheck.Id))
 }
 
 func (service *GrafanaMonitorService) GetByName(name string) (*models.Monitor, error) {
@@ -152,18 +177,13 @@ func (service *GrafanaMonitorService) Remove(monitor models.Monitor) {
 	// Convert string to base64 int
 	Id, err := strconv.ParseInt(monitor.ID, 10, 64)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to parse int", monitor.ID)
+		log.Info("Failed to parse int", monitor.ID)
 		return
 	}
 	service.smClient.DeleteCheck(service.ctx, Id)
 }
 
 func (service *GrafanaMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
-	// TODO this is not good.
-	mResOld, errOld := service.GetByName(oldMonitor.Name)
-	mResNew, errNew := service.GetByName(oldMonitor.Name)
-	if errNew != nil || errOld != nil {
-		fmt.Fprintln(os.Stderr, "Failed to get monitors", errOld, errNew)
-	}
-	return mResOld.Name == mResNew.Name && mResOld.URL == mResNew.URL
+	// TODO Implement Deep equal for config as well
+	return oldMonitor.Name == newMonitor.Name && oldMonitor.URL == oldMonitor.URL && oldMonitor.ID == newMonitor.ID
 }
