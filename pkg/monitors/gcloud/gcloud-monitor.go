@@ -12,7 +12,8 @@ import (
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	monitoredres "google.golang.org/genproto/googleapis/api/monitoredres"
-	monitoringpb "google.golang.org/genproto/googleapis/monitoring/v3"
+	//monitoringpb "google.golang.org/genproto/googleapis/monitoring/v3"
+	monitoringpb "cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"

@@ -2,7 +2,7 @@ package http
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -56,7 +56,7 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 	httpResponse := HttpResponse{StatusCode: response.StatusCode}
 
 	defer response.Body.Close()
-	responseBytes, _ := ioutil.ReadAll(response.Body)
+	responseBytes, _ := io.ReadAll(response.Body)
 	httpResponse.Bytes = responseBytes
 
 	return httpResponse

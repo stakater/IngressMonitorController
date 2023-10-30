@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -372,7 +371,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 	if resp.StatusCode == http.StatusCreated {
 		log.Info("Monitor Added: " + m.Name)
 	} else {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Error(err, "Unable to read response")
 			os.Exit(1)
@@ -406,7 +405,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 	if resp.StatusCode == http.StatusNoContent {
 		log.Info("Monitor Updated: " + m.ID + m.Name)
 	} else {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Error(err, "Unable to read response")
 			os.Exit(1)
