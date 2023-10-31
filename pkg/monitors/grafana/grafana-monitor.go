@@ -3,15 +3,15 @@ package grafana
 import (
 	"context"
 	"fmt"
-	"net/http"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"strconv"
-
 	"github.com/grafana/synthetic-monitoring-agent/pkg/pb/synthetic_monitoring"
 	smapi "github.com/grafana/synthetic-monitoring-api-go-client"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	"net/http"
+	"reflect"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"strconv"
 )
 
 var log = logf.Log.WithName("gcloud-monitor")
@@ -38,10 +38,6 @@ func (service *GrafanaMonitorService) Setup(provider config.Provider) {
 	service.baseURL = provider.ApiURL
 	client := smapi.NewClient(service.baseURL, service.apiKey, http.DefaultClient)
 	tenant, err := client.GetTenant(service.ctx)
-	if err != nil {
-		log.Error(err, "Cannot get tennant")
-		return
-	}
 	if err != nil {
 		log.Error(err, "Failed to initialize Synthetic Monitoring client")
 		return
@@ -96,10 +92,10 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		}
 		checkId = idResult
 	}
-	var tentantId int64
+	var tenantID int64
 	grafanaConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
 	if grafanaConfig != nil {
-		tentantId = grafanaConfig.TenantId
+		tenantID = grafanaConfig.TenantId
 	}
 	// Creating a new Check object
 	return &synthetic_monitoring.Check{
@@ -107,7 +103,7 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		Target:    monitor.URL,
 		Job:       monitor.Name,
 		Frequency: service.frequency,
-		TenantId:  tentantId,
+		TenantId:  tenantID,
 		Timeout:   2000,
 		Enabled:   true,
 		Probes:    probeIDs,
@@ -181,6 +177,5 @@ func (service *GrafanaMonitorService) Remove(monitor models.Monitor) {
 }
 
 func (service *GrafanaMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
-	// TODO Implement Deep equal for config as well
-	return oldMonitor.Name == newMonitor.Name && oldMonitor.URL == newMonitor.URL && oldMonitor.ID == newMonitor.ID
+	return oldMonitor.Name == newMonitor.Name && oldMonitor.URL == newMonitor.URL && oldMonitor.ID == newMonitor.ID && reflect.DeepEqual(oldMonitor.Config, newMonitor.Config)
 }

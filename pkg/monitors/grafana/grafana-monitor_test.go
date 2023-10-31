@@ -1,6 +1,7 @@
 package grafana
 
 import (
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
@@ -56,5 +57,56 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 
 	if monitor != nil {
 		t.Error("Monitor should've been deleted ", monitor, err)
+	}
+}
+
+func TestEqualModules(t *testing.T) {
+	config := config.GetControllerConfigTest()
+
+	service := GrafanaMonitorService{}
+	provider := util.GetProviderWithName(config, "Grafana")
+	if provider == nil {
+		return
+	}
+	service.Setup(*provider)
+	m1 := models.Monitor{
+		Name: "test",
+		URL:  "https://google.com",
+		ID:   "0",
+		Config: &endpointmonitorv1alpha1.GrafanaConfig{
+			TenantId: 5,
+		},
+	}
+	m2 := models.Monitor{
+		Name: "test",
+		URL:  "https://google.com",
+		ID:   "0",
+		Config: &endpointmonitorv1alpha1.GrafanaConfig{
+			TenantId: 5,
+		},
+	}
+	m3 := models.Monitor{
+		Name: "test",
+		URL:  "https://google.com",
+		ID:   "0",
+		Config: &endpointmonitorv1alpha1.GrafanaConfig{
+			TenantId: 2,
+		},
+	}
+	m4 := models.Monitor{
+		Name: "test",
+		URL:  "https://google.com",
+		Config: &endpointmonitorv1alpha1.GrafanaConfig{
+			TenantId: 5,
+		},
+	}
+	if !service.Equal(m1, m2) {
+		t.Error("Monitor should be the same", m1, m2)
+	}
+	if service.Equal(m1, m3) {
+		t.Error("Monitor should not be the same", m1, m3)
+	}
+	if service.Equal(m1, m4) {
+		t.Error("Monitor should not be the same", m1, m4)
 	}
 }
