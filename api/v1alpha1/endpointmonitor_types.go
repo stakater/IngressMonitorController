@@ -306,7 +306,7 @@ type GCloudConfig struct {
 
 // GrafnaConfiguration defines the configuration for Grafana Cloud Monitor Provider
 type GrafanaConfig struct {
-	TenantId int64 `json:"TenantId,omitempty"`
+	TenantId int64 `json:"tenantId,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from
