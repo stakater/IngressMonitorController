@@ -5,9 +5,17 @@ import (
 
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
+
+func init() {
+	// To allow normal logging to be printed if tests fails
+	// Dev mode is an extra feature to make output more readable
+	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
+}
 
 const (
 	routeTestUrl = "testurl.stackator.com/"
