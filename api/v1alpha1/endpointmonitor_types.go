@@ -67,6 +67,10 @@ type EndpointMonitorSpec struct {
 	// Configuration for Google Cloud Monitor Provider
 	// +optional
 	GCloudConfig *GCloudConfig `json:"gcloudConfig,omitempty"`
+
+	// Configuration for Grafana Cloud Monitor Provider
+	// +optional
+	GrafanaConfig *GrafanaConfig `json:"grafanaConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -298,6 +302,11 @@ type GCloudConfig struct {
 	// Google Cloud Project ID
 	// +optional
 	ProjectId string `json:"projectId,omitempty"`
+}
+
+// GrafnaConfiguration defines the configuration for Grafana Cloud Monitor Provider
+type GrafanaConfig struct {
+	TenantId int64 `json:"tenantId,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from

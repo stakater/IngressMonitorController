@@ -6,6 +6,7 @@ import (
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/appinsights"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/gcloud"
+	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/grafana"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/pingdom"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/statuscake"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/updown"
@@ -42,6 +43,8 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 		mp.monitor = &appinsights.AppinsightsMonitorService{}
 	case "gcloud":
 		mp.monitor = &gcloud.MonitorService{}
+	case "Grafana":
+		mp.monitor = &grafana.GrafanaMonitorService{}
 	default:
 		panic("No such provider found: " + mType)
 	}
@@ -66,6 +69,8 @@ func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.Endpoi
 		config = spec.AppInsightsConfig
 	case "gcloud":
 		config = spec.GCloudConfig
+	case "Grafana":
+		config = spec.GrafanaConfig
 	default:
 		return config
 	}

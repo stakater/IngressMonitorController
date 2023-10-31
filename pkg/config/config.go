@@ -1,7 +1,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"strconv"
 	"time"
@@ -71,6 +70,7 @@ type Provider struct {
 	AccountEmail      string      `yaml:"accountEmail"`
 	AppInsightsConfig AppInsights `yaml:"appInsightsConfig"`
 	GcloudConfig      Gcloud      `yaml:"gcloudConfig"`
+	GrafanaConfig     Grafana     `yaml:"grafanaConfig"`
 }
 
 type AppInsights struct {
@@ -85,6 +85,10 @@ type AppInsights struct {
 
 type Gcloud struct {
 	ProjectID string `yaml:"projectId"`
+}
+
+type Grafana struct {
+	Frequency int64 `yaml:"frequency"`
 }
 
 type EmailAction struct {
@@ -150,7 +154,7 @@ func ReadConfig(filePath string) Config {
 	var config Config
 	// Read YML
 	log.Info("Reading YAML Configuration: " + filePath)
-	source, err := ioutil.ReadFile(filePath)
+	source, err := os.ReadFile(filePath)
 	if err != nil {
 		panic(err)
 	}
