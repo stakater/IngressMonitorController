@@ -440,7 +440,6 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 		log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
 
 	} else {
-		log.Info("Statuscode for Remove monitor is 'StatusNoContent'")
 		_, err = service.GetByID(m.ID)
 		if strings.Contains(err.Error(), "Request failed") {
 			log.Info("Monitor Deleted: " + m.ID + m.Name)

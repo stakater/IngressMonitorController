@@ -12,16 +12,8 @@ import (
 	"github.com/stakater/IngressMonitorController/v2/pkg/http"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
-	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
-
-func init() {
-	// To allow normal logging to be printed if tests fails
-	// Dev mode is an extra feature to make output more readable
-	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
-}
 
 var log = logf.Log.WithName("uptime-monitor-test")
 
