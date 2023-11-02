@@ -5,9 +5,17 @@ import (
 
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 	v1 "k8s.io/api/networking/v1"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	fakekubeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
+
+func init() {
+	// To allow normal logging to be printed if tests fails
+	// Dev mode is an extra feature to make output more readable
+	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
+}
 
 const (
 	testUrl = "testurl.stackator.com"

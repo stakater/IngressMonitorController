@@ -9,7 +9,15 @@ import (
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 	"github.com/stretchr/testify/assert"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
+
+func init() {
+	// To allow normal logging to be printed if tests fails
+	// Dev mode is an extra feature to make output more readable
+	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
+}
 
 type Block struct {
 	Try     func()

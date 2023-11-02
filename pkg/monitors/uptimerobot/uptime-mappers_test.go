@@ -9,7 +9,15 @@ import (
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
+
+func init() {
+	// To allow normal logging to be printed if tests fails
+	// Dev mode is an extra feature to make output more readable
+	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
+}
 
 func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 	uptimeMonitorObject := UptimeMonitorMonitor{FriendlyName: "Test Monitor", ID: 124, URL: "https://stakater.com", Interval: 900}

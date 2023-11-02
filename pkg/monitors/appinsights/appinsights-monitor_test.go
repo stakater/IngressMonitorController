@@ -11,7 +11,15 @@ import (
 	insightsAlert "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
+
+func init() {
+	// To allow normal logging to be printed if tests fails
+	// Dev mode is an extra feature to make output more readable
+	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
+}
 
 func TestAppinsightsMonitorService_createWebTest(t *testing.T) {
 

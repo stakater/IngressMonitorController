@@ -43,7 +43,7 @@ jobs:
     - name: Lint
       uses: golangci/golangci-lint-action@v3
       with:
-        version: v1.50.1
+        version: v1.54
         only-new-issues: false
         args: --timeout 10m
 
@@ -113,7 +113,8 @@ jobs:
         pull: true
         push: true
         build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}
-        cache-to: type=inline
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
         platforms: linux/amd64,linux/arm,linux/arm64
         tags: |
           ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}

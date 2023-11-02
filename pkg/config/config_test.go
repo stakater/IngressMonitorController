@@ -2,8 +2,16 @@ package config
 
 import (
 	"reflect"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"testing"
 )
+
+func init() {
+	// To allow normal logging to be printed if tests fails
+	// Dev mode is an extra feature to make output more readable
+	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
+}
 
 const (
 	configFilePath                   = "../../examples/configs/test-config-uptimerobot.yaml"
