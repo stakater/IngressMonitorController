@@ -63,7 +63,7 @@ spec:
               grafanaConfig:
                 description: Configuration for Grafana Cloud Monitor Provider
                 properties:
-                  TenantId:
+                  tenantId:
                     format: int64
                     type: integer
                 type: object

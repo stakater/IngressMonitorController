@@ -2,7 +2,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.0
   creationTimestamp: null
   name: endpointmonitors.endpointmonitor.stakater.com
 spec:
@@ -58,6 +58,13 @@ spec:
                   projectId:
                     description: Google Cloud Project ID
                     type: string
+                type: object
+              grafanaConfig:
+                description: Configuration for Grafana Cloud Monitor Provider
+                properties:
+                  tenantId:
+                    format: int64
+                    type: integer
                 type: object
               healthEndpoint:
                 type: string
@@ -289,5 +296,5 @@ status:
   acceptedNames:
     kind: ""
     plural: ""
-  conditions: []
-  storedVersions: []
+  conditions: null
+  storedVersions: null
