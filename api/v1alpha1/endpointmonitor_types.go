@@ -280,6 +280,12 @@ type PingdomConfig struct {
 	// At this day your check will be considered down and if applicable a down alert will be sent.
 	// +optional
 	SSLDownDaysBefore int `json:"sslDownDaysBefore,omitempty"`
+
+	// Data that should be posted to the web page, for example submission data for a sign-up or login form. 
+	// The data needs to be formatted in the same way as a web browser would send it to the web server.
+	// Because post data contains sensitive secret this field is only reference to a environment variable.
+	// +optional
+	PostDataEnvVar string `json:"postDataEnvVar,omitempty"`
 }
 
 // AppInsightsConfig defines the configuration for AppInsights Monitor Provider

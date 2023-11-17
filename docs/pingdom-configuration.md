@@ -44,6 +44,34 @@ Pingdom supports checks completing basic auth requirements. In `EndpointMonitor`
 
 For example; setting the field like `basicAuthUser: health-service` will set the username field to 'health-service' and will retrieve the password via `os.Getenv('health-service')` and set this appropriately.
 
+### Post Data checks
+
+In case you need add post data to your request, you can use the field `postDataEnvVar`.
+The value must match a environment variable that contains the post data to be sent.
+
+For example; setting the field like `postDataEnvVar: monitor-user` will set the post data field to the value of the environment variable `monitor-user`.
+
+To add the environment variable in helm context, first create a secret e.g.
+
+```yaml
+kind: Secret
+apiVersion: v1
+metadata:
+  name: stakater-post-data
+stringData:
+  monitor-user: "username=stakater&password=stakater"
+type: Opaque
+```
+
+Then we reference secret in the env context of helm chart
+
+```yaml
+envFrom:
+  - secretRef:
+      name: stakater-post-data
+```
+
+If you set postData the request method will be automatically POST.
 
 ## Example: 
 
@@ -67,4 +95,5 @@ spec:
     alertIntegrations: "91166-12168"
     alertContacts: "1234567_8_9-9876543_2_1,1234567_8_9-9876543_2_2"
     teamAlertContacts: "1234567_8_9-9876543_2_1,1234567_8_9-9876543_2_2"
+    postDataEnvVar: "monitor-user"
 ```
