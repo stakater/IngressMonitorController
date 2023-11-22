@@ -153,9 +153,6 @@ spec:
                   followRedirect:
                     description: Enable ingress redirects
                     type: boolean
-                  regions:
-                    description: Comma separated list of regions.
-                    type: string
                   paused:
                     description: Pause the service
                     type: boolean
@@ -168,6 +165,9 @@ spec:
                   realBrowser:
                     description: Enable Real Browser
                     type: boolean
+                  regions:
+                    description: Comma separated list of Node Location IDs
+                    type: string
                   statusCodes:
                     description: Comma separated list of HTTP codes to trigger error
                       on
