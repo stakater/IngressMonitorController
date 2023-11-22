@@ -153,8 +153,8 @@ spec:
                   followRedirect:
                     description: Enable ingress redirects
                     type: boolean
-                  nodeLocations:
-                    description: Comma separated list of Node Location IDs
+                  regions:
+                    description: Comma separated list of regions.
                     type: string
                   paused:
                     description: Pause the service
