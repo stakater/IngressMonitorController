@@ -2,6 +2,7 @@ package pingdom
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -258,9 +259,19 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		}
 	}
 
-	// Enable SSL validation
 	if providerConfig != nil {
+		// Enable SSL validation
 		httpCheck.VerifyCertificate = &providerConfig.VerifyCertificate
+		// Add post data if exists
+		if len(providerConfig.PostDataEnvVar) > 0 {
+			postDataValue := os.Getenv(providerConfig.PostDataEnvVar)
+			if postDataValue != "" {
+				httpCheck.PostData = postDataValue
+				log.Info("Post data detected. Setting post data for httpCheck to value of environment variable: " + providerConfig.PostDataEnvVar)
+			} else {
+				log.Error(errors.New("Error reading post data from environment variable"), "Environment Variable %s does not exist", providerConfig.PostDataEnvVar)
+			}
+		}
 	}
 
 	// Set certificate not valid before, default to 28 days to accommodate Let's Encrypt 30 day renewals + 2 days grace period.
