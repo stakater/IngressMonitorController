@@ -92,7 +92,6 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		}
 		checkId = idResult
 	}
-	var tenantID int64
 	grafanaConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
 	if grafanaConfig != nil {
 		tenantID = grafanaConfig.TenantId
