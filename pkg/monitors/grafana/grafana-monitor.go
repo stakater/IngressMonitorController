@@ -103,7 +103,6 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		Target:    monitor.URL,
 		Job:       monitor.Name,
 		Frequency: service.frequency,
-		TenantId:  tenantID,
 		Timeout:   2000,
 		Enabled:   true,
 		Probes:    probeIDs,
