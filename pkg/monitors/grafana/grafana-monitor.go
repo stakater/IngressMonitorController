@@ -45,11 +45,6 @@ func (service *GrafanaMonitorService) Setup(provider config.Provider) {
 	service.smClient = client
 	service.tenant = tenant
 	//CHECK if freq is set
-	if provider.GrafanaConfig.Frequency > 0 {
-		service.frequency = provider.GrafanaConfig.Frequency
-	} else {
-		service.frequency = FrequencyDefaultValue
-	}
 }
 
 func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
@@ -65,9 +60,6 @@ func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
 			Name: check.Job,
 			URL:  check.Target,
 			ID:   fmt.Sprintf("%v", check.Id),
-			Config: &endpointmonitorv1alpha1.GrafanaConfig{
-				TenantId: check.TenantId,
-			},
 		})
 	}
 	return monitors
@@ -92,7 +84,6 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		}
 		checkId = idResult
 	}
-	grafanaConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
 	// Creating a new Check object
 	return &synthetic_monitoring.Check{
 		Id:        checkId,
