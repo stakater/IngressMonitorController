@@ -93,9 +93,6 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		checkId = idResult
 	}
 	grafanaConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
-	if grafanaConfig != nil {
-		tenantID = grafanaConfig.TenantId
-	}
 	// Creating a new Check object
 	return &synthetic_monitoring.Check{
 		Id:        checkId,
