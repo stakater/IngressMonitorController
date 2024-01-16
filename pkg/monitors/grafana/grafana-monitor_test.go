@@ -25,19 +25,24 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		return
 	}
 	service.Setup(*provider)
+
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+	preExistingMonitor, _ := service.GetByName(m.Name)
+
+	if preExistingMonitor != nil {
+		service.Remove(*preExistingMonitor)
+	}
+
+	previousResources := len(service.GetAll())
 	service.Add(m)
 
 	mRes := service.GetAll()
 
-	if len(mRes) == 0 {
+	if len(mRes) == previousResources {
 		t.Errorf("Found empty response for Monitor. Name: %s and URL: %s", m.Name, m.URL)
 	}
-	if len(mRes) > 1 {
+	if len(mRes) > previousResources+1 {
 		t.Errorf("Found too many response for Monitor, %v, after add.", len(mRes))
-	}
-	if mRes[0].Name != m.Name || mRes[0].URL != m.URL {
-		t.Error("URL and name should be the same", mRes[0], m)
 	}
 
 	monitor, err := service.GetByName(m.Name)
@@ -45,7 +50,10 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	if err != nil {
 		t.Error("Monitor should've been found", monitor, err)
 	}
-	service.Remove(mRes[0])
+	if monitor.Name != m.Name || monitor.URL != m.URL {
+		t.Error("URL and name should be the same", monitor, m)
+	}
+	service.Remove(*monitor)
 
 	monitor, err = service.GetByName(m.Name)
 
@@ -62,38 +70,56 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 		return
 	}
 	service.Setup(*provider)
+
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+	preExistingMonitor, _ := service.GetByName(m.Name)
+
+	if preExistingMonitor != nil {
+		service.Remove(*preExistingMonitor)
+	}
+
+	previousResources := len(service.GetAll())
 	service.Add(m)
 
 	mRes := service.GetAll()
 
-	if len(mRes) == 0 {
+	if len(mRes) == previousResources {
 		t.Errorf("Found empty response for Monitor. Name: %s and URL: %s", m.Name, m.URL)
 	}
-	if len(mRes) > 1 {
+	if len(mRes) > previousResources+1 {
 		t.Errorf("Found too many response for Monitor, %v, after add.", len(mRes))
 	}
-	m2 := models.Monitor{Name: "stakater-test", URL: "https://stakater.com", ID: mRes[0].ID, Config: mRes[0].Config}
+	monitor, err := service.GetByName(m.Name)
+	if err != nil || monitor == nil {
+		t.Error("Monitor should've been found", monitor, err)
+	}
+	if monitor.Name != m.Name || monitor.URL != m.URL {
+		t.Error("URL and name should be the same", monitor, m)
+	}
+	m2 := models.Monitor{Name: "stakater-test", URL: "https://stakater.com", ID: monitor.ID, Config: monitor.Config}
 	service.Update(m2)
 
 	mRes2 := service.GetAll()
 
-	if len(mRes2) == 0 {
+	if len(mRes2) == previousResources {
 		t.Errorf("Found empty response for Monitor. Name: %s and URL: %s", m2.Name, m2.URL)
 	}
-	if len(mRes2) > 1 {
+	if len(mRes2) > previousResources+1 {
 		t.Errorf("Found too many response for Monitor, %v, after update.", len(mRes2))
 	}
-	if mRes2[0].Name != m2.Name || mRes2[0].URL != m2.URL {
-		t.Error("URL and name should be the same", mRes2[0], m2)
-	}
 
-	monitor, err := service.GetByName(m.Name)
-
-	if monitor != nil {
+	monitor1, _ := service.GetByName(m.Name)
+	if monitor1 != nil {
 		t.Error("Monitor should not exist since it was updated", monitor, err)
 	}
-	service.Remove(mRes2[0])
+	monitor2, err := service.GetByName(m2.Name)
+	if err != nil {
+		t.Error("Monitor should've been found", monitor, err)
+	}
+	if monitor2.Name != m2.Name || monitor2.URL != m2.URL {
+		t.Error("URL and name should be the same", monitor2, m2)
+	}
+	service.Remove(*monitor2)
 
 	monitor, err = service.GetByName(m2.Name)
 
