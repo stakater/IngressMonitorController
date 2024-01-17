@@ -20,6 +20,20 @@ func SliceAtoi(stringSlice []string) ([]int, error) {
 	return intSlice, nil
 }
 
+func SliceAtoi64(stringSlice []string) ([]int64, error) {
+    var intSlice = []int64{}
+
+    for _, stringValue := range stringSlice {
+        intValue, err := strconv.ParseInt(stringValue, 10, 64)
+        if err != nil {
+            return intSlice, err
+        }
+        intSlice = append(intSlice, intValue)
+    }
+
+    return intSlice, nil
+}
+
 func SliceItoa(intSlice []int) []string {
 	var stringSlice = []string{}
 

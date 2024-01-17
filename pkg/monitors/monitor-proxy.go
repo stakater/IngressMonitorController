@@ -33,6 +33,8 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 		mp.monitor = &uptimerobot.UpTimeMonitorService{}
 	case "Pingdom":
 		mp.monitor = &pingdom.PingdomMonitorService{}
+	case "PindomTransaction":
+		mp.monitor = &pingdom.PingdomTransactionMonitorService{}
 	case "StatusCake":
 		mp.monitor = &statuscake.StatusCakeMonitorService{}
 	case "Uptime":
@@ -59,6 +61,8 @@ func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.Endpoi
 		config = spec.UptimeRobotConfig
 	case "Pingdom":
 		config = spec.PingdomConfig
+	case "PingdomTransaction":
+		config = spec.PingdomTransactionConfig
 	case "StatusCake":
 		config = spec.StatusCakeConfig
 	case "Uptime":

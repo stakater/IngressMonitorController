@@ -13,6 +13,7 @@ require (
 	github.com/go-logr/logr v1.2.0
 	github.com/grafana/synthetic-monitoring-agent v0.18.2
 	github.com/grafana/synthetic-monitoring-api-go-client v0.7.0
+	github.com/karlderkaefer/pingdom-golang-client v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
 	github.com/patrickmn/go-cache v2.1.0+incompatible
@@ -62,13 +63,13 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/s2a-go v0.1.4 // indirect
-	github.com/google/uuid v1.3.1 // indirect
+	github.com/google/uuid v1.4.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.11.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/mailru/easyjson v0.7.6 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
