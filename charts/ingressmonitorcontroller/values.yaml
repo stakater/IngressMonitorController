@@ -8,7 +8,7 @@ replicaCount: 1
 
 image:
   repository: stakater/ingressmonitorcontroller
-  tag: v2.1.44
+  tag: v2.1.49
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 
@@ -17,7 +17,7 @@ kube-rbac-proxy:
     repository: gcr.io/kubebuilder/kube-rbac-proxy
     tag: v0.8.0
     pullPolicy: IfNotPresent
-  resources: 
+  resources:
     {}
   securityContext:
     {}

@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: stakater/ingressmonitorcontroller
-  newTag: v2.1.44
+  newTag: v2.1.49

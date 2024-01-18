@@ -14,7 +14,7 @@ import (
 	"strconv"
 )
 
-var log = logf.Log.WithName("gcloud-monitor")
+var log = logf.Log.WithName("grafana-monitor")
 
 const (
 	// Default value for monitor configuration
@@ -29,6 +29,18 @@ type GrafanaMonitorService struct {
 	smClient  *smapi.Client                // Synthetic Monitoring client
 	tenant    *synthetic_monitoring.Tenant // Tenant ID for Synthetic Monitoring
 	frequency int64
+}
+
+func getID(monitor models.Monitor) (int64, error) {
+	var checkId int64
+	if len(monitor.ID) > 0 {
+		idResult, err := strconv.ParseInt(monitor.ID, 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("Error converting ID %v %v", monitor.ID, err)
+		}
+		checkId = idResult
+	}
+	return checkId, nil
 }
 
 func (service *GrafanaMonitorService) Setup(provider config.Provider) {
@@ -73,7 +85,7 @@ func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
 	return monitors
 }
 
-func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monitor) (*synthetic_monitoring.Check, error) {
+func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monitor, tenantID int64) (*synthetic_monitoring.Check, error) {
 	probes, err := service.smClient.ListProbes(service.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("Error listing probes %v", err)
@@ -84,18 +96,9 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		probeIDs[i] = p.Id
 	}
 
-	var checkId int64
-	if len(monitor.ID) > 0 {
-		idResult, err := strconv.ParseInt(monitor.ID, 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("Error converting ID %v %v", monitor.ID, err)
-		}
-		checkId = idResult
-	}
-	var tenantID int64
-	grafanaConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
-	if grafanaConfig != nil {
-		tenantID = grafanaConfig.TenantId
+	checkId, err := getID(monitor)
+	if err != nil {
+		return nil, fmt.Errorf("Error converting ID %v %v", monitor.ID, err)
 	}
 	// Creating a new Check object
 	return &synthetic_monitoring.Check{
@@ -118,7 +121,8 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 
 // Add adds a new monitor to Grafana Synthetic Monitoring service
 func (service *GrafanaMonitorService) Add(monitor models.Monitor) {
-	newCheck, err := service.CreateSyntheticCheck(monitor)
+	var tenantID int64
+	newCheck, err := service.CreateSyntheticCheck(monitor, tenantID)
 	if err != nil {
 		log.Error(err, "Failed to create synthetic check")
 		return
@@ -135,7 +139,17 @@ func (service *GrafanaMonitorService) Add(monitor models.Monitor) {
 }
 
 func (service *GrafanaMonitorService) Update(monitor models.Monitor) {
-	newCheck, err := service.CreateSyntheticCheck(monitor)
+	checkID, err := getID(monitor)
+	if err != nil {
+		log.Error(err, "Failed to get ID")
+		return
+	}
+	check, err := service.smClient.GetCheck(service.ctx, checkID)
+	if err != nil {
+		log.Error(err, "Failed to get check")
+		return
+	}
+	newCheck, err := service.CreateSyntheticCheck(monitor, check.TenantId)
 	if err != nil {
 		log.Error(err, "Failed to create synthetic check")
 		return

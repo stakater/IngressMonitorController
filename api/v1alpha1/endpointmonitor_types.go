@@ -202,7 +202,7 @@ type StatusCakeConfig struct {
 
 	// Comma separated list of Node Location IDs
 	// +optional
-	NodeLocations string `json:"nodeLocations,omitempty"`
+	Regions string `json:"regions,omitempty"`
 
 	// Comma separated list of HTTP codes to trigger error on
 	// +optional
@@ -286,7 +286,6 @@ type PingdomConfig struct {
 	// +optional
 	SSLDownDaysBefore int `json:"sslDownDaysBefore,omitempty"`
 
-	// Data that should be posted to the web page, for example submission data for a sign-up or login form. 
 	// The data needs to be formatted in the same way as a web browser would send it to the web server.
 	// Because post data contains sensitive secret this field is only reference to a environment variable.
 	// +optional

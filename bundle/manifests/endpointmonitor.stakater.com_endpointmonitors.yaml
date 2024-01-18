@@ -87,6 +87,13 @@ spec:
                   paused:
                     description: Set to "true" to pause checks
                     type: boolean
+                  postDataEnvVar:
+                    description: Data that should be posted to the web page, for example
+                      submission data for a sign-up or login form. The data needs
+                      to be formatted in the same way as a web browser would send
+                      it to the web server. Because post data contains sensitive secret
+                      this field is only reference to a environment variable.
+                    type: string
                   requestHeaders:
                     description: Custom pingdom request headers
                     type: string
@@ -152,9 +159,6 @@ spec:
                   followRedirect:
                     description: Enable ingress redirects
                     type: boolean
-                  nodeLocations:
-                    description: Comma separated list of Node Location IDs
-                    type: string
                   paused:
                     description: Pause the service
                     type: boolean
@@ -167,6 +171,9 @@ spec:
                   realBrowser:
                     description: Enable Real Browser
                     type: boolean
+                  regions:
+                    description: Comma separated list of Node Location IDs
+                    type: string
                   statusCodes:
                     description: Comma separated list of HTTP codes to trigger error
                       on

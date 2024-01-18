@@ -79,6 +79,13 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		}
 	}
 
+	if providerConfig != nil && len(providerConfig.Regions) > 0 {
+		regions := convertStringToArray(providerConfig.Regions)
+		for _, region := range regions {
+			f.Add("regions[]", region)
+		}
+	}
+
 	if providerConfig != nil && len(providerConfig.BasicAuthUser) > 0 {
 		// This value is mandatory
 		// Environment variable should define the password

@@ -19,4 +19,5 @@ spec:
     triggerRate: 1
     pingUrl: 'https://stakater2.com/'
     contactGroup: '123456,654321'
+    regions: amsterdam, stockholm
   url: 'https://stakater1.com/'
