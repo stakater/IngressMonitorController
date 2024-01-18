@@ -1,4 +1,4 @@
-package pingdom
+package pingdomtransaction
 
 import (
 	"context"
@@ -61,7 +61,7 @@ func (service *PingdomTransactionMonitorService) GetByName(name string) (*models
 		}
 	}
 
-	return match, fmt.Errorf("Unable to locate monitor with name %v", name)
+	return match, fmt.Errorf("unable to locate monitor with name %v", name)
 }
 
 func (service *PingdomTransactionMonitorService) GetAll() []models.Monitor {

@@ -8,6 +8,7 @@ import (
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/gcloud"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/grafana"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/pingdom"
+	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/pingdomtransaction"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/statuscake"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/updown"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/uptime"
@@ -34,7 +35,7 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	case "Pingdom":
 		mp.monitor = &pingdom.PingdomMonitorService{}
 	case "PindomTransaction":
-		mp.monitor = &pingdom.PingdomTransactionMonitorService{}
+		mp.monitor = &pingdomtransaction.PingdomTransactionMonitorService{}
 	case "StatusCake":
 		mp.monitor = &statuscake.StatusCakeMonitorService{}
 	case "Uptime":
