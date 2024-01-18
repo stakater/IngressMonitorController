@@ -2,6 +2,7 @@ package pingdomtransaction
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -131,12 +132,12 @@ func (service *PingdomTransactionMonitorService) createTransactionCheck(monitor 
 	if teamAlertContacts != nil {
 		transactionCheck.TeamIds = teamAlertContacts
 	}
-	service.addConfigToHttpCheck(&transactionCheck, monitor.Config)
+	service.addConfigToTranscationCheck(&transactionCheck, monitor.Config)
 
 	return transactionCheck
 }
 
-func (service *PingdomTransactionMonitorService) addConfigToHttpCheck(transactionCheck *pingdomNew.CheckWithoutID, config interface{}) {
+func (service *PingdomTransactionMonitorService) addConfigToTranscationCheck(transactionCheck *pingdomNew.CheckWithoutID, config interface{}) {
 
 	// Retrieve provider configuration
 	providerConfig, _ := config.(*endpointmonitorv1alpha1.PingdomTransactionConfig)
@@ -176,6 +177,37 @@ func (service *PingdomTransactionMonitorService) addConfigToHttpCheck(transactio
 	if len(providerConfig.Tags) > 0 {
 		transactionCheck.Tags = providerConfig.Tags
 	}
+	if providerConfig.SeverityLevel != "" {
+		transactionCheck.SeverityLevel = ptr.String(providerConfig.SeverityLevel)
+	}
+	for _, step := range providerConfig.Steps {
+		args := NewStepArgsByMap(step.Args)
+		if args != nil {
+			transactionCheck.Steps = append(transactionCheck.Steps, pingdomNew.Step{
+				Args: args,
+				Fn:   ptr.String(step.Function),
+			})
+		} else {
+			logT.Info("Invalid Pingdom Step Args Provided")
+		}
+	}
+}
+
+// NewStepArgsByMap creates a new StepArgs object from a map
+func NewStepArgsByMap(input map[string]string) *pingdomNew.StepArgs {
+	// First, marshal the map to JSON
+	jsonData, err := json.Marshal(input)
+	if err != nil {
+		logT.Info("Error marshalling map to JSON" + err.Error())
+		return nil
+	}
+	var stepArgs pingdomNew.StepArgs
+	err = json.Unmarshal(jsonData, &stepArgs)
+	if err != nil {
+		logT.Info("Error unmarshalling JSON to StepArgs" + err.Error())
+		return nil
+	}
+	return &stepArgs
 }
 
 // parseIDs splits a string of IDs into an array of integers
