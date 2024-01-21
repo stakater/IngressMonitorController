@@ -7,13 +7,12 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/openapi/ptr"
 	pingdomNew "github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/openapi"
+	"github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/openapi/ptr"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
@@ -124,7 +123,7 @@ func (service *PingdomTransactionMonitorService) Update(m models.Monitor) {
 	if transactionCheck == nil {
 		return
 	}
-	monitorID := strToInt64(m.ID)
+	monitorID := util.StrToInt64(m.ID)
 	_, resp, err := service.client.TMSChecksAPI.ModifyCheck(service.context, monitorID).CheckWithoutIDPUT(*transactionCheck.AsPut()).Execute()
 	if err != nil {
 		log.Error(err, "Error Updating Pingdom Transaction Monitor", "Response", parseResponseBody(resp))
@@ -134,7 +133,7 @@ func (service *PingdomTransactionMonitorService) Update(m models.Monitor) {
 }
 
 func (service *PingdomTransactionMonitorService) Remove(m models.Monitor) {
-	_, resp, err := service.client.TMSChecksAPI.DeleteCheck(service.context, strToInt64(m.ID)).Execute()
+	_, resp, err := service.client.TMSChecksAPI.DeleteCheck(service.context, util.StrToInt64(m.ID)).Execute()
 	if err != nil {
 		log.Error(err, "Error Deleting Pingdom Transaction Monitor", "Response", parseResponseBody(resp))
 	} else {
@@ -261,15 +260,6 @@ func parseIDs(field string) []int64 {
 		return ids
 	}
 	return nil
-}
-
-func strToInt64(str string) int64 {
-	// Parse the string as a base-10 integer with a bit size of 64.
-	value, err := strconv.ParseInt(str, 10, 64)
-	if err != nil {
-		return 0
-	}
-	return value
 }
 
 // parseResponseBody checks if the response body is JSON and contains "errormessage".

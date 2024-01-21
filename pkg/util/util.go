@@ -69,3 +69,12 @@ func SplitAndSort(s string, sep string) []string {
 	sort.Strings(slice)
 	return slice
 }
+
+func StrToInt64(str string) int64 {
+	// Parse the string as a base-10 integer with a bit size of 64.
+	value, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return value
+}
