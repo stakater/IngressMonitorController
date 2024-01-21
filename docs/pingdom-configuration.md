@@ -97,3 +97,19 @@ spec:
     teamAlertContacts: "1234567_8_9-9876543_2_1,1234567_8_9-9876543_2_2"
     postDataEnvVar: "monitor-user"
 ```
+
+## Transaction Check
+
+**Example:**
+
+```yaml
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: pingdom-transaction-check
+spec:
+  pingdomTransactionConfig:
+    tags:
+      - "testing"
+      - "manual"
+``````

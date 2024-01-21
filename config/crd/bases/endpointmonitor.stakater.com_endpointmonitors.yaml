@@ -131,7 +131,7 @@ spec:
                     type: boolean
                 type: object
               pingdomTransactionConfig:
-                description: Configuration for Pingdom Monitor Provider
+                description: Configuration for Pingdom Transaction Monitor Provider
                 properties:
                   alertContacts:
                     description: '`-` separated contact id''s (e.g. "1234567_8_9-9876543_2_1")'
@@ -148,6 +148,13 @@ spec:
                     description: 'TMS test intervals in minutes. Allowed intervals:
                       5,10,20,60,720,1440. The interval you''re allowed to set may
                       vary depending on your current plan.'
+                    enum:
+                    - 5
+                    - 10
+                    - 20
+                    - 60
+                    - 720
+                    - 1440
                     type: integer
                   paused:
                     description: 'Check status: active or inactive'
@@ -155,6 +162,11 @@ spec:
                   region:
                     description: 'Name of the region where the check is executed.
                       Supported regions: us-east, us-west, eu, au'
+                    enum:
+                    - us-east
+                    - us-west
+                    - eu
+                    - au
                     type: string
                   send_notification_when_down:
                     description: Send notification when down X times
@@ -163,6 +175,9 @@ spec:
                   severity_level:
                     description: 'Check importance- how important are the alerts when
                       the check fails. Allowed values: low, high'
+                    enum:
+                    - low
+                    - high
                     type: string
                   steps:
                     description: steps to be executed as part of the check

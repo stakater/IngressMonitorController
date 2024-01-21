@@ -60,7 +60,7 @@ type EndpointMonitorSpec struct {
 	// +optional
 	PingdomConfig *PingdomConfig `json:"pingdomConfig,omitempty"`
 
-	// Configuration for Pingdom Monitor Provider
+	// Configuration for Pingdom Transaction Monitor Provider
 	// +optional
 	PingdomTransactionConfig *PingdomTransactionConfig `json:"pingdomTransactionConfig,omitempty"`
 
@@ -305,10 +305,12 @@ type PingdomTransactionConfig struct {
 
 	// TMS test intervals in minutes. Allowed intervals: 5,10,20,60,720,1440. The interval you're allowed to set may vary depending on your current plan.
 	// +optional
+	// +kubebuilder:validation:Enum=5;10;20;60;720;1440
 	Interval int `json:"interval,omitempty"`
 
 	// Name of the region where the check is executed. Supported regions: us-east, us-west, eu, au
 	// +optional
+	// +kubebuilder:validation:Enum=us-east;us-west;eu;au
 	Region string `json:"region,omitempty"`
 
 	// Send notification when down X times
@@ -316,6 +318,7 @@ type PingdomTransactionConfig struct {
 
 	// Check importance- how important are the alerts when the check fails. Allowed values: low, high
 	// +optional
+	// +kubebuilder:validation:Enum=low;high
 	SeverityLevel string `json:"severity_level,omitempty"`
 
 	// steps to be executed as part of the check

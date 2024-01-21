@@ -30,16 +30,19 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 )
+
+var log = logf.Log.WithName("endpointmonitor-controller")
 
 // EndpointMonitorReconciler reconciles a EndpointMonitor object
 type EndpointMonitorReconciler struct {
 	client.Client
 	Log             logr.Logger
 	Scheme          *runtime.Scheme
-	MonitorServices []monitors.MonitorServiceProxy
+	MonitorServices []*monitors.MonitorServiceProxy
 }
 
 //+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors,verbs=get;list;watch
@@ -83,23 +86,25 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	// Handle CreationDelay
 	createTime := instance.CreationTimestamp
 	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))
+	log.Info("Debug all monitors", "monitors", r.MonitorServices)
 
-	for index := 0; index < len(r.MonitorServices); index++ {
-		monitor := findMonitorByName(r.MonitorServices[index], monitorName)
-		if monitor != nil {
-			// Monitor already exists, update if required
-			err = r.handleUpdate(req, instance, *monitor, r.MonitorServices[index])
-		} else {
-			// Monitor doesn't exist, create monitor
-			if delay.Nanoseconds() > 0 {
-				// Requeue request to add creation delay
-				log.Info("Requeuing request to add monitor " + monitorName + " for " + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
-				return reconcile.Result{RequeueAfter: delay}, nil
-			}
-			err = r.handleCreate(req, instance, monitorName, r.MonitorServices[index])
+	monitorService := r.GetMonitorOfType(instance.Spec)
+	monitor := findMonitorByName(monitorService, monitorName)
+	log.Info("Debug trying to find "+monitorName, "monitors", monitorService, "type", monitorService.GetType())
+	log.Info("Debug got service", "spec", monitorService.ExtractConfig(instance.Spec))
+	if monitor != nil {
+		// Monitor already exists, update if required
+		err = r.handleUpdate(req, instance, *monitor, monitorService)
+	} else {
+		// Monitor doesn't exist, create monitor
+		if delay.Nanoseconds() > 0 {
+			// Requeue request to add creation delay
+			log.Info("Requeuing request to add monitor " + monitorName + " for " + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
+			return reconcile.Result{RequeueAfter: delay}, nil
 		}
+		log.Info("Debug forced to add "+monitorName, "monitors", monitorService, "instance", instance)
+		err = r.handleCreate(req, instance, monitorName, monitorService)
 	}
-
 	return reconcile.Result{RequeueAfter: config.ReconciliationRequeueTime}, err
 }
 
@@ -108,4 +113,50 @@ func (r *EndpointMonitorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&endpointmonitorv1alpha1.EndpointMonitor{}).
 		Complete(r)
+}
+
+func (r *EndpointMonitorReconciler) GetMonitorOfType(spec endpointmonitorv1alpha1.EndpointMonitorSpec) *monitors.MonitorServiceProxy {
+    if len(r.MonitorServices) == 0 {
+		panic("No monitor services found")
+	}
+	if spec.PingdomTransactionConfig != nil {
+        return r.GetMonitorServiceOfType(monitors.TypePingdomTransaction)
+    }
+    if spec.PingdomConfig != nil {
+        return r.GetMonitorServiceOfType(monitors.TypePingdom)
+    }
+    if spec.UptimeRobotConfig != nil {
+        return r.GetMonitorServiceOfType(monitors.TypeUptimeRobot)
+    }
+    if spec.StatusCakeConfig != nil {
+        return r.GetMonitorServiceOfType(monitors.TypeStatusCake)
+    }
+    if spec.UptimeConfig != nil {
+        return r.GetMonitorServiceOfType(monitors.TypeUptime)
+    }
+    if spec.UpdownConfig != nil {
+        return r.GetMonitorServiceOfType(monitors.TypeUpdown)
+    }
+    if spec.AppInsightsConfig != nil {
+        return r.GetMonitorServiceOfType(monitors.TypeAppInsights)
+    }
+    if spec.GCloudConfig != nil {
+        return r.GetMonitorServiceOfType(monitors.TypeGCloud)
+    }
+    if spec.GrafanaConfig != nil {
+        return r.GetMonitorServiceOfType(monitors.TypeGrafana)
+    }
+    // If none of the above, return the first monitor service
+    return r.MonitorServices[0]
+}
+
+
+func (r *EndpointMonitorReconciler) GetMonitorServiceOfType(monitorType string) *monitors.MonitorServiceProxy {
+	for _, monitorService := range r.MonitorServices {
+		if monitorService.GetType() == monitorType {
+			return monitorService
+		}
+	}
+	log.Info("Error could not find monitor service " + monitorType + " in list of monitor services")
+	return nil
 }

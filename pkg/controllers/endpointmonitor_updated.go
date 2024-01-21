@@ -9,7 +9,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func (r *EndpointMonitorReconciler) handleUpdate(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitor models.Monitor, monitorService monitors.MonitorServiceProxy) error {
+func (r *EndpointMonitorReconciler) handleUpdate(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitor models.Monitor, monitorService *monitors.MonitorServiceProxy) error {
 	url, err := util.GetMonitorURL(r.Client, instance)
 	if err != nil {
 		return err
