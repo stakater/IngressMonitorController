@@ -12,7 +12,7 @@ import (
 
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/client/ptr"
+	"github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/openapi/ptr"
 	pingdomNew "github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/openapi"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
