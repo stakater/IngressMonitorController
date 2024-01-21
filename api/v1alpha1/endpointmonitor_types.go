@@ -345,7 +345,7 @@ type PingdomTransactionConfig struct {
 type PingdomStep struct {
 	// contains the html element with assigned value
 	// the key element is always lowercase for example {"url": "https://www.pingdom.com"}
-	// see available values at https://pkg.go.dev/github.com/karlderkaefer/pingdom-golang-client@v1.0.0/pkg/pingdom/client/tmschecks#StepArg
+	// see available values at https://pkg.go.dev/github.com/karlderkaefer/pingdom-golang-client@latest/pkg/pingdom/client/tmschecks#StepArg
 	// +required
 	Args map[string]string `json:"args"`
 	// contains the function that is executed as part of the step

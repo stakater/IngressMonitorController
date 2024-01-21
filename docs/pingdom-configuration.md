@@ -98,18 +98,3 @@ spec:
     postDataEnvVar: "monitor-user"
 ```
 
-## Transaction Check
-
-**Example:**
-
-```yaml
-apiVersion: endpointmonitor.stakater.com/v1alpha1
-kind: EndpointMonitor
-metadata:
-  name: pingdom-transaction-check
-spec:
-  pingdomTransactionConfig:
-    tags:
-      - "testing"
-      - "manual"
-``````
