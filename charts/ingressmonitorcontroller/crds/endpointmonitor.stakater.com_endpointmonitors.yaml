@@ -130,6 +130,95 @@ spec:
                       HTTP checks.
                     type: boolean
                 type: object
+              pingdomTransactionConfig:
+                description: Configuration for Pingdom Transaction Monitor Provider
+                properties:
+                  alertContacts:
+                    description: '`-` separated contact id''s (e.g. "1234567_8_9-9876543_2_1")'
+                    type: string
+                  alertIntegrations:
+                    description: '`-` separated set list of integrations ids (e.g.
+                      "91166-12168")'
+                    type: string
+                  custom_message:
+                    description: Custom message that is part of the email and webhook
+                      alerts
+                    type: string
+                  interval:
+                    description: 'TMS test intervals in minutes. Allowed intervals:
+                      5,10,20,60,720,1440. The interval you''re allowed to set may
+                      vary depending on your current plan.'
+                    enum:
+                    - 5
+                    - 10
+                    - 20
+                    - 60
+                    - 720
+                    - 1440
+                    type: integer
+                  paused:
+                    description: 'Check status: active or inactive'
+                    type: boolean
+                  region:
+                    description: 'Name of the region where the check is executed.
+                      Supported regions: us-east, us-west, eu, au'
+                    enum:
+                    - us-east
+                    - us-west
+                    - eu
+                    - au
+                    type: string
+                  send_notification_when_down:
+                    description: Send notification when down X times
+                    format: int64
+                    type: integer
+                  severity_level:
+                    description: 'Check importance- how important are the alerts when
+                      the check fails. Allowed values: low, high'
+                    enum:
+                    - low
+                    - high
+                    type: string
+                  steps:
+                    description: steps to be executed as part of the check
+                    items:
+                      description: PingdomStep respresents a step of the script to
+                        run a transcaction check
+                      properties:
+                        args:
+                          additionalProperties:
+                            type: string
+                          description: 'contains the html element with assigned value
+                            the key element is always lowercase for example {"url":
+                            "https://www.pingdom.com"} see available values at https://pkg.go.dev/github.com/karlderkaefer/pingdom-golang-client@v1.0.0/pkg/pingdom/client/tmschecks#StepArg'
+                          type: object
+                        function:
+                          description: 'contains the function that is executed as
+                            part of the step commands: go_to, click, fill, check,
+                            uncheck, sleep, select_radio, basic_auth, submit, wait_for_element,
+                            wait_for_contains validations: url, exists, not_exists,
+                            contains, not_contains, field_contains, field_not_contains,
+                            is_checked, is_not_checked, radio_selected, dropdown_selected,
+                            dropdown_not_selected see updated list https://docs.pingdom.com/api/#section/TMS-Steps-Vocabulary/Script-transaction-checks'
+                          type: string
+                      required:
+                      - args
+                      - function
+                      type: object
+                    type: array
+                  tags:
+                    description: List of tags for a check. The tag name may contain
+                      the characters 'A-Z', 'a-z', '0-9', '_' and '-'. The maximum
+                      length of a tag is 64 characters.
+                    items:
+                      type: string
+                    type: array
+                  teamAlertContacts:
+                    description: '`-` separated team id''s (e.g. "1234567_8_9-9876543_2_1")'
+                    type: string
+                required:
+                - steps
+                type: object
               providers:
                 description: Comma separated list of providers
                 type: string
