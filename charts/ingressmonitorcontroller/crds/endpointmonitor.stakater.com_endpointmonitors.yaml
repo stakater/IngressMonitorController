@@ -190,7 +190,7 @@ spec:
                             type: string
                           description: 'contains the html element with assigned value
                             the key element is always lowercase for example {"url":
-                            "https://www.pingdom.com"} see available values at https://pkg.go.dev/github.com/karlderkaefer/pingdom-golang-client@v1.0.0/pkg/pingdom/client/tmschecks#StepArg'
+                            "https://www.pingdom.com"} see available values at https://pkg.go.dev/github.com/karlderkaefer/pingdom-golang-client@latest/pkg/pingdom/client/tmschecks#StepArg'
                           type: object
                         function:
                           description: 'contains the function that is executed as
