@@ -13,7 +13,7 @@ require (
 	github.com/go-logr/logr v1.2.0
 	github.com/grafana/synthetic-monitoring-agent v0.18.2
 	github.com/grafana/synthetic-monitoring-api-go-client v0.7.0
-	github.com/karlderkaefer/pingdom-golang-client v1.0.3
+	github.com/karlderkaefer/pingdom-golang-client v1.0.4
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
 	github.com/patrickmn/go-cache v2.1.0+incompatible

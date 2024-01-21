@@ -218,6 +218,9 @@ func (service *PingdomTransactionMonitorService) addConfigToTranscationCheck(tra
 	if providerConfig.SeverityLevel != "" {
 		transactionCheck.SeverityLevel = ptr.String(providerConfig.SeverityLevel)
 	}
+	if providerConfig.Interval > 0 {
+		transactionCheck.Interval = ptr.Int64((int64(providerConfig.Interval)))
+	}
 	for _, step := range providerConfig.Steps {
 		args := NewStepArgsByMap(step.Args)
 		if args != nil {
