@@ -1,12 +1,12 @@
 apiVersion: v2
-name: stakater-ingressmonitorcontroller
+name: ingressmonitorcontroller
 description: IngressMonitorController Operator chart that runs on kubernetes
 
 # Helm chart Version
-version: 2.3.0
+version: 2.1.49
 
 # Application version to be deployed
-appVersion: 2.3.0
+appVersion: 2.1.49
 
 keywords:
   - IngressMonitorController
