@@ -68,7 +68,6 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 
 func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.EndpointMonitorSpec) interface{} {
     var config interface{}
-    log.Info("Debug Extracting config for monitor type: "+mp.monitorType, "MonitorSpec", spec)
     switch mp.monitorType {
     case TypeUptimeRobot:
         config = spec.UptimeRobotConfig
@@ -89,7 +88,6 @@ func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.Endpoi
     case TypeGrafana:
         config = spec.GrafanaConfig
     default:
-        log.Info("Debug not specific Provider config found for monitor type: " + mp.monitorType, "MonitorSpec", spec)
         return config
     }
     return config

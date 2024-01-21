@@ -20,7 +20,7 @@ import (
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 )
 
-var logT = logf.Log.WithName("pingdom-transaction")
+var log = logf.Log.WithName("pingdom-transaction")
 
 // PingdomTransactionMonitorService interfaces with MonitorService
 type PingdomTransactionMonitorService struct {
@@ -71,7 +71,7 @@ func (service *PingdomTransactionMonitorService) GetAll() []models.Monitor {
 	var monitors []models.Monitor
 	checks, _, err := service.client.TMSChecksAPI.GetAllChecks(service.context).Type_("script").Execute()
 	if err != nil {
-		logT.Error(err, "Error getting all transaction checks")
+		log.Error(err, "Error getting all transaction checks")
 		return monitors
 	}
 
@@ -92,7 +92,7 @@ func (service *PingdomTransactionMonitorService) GetAll() []models.Monitor {
 func (service *PingdomTransactionMonitorService) GetUrlFromSteps(id int64) string {
 	check, _, err := service.client.TMSChecksAPI.GetCheck(service.context, id).Execute()
 	if err != nil {
-		logT.Error(err, "Error getting transaction check")
+		log.Error(err, "Error getting transaction check")
 		return ""
 	}
 	if check == nil {
@@ -113,9 +113,9 @@ func (service *PingdomTransactionMonitorService) Add(m models.Monitor) {
 	}
 	_, resp, err := service.client.TMSChecksAPI.AddCheck(service.context).CheckWithoutID(*transactionCheck).Execute()
 	if err != nil {
-		logT.Error(err, "Error Adding Pingdom Transaction Monitor " + m.Name, "Response", parseResponseBody(resp))
+		log.Error(err, "Error Adding Pingdom Transaction Monitor "+m.Name, "Response", parseResponseBody(resp))
 	} else {
-		logT.Info("Added Pingdom Transaction Monitor Monitor " + m.Name)
+		log.Info("Successfully added Pingdom Transaction Monitor " + m.Name)
 	}
 }
 
@@ -127,18 +127,18 @@ func (service *PingdomTransactionMonitorService) Update(m models.Monitor) {
 	monitorID := strToInt64(m.ID)
 	_, resp, err := service.client.TMSChecksAPI.ModifyCheck(service.context, monitorID).CheckWithoutIDPUT(*transactionCheck.AsPut()).Execute()
 	if err != nil {
-		logT.Error(err, "Error Updating Pingdom Transaction Monitor", "Response", parseResponseBody(resp))
+		log.Error(err, "Error Updating Pingdom Transaction Monitor", "Response", parseResponseBody(resp))
 		return
 	}
-	logT.Info("Updated Pingdom Transaction Monitor Monitor " + m.Name)
+	log.Info("Updated Pingdom Transaction Monitor Monitor " + m.Name)
 }
 
 func (service *PingdomTransactionMonitorService) Remove(m models.Monitor) {
 	_, resp, err := service.client.TMSChecksAPI.DeleteCheck(service.context, strToInt64(m.ID)).Execute()
 	if err != nil {
-		logT.Error(err, "Error Deleting Pingdom Transaction Monitor", "Response", parseResponseBody(resp))
+		log.Error(err, "Error Deleting Pingdom Transaction Monitor", "Response", parseResponseBody(resp))
 	} else {
-		logT.Info("Deleted Pingdom Transaction Monitor Monitor " + m.Name)
+		log.Info("Deleted Pingdom Transaction Monitor Monitor " + m.Name)
 	}
 }
 
@@ -147,7 +147,7 @@ func (service *PingdomTransactionMonitorService) createTransactionCheck(monitor 
 	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.PingdomTransactionConfig)
 	if providerConfig == nil {
 		// ignore monitor if type is not PingdomTransaction
-		logT.Info("Monitor is not PingdomTransaction type", "Monitor", monitor)
+		log.Info("Monitor is not PingdomTransaction type" + monitor.Name)
 		return nil
 	}
 	transactionCheck.Name = monitor.Name
@@ -227,7 +227,7 @@ func (service *PingdomTransactionMonitorService) addConfigToTranscationCheck(tra
 				Fn:   ptr.String(step.Function),
 			})
 		} else {
-			logT.Info("Invalid Pingdom Step Args Provided")
+			log.Info("Invalid Pingdom Step Args Provided")
 		}
 	}
 }
@@ -237,13 +237,13 @@ func NewStepArgsByMap(input map[string]string) *pingdomNew.StepArgs {
 	// First, marshal the map to JSON
 	jsonData, err := json.Marshal(input)
 	if err != nil {
-		logT.Error(err, "Error marshalling map to JSON")
+		log.Error(err, "Error marshalling map to JSON")
 		return nil
 	}
 	var stepArgs pingdomNew.StepArgs
 	err = json.Unmarshal(jsonData, &stepArgs)
 	if err != nil {
-		logT.Error(err, "Error marshalling map to StepArgs")
+		log.Error(err, "Error marshalling map to StepArgs")
 		return nil
 	}
 	return &stepArgs
@@ -255,7 +255,7 @@ func parseIDs(field string) []int64 {
 		stringArray := strings.Split(field, "-")
 		ids, err := util.SliceAtoi64(stringArray)
 		if err != nil {
-			logT.Error(err, "Error decoding ids into integers")
+			log.Error(err, "Error decoding ids into integers")
 			return nil
 		}
 		return ids
@@ -278,7 +278,7 @@ func parseResponseBody(resp *http.Response) string {
 	defer resp.Body.Close()
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logT.Error(err, "Error reading response body")
+		log.Error(err, "Error reading response body")
 		return ""
 	}
 	// Attempt to unmarshal the response body into a map

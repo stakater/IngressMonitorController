@@ -21,7 +21,6 @@ func CreateMonitorService(p *config.Provider) *MonitorServiceProxy {
 	monitorService := (&MonitorServiceProxy{}).OfType(p.Name)
 	monitorService.monitorType = p.Name
 	monitorService.Setup(*p)
-	log.Info("Debug Created Monitor Service for provider: " + p.Name)
 	return &monitorService
 }
 

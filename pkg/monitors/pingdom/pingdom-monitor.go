@@ -102,9 +102,9 @@ func (service *PingdomMonitorService) Update(m models.Monitor) {
 
 	resp, err := service.client.Checks.Update(monitorID, &httpCheck)
 	if err != nil {
-		log.Info("Error updating Monitor: " + err.Error())
+		log.Info(fmt.Sprintf("Error updating Monitor %s %v", m.Name, err.Error()))
 	} else {
-		log.Info(fmt.Sprintf("Updated Monitor: %v", resp))
+		log.Info("Sucessfully updated Monitor " + m.Name, "Response", resp.Message)
 	}
 }
 
@@ -113,9 +113,9 @@ func (service *PingdomMonitorService) Remove(m models.Monitor) {
 
 	resp, err := service.client.Checks.Delete(monitorID)
 	if err != nil {
-		log.Info("Error deleting Monitor: " + err.Error())
+		log.Info(fmt.Sprintf("Error deleting Monitor %s %v", m.Name, err.Error()))
 	} else {
-		log.Info(fmt.Sprintf("Delete Monitor: %v", resp))
+		log.Info("Sucessfully deleted Monitor " + m.Name, "Response", resp.Message)
 	}
 }
 
@@ -238,7 +238,6 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 			// Env variable set, pass user/pass to httpCheck
 			httpCheck.Username = providerConfig.BasicAuthUser
 			httpCheck.Password = passwordValue
-			log.Info("Basic auth requirement detected. Setting username and password for httpCheck")
 		} else {
 			log.Info("Error reading basic auth password from environment variable")
 		}
@@ -246,16 +245,14 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 
 	if providerConfig != nil && len(providerConfig.ShouldContain) > 0 {
 		httpCheck.ShouldContain = providerConfig.ShouldContain
-		log.Info("Should contain detected. Setting Should Contain string: " + providerConfig.ShouldContain)
 	}
 
 	// Tags should be a single word or multiple comma-separated words
 	if providerConfig != nil && len(providerConfig.Tags) > 0 {
 		if !strings.Contains(providerConfig.Tags, " ") {
 			httpCheck.Tags = providerConfig.Tags
-			log.Info("Tags detected. Setting Tags as: " + providerConfig.Tags)
 		} else {
-			log.Info("Tag string should not contain spaces. Not applying tags.")
+			log.Info("Tag string should not contain spaces. Not applying tags for monitor: " + httpCheck.Name)
 		}
 	}
 
@@ -267,9 +264,8 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 			postDataValue := os.Getenv(providerConfig.PostDataEnvVar)
 			if postDataValue != "" {
 				httpCheck.PostData = postDataValue
-				log.Info("Post data detected. Setting post data for httpCheck to value of environment variable: " + providerConfig.PostDataEnvVar)
 			} else {
-				log.Error(errors.New("Error reading post data from environment variable"), "Environment Variable %s does not exist", providerConfig.PostDataEnvVar)
+				log.Error(errors.New("error reading post data from environment variable"), "Environment Variable %s does not exist", providerConfig.PostDataEnvVar)
 			}
 		}
 	}

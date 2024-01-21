@@ -86,12 +86,9 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	// Handle CreationDelay
 	createTime := instance.CreationTimestamp
 	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))
-	log.Info("Debug all monitors", "monitors", r.MonitorServices)
 
 	monitorService := r.GetMonitorOfType(instance.Spec)
 	monitor := findMonitorByName(monitorService, monitorName)
-	log.Info("Debug trying to find "+monitorName, "monitors", monitorService, "type", monitorService.GetType())
-	log.Info("Debug got service", "spec", monitorService.ExtractConfig(instance.Spec))
 	if monitor != nil {
 		// Monitor already exists, update if required
 		err = r.handleUpdate(req, instance, *monitor, monitorService)
@@ -102,7 +99,6 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			log.Info("Requeuing request to add monitor " + monitorName + " for " + fmt.Sprintf("%+v", config.GetControllerConfig().CreationDelay) + " seconds")
 			return reconcile.Result{RequeueAfter: delay}, nil
 		}
-		log.Info("Debug forced to add "+monitorName, "monitors", monitorService, "instance", instance)
 		err = r.handleCreate(req, instance, monitorName, monitorService)
 	}
 	return reconcile.Result{RequeueAfter: config.ReconciliationRequeueTime}, err
