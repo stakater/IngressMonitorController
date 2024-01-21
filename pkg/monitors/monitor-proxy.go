@@ -19,15 +19,15 @@ import (
 var log = logf.Log.WithName("monitors")
 
 const (
-    TypeUptimeRobot        = "UptimeRobot"
-    TypePingdom            = "Pingdom"
-    TypePingdomTransaction = "PingdomTransaction"
-    TypeStatusCake         = "StatusCake"
-    TypeUptime             = "Uptime"
-    TypeUpdown             = "Updown"
-    TypeAppInsights        = "AppInsights"
-    TypeGCloud             = "gcloud"
-    TypeGrafana            = "Grafana"
+	TypeUptimeRobot        = "UptimeRobot"
+	TypePingdom            = "Pingdom"
+	TypePingdomTransaction = "PingdomTransaction"
+	TypeStatusCake         = "StatusCake"
+	TypeUptime             = "Uptime"
+	TypeUpdown             = "Updown"
+	TypeAppInsights        = "AppInsights"
+	TypeGCloud             = "gcloud"
+	TypeGrafana            = "Grafana"
 )
 
 type MonitorServiceProxy struct {
@@ -40,57 +40,57 @@ func (mp *MonitorServiceProxy) GetType() string {
 }
 
 func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
-    mp.monitorType = mType
-    switch mType {
-    case TypeUptimeRobot:
-        mp.monitor = &uptimerobot.UpTimeMonitorService{}
-    case TypePingdom:
-        mp.monitor = &pingdom.PingdomMonitorService{}
-    case TypePingdomTransaction:
-        mp.monitor = &pingdomtransaction.PingdomTransactionMonitorService{}
-    case TypeStatusCake:
-        mp.monitor = &statuscake.StatusCakeMonitorService{}
-    case TypeUptime:
-        mp.monitor = &uptime.UpTimeMonitorService{}
-    case TypeUpdown:
-        mp.monitor = &updown.UpdownMonitorService{}
-    case TypeAppInsights:
-        mp.monitor = &appinsights.AppinsightsMonitorService{}
-    case TypeGCloud:
-        mp.monitor = &gcloud.MonitorService{}
-    case TypeGrafana:
-        mp.monitor = &grafana.GrafanaMonitorService{}
-    default:
-        panic("No such provider found: " + mType)
-    }
-    return *mp
+	mp.monitorType = mType
+	switch mType {
+	case TypeUptimeRobot:
+		mp.monitor = &uptimerobot.UpTimeMonitorService{}
+	case TypePingdom:
+		mp.monitor = &pingdom.PingdomMonitorService{}
+	case TypePingdomTransaction:
+		mp.monitor = &pingdomtransaction.PingdomTransactionMonitorService{}
+	case TypeStatusCake:
+		mp.monitor = &statuscake.StatusCakeMonitorService{}
+	case TypeUptime:
+		mp.monitor = &uptime.UpTimeMonitorService{}
+	case TypeUpdown:
+		mp.monitor = &updown.UpdownMonitorService{}
+	case TypeAppInsights:
+		mp.monitor = &appinsights.AppinsightsMonitorService{}
+	case TypeGCloud:
+		mp.monitor = &gcloud.MonitorService{}
+	case TypeGrafana:
+		mp.monitor = &grafana.GrafanaMonitorService{}
+	default:
+		panic("No such provider found: " + mType)
+	}
+	return *mp
 }
 
 func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.EndpointMonitorSpec) interface{} {
-    var config interface{}
-    switch mp.monitorType {
-    case TypeUptimeRobot:
-        config = spec.UptimeRobotConfig
-    case TypePingdom:
-        config = spec.PingdomConfig
-    case TypePingdomTransaction:
-        config = spec.PingdomTransactionConfig
-    case TypeStatusCake:
-        config = spec.StatusCakeConfig
-    case TypeUptime:
-        config = spec.UptimeConfig
-    case TypeUpdown:
-        config = spec.UpdownConfig
-    case TypeAppInsights:
-        config = spec.AppInsightsConfig
-    case TypeGCloud:
-        config = spec.GCloudConfig
-    case TypeGrafana:
-        config = spec.GrafanaConfig
-    default:
-        return config
-    }
-    return config
+	var config interface{}
+	switch mp.monitorType {
+	case TypeUptimeRobot:
+		config = spec.UptimeRobotConfig
+	case TypePingdom:
+		config = spec.PingdomConfig
+	case TypePingdomTransaction:
+		config = spec.PingdomTransactionConfig
+	case TypeStatusCake:
+		config = spec.StatusCakeConfig
+	case TypeUptime:
+		config = spec.UptimeConfig
+	case TypeUpdown:
+		config = spec.UpdownConfig
+	case TypeAppInsights:
+		config = spec.AppInsightsConfig
+	case TypeGCloud:
+		config = spec.GCloudConfig
+	case TypeGrafana:
+		config = spec.GrafanaConfig
+	default:
+		return config
+	}
+	return config
 }
 
 func (mp *MonitorServiceProxy) Setup(p config.Provider) {

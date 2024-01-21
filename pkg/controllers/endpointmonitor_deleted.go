@@ -20,7 +20,7 @@ func (r *EndpointMonitorReconciler) handleDelete(request reconcile.Request, inst
 		return reconcile.Result{}, nil
 	}
 
-	// in case of multiple providers we need to iterate over all of them 
+	// in case of multiple providers we need to iterate over all of them
 	monitorServices := findMonitorServicesThatContainsMonitor(r.MonitorServices, monitorName)
 	for _, monitorService := range monitorServices {
 		r.removeMonitorIfExists(monitorService, monitorName)

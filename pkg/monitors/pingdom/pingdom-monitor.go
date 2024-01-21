@@ -104,7 +104,7 @@ func (service *PingdomMonitorService) Update(m models.Monitor) {
 	if err != nil {
 		log.Info(fmt.Sprintf("Error updating Monitor %s %v", m.Name, err.Error()))
 	} else {
-		log.Info("Sucessfully updated Monitor " + m.Name, "Response", resp.Message)
+		log.Info("Sucessfully updated Monitor "+m.Name, "Response", resp.Message)
 	}
 }
 
@@ -115,7 +115,7 @@ func (service *PingdomMonitorService) Remove(m models.Monitor) {
 	if err != nil {
 		log.Info(fmt.Sprintf("Error deleting Monitor %s %v", m.Name, err.Error()))
 	} else {
-		log.Info("Sucessfully deleted Monitor " + m.Name, "Response", resp.Message)
+		log.Info("Sucessfully deleted Monitor "+m.Name, "Response", resp.Message)
 	}
 }
 

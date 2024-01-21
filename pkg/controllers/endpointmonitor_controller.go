@@ -29,8 +29,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 )
@@ -112,40 +112,39 @@ func (r *EndpointMonitorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func (r *EndpointMonitorReconciler) GetMonitorOfType(spec endpointmonitorv1alpha1.EndpointMonitorSpec) *monitors.MonitorServiceProxy {
-    if len(r.MonitorServices) == 0 {
+	if len(r.MonitorServices) == 0 {
 		panic("No monitor services found")
 	}
 	if spec.PingdomTransactionConfig != nil {
-        return r.GetMonitorServiceOfType(monitors.TypePingdomTransaction)
-    }
-    if spec.PingdomConfig != nil {
-        return r.GetMonitorServiceOfType(monitors.TypePingdom)
-    }
-    if spec.UptimeRobotConfig != nil {
-        return r.GetMonitorServiceOfType(monitors.TypeUptimeRobot)
-    }
-    if spec.StatusCakeConfig != nil {
-        return r.GetMonitorServiceOfType(monitors.TypeStatusCake)
-    }
-    if spec.UptimeConfig != nil {
-        return r.GetMonitorServiceOfType(monitors.TypeUptime)
-    }
-    if spec.UpdownConfig != nil {
-        return r.GetMonitorServiceOfType(monitors.TypeUpdown)
-    }
-    if spec.AppInsightsConfig != nil {
-        return r.GetMonitorServiceOfType(monitors.TypeAppInsights)
-    }
-    if spec.GCloudConfig != nil {
-        return r.GetMonitorServiceOfType(monitors.TypeGCloud)
-    }
-    if spec.GrafanaConfig != nil {
-        return r.GetMonitorServiceOfType(monitors.TypeGrafana)
-    }
-    // If none of the above, return the first monitor service
-    return r.MonitorServices[0]
+		return r.GetMonitorServiceOfType(monitors.TypePingdomTransaction)
+	}
+	if spec.PingdomConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypePingdom)
+	}
+	if spec.UptimeRobotConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeUptimeRobot)
+	}
+	if spec.StatusCakeConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeStatusCake)
+	}
+	if spec.UptimeConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeUptime)
+	}
+	if spec.UpdownConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeUpdown)
+	}
+	if spec.AppInsightsConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeAppInsights)
+	}
+	if spec.GCloudConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeGCloud)
+	}
+	if spec.GrafanaConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeGrafana)
+	}
+	// If none of the above, return the first monitor service
+	return r.MonitorServices[0]
 }
-
 
 func (r *EndpointMonitorReconciler) GetMonitorServiceOfType(monitorType string) *monitors.MonitorServiceProxy {
 	for _, monitorService := range r.MonitorServices {
