@@ -10,9 +10,9 @@ import (
 )
 
 func (r *EndpointMonitorReconciler) handleCreate(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitorName string, monitorService *monitors.MonitorServiceProxy) error {
-	log := r.Log.WithValues("endpointMonitor")
+	log := r.Log.WithValues("Namespace", instance.ObjectMeta.Namespace)
 
-	log.Info("Creating Monitor: "+monitorName, "Namespace", instance.ObjectMeta.Namespace, "MonitorType", monitorService.GetType())
+	log.Info("Creating Monitor: "+monitorName, "MonitorType", monitorService.GetType())
 
 	url, err := util.GetMonitorURL(r.Client, instance)
 	if err != nil {
