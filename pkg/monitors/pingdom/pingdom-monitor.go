@@ -90,7 +90,7 @@ func (service *PingdomMonitorService) Add(m models.Monitor) {
 
 	_, err := service.client.Checks.Create(&httpCheck)
 	if err != nil {
-		log.Info("Error Adding Monitor: " + err.Error())
+		log.Info(fmt.Sprintf("Error Adding Monitor %s %v", m.Name, err.Error()))
 	} else {
 		log.Info("Added monitor for: " + m.Name)
 	}
@@ -123,6 +123,7 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck := pingdom.HttpCheck{}
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
+		log.Info(fmt.Sprintf("Error parsing url '%s' of monitor %s", monitor.Name, service.url))
 		log.Info("Unable to parse the URL: " + service.url)
 	}
 
