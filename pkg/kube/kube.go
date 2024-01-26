@@ -92,3 +92,13 @@ func isOpenshift() bool {
 	log.Info("Environment is Vanilla Kubernetes")
 	return false
 }
+
+func GetCurrentKubernetesNamespace() string {
+	// Read the namespace from the file
+	namespace, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err != nil || len(namespace) == 0 {
+		log.Error(err, "Failed to read namespace from file")
+		return ""
+	}
+	return string(namespace)
+}

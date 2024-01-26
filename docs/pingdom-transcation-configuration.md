@@ -37,7 +37,7 @@ Here's an example:
 apiVersion: endpointmonitor.stakater.com/v1alpha1
 kind: EndpointMonitor
 metadata:
-  name: manual-pingdom-transaction-check-karl
+  name: manual-pingdom-transaction-check
 spec:
   # url is not used, but required for ingressmonitorcontroller to work
   url: https://www.google.com
@@ -75,3 +75,48 @@ In this example, we run a transaction check against Google. The check will fail 
 For full details on the available functions and arguments, please refer to the [Pingdom Transaction Checks API documentation](https://docs.pingdom.com/api/#section/TMS-Steps-Vocabulary/Script-transaction-checks).
 
 Please refer to the [Pingdom Transaction Checks API documentation](https://docs.pingdom.com/api/#operation/getAllCheckss) for more information on how to configure transaction checks.
+
+## Using Passwords and Secrets
+
+You may have fields that contain secret values, such as passwords. To avoid storing these values in plain text, you can use a template function to reference a secret value. This makes sure that the secret value is not stored in plain text in your EndpointMonitor custom resource.
+
+Example:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secret-name
+stringData:
+  my-secret-key: kubernetes operator
+  admin-password: adminPass
+---
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: manual-pingdom-transaction-check-with-password
+spec:
+  url: https://www.google.com
+  pingdomTransactionConfig:
+    steps:
+      - function: go_to
+        args:
+          url: https://www.google.com
+      - function: fill
+        args:
+          input: textarea[name=q]
+          # this will replaced with the value of the secret before sending the request to pingdom
+          value: '{{secret:my-secret-name:my-secret-key}}'
+      - function: basic_auth
+        args:
+          user: admin
+          password: '{{secret:my-secret-name:admin-password}}'
+      - function: submit
+        args:
+          form: form
+      - function: exists
+        args:
+          element: '#rso'
+```
+
+The secret must be located in the same namespace as the IngressMonitorController. The operator can only retrieve secrets from his own namespace. The template function is only activated for the `value` and `password` fields.

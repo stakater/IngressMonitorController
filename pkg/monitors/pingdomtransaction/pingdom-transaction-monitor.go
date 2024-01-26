@@ -7,16 +7,22 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	pingdomNew "github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/openapi"
 	"github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/openapi/ptr"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
+	"github.com/stakater/IngressMonitorController/v2/pkg/kube"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
+	"k8s.io/client-go/kubernetes/fake"
+	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 var log = logf.Log.WithName("pingdom-transaction")
@@ -30,6 +36,8 @@ type PingdomTransactionMonitorService struct {
 	teamAlertContacts string
 	client            *pingdomNew.APIClient
 	context           context.Context
+	kubeClient        *kubernetes.Clientset
+	namespace         string
 }
 
 func (monitor *PingdomTransactionMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
@@ -51,6 +59,12 @@ func (service *PingdomTransactionMonitorService) Setup(p config.Provider) {
 	cfg.SetApiToken(service.apiToken)
 	service.client = pingdomNew.NewAPIClient(cfg)
 	service.context = context.Background()
+	kubeClient, err := kube.GetClient()
+	if err != nil {
+		log.Error(err, "Error creating kubernetes client")
+	}
+	service.kubeClient = kubeClient
+	service.namespace = kube.GetCurrentKubernetesNamespace()
 }
 
 func (service *PingdomTransactionMonitorService) GetByName(name string) (*models.Monitor, error) {
@@ -222,7 +236,7 @@ func (service *PingdomTransactionMonitorService) addConfigToTranscationCheck(tra
 		transactionCheck.Interval = ptr.Int64((int64(providerConfig.Interval)))
 	}
 	for _, step := range providerConfig.Steps {
-		args := NewStepArgsByMap(step.Args)
+		args := service.NewStepArgsByMap(step.Args)
 		if args != nil {
 			transactionCheck.Steps = append(transactionCheck.Steps, pingdomNew.Step{
 				Args: args,
@@ -234,8 +248,19 @@ func (service *PingdomTransactionMonitorService) addConfigToTranscationCheck(tra
 	}
 }
 
+// KubernetesInterface abstracts the clientset methods used
+type KubernetesInterface interface {
+	CoreV1() corev1.CoreV1Interface
+}
+
+// Ensure the real clientset satisfies the interface
+var _ KubernetesInterface = &kubernetes.Clientset{}
+
+// Ensure the fake clientset satisfies the interface
+var _ KubernetesInterface = &fake.Clientset{}
+
 // NewStepArgsByMap creates a new StepArgs object from a map
-func NewStepArgsByMap(input map[string]string) *pingdomNew.StepArgs {
+func (service *PingdomTransactionMonitorService) NewStepArgsByMap(input map[string]string) *pingdomNew.StepArgs {
 	// First, marshal the map to JSON
 	jsonData, err := json.Marshal(input)
 	if err != nil {
@@ -248,7 +273,74 @@ func NewStepArgsByMap(input map[string]string) *pingdomNew.StepArgs {
 		log.Error(err, "Error marshalling map to StepArgs")
 		return nil
 	}
+	// Replace secrets in the password field
+	err = replaceSecretValuesInArgs(&stepArgs, service.kubeClient, service.namespace)
+	if err != nil {
+		log.Error(err, "Error replacing secrets in step args")
+		return nil
+	}
 	return &stepArgs
+}
+
+// ReplaceSecretValuesInArgs replaces secrets in StepArgs with actual secret values from Kubernetes.
+// It expects secrets to be formatted as {{secret:secret-name:key}} in the args.
+// Returns an error if the secret or defined secret key cannot be retrieved.
+func replaceSecretValuesInArgs(args *pingdomNew.StepArgs, kubeClient KubernetesInterface, namespace string) error {
+	if args == nil {
+		return nil // No arguments provided
+	}
+	// Helper function to process a single string field
+	processField := func(field *string) error {
+		if field == nil {
+			return nil // Skip nil fields
+		}
+		secretName, secretKey := parseSecretTemplate(*field)
+		if secretName != "" && secretKey != "" {
+			secretValue, err := getSecretValue(kubeClient, namespace, secretName, secretKey)
+
+			if err != nil {
+				return fmt.Errorf("failed to get secret: %v", err)
+			}
+			*field = secretValue
+		}
+		return nil
+	}
+	// Process the Password and Input fields
+	if err := processField(args.Password); err != nil {
+		return err
+	}
+	if err := processField(args.Value); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// parseSecretTemplate extracts secret name and key from a string template.
+func parseSecretTemplate(content string) (secretName string, secretKey string) {
+	const secretPattern = `{{secret:(.*):(.*)}}`
+	re := regexp.MustCompile(secretPattern)
+
+	matches := re.FindStringSubmatch(content)
+	if len(matches) == 3 {
+		return matches[1], matches[2]
+	}
+	return "", ""
+}
+
+// getSecretValue retrieves a secret value from Kubernetes.
+func getSecretValue(kubeClient KubernetesInterface, namespace, secretName, secretKey string) (string, error) {
+	secret, err := kubeClient.CoreV1().Secrets(namespace).Get(context.Background(), secretName, v1.GetOptions{})
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve secret %s: %v", secretName, err)
+	}
+
+	secretValue, ok := secret.Data[secretKey]
+	if !ok {
+		return "", fmt.Errorf("secret %s does not contain key %s", secretName, secretKey)
+	}
+
+	return string(secretValue), nil
 }
 
 // parseIDs splits a string of IDs into an array of integers
