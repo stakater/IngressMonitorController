@@ -160,7 +160,7 @@ func (service *PingdomTransactionMonitorService) createTransactionCheck(monitor 
 	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.PingdomTransactionConfig)
 	if providerConfig == nil {
 		// ignore monitor if type is not PingdomTransaction
-		log.Info("Monitor is not PingdomTransaction type" + monitor.Name)
+		log.Info("Monitor is not PingdomTransaction type " + monitor.Name)
 		return nil
 	}
 	transactionCheck.Name = monitor.Name
@@ -283,7 +283,7 @@ func (service *PingdomTransactionMonitorService) NewStepArgsByMap(input map[stri
 }
 
 // ReplaceSecretValuesInArgs replaces secrets in StepArgs with actual secret values from Kubernetes.
-// It expects secrets to be formatted as {{secret:secret-name:key}} in the args.
+// It expects secrets to be formatted as {secret:secret-name:key} in the args.
 // Returns an error if the secret or defined secret key cannot be retrieved.
 func replaceSecretValuesInArgs(args *pingdomNew.StepArgs, kubeClient KubernetesInterface, namespace string) error {
 	if args == nil {
@@ -318,7 +318,7 @@ func replaceSecretValuesInArgs(args *pingdomNew.StepArgs, kubeClient KubernetesI
 
 // parseSecretTemplate extracts secret name and key from a string template.
 func parseSecretTemplate(content string) (secretName string, secretKey string) {
-	const secretPattern = `{{secret:(.*):(.*)}}`
+	const secretPattern = `{secret:(.*):(.*)}`
 	re := regexp.MustCompile(secretPattern)
 
 	matches := re.FindStringSubmatch(content)

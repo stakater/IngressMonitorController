@@ -106,11 +106,11 @@ spec:
         args:
           input: textarea[name=q]
           # this will replaced with the value of the secret before sending the request to pingdom
-          value: '{{secret:my-secret-name:my-secret-key}}'
+          value: '{secret:my-secret-name:my-secret-key}'
       - function: basic_auth
         args:
           user: admin
-          password: '{{secret:my-secret-name:admin-password}}'
+          password: '{secret:my-secret-name:admin-password}'
       - function: submit
         args:
           form: form

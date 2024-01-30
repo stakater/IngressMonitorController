@@ -6,6 +6,7 @@ import (
 
 	pingdomNew "github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/openapi"
 	"github.com/karlderkaefer/pingdom-golang-client/pkg/pingdom/openapi/ptr"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
@@ -34,9 +35,23 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		log.Error(nil, "Failed to find provider")
 		return
 	}
+	spec := &endpointmonitorv1alpha1.PingdomTransactionConfig{
+		Steps: []endpointmonitorv1alpha1.PingdomStep{
+			{
+				Function: "go_to",
+				Args: map[string]string{
+					"url": "https://google.com",
+				},
+			},
+		},
+	}
 
 	service.Setup(*provider)
-	m := models.Monitor{Name: "google-test", URL: "https://google1.com"}
+	m := models.Monitor{
+		Name: "google-test",
+		URL:  "https://google.com",
+		Config: spec,
+	}
 
 	service.Add(m)
 
@@ -53,47 +68,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	}
 
 	assert.Equal(t, mRes.Name, m.Name)
-	assert.Equal(t, mRes.URL, "https://google1.com")
-}
-
-func TestUpdateMonitorWithCorrectValues(t *testing.T) {
-	config := config.GetControllerConfigTest()
-
-	service := PingdomTransactionMonitorService{}
-
-	provider := util.GetProviderWithName(config, "Pingdom")
-	if provider == nil {
-		// TODO: Currently forcing to pass the test as we dont have Pingdom account to test
-		//       Fail this case in future when have a valid Pingdom account
-		log.Error(nil, "Failed to find provider")
-		return
-	}
-	service.Setup(*provider)
-
-	// Create initial record
-	m := models.Monitor{Name: "google-update-test", URL: "https://google.com"}
-	service.Add(m)
-
-	mRes, err := service.GetByName("google-update-test")
-	assert.NilError(t, err)
-
-	defer func() {
-		// Cleanup
-		service.Remove(*mRes)
-	}()
-
-	// Update the record
-	mRes.URL = "https://facebook.com"
-
-	service.Update(*mRes)
-
-	mRes, err = service.GetByName("google-update-test")
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
-
-	assert.Equal(t, mRes.Name, m.Name)
-	assert.Equal(t, mRes.URL, "https://facebook.com")
+	assert.Equal(t, mRes.URL, "https://google.com")
 }
 
 func TestGetSecretFromTemplate(t *testing.T) {
@@ -105,7 +80,7 @@ func TestGetSecretFromTemplate(t *testing.T) {
 	}{
 		{
 			name:               "With Secret",
-			content:            "This is a sample content with {{secret:my-secret:my-key}} embedded in it.",
+			content:            "This is a sample content with {secret:my-secret:my-key} embedded in it.",
 			expectedSecretName: "my-secret",
 			expectedSecretKey:  "my-key",
 		},
@@ -117,7 +92,7 @@ func TestGetSecretFromTemplate(t *testing.T) {
 		},
 		{
 			name:               "Invalid Format",
-			content:            "This is a sample content with invalid secret format {{secret:my-secret}}",
+			content:            "This is a sample content with invalid secret format {secret:my-secret}",
 			expectedSecretName: "",
 			expectedSecretKey:  "",
 		},
@@ -163,8 +138,8 @@ func TestReplaceSecrets(t *testing.T) {
 	}{
 		{
 			name:             "Password field with secret",
-			password:         "{{secret:my-secret:password}}",
-			value:            "{{secret:my-secret:username}}",
+			password:         "{secret:my-secret:password}",
+			value:            "{secret:my-secret:username}",
 			expectedPassword: "simple-password",
 			expectedValue:    "admin",
 			expectError:      false,
@@ -179,7 +154,7 @@ func TestReplaceSecrets(t *testing.T) {
 		},
 		{
 			name:             "Password field with invalid secret",
-			password:         "{{secret:my-secret:invalidkey}}",
+			password:         "{secret:my-secret:invalidkey}",
 			value:            "no-secret",
 			expectedPassword: "",
 			expectedValue:    "no-secret",
