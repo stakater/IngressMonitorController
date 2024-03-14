@@ -95,14 +95,12 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 
 	var probeToSet []synthetic_monitoring.Probe
 	var configProbeNames []string
-	var frequency int64
+	var frequency int64 = service.frequency
 	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
 	if providerConfig != nil {
 		// load configs from EndpointMonitor CR
 		if providerConfig.Frequency > 0 {
 			frequency = providerConfig.Frequency
-		} else {
-			frequency = service.frequency
 		}
 		if len(providerConfig.Probes) > 0 {
 			configProbeNames = providerConfig.Probes
