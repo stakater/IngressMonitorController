@@ -3,15 +3,16 @@ package grafana
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"reflect"
+	"strconv"
+
 	"github.com/grafana/synthetic-monitoring-agent/pkg/pb/synthetic_monitoring"
 	smapi "github.com/grafana/synthetic-monitoring-api-go-client"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
-	"net/http"
-	"reflect"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"strconv"
 )
 
 var log = logf.Log.WithName("grafana-monitor")
@@ -86,13 +87,39 @@ func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
 }
 
 func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monitor, tenantID int64) (*synthetic_monitoring.Check, error) {
-	probes, err := service.smClient.ListProbes(service.ctx)
+
+	availableProbes, err := service.smClient.ListProbes(service.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("Error listing probes %v", err)
 	}
 
-	probeIDs := make([]int64, len(probes))
-	for i, p := range probes {
+	var probeToSet []synthetic_monitoring.Probe
+	var configProbeNames []string
+	var frequency int64
+	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
+	if providerConfig != nil {
+		// load configs from EndpointMonitor CR
+		if providerConfig.Frequency > 0 {
+			frequency = providerConfig.Frequency
+		} else {
+			frequency = service.frequency
+		}
+		if len(providerConfig.Probes) > 0 {
+			configProbeNames = providerConfig.Probes
+			for _, probe := range availableProbes {
+				for _, configProbe := range configProbeNames {
+					if probe.Name == configProbe {
+						probeToSet = append(probeToSet, probe)
+					}
+				}
+			}
+			availableProbes = probeToSet
+		}
+	}
+
+	// if probes are set in EndpointMonitor, apply those, otherwise apply all of the available probe options
+	probeIDs := make([]int64, len(availableProbes))
+	for i, p := range availableProbes {
 		probeIDs[i] = p.Id
 	}
 
@@ -105,7 +132,7 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 		Id:        checkId,
 		Target:    monitor.URL,
 		Job:       monitor.Name,
-		Frequency: service.frequency,
+		Frequency: frequency,
 		TenantId:  tenantID,
 		Timeout:   2000,
 		Enabled:   true,
