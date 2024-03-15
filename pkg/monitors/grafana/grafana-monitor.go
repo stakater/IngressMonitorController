@@ -74,7 +74,7 @@ func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
 	}
 	availableProbes, err := service.smClient.ListProbes(service.ctx)
 	if err != nil {
-		log.Error(err, "Error getting monitors")
+		log.Error(err, "Error getting probes")
 		return nil
 	}
 
