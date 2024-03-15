@@ -72,14 +72,29 @@ func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
 		log.Error(err, "Error getting monitors")
 		return nil
 	}
+	availableProbes, err := service.smClient.ListProbes(service.ctx)
+	if err != nil {
+		log.Error(err, "Error getting monitors")
+		return nil
+	}
 
 	for _, check := range checks {
+		var probes []string
+		for _, probeId := range check.Probes {
+			for _, availableProbe := range availableProbes {
+				if probeId == availableProbe.Id {
+					probes = append(probes, availableProbe.Name)
+				}
+			}
+		}
 		monitors = append(monitors, models.Monitor{
 			Name: check.Job,
 			URL:  check.Target,
 			ID:   fmt.Sprintf("%v", check.Id),
 			Config: &endpointmonitorv1alpha1.GrafanaConfig{
-				TenantId: check.TenantId,
+				TenantId:  check.TenantId,
+				Frequency: check.Frequency,
+				Probes:    probes,
 			},
 		})
 	}
