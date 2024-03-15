@@ -78,8 +78,8 @@ func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
 		return nil
 	}
 
+	var probes []string
 	for _, check := range checks {
-		var probes []string
 		for _, probeId := range check.Probes {
 			for _, availableProbe := range availableProbes {
 				if probeId == availableProbe.Id {
