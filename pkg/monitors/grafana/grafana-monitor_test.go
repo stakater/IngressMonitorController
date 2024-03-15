@@ -28,11 +28,10 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	}
 	service.Setup(*provider)
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
-	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
-	providerConfig.Frequency = 20000
-	providerConfig.Probes = []string{"Singapore"}
-	m.Config = providerConfig
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: &endpointmonitorv1alpha1.GrafanaConfig{
+		Frequency: 20000,
+		Probes:    []string{"Singapore"},
+	}}
 
 	preExistingMonitor, _ := service.GetByName(m.Name)
 
@@ -58,6 +57,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		t.Error("Monitor should've been found", monitor, err)
 	}
 	monitorConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
+	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
 
 	if monitor.Name != m.Name || monitor.URL != m.URL || monitorConfig.Frequency != providerConfig.Frequency || reflect.DeepEqual(monitorConfig.Probes, providerConfig.Probes) {
 		t.Error("URL, name, frequency and probes should be the same", monitor, m)
