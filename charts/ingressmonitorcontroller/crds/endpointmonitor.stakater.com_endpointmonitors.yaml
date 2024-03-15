@@ -69,7 +69,7 @@ spec:
                     format: int64
                     type: integer
                   probes:
-                    description: probes are the monitoring agents responsible for
+                    description: Probes are the monitoring agents responsible for
                       simulating user interactions with your web applications or services.
                       These agents periodically send requests to predefined URLs and
                       record the responses, checking for expected outcomes and measuring
