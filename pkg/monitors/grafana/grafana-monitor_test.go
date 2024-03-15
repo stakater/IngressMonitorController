@@ -1,13 +1,15 @@
 package grafana
 
 import (
+	"reflect"
+	"testing"
+
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 	"github.com/stakater/IngressMonitorController/v2/pkg/util"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	"testing"
 )
 
 func init() {
@@ -26,7 +28,11 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	}
 	service.Setup(*provider)
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: &endpointmonitorv1alpha1.GrafanaConfig{
+		Frequency: 20000,
+		Probes:    []string{"Singapore"},
+	}}
+
 	preExistingMonitor, _ := service.GetByName(m.Name)
 
 	if preExistingMonitor != nil {
@@ -50,8 +56,11 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	if err != nil {
 		t.Error("Monitor should've been found", monitor, err)
 	}
-	if monitor.Name != m.Name || monitor.URL != m.URL {
-		t.Error("URL and name should be the same", monitor, m)
+	monitorConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
+	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
+
+	if monitor.Name != m.Name || monitor.URL != m.URL || monitorConfig.Frequency != providerConfig.Frequency || reflect.DeepEqual(monitorConfig.Probes, providerConfig.Probes) {
+		t.Error("URL, name, frequency and probes should be the same", monitor, m)
 	}
 	service.Remove(*monitor)
 

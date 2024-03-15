@@ -313,6 +313,14 @@ type GCloudConfig struct {
 // GrafnaConfiguration defines the configuration for Grafana Cloud Monitor Provider
 type GrafanaConfig struct {
 	TenantId int64 `json:"tenantId,omitempty"`
+
+	// The frequency value specifies how often the check runs in milliseconds
+	Frequency int64 `json:"frequency,omitempty"`
+
+	// Probes are the monitoring agents responsible for simulating user interactions with your web applications
+	// or services. These agents periodically send requests to predefined URLs and record the responses,
+	// checking for expected outcomes and measuring performance.
+	Probes []string `json:"probes,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from
