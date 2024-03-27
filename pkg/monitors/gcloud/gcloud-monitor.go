@@ -197,7 +197,7 @@ func (service *MonitorService) Update(monitor models.Monitor) {
 		return
 	}
 
-	log.Info(fmt.Sprintf("Updated Monitor: %v", uptimeCheckConfig))
+	log.Info("Successfully updated monitor "+monitor.Name, "Response", uptimeCheckConfig)
 }
 
 func (service *MonitorService) Remove(monitor models.Monitor) {

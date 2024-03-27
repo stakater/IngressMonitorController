@@ -20,6 +20,20 @@ func SliceAtoi(stringSlice []string) ([]int, error) {
 	return intSlice, nil
 }
 
+func SliceAtoi64(stringSlice []string) ([]int64, error) {
+	var intSlice = []int64{}
+
+	for _, stringValue := range stringSlice {
+		intValue, err := strconv.ParseInt(stringValue, 10, 64)
+		if err != nil {
+			return intSlice, err
+		}
+		intSlice = append(intSlice, intValue)
+	}
+
+	return intSlice, nil
+}
+
 func SliceItoa(intSlice []int) []string {
 	var stringSlice = []string{}
 
@@ -54,4 +68,13 @@ func SplitAndSort(s string, sep string) []string {
 	slice := strings.Split(s, sep)
 	sort.Strings(slice)
 	return slice
+}
+
+func StrToInt64(str string) int64 {
+	// Parse the string as a base-10 integer with a bit size of 64.
+	value, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return value
 }
