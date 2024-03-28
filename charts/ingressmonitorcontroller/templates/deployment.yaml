@@ -6,6 +6,10 @@ metadata:
   labels:
     {{- include "ingress-monitor-controller.labels" . | nindent 4 }}
     control-plane: controller-manager
+  {{- with .Values.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
