@@ -49,7 +49,7 @@ jobs:
 
     # Set up helm binary
     - name: Set up Helm
-      uses: azure/setup-helm@v3
+      uses: azure/setup-helm@v4
       with:
         version: ${{ env.HELM_VERSION }}
 
