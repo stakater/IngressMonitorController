@@ -101,6 +101,8 @@ github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kd
 github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20210826220005-b48c857c3a0e/go.mod h1:F7bn7fEU90QkQ3tnmaTx3LTKLEDqnwWODIYppRQ5hnY=
 github.com/antoineaugusti/updown v0.0.0-20190412074625-d590ab97f115 h1:zJT4IRToZQDCLmeoqL8csL/J5aSmq4dFzXrTJsrPrz8=
 github.com/antoineaugusti/updown v0.0.0-20190412074625-d590ab97f115/go.mod h1:TDHYwR+sNBq9h90JXEweSgaIbHRh7j+HcjJi0diGUt4=
+github.com/antoineaugusti/updown v0.0.0-20210913134431-a6c3dda66a02 h1:Tbrb1a3l9HrteaE8uYb+NtrGvGIOj+k2QDjYFt5hmSY=
+github.com/antoineaugusti/updown v0.0.0-20210913134431-a6c3dda66a02/go.mod h1:TDHYwR+sNBq9h90JXEweSgaIbHRh7j+HcjJi0diGUt4=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=

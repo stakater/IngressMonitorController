@@ -9,7 +9,7 @@ require (
 	github.com/Azure/azure-sdk-for-go v44.0.0+incompatible
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.0
 	github.com/StatusCakeDev/statuscake-go v1.3.0
-	github.com/antoineaugusti/updown v0.0.0-20190412074625-d590ab97f115
+	github.com/antoineaugusti/updown v0.0.0-20210913134431-a6c3dda66a02
 	github.com/go-logr/logr v1.4.1
 	github.com/grafana/synthetic-monitoring-agent v0.19.4
 	github.com/grafana/synthetic-monitoring-api-go-client v0.8.0
