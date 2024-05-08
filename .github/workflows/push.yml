@@ -96,7 +96,7 @@ jobs:
         buildkitd-flags: --debug
 
     - name: Login to Registry
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.STAKATER_DOCKERHUB_USERNAME }}
         password: ${{ secrets.STAKATER_DOCKERHUB_PASSWORD }}
