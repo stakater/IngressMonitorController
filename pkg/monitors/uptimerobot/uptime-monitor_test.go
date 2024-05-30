@@ -58,7 +58,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
-	time.Sleep(time.Second * 20)
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -86,7 +86,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
-	time.Sleep(time.Second * 20)
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -132,7 +132,7 @@ func TestAddMonitorWithInterval(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configInterval}
 	service.Add(m)
 
-	time.Sleep(time.Second * 20)
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -169,7 +169,7 @@ func TestUpdateMonitorInterval(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configInterval}
 	service.Add(m)
 
-	time.Sleep(time.Second * 20)
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -337,7 +337,7 @@ func TestAddMonitorWithMonitorType(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configKeyword}
 	service.Add(m)
 
-	time.Sleep(time.Second * 20)
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -382,7 +382,7 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
-	time.Sleep(time.Second * 20)
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -410,7 +410,7 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 // 		AlertContacts: "2628365_0_0",
 // 	}
 
-// 	time.Sleep(time.Second * 20)
+// 	time.Sleep(time.Second * 30)
 // 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configAlertContacts}
 // 	service.Add(m)
 
