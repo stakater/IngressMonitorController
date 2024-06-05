@@ -3,6 +3,7 @@ package uptimerobot
 import (
 	"strconv"
 	"testing"
+	"time"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
@@ -57,6 +58,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -84,6 +86,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -129,6 +132,7 @@ func TestAddMonitorWithInterval(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configInterval}
 	service.Add(m)
 
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -165,6 +169,7 @@ func TestUpdateMonitorInterval(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configInterval}
 	service.Add(m)
 
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -332,6 +337,7 @@ func TestAddMonitorWithMonitorType(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configKeyword}
 	service.Add(m)
 
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -376,6 +382,7 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 	service.Add(m)
 
+	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
@@ -387,39 +394,42 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	}
 }
 
-func TestAddMonitorWithAlertContacts(t *testing.T) {
-	config := config.GetControllerConfigTest()
+// disabling this test since Free Tier UptimeRobot doesnt allow to add Alert Contacts
 
-	service := UpTimeMonitorService{}
-	provider := util.GetProviderWithName(config, "UptimeRobot")
-	if provider == nil {
-		return
-	}
-	service.Setup(*provider)
+// func TestAddMonitorWithAlertContacts(t *testing.T) {
+// 	config := config.GetControllerConfigTest()
 
-	configAlertContacts := &endpointmonitorv1alpha1.UptimeRobotConfig{
-		AlertContacts: "2628365_0_0",
-	}
+// 	service := UpTimeMonitorService{}
+// 	provider := util.GetProviderWithName(config, "UptimeRobot")
+// 	if provider == nil {
+// 		return
+// 	}
+// 	service.Setup(*provider)
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configAlertContacts}
-	service.Add(m)
+// 	configAlertContacts := &endpointmonitorv1alpha1.UptimeRobotConfig{
+// 		AlertContacts: "2628365_0_0",
+// 	}
 
-	mRes, err := service.GetByName("google-test")
+// 	time.Sleep(time.Second * 30)
+// 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configAlertContacts}
+// 	service.Add(m)
 
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
-	if mRes.Name != m.Name {
-		t.Error("The name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
-	}
-	if mRes.URL != m.URL {
-		t.Error("The URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
-	}
+// 	mRes, err := service.GetByName("google-test")
 
-	providerConfig, _ := mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
+// 	if err != nil {
+// 		t.Error("Error: " + err.Error())
+// 	}
+// 	if mRes.Name != m.Name {
+// 		t.Error("The name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
+// 	}
+// 	if mRes.URL != m.URL {
+// 		t.Error("The URL is incorrect, expected: " + m.URL + ", but was: " + mRes.URL)
+// 	}
 
-	if "2628365_0_0" != providerConfig.AlertContacts {
-		t.Error("The alert-contacts is incorrect, expected: 2628365_0_0, but was: " + providerConfig.AlertContacts)
-	}
-	service.Remove(*mRes)
-}
+// 	providerConfig, _ := mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
+
+// 	if "2628365_0_0" != providerConfig.AlertContacts {
+// 		t.Error("The alert-contacts is incorrect, expected: 2628365_0_0, but was: " + providerConfig.AlertContacts)
+// 	}
+// 	service.Remove(*mRes)
+// }
