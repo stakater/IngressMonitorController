@@ -41,6 +41,9 @@ metadata:
 spec:
   forceHttps: true
   url: https://stakater.com/
-  gcloudConfig:
-    frequency: 5000
+  grafanaConfig:
+    frequency: 10000
+    probes:
+      - Amsterdam
+      - Singapore
 ```

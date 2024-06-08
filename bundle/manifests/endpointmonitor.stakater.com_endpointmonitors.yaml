@@ -62,6 +62,20 @@ spec:
               grafanaConfig:
                 description: Configuration for Grafana Cloud Monitor Provider
                 properties:
+                  frequency:
+                    description: The frequency value specifies how often the check
+                      runs in milliseconds
+                    format: int64
+                    type: integer
+                  probes:
+                    description: Probes are the monitoring agents responsible for
+                      simulating user interactions with your web applications or services.
+                      These agents periodically send requests to predefined URLs and
+                      record the responses, checking for expected outcomes and measuring
+                      performance.
+                    items:
+                      type: string
+                    type: array
                   tenantId:
                     format: int64
                     type: integer
