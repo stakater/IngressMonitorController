@@ -8,6 +8,7 @@ import (
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/gcloud"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/grafana"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/pingdom"
+	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/pingdomtransaction"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/statuscake"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/updown"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/uptime"
@@ -16,6 +17,18 @@ import (
 )
 
 var log = logf.Log.WithName("monitors")
+
+const (
+	TypeUptimeRobot        = "UptimeRobot"
+	TypePingdom            = "Pingdom"
+	TypePingdomTransaction = "PingdomTransaction"
+	TypeStatusCake         = "StatusCake"
+	TypeUptime             = "Uptime"
+	TypeUpdown             = "Updown"
+	TypeAppInsights        = "AppInsights"
+	TypeGCloud             = "gcloud"
+	TypeGrafana            = "Grafana"
+)
 
 type MonitorServiceProxy struct {
 	monitorType string
@@ -29,21 +42,23 @@ func (mp *MonitorServiceProxy) GetType() string {
 func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 	mp.monitorType = mType
 	switch mType {
-	case "UptimeRobot":
+	case TypeUptimeRobot:
 		mp.monitor = &uptimerobot.UpTimeMonitorService{}
-	case "Pingdom":
+	case TypePingdom:
 		mp.monitor = &pingdom.PingdomMonitorService{}
-	case "StatusCake":
+	case TypePingdomTransaction:
+		mp.monitor = &pingdomtransaction.PingdomTransactionMonitorService{}
+	case TypeStatusCake:
 		mp.monitor = &statuscake.StatusCakeMonitorService{}
-	case "Uptime":
+	case TypeUptime:
 		mp.monitor = &uptime.UpTimeMonitorService{}
-	case "Updown":
+	case TypeUpdown:
 		mp.monitor = &updown.UpdownMonitorService{}
-	case "AppInsights":
+	case TypeAppInsights:
 		mp.monitor = &appinsights.AppinsightsMonitorService{}
-	case "gcloud":
+	case TypeGCloud:
 		mp.monitor = &gcloud.MonitorService{}
-	case "Grafana":
+	case TypeGrafana:
 		mp.monitor = &grafana.GrafanaMonitorService{}
 	default:
 		panic("No such provider found: " + mType)
@@ -53,23 +68,24 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 
 func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.EndpointMonitorSpec) interface{} {
 	var config interface{}
-
 	switch mp.monitorType {
-	case "UptimeRobot":
+	case TypeUptimeRobot:
 		config = spec.UptimeRobotConfig
-	case "Pingdom":
+	case TypePingdom:
 		config = spec.PingdomConfig
-	case "StatusCake":
+	case TypePingdomTransaction:
+		config = spec.PingdomTransactionConfig
+	case TypeStatusCake:
 		config = spec.StatusCakeConfig
-	case "Uptime":
+	case TypeUptime:
 		config = spec.UptimeConfig
-	case "Updown":
+	case TypeUpdown:
 		config = spec.UpdownConfig
-	case "AppInsights":
+	case TypeAppInsights:
 		config = spec.AppInsightsConfig
-	case "gcloud":
+	case TypeGCloud:
 		config = spec.GCloudConfig
-	case "Grafana":
+	case TypeGrafana:
 		config = spec.GrafanaConfig
 	default:
 		return config

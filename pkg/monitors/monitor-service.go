@@ -17,18 +17,19 @@ type MonitorService interface {
 	Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool
 }
 
-func CreateMonitorService(p *config.Provider) MonitorServiceProxy {
+func CreateMonitorService(p *config.Provider) *MonitorServiceProxy {
 	monitorService := (&MonitorServiceProxy{}).OfType(p.Name)
+	monitorService.monitorType = p.Name
 	monitorService.Setup(*p)
-	return monitorService
+	return &monitorService
 }
 
-func SetupMonitorServicesForProviders(providers []config.Provider) []MonitorServiceProxy {
+func SetupMonitorServicesForProviders(providers []config.Provider) []*MonitorServiceProxy {
 	if len(providers) < 1 {
 		panic("Cannot Instantiate controller with no providers")
 	}
 
-	monitorServices := []MonitorServiceProxy{}
+	monitorServices := []*MonitorServiceProxy{}
 
 	for index := 0; index < len(providers); index++ {
 		monitorServices = append(monitorServices, CreateMonitorService(&providers[index]))
@@ -38,7 +39,7 @@ func SetupMonitorServicesForProviders(providers []config.Provider) []MonitorServ
 	return monitorServices
 }
 
-func SetupMonitorServicesForProvidersTest(providers []config.Provider) []MonitorServiceProxy {
+func SetupMonitorServicesForProvidersTest(providers []config.Provider) []*MonitorServiceProxy {
 	if len(providers) < 1 {
 		panic("Cannot Instantiate controller with no providers")
 	}
@@ -46,7 +47,7 @@ func SetupMonitorServicesForProvidersTest(providers []config.Provider) []Monitor
 	allowedProviders := []string{"UptimeRobot", "StatusCake"}
 	log.Info("Setting up monitor services for tests(CRDs) for supported providers: " + strings.Join(allowedProviders[:], ","))
 
-	monitorServices := []MonitorServiceProxy{}
+	monitorServices := []*MonitorServiceProxy{}
 
 	for index := 0; index < len(providers); index++ {
 		if contains(allowedProviders, providers[index].Name) {

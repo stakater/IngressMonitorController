@@ -60,6 +60,10 @@ type EndpointMonitorSpec struct {
 	// +optional
 	PingdomConfig *PingdomConfig `json:"pingdomConfig,omitempty"`
 
+	// Configuration for Pingdom Transaction Monitor Provider
+	// +optional
+	PingdomTransactionConfig *PingdomTransactionConfig `json:"pingdomTransactionConfig,omitempty"`
+
 	// Configuration for AppInsights Monitor Provider
 	// +optional
 	AppInsightsConfig *AppInsightsConfig `json:"appInsightsConfig,omitempty"`
@@ -286,6 +290,70 @@ type PingdomConfig struct {
 	// Because post data contains sensitive secret this field is only reference to a environment variable.
 	// +optional
 	PostDataEnvVar string `json:"postDataEnvVar,omitempty"`
+}
+
+// PingdomTransactionConfig defines the configuration for Pingdom Transaction Monitor Provider
+type PingdomTransactionConfig struct {
+
+	// Check status: active or inactive
+	// +optional
+	Paused bool `json:"paused,omitempty"`
+
+	// Custom message that is part of the email and webhook alerts
+	// +optional
+	CustomMessage string `json:"custom_message,omitempty"`
+
+	// TMS test intervals in minutes. Allowed intervals: 5,10,20,60,720,1440. The interval you're allowed to set may vary depending on your current plan.
+	// +optional
+	// +kubebuilder:validation:Enum=5;10;20;60;720;1440
+	Interval int `json:"interval,omitempty"`
+
+	// Name of the region where the check is executed. Supported regions: us-east, us-west, eu, au
+	// +optional
+	// +kubebuilder:validation:Enum=us-east;us-west;eu;au
+	Region string `json:"region,omitempty"`
+
+	// Send notification when down X times
+	SendNotificationWhenDown int64 `json:"send_notification_when_down,omitempty"`
+
+	// Check importance- how important are the alerts when the check fails. Allowed values: low, high
+	// +optional
+	// +kubebuilder:validation:Enum=low;high
+	SeverityLevel string `json:"severity_level,omitempty"`
+
+	// steps to be executed as part of the check
+	// +required
+	Steps []PingdomStep `json:"steps"`
+
+	// List of tags for a check. The tag name may contain the characters 'A-Z', 'a-z', '0-9', '_' and '-'. The maximum length of a tag is 64 characters.
+	Tags []string `json:"tags,omitempty"`
+
+	// `-` separated set list of integrations ids (e.g. "91166-12168")
+	// +optional
+	AlertIntegrations string `json:"alertIntegrations,omitempty"`
+
+	// `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1")
+	// +optional
+	AlertContacts string `json:"alertContacts,omitempty"`
+
+	// `-` separated team id's (e.g. "1234567_8_9-9876543_2_1")
+	// +optional
+	TeamAlertContacts string `json:"teamAlertContacts,omitempty"`
+}
+
+// PingdomStep respresents a step of the script to run a transcaction check
+type PingdomStep struct {
+	// contains the html element with assigned value
+	// the key element is always lowercase for example {"url": "https://www.pingdom.com"}
+	// see available values at https://pkg.go.dev/github.com/karlderkaefer/pingdom-golang-client@latest/pkg/pingdom/client/tmschecks#StepArg
+	// +required
+	Args map[string]string `json:"args"`
+	// contains the function that is executed as part of the step
+	// commands: go_to, click, fill, check, uncheck, sleep, select_radio, basic_auth, submit, wait_for_element, wait_for_contains
+	// validations: url, exists, not_exists, contains, not_contains, field_contains, field_not_contains, is_checked, is_not_checked, radio_selected, dropdown_selected, dropdown_not_selected
+	// see updated list https://docs.pingdom.com/api/#section/TMS-Steps-Vocabulary/Script-transaction-checks
+	// +required
+	Function string `json:"function"`
 }
 
 // AppInsightsConfig defines the configuration for AppInsights Monitor Provider
