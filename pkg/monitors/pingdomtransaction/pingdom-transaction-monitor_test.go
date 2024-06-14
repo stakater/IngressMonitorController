@@ -48,8 +48,8 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 
 	service.Setup(*provider)
 	m := models.Monitor{
-		Name: "google-test",
-		URL:  "https://google.com",
+		Name:   "google-test",
+		URL:    "https://google.com",
 		Config: spec,
 	}
 
