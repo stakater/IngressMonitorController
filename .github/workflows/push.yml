@@ -87,6 +87,7 @@ jobs:
         WITH_V: true
         DEFAULT_BUMP: patch
         DRY_RUN: true
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
 
