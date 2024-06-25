@@ -87,8 +87,6 @@ jobs:
         WITH_V: true
         DEFAULT_BUMP: patch
         DRY_RUN: true
-    - name: Debug print generated tag
-      run: echo "Generated tag is ${{ steps.generate_tag.outputs.new_tag }}"
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
 
