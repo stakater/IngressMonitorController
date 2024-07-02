@@ -30,7 +30,7 @@ type PingdomMonitorService struct {
 	client            *pingdom.Client
 }
 
-func (monitor *PingdomMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+func (service *PingdomMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
 	// TODO: Retrieve oldMonitor config and compare it here
 	return false
 }
@@ -48,7 +48,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 		BaseURL:  service.url,
 	})
 	if err != nil {
-		log.Info("Error Seting Up Monitor Service: " + err.Error())
+		log.Info("Error setting up Monitor Service", "error", err)
 	}
 }
 
@@ -62,7 +62,7 @@ func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, e
 		}
 	}
 
-	return match, fmt.Errorf("Unable to locate monitor with name %v", name)
+	return match, fmt.Errorf("Unable to locate monitor with name '%v'", name)
 }
 
 func (service *PingdomMonitorService) GetAll() []models.Monitor {
@@ -70,7 +70,7 @@ func (service *PingdomMonitorService) GetAll() []models.Monitor {
 
 	checks, err := service.client.Checks.List()
 	if err != nil {
-		log.Info("Error received while listing checks: " + err.Error())
+		log.Info("Error received while listing checks", "error", err)
 		return nil
 	}
 	for _, mon := range checks {
@@ -90,9 +90,9 @@ func (service *PingdomMonitorService) Add(m models.Monitor) {
 
 	_, err := service.client.Checks.Create(&httpCheck)
 	if err != nil {
-		log.Info(fmt.Sprintf("Error Adding Monitor %s %v", m.Name, err.Error()))
+		log.Info(fmt.Sprintf("Error adding Monitor '%s': %v", m.Name, err.Error()))
 	} else {
-		log.Info("Added monitor for: " + m.Name)
+		log.Info("Successfully added Monitor " + m.Name)
 	}
 }
 
@@ -102,9 +102,9 @@ func (service *PingdomMonitorService) Update(m models.Monitor) {
 
 	resp, err := service.client.Checks.Update(monitorID, &httpCheck)
 	if err != nil {
-		log.Info(fmt.Sprintf("Error updating Monitor %s %v", m.Name, err.Error()))
+		log.Info(fmt.Sprintf("Error updating Monitor '%s': %v", m.Name, err.Error()))
 	} else {
-		log.Info("Sucessfully updated Monitor "+m.Name, "Response", resp.Message)
+		log.Info("Successfully updated Monitor "+m.Name, "response", resp.Message)
 	}
 }
 
@@ -113,9 +113,9 @@ func (service *PingdomMonitorService) Remove(m models.Monitor) {
 
 	resp, err := service.client.Checks.Delete(monitorID)
 	if err != nil {
-		log.Info(fmt.Sprintf("Error deleting Monitor %s %v", m.Name, err.Error()))
+		log.Info(fmt.Sprintf("Error deleting Monitor '%s': %v", m.Name, err.Error()))
 	} else {
-		log.Info("Sucessfully deleted Monitor "+m.Name, "Response", resp.Message)
+		log.Info("Successfully deleted Monitor "+m.Name, "response", resp.Message)
 	}
 }
 
@@ -123,8 +123,7 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck := pingdom.HttpCheck{}
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Info(fmt.Sprintf("Error parsing url '%s' of monitor %s", monitor.Name, service.url))
-		log.Info("Unable to parse the URL: " + service.url)
+		log.Info(fmt.Sprintf("Error parsing url '%s' of monitor %s", service.url, monitor.Name))
 	}
 
 	if url.Scheme == "https" {
@@ -184,7 +183,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		userIdsStringArray := strings.Split(providerConfig.AlertContacts, "-")
 
 		if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-			log.Info("Error decoding user alert contact IDs from config" + err.Error())
+			log.Info("Error decoding user alert contact IDs from config", "error", err)
 		} else {
 			httpCheck.UserIds = userIds
 		}
@@ -194,7 +193,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		integrationIdsStringArray := strings.Split(providerConfig.AlertIntegrations, "-")
 
 		if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
-			log.Info("Error decoding integration ids into integers" + err.Error())
+			log.Info("Error decoding integration ids into integers", "error", err)
 		} else {
 			httpCheck.IntegrationIds = integrationIds
 		}
@@ -204,7 +203,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		integrationTeamIdsStringArray := strings.Split(providerConfig.TeamAlertContacts, "-")
 
 		if integrationTeamIdsStringArray, err := util.SliceAtoi(integrationTeamIdsStringArray); err != nil {
-			log.Info("Error decoding integration ids into integers" + err.Error())
+			log.Info("Error decoding integration ids into integers", "error", err)
 		} else {
 			httpCheck.TeamIds = integrationTeamIdsStringArray
 		}
@@ -226,7 +225,28 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		httpCheck.RequestHeaders = make(map[string]string)
 		err := json.Unmarshal([]byte(providerConfig.RequestHeaders), &httpCheck.RequestHeaders)
 		if err != nil {
-			log.Info("Error Converting from string to JSON object")
+			log.Info("Error converting request headers from string to JSON", "value", providerConfig.RequestHeaders, "error", err)
+		}
+	}
+	if providerConfig != nil && len(providerConfig.RequestHeadersEnvVar) > 0 {
+		requestHeaderEnvValue := os.Getenv(providerConfig.RequestHeadersEnvVar)
+		if requestHeaderEnvValue != "" {
+			requestHeadersValue := make(map[string]string)
+			err := json.Unmarshal([]byte(requestHeaderEnvValue), &requestHeadersValue)
+			if err != nil {
+				log.Info("Error converting request headers from environment from string to JSON", "envVar", providerConfig.RequestHeadersEnvVar, "error", err)
+			}
+
+			if httpCheck.RequestHeaders != nil {
+				for key, value := range requestHeadersValue {
+					httpCheck.RequestHeaders[key] = value
+				}
+			} else {
+				httpCheck.RequestHeaders = requestHeadersValue
+			}
+
+		} else {
+			log.Error(errors.New("error reading request headers from environment variable"), "Environment Variable does not exist", "envVar", providerConfig.RequestHeadersEnvVar)
 		}
 	}
 
@@ -240,7 +260,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 			httpCheck.Username = providerConfig.BasicAuthUser
 			httpCheck.Password = passwordValue
 		} else {
-			log.Info("Error reading basic auth password from environment variable")
+			log.Error(errors.New("error reading basic auth password from environment variable"), "Environment Variable does not exist", "envVar", providerConfig.BasicAuthUser)
 		}
 	}
 
@@ -266,7 +286,7 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 			if postDataValue != "" {
 				httpCheck.PostData = postDataValue
 			} else {
-				log.Error(errors.New("error reading post data from environment variable"), "Environment Variable %s does not exist", providerConfig.PostDataEnvVar)
+				log.Error(errors.New("error reading post data from environment variable"), "Environment Variable does not exist", "envVar", providerConfig.PostDataEnvVar)
 			}
 		}
 	}

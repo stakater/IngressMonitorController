@@ -244,9 +244,14 @@ type PingdomConfig struct {
 	// +optional
 	NotifyWhenBackUp bool `json:"notifyWhenBackUp,omitempty"`
 
-	// Custom pingdom request headers
+	// Custom request headers
 	// +optional
 	RequestHeaders string `json:"requestHeaders,omitempty"`
+
+	// Custom request headers that should be read from an environment variable as it possibly contains sensitive data.
+	// An example would be an API token.
+	// +optional
+	RequestHeadersEnvVar string `json:"requestHeadersEnvVar,omitempty"`
 
 	// Required for basic-authentication
 	// +optional
@@ -287,7 +292,7 @@ type PingdomConfig struct {
 
 	// Data that should be posted to the web page, for example submission data for a sign-up or login form.
 	// The data needs to be formatted in the same way as a web browser would send it to the web server.
-	// Because post data contains sensitive secret this field is only reference to a environment variable.
+	// Because post data contains sensitive secret this field is only a reference to an environment variable.
 	// +optional
 	PostDataEnvVar string `json:"postDataEnvVar,omitempty"`
 }

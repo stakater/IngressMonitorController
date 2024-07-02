@@ -1,9 +1,11 @@
 # Pingdom Configuration
 
 ## Note
+
 Currently we do not have access to Pingdom account that's why Tests are not verified. Community members having Pingdom account are welcome to contribute in Test Cases.
 
 ## Basic
+
 The following properties need to be configured for Pingdom, in addition to the general properties listed
 in the [Configuration section of the README](../README.md#configuration):
 
@@ -12,31 +14,35 @@ in the [Configuration section of the README](../README.md#configuration):
 | apiToken | Pingdom API Token generated inside My Pingdom |
 
 ## Optional
+
 The following optional properties can be included if you want to declare some default options, without re-declaring them for each EndpointMonitor.
 You are able to override any of them via EndpointMonitor specific options.
 
 | Key               | Description                                              |
 |-------------------|----------------------------------------------------------|
-| alertIntegrations | `-` separated list of integration ids                  |
-| teamAlertContacts | `-` separated list of teams ids                  |
-| alertContacts     | `-` separated list of alert contacts ids                  |
+| alertIntegrations | `-` separated list of integration ids                    |
+| teamAlertContacts | `-` separated list of teams ids                          |
+| alertContacts     | `-` separated list of alert contacts ids                 |
+
 ## Advanced
 
 Currently additional pingdom configurations can be added through these fields:
 
-|                        Fields                        |                    Description                   |
-|:--------------------------------------------------------:|:------------------------------------------------:|
-| Resolution                  | The pingdom check interval in minutes            |
-| SendNotificationWhenDown | How many failed check attempts before notifying  |
-| Paused                      | Set to "true" to pause checks                    |
-| NotifyWhenBackUp         | Set to "false" to disable recovery notifications |
-| RequestHeaders             | Custom pingdom request headers (e.g. {"Accept"="application/json"}) |
+| Fields                    |                    Description                   |
+|---------------------------|--------------------------------------------------|
+| Resolution                | The pingdom check interval in minutes            |
+| SendNotificationWhenDown  | How many failed check attempts before notifying  |
+| Paused                    | Set to "true" to pause checks                    |
+| NotifyWhenBackUp          | Set to "false" to disable recovery notifications |
+| PostDataEnvVar            | Send post data. - [see below](#post-data-checks) |
+| RequestHeaders            | Custom request headers (e.g. {"Accept"="application/json"}) |
+| RequestHeadersEnvVar      | Custom request headers that should be stored in an environemnt variable, e.g., authentication headers. Behaves the same as PostDataEnvVar - [see below](#post-data-checks) |
 | BasicAuthUser             | Required for basic-authentication checks - [see below](#basic-auth-checks) |
-| ShouldContain              | Set to text string that has to be present in the HTML code of the page (configures "Should contain") |
-| Tags                        | Comma separated set of tags to apply to check (e.g. "testing,aws") |
-| AlertIntegrations                | `-` separated set list of integrations ids (e.g. "91166-12168") |
-| AlertContacts                | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1") to override the [default alertContacts](https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage)|
-| TeamAlertContacts            | Teams to alert.  `-` separated set list of teams ids (e.g. "1234567_8_9-9876543_2_1)|
+| ShouldContain             | Set to text string that has to be present in the HTML code of the page (configures "Should contain") |
+| Tags                      | Comma separated set of tags to apply to check (e.g. "testing,aws") |
+| AlertIntegrations         | `-` separated set list of integrations ids (e.g. "91166-12168") |
+| AlertContacts             | `-` separated contact id's (e.g. "1234567_8_9-9876543_2_1") to override the [default alertContacts](https://github.com/stakater/IngressMonitorController/blob/master/README.md#usage)|
+| TeamAlertContacts         | Teams to alert.  `-` separated set list of teams ids (e.g. "1234567_8_9-9876543_2_1)|
 
 ### Basic Auth checks
 
@@ -71,9 +77,9 @@ envFrom:
       name: stakater-post-data
 ```
 
-If you set postData the request method will be automatically POST.
+If you set postDataEnvVar the request method will be automatically POST.
 
-## Example: 
+## Example
 
 ```yaml
 apiVersion: endpointmonitor.stakater.com/v1alpha1
@@ -97,4 +103,3 @@ spec:
     teamAlertContacts: "1234567_8_9-9876543_2_1,1234567_8_9-9876543_2_2"
     postDataEnvVar: "monitor-user"
 ```
-
