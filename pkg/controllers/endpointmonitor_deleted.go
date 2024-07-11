@@ -39,7 +39,7 @@ func (r *EndpointMonitorReconciler) removeMonitorIfExists(monitorService *monito
 	// Monitor Exists
 	if monitor != nil {
 		// Monitor Exists, remove the monitor
-		log.Info("Removing monitor: " + monitorName + " from provider provider: " + monitorService.GetType())
+		log.Info("Removing monitor " + monitorName + " from provider: " + monitorService.GetType())
 		monitorService.Remove(*monitor)
 	} else {
 		log.Info("Cannot find monitor with name: " + monitorName + " for provider: " + monitorService.GetType())
