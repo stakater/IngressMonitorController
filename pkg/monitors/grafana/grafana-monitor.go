@@ -202,7 +202,7 @@ func (service *GrafanaMonitorService) Update(monitor models.Monitor) {
 	// Using the synthetic monitoring client to update the old check
 	createdCheck, err := service.smClient.UpdateCheck(service.ctx, *newCheck)
 	if err != nil {
-		log.Error(err, "Failed to update monitor")
+		log.Error(err, "Failed to update monitor", "monitorID", checkID)
 		return
 	}
 
