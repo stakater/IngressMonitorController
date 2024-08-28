@@ -92,9 +92,10 @@ func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
 			URL:  check.Target,
 			ID:   fmt.Sprintf("%v", check.Id),
 			Config: &endpointmonitorv1alpha1.GrafanaConfig{
-				TenantId:  check.TenantId,
-				Frequency: check.Frequency,
-				Probes:    probes,
+				TenantId:         check.TenantId,
+				Frequency:        check.Frequency,
+				Probes:           probes,
+				AlertSensitivity: check.AlertSensitivity,
 			},
 		})
 	}
