@@ -394,6 +394,12 @@ type GrafanaConfig struct {
 	// or services. These agents periodically send requests to predefined URLs and record the responses,
 	// checking for expected outcomes and measuring performance.
 	Probes []string `json:"probes,omitempty"`
+
+	// The alertSensitivity value defaults to none if there are no alerts or can be set to low, medium,
+	// or high to correspond to the check alert levels.
+	// +kubebuilder:validation:Enum=none;low;medium;high
+	// +kubebuilder:default=none
+	AlertSensitivity string `json:"alertSensitivity,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from

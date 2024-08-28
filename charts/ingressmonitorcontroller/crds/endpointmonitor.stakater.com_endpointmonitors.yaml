@@ -63,6 +63,17 @@ spec:
               grafanaConfig:
                 description: Configuration for Grafana Cloud Monitor Provider
                 properties:
+                  alertSensitivity:
+                    default: none
+                    description: The alertSensitivity value defaults to none if there
+                      are no alerts or can be set to low, medium, or high to correspond
+                      to the check alert levels.
+                    enum:
+                    - none
+                    - low
+                    - medium
+                    - high
+                    type: string
                   frequency:
                     description: The frequency value specifies how often the check
                       runs in milliseconds
