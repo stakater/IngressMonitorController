@@ -395,6 +395,8 @@ type GrafanaConfig struct {
 	// checking for expected outcomes and measuring performance.
 	Probes []string `json:"probes,omitempty"`
 
+	// The alertSensitivity value defaults to none if there are no alerts or can be set to low, medium,
+	// or high to correspond to the check
 	// +kubebuilder:validation:Enum=none;low;medium;high
 	// +kubebuilder:default=none
 	AlertSensitivity string `json:"alertSensitivity,omitempty"`

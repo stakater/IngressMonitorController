@@ -65,6 +65,9 @@ spec:
                 properties:
                   alertSensitivity:
                     default: none
+                    description: The alertSensitivity value defaults to none if there
+                      are no alerts or can be set to low, medium, or high to correspond
+                      to the check
                     enum:
                     - none
                     - low
