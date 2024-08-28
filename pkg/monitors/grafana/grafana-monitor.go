@@ -111,9 +111,13 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 	var probeToSet []synthetic_monitoring.Probe
 	var configProbeNames []string
 	var frequency int64 = service.frequency
+	var alertSensitivity string
 	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
 	if providerConfig != nil {
 		// load configs from EndpointMonitor CR
+		if providerConfig.AlertSensitivity != "" {
+			alertSensitivity = providerConfig.AlertSensitivity
+		}
 		if providerConfig.Frequency > 0 {
 			frequency = providerConfig.Frequency
 		}
@@ -156,6 +160,7 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 			},
 		},
 		BasicMetricsOnly: true,
+		AlertSensitivity: alertSensitivity,
 	}, nil
 }
 

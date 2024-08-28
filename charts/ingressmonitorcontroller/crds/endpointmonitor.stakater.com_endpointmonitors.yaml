@@ -63,6 +63,14 @@ spec:
               grafanaConfig:
                 description: Configuration for Grafana Cloud Monitor Provider
                 properties:
+                  alertSensitivity:
+                    default: none
+                    enum:
+                    - none
+                    - low
+                    - medium
+                    - high
+                    type: string
                   frequency:
                     description: The frequency value specifies how often the check
                       runs in milliseconds
