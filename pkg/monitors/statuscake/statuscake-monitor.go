@@ -100,9 +100,12 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		}
 	}
 
+	if providerConfig != nil && len(providerConfig.BasicAuthSecret) > 0 {
+		log.Info("The secret name is: %s", providerConfig.BasicAuthSecret)
+	}
+
 	if providerConfig != nil && len(providerConfig.StatusCodes) > 0 {
 		f.Add("status_codes_csv", providerConfig.StatusCodes)
-
 	} else {
 		statusCodes := []string{
 			"204", // No content
@@ -243,7 +246,6 @@ func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor
 	}
 	errorString := "GetByName Request failed for name: " + name
 	return nil, errors.New(errorString)
-
 }
 
 // GetByID function will Get a monitor by it's ID
@@ -445,7 +447,6 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 	}
 	if resp.StatusCode != http.StatusNoContent {
 		log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
-
 	} else {
 		_, err = service.GetByID(m.ID)
 		if strings.Contains(err.Error(), "Request failed") {

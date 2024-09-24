@@ -163,6 +163,10 @@ type StatusCakeConfig struct {
 	// +optional
 	BasicAuthUser string `json:"basicAuthUser,omitempty"`
 
+	// Basic Auth String
+	// +optional
+	BasicAuthSecret string `json:"basicAuthSecret,omitempty"`
+
 	// Set Check Rate for the monitor
 	// +optional
 	CheckRate int `json:"checkRate,omitempty"`
@@ -299,7 +303,6 @@ type PingdomConfig struct {
 
 // PingdomTransactionConfig defines the configuration for Pingdom Transaction Monitor Provider
 type PingdomTransactionConfig struct {
-
 	// Check status: active or inactive
 	// +optional
 	Paused bool `json:"paused,omitempty"`
