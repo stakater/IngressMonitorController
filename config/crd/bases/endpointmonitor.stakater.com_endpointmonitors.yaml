@@ -3,8 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.9.0
-  creationTimestamp: null
+    controller-gen.kubebuilder.io/version: v0.14.0
   name: endpointmonitors.endpointmonitor.stakater.com
 spec:
   group: endpointmonitor.stakater.com
@@ -21,14 +20,19 @@ spec:
         description: EndpointMonitor is the Schema for the endpointmonitors API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -65,9 +69,9 @@ spec:
                 properties:
                   alertSensitivity:
                     default: none
-                    description: The alertSensitivity value defaults to none if there
-                      are no alerts or can be set to low, medium, or high to correspond
-                      to the check alert levels.
+                    description: |-
+                      The alertSensitivity value defaults to none if there are no alerts or can be set to low, medium,
+                      or high to correspond to the check alert levels.
                     enum:
                     - none
                     - low
@@ -80,11 +84,10 @@ spec:
                     format: int64
                     type: integer
                   probes:
-                    description: Probes are the monitoring agents responsible for
-                      simulating user interactions with your web applications or services.
-                      These agents periodically send requests to predefined URLs and
-                      record the responses, checking for expected outcomes and measuring
-                      performance.
+                    description: |-
+                      Probes are the monitoring agents responsible for simulating user interactions with your web applications
+                      or services. These agents periodically send requests to predefined URLs and record the responses,
+                      checking for expected outcomes and measuring performance.
                     items:
                       type: string
                     type: array
@@ -114,18 +117,17 @@ spec:
                     description: Set to "true" to pause checks
                     type: boolean
                   postDataEnvVar:
-                    description: Data that should be posted to the web page, for example
-                      submission data for a sign-up or login form. The data needs
-                      to be formatted in the same way as a web browser would send
-                      it to the web server. Because post data contains sensitive secret
-                      this field is only a reference to an environment variable.
+                    description: |-
+                      Data that should be posted to the web page, for example submission data for a sign-up or login form.
+                      The data needs to be formatted in the same way as a web browser would send it to the web server.
+                      Because post data contains sensitive secret this field is only a reference to an environment variable.
                     type: string
                   requestHeaders:
                     description: Custom request headers
                     type: string
                   requestHeadersEnvVar:
-                    description: Custom request headers that should be read from an
-                      environment variable as it possibly contains sensitive data.
+                    description: |-
+                      Custom request headers that should be read from an environment variable as it possibly contains sensitive data.
                       An example would be an API token.
                     type: string
                   resolution:
@@ -139,11 +141,10 @@ spec:
                       HTML code of the page
                     type: string
                   sslDownDaysBefore:
-                    description: Consider down prior to certificate expiring Select
-                      the number of days prior to your certificate expiry date that
-                      you want to consider the check down. At this day your check
-                      will be considered down and if applicable a down alert will
-                      be sent.
+                    description: |-
+                      Consider down prior to certificate expiring
+                      Select the number of days prior to your certificate expiry date that you want to consider the check down.
+                      At this day your check will be considered down and if applicable a down alert will be sent.
                     type: integer
                   tags:
                     description: Comma separated set of tags to apply to check (e.g.
@@ -153,11 +154,11 @@ spec:
                     description: '`-` separated team id''s (e.g. "1234567_8_9-9876543_2_1")'
                     type: string
                   verifyCertificate:
-                    description: Monitor SSL/TLS certificate Monitor the validity
-                      of your SSL/TLS certificate. With this enabled Uptime checks
-                      will be considered DOWN when the certificate becomes invalid
-                      or expires. SSL/TLS certificate monitoring is available for
-                      HTTP checks.
+                    description: |-
+                      Monitor SSL/TLS certificate
+                      Monitor the validity of your SSL/TLS certificate. With this enabled Uptime checks will be considered DOWN when
+                      the certificate becomes invalid or expires.
+                      SSL/TLS certificate monitoring is available for HTTP checks.
                     type: boolean
                 type: object
               pingdomTransactionConfig:
@@ -218,18 +219,17 @@ spec:
                         args:
                           additionalProperties:
                             type: string
-                          description: 'contains the html element with assigned value
-                            the key element is always lowercase for example {"url":
-                            "https://www.pingdom.com"} see available values at https://pkg.go.dev/github.com/karlderkaefer/pingdom-golang-client@latest/pkg/pingdom/client/tmschecks#StepArg'
+                          description: |-
+                            contains the html element with assigned value
+                            the key element is always lowercase for example {"url": "https://www.pingdom.com"}
+                            see available values at https://pkg.go.dev/github.com/karlderkaefer/pingdom-golang-client@latest/pkg/pingdom/client/tmschecks#StepArg
                           type: object
                         function:
-                          description: 'contains the function that is executed as
-                            part of the step commands: go_to, click, fill, check,
-                            uncheck, sleep, select_radio, basic_auth, submit, wait_for_element,
-                            wait_for_contains validations: url, exists, not_exists,
-                            contains, not_contains, field_contains, field_not_contains,
-                            is_checked, is_not_checked, radio_selected, dropdown_selected,
-                            dropdown_not_selected see updated list https://docs.pingdom.com/api/#section/TMS-Steps-Vocabulary/Script-transaction-checks'
+                          description: |-
+                            contains the function that is executed as part of the step
+                            commands: go_to, click, fill, check, uncheck, sleep, select_radio, basic_auth, submit, wait_for_element, wait_for_contains
+                            validations: url, exists, not_exists, contains, not_contains, field_contains, field_not_contains, is_checked, is_not_checked, radio_selected, dropdown_selected, dropdown_not_selected
+                            see updated list https://docs.pingdom.com/api/#section/TMS-Steps-Vocabulary/Script-transaction-checks
                           type: string
                       required:
                       - args
@@ -351,9 +351,9 @@ spec:
                       this monitor
                     type: string
                   customHTTPStatuses:
-                    description: 'Defines which http status codes are treated as up
-                      or down For ex: 200:0_401:1_503:1 (to accept 200 as down and
-                      401 and 503 as up)'
+                    description: |-
+                      Defines which http status codes are treated as up or down
+                      For ex: 200:0_401:1_503:1 (to accept 200 as down and 401 and 503 as up)
                     type: string
                   interval:
                     description: The uptimerobot check interval in seconds
