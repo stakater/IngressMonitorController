@@ -12,12 +12,21 @@ import (
 	"strconv"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+	"k8s.io/client-go/rest"
+
+	// ctrlConfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	//"sigs.k8s.io/controller-runtime/pkg/manager"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	statuscake "github.com/StatusCakeDev/statuscake-go"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/secret"
 )
 
 var log = logf.Log.WithName("statuscake-monitor")
@@ -86,7 +95,7 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		}
 	}
 
-	if providerConfig != nil && len(providerConfig.BasicAuthUser) > 0 {
+	if providerConfig != nil && len(providerConfig.BasicAuthUser) > 0 && len(providerConfig.BasicAuthSecret) == 0 {
 		// This value is mandatory
 		// Environment variable should define the password
 		// Mounted via a secret; key is the username, value is the password
@@ -101,7 +110,39 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	}
 
 	if providerConfig != nil && len(providerConfig.BasicAuthSecret) > 0 {
-		log.Info("The secret name is: %s", providerConfig.BasicAuthSecret)
+		var basicPass string
+		clusterConfig, err := rest.InClusterConfig()
+		if err != nil {
+			panic(err)
+		}
+
+		s := runtime.NewScheme()
+		if err := scheme.AddToScheme(s); err != nil {
+			panic(err)
+		}
+
+		// Create a new client
+		k8sClient, err := client.New(clusterConfig, client.Options{Scheme: s})
+		if err != nil {
+			panic(err)
+		}
+
+		log.Info(fmt.Sprintf("The secret name is: %s", providerConfig.BasicAuthSecret))
+		secretKey, err := secret.LoadSecretData(k8sClient, providerConfig.BasicAuthSecret, "test", providerConfig.BasicAuthUser)
+		if err != nil {
+			panic(err)
+		}
+
+		err = yaml.Unmarshal([]byte(secretKey), &basicPass)
+		if err != nil {
+			panic(err)
+		}
+		var log_str string = fmt.Sprintf("Secret content -- BasicAuthUser: %s | BasicAuthPass: %s", providerConfig.BasicAuthUser, basicPass)
+		log.Info(log_str)
+
+		f.Add("basic_username", providerConfig.BasicAuthUser)
+		f.Add("basic_password", basicPass)
+		log.Info("Basic auth requirement detected. Setting username and password")
 	}
 
 	if providerConfig != nil && len(providerConfig.StatusCodes) > 0 {
