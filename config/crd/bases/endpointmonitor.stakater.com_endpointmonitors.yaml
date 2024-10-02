@@ -311,6 +311,9 @@ spec:
                   triggerRate:
                     description: Minutes to wait before sending an alert
                     type: integer
+                  userAgent:
+                    description: UserAgent is used to set a user agent string.
+                    type: string
                 type: object
               updownConfig:
                 description: Configuration for Updown Monitor Provider
