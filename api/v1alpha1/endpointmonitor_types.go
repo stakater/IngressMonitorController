@@ -228,6 +228,10 @@ type StatusCakeConfig struct {
 	// RawPostData can be used to send parameters within the URL. Changes the request from a GET to a POST
 	// +optional
 	RawPostData string `json:"rawPostData,omitempty"`
+
+  // UserAgent is used to set a user agent string.
+  // +optional
+  UserAgent string `json:"userAgent,omitempty"`
 }
 
 // PingdomConfig defines the configuration for Pingdom Monitor Provider
