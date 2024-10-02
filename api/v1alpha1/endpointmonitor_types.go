@@ -229,9 +229,9 @@ type StatusCakeConfig struct {
 	// +optional
 	RawPostData string `json:"rawPostData,omitempty"`
 
-  // UserAgent is used to set a user agent string.
-  // +optional
-  UserAgent string `json:"userAgent,omitempty"`
+	// UserAgent is used to set a user agent string.
+	// +optional
+	UserAgent string `json:"userAgent,omitempty"`
 }
 
 // PingdomConfig defines the configuration for Pingdom Monitor Provider
