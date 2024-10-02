@@ -12,8 +12,6 @@ import (
 	"strconv"
 	"strings"
 
-	"gopkg.in/yaml.v2"
-
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	statuscake "github.com/StatusCakeDev/statuscake-go"
@@ -105,25 +103,19 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	}
 
 	if providerConfig != nil && len(providerConfig.BasicAuthSecret) > 0 {
-		var basicPass string
-
-		k8sClient, err := kube.CreateSingleClient()
+		k8sClient, err := kube.GetClient()
 		if err != nil {
 			panic(err)
 		}
 
 		namespace := kube.GetCurrentKubernetesNamespace()
-		secretKey, err := secret.LoadSecretData(k8sClient, providerConfig.BasicAuthSecret, namespace, providerConfig.BasicAuthUser)
+		username, password, err := secret.ReadBasicAuthSecret(k8sClient.CoreV1().Secrets(namespace), providerConfig.BasicAuthSecret)
+
 		if err != nil {
 			log.Error(err, "Could not read the secret")
 		} else {
-			err = yaml.Unmarshal([]byte(secretKey), &basicPass)
-			if err != nil {
-				panic(err)
-			}
-
-			f.Add("basic_username", providerConfig.BasicAuthUser)
-			f.Add("basic_password", basicPass)
+			f.Add("basic_username", username)
+			f.Add("basic_password", password)
 			log.Info("Basic auth requirement detected. Setting username and password")
 		}
 	}

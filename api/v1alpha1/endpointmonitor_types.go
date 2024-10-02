@@ -163,7 +163,7 @@ type StatusCakeConfig struct {
 	// +optional
 	BasicAuthUser string `json:"basicAuthUser,omitempty"`
 
-	// Basic Auth String
+	// Basic Auth Secret Name
 	// +optional
 	BasicAuthSecret string `json:"basicAuthSecret,omitempty"`
 

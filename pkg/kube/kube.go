@@ -12,10 +12,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/kubernetes/scheme"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var (
@@ -30,14 +26,14 @@ func getConfig() (*rest.Config, error) {
 	if kubeconfigPath == "" {
 		kubeconfigPath = os.Getenv("HOME") + "/.kube/config"
 	}
-	// If file exists so use that config settings
+	//If file exists so use that config settings
 	if _, err := os.Stat(kubeconfigPath); err == nil {
 		config, err = clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		// Use Incluster Configuration
+		//Use Incluster Configuration
 		config, err = rest.InClusterConfig()
 		if err != nil {
 			return nil, err
@@ -57,24 +53,6 @@ func GetClient() (*kubernetes.Clientset, error) {
 		return nil, err
 	}
 	return kubernetes.NewForConfig(config)
-}
-
-func CreateSingleClient() (client.Client, error) {
-	config, err := getConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	s := runtime.NewScheme()
-	if err := scheme.AddToScheme(s); err != nil {
-		return nil, err
-	}
-
-	k8sClient, err := client.New(config, client.Options{Scheme: s})
-	if err != nil {
-		return nil, err
-	}
-	return k8sClient, err
 }
 
 // IsRoute returns true if given resource is a route
