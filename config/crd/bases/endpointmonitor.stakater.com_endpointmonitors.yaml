@@ -23,12 +23,11 @@ spec:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
               of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values.
-              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
             description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the clients
+              object represents. Servers may infer this from the endpoint the client
               submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
@@ -66,9 +65,9 @@ spec:
                 properties:
                   alertSensitivity:
                     default: none
-                    description: 'The alertSensitivity value defaults to none if there
+                    description: The alertSensitivity value defaults to none if there
                       are no alerts or can be set to low, medium, or high to correspond
-                      to the check alert levels.'
+                      to the check alert levels.
                     enum:
                     - none
                     - low
@@ -356,8 +355,8 @@ spec:
                     type: string
                   customHTTPStatuses:
                     description: 'Defines which http status codes are treated as up
-                      or down For ex: 200:0_401:1_503:1 (to accept 200 as down
-                      and 401 and 503 as up)'
+                      or down For ex: 200:0_401:1_503:1 (to accept 200 as down and
+                      401 and 503 as up)'
                     type: string
                   interval:
                     description: The uptimerobot check interval in seconds
