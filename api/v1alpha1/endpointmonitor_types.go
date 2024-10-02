@@ -232,6 +232,7 @@ type StatusCakeConfig struct {
 
 // PingdomConfig defines the configuration for Pingdom Monitor Provider
 type PingdomConfig struct {
+
 	// The pingdom check interval in minutes
 	// +optional
 	Resolution int `json:"resolution,omitempty"`
