@@ -88,7 +88,7 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 		}
 	}
 
-	if providerConfig != nil && len(providerConfig.BasicAuthUser) > 0 && len(providerConfig.BasicAuthSecret) == 0 {
+	if providerConfig != nil && len(providerConfig.BasicAuthUser) > 0 {
 		// This value is mandatory
 		// Environment variable should define the password
 		// Mounted via a secret; key is the username, value is the password

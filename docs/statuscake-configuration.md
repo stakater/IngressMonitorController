@@ -35,9 +35,9 @@ Statuscake supports checks completing basic auth requirements. In `EndpointMonit
 
 For example; setting the field like `basic-auth-user: 'my-service-username'` will set the username field to the value `my-service-username` and will retrieve the password via `os.Getenv('my-service-username')` and set this appropriately.
 
-In addition to the previous method, you can use the `basicAuthSecret` field to define a secret that should be read by the monitor which contains the basic-auth data. This should be a generic kubernetes secret with the secret containing only `username: password`. This setting expects the `basicAuthUser` field to be filled in, so that we know what key to read from the secret. Furthermore, the secret must be present in the same namespace as the monitor. This ensures that we can keep the permissions of the monitor to be as small as possible.
+In addition to the previous method, you can use the `basicAuthSecret` field to define a secret that should be read by the monitor which contains the basic-auth data. This secret should only contain the keys `username` and `password`. It expects the values for those keys to be strings. NOT base64 encoded strings. Furthermore, the secret must be present in the same namespace as the IngressMonitorController operator. This ensures that we can keep the permissions of the operator to be as small as possible.
 
-So for example, if you have a generic secret called `my-deployment-secret` containing the data `user: MyPassword1!` you should set `basicAuthUser: user` and `BasicAuthSecret: my-deployment-secret`. This will ensure that the monitor can read the basic-auth data correctly.
+So for example, if you have a secret called `my-deployment-secret` it should contain the data `username: my-user` and `password: MyPassword1!` and you should set to `basicAuthSecret: my-deployment-secret`. This will ensure that the monitor can read the basic-auth data correctly.
 
 ## Example:
 
