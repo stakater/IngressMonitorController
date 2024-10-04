@@ -288,6 +288,10 @@ spec:
                   port:
                     description: TCP Port
                     type: integer
+                  rawPostData:
+                    description: RawPostData can be used to send parameters within
+                      the URL. Changes the request from a GET to a POST
+                    type: string
                   realBrowser:
                     description: Enable Real Browser
                     type: boolean
@@ -307,6 +311,9 @@ spec:
                   triggerRate:
                     description: Minutes to wait before sending an alert
                     type: integer
+                  userAgent:
+                    description: UserAgent is used to set a user agent string.
+                    type: string
                 type: object
               updownConfig:
                 description: Configuration for Updown Monitor Provider
