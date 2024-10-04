@@ -32,8 +32,17 @@ type StatusCakeMonitorService struct {
 }
 
 func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
-	// TODO: Retrieve oldMonitor config and compare it here
-	return false
+	// Since there is a discrepency between the fields in the endpointmonitor CR and the statuscake API
+	// use the tags to define a last updated by tags. This ensures we are not ratelimited by statuscake.
+	oldConf := oldMonitor.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
+	newConf := newMonitor.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
+	if oldConf.TestTags != newConf.TestTags {
+		msg := "Found a difference between the old TestTags and new TestTags. Updating the UptimeCheck..."
+		log.Info(msg, "Old Tags", oldConf.TestTags, "New Tags", newConf.TestTags)
+		return false
+	} else {
+		return true
+	}
 }
 
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
@@ -199,8 +208,14 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	if providerConfig != nil && providerConfig.Confirmation > 0 {
 		f.Add("confirmation", strconv.Itoa(providerConfig.Confirmation))
 	}
-	if providerConfig != nil {
+	if providerConfig != nil && len(providerConfig.FindString) > 0 {
 		f.Add("find_string", providerConfig.FindString)
+	}
+	if providerConfig != nil && len(providerConfig.RawPostData) > 0 {
+		f.Add("post_raw", providerConfig.RawPostData)
+	}
+	if providerConfig != nil && len(providerConfig.UserAgent) > 0 {
+		f.Add("user_agent", providerConfig.UserAgent)
 	}
 	return f
 }

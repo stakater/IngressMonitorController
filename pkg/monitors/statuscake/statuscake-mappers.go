@@ -1,7 +1,10 @@
 package statuscake
 
 import (
+	"strings"
+
 	statuscake "github.com/StatusCakeDev/statuscake-go"
+	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
 
@@ -11,6 +14,10 @@ func StatusCakeMonitorMonitorToBaseMonitorMapper(statuscakeData StatusCakeMonito
 	m.Name = statuscakeData.WebsiteName
 	m.URL = statuscakeData.WebsiteURL
 	m.ID = statuscakeData.TestID
+
+	var providerConfig endpointmonitorv1alpha1.StatusCakeConfig
+	providerConfig.TestTags = strings.Join(statuscakeData.Tags, ",")
+	m.Config = &providerConfig
 	return &m
 }
 
@@ -20,6 +27,10 @@ func StatusCakeApiResponseDataToBaseMonitorMapper(statuscakeData statuscake.Upti
 	m.Name = statuscakeData.Data.Name
 	m.URL = statuscakeData.Data.WebsiteURL
 	m.ID = statuscakeData.Data.ID
+
+	var providerConfig endpointmonitorv1alpha1.StatusCakeConfig
+	providerConfig.TestTags = strings.Join(statuscakeData.Data.Tags, ",")
+	m.Config = &providerConfig
 	return &m
 }
 
