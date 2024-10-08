@@ -28,7 +28,7 @@ func LoadSecretData(apiReader client.Reader, secretName, namespace, dataKey stri
 
 func ReadBasicAuthSecret(apiReader clientv1.SecretInterface, secretName string) (string, string, error) {
 	secret, err := apiReader.Get(context.TODO(), secretName, metav1.GetOptions{})
-	var username, password string
+	username, password := "", ""
 	if err != nil {
 		return "", "", err
 	}
@@ -42,6 +42,14 @@ func ReadBasicAuthSecret(apiReader clientv1.SecretInterface, secretName string) 
 		default:
 			return "", "", fmt.Errorf("secret %s contained unkown key %s", secretName, key)
 		}
+	}
+
+	if username == "" {
+		return "", "", fmt.Errorf("secret %s does not contain expected key '%s'", secretName, "username")
+	} else if password == "" {
+		return "", "", fmt.Errorf("secret %s does not contain expected key '%s'", secretName, "password")
+	} else if username == "" && password == "" {
+		return "", "", fmt.Errorf("secret %s does not contain expected keys '%s','%s'", secretName, "username", "password")
 	}
 
 	return username, password, err
