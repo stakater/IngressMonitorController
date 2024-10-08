@@ -255,6 +255,9 @@ spec:
               statusCakeConfig:
                 description: Configuration for StatusCake Monitor Provider
                 properties:
+                  basicAuthSecret:
+                    description: Basic Auth Secret Name
+                    type: string
                   basicAuthUser:
                     description: Basic Auth User
                     type: string
