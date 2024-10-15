@@ -17,7 +17,9 @@ import (
 	statuscake "github.com/StatusCakeDev/statuscake-go"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
+	"github.com/stakater/IngressMonitorController/v2/pkg/kube"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
+	"github.com/stakater/IngressMonitorController/v2/pkg/secret"
 )
 
 var log = logf.Log.WithName("statuscake-monitor")
@@ -97,6 +99,24 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 			log.Info("Basic auth requirement detected. Setting username and password")
 		} else {
 			log.Info("Error reading basic auth password from environment variable")
+		}
+	}
+
+	if providerConfig != nil && len(providerConfig.BasicAuthSecret) > 0 {
+		k8sClient, err := kube.GetClient()
+		if err != nil {
+			panic(err)
+		}
+
+		namespace := kube.GetCurrentKubernetesNamespace()
+		username, password, err := secret.ReadBasicAuthSecret(k8sClient.CoreV1().Secrets(namespace), providerConfig.BasicAuthSecret)
+
+		if err != nil {
+			log.Error(err, "Could not read the secret")
+		} else {
+			f.Add("basic_username", username)
+			f.Add("basic_password", password)
+			log.Info("Basic auth requirement detected. Setting username and password")
 		}
 	}
 

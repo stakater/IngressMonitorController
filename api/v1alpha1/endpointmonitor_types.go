@@ -163,6 +163,10 @@ type StatusCakeConfig struct {
 	// +optional
 	BasicAuthUser string `json:"basicAuthUser,omitempty"`
 
+	// Basic Auth Secret Name
+	// +optional
+	BasicAuthSecret string `json:"basicAuthSecret,omitempty"`
+
 	// Set Check Rate for the monitor
 	// +optional
 	CheckRate int `json:"checkRate,omitempty"`
