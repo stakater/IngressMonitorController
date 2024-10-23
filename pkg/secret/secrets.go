@@ -29,6 +29,7 @@ func LoadSecretData(apiReader client.Reader, secretName, namespace, dataKey stri
 func ReadBasicAuthSecret(apiReader clientv1.SecretInterface, secretName string) (string, string, error) {
 	secret, err := apiReader.Get(context.TODO(), secretName, metav1.GetOptions{})
 	username, password := "", ""
+  
 	if err != nil {
 		return "", "", err
 	}

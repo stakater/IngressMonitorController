@@ -21,4 +21,6 @@ spec:
     pingUrl: 'https://stakater2.com/'
     contactGroup: '123456,654321'
     regions: amsterdam, stockholm
+    rawPostData: '{"test": "data"}'
+    userAgent: test-user
   url: 'https://stakater1.com/'

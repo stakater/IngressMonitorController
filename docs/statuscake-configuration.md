@@ -27,6 +27,8 @@ Currently additional Statuscake configurations can be added through these fields
 | BasicAuthUser           | Required for [basic-authenticationchecks](#basic-auth-checks)  |
 | BasicAuthSecret         | Allows for an alternate method of adding basic-auth to checks |
 | Regions                 | Regions to execute the check from                |
+| RawPostData             | Add data to change the request to a POST         |
+| UserAgent               | Add a user agent string to the request           |
 
 
 ### Basic Auth checks
