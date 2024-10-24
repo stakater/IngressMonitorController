@@ -19,7 +19,7 @@ env:
   KUSTOMIZE_VERSION: "4.5.7"
   KUBERNETES_VERSION: "1.23.5"
   KIND_VERSION: "v0.17.0"
-  HELM_REGISTRY_URL: "https://stakater.github.io/stakater-charts"
+  HELM_REGISTRY_URL: ""
   HELM_VERSION: v3.8.2
   REGISTRY: ghcr.io
 
@@ -100,7 +100,7 @@ jobs:
       uses: docker/login-action@v3
       with:
         registry: ${{env.REGISTRY}}
-        username: stakater-user
+        username: imc-user
         password: ${{secrets.GITHUB_TOKEN}}
 
     - name: Generate image repository path for ghcr registry
@@ -117,144 +117,10 @@ jobs:
         cache-to: type=inline
         cache-from: type=gha
         build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}
-        platforms: linux/amd64,linux/arm,linux/arm64
+        platforms: linux/amd64
         tags: |
           ${{ env.GHCR_IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
         labels: |
           org.opencontainers.image.source=${{ github.event.repository.clone_url }}
           org.opencontainers.image.created=${{ steps.prep.outputs.created }}
           org.opencontainers.image.revision=${{ github.sha }}
-
-    - name: Login to Dockerhub Registry
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.STAKATER_DOCKERHUB_USERNAME }}
-        password: ${{ secrets.STAKATER_DOCKERHUB_PASSWORD }}
-
-    - name: Generate image repository path for DockerHub registry
-      run: |
-        echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
-
-    - name: Build and push image to DockerHub registry
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ${{ env.DOCKER_FILE_PATH  }}
-        pull: true
-        push: true
-        build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        platforms: linux/amd64,linux/arm,linux/arm64
-        tags: |
-          ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
-        labels: |
-          org.opencontainers.image.source=${{ github.event.repository.clone_url }}
-          org.opencontainers.image.created=${{ steps.prep.outputs.created }}
-          org.opencontainers.image.revision=${{ github.sha }}
-
-    ##############################
-    ## Add steps to generate required artifacts for a release here(helm chart, operator manifest etc.)
-    ##############################
-
-    # Generate tag for operator without "v"
-    - name: Generate Operator Tag
-      id: generate_operator_tag
-      uses: anothrNick/github-tag-action@1.61.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
-        WITH_V: false
-        DEFAULT_BUMP: patch
-        DRY_RUN: true
-
-    # Install operator-sdk
-    - name: Install operator-sdk
-      uses: redhat-actions/openshift-tools-installer@v1
-      with:
-        source: "github"
-        operator-sdk: ${{ env.OPERATOR_SDK_VERSION }}
-
-    # Install kustomize
-    - name: Install kustomize
-      uses: imranismail/setup-kustomize@v2
-      with:
-        kustomize-version: ${{ env.KUSTOMIZE_VERSION }}
-
-    - name: Generate Bundle
-      env:
-        VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
-        IMG: ${{ env.IMAGE_REPOSITORY }}:${{ steps.generate_tag.outputs.new_tag }}
-      run: make bundle
-
-    - name: Verify bundle
-      run: operator-sdk bundle validate ./bundle --select-optional name=operatorhub
-
-    - name: Build and push Bundle Image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ${{ env.BUNDLE_DOCKER_FILE_PATH  }}
-        pull: true
-        push: true
-        cache-to: type=inline
-        tags: |
-          ${{ env.IMAGE_REPOSITORY }}-bundle:${{ steps.generate_tag.outputs.new_tag }}
-        labels: |
-          org.opencontainers.image.source=${{ github.event.repository.clone_url }}
-          org.opencontainers.image.created=${{ steps.prep.outputs.created }}
-          org.opencontainers.image.revision=${{ github.sha }}
-
-    # Update chart tag to the latest semver tag
-    - name: Update Chart Version
-      env:
-        VERSION: ${{ steps.generate_operator_tag.outputs.new_tag }}
-      run: make bump-chart
-
-    - name: Update Chart CRDs
-      run: make generate-crds
-
-    # Publish helm chart
-    - name: Publish Helm chart
-      uses: stefanprodan/helm-gh-pages@master
-      with:
-        branch: master
-        repository: stakater-charts
-        target_dir: docs
-        token: ${{ secrets.GHCR_TOKEN }}
-        charts_dir: charts/
-        charts_url: ${{ env.HELM_REGISTRY_URL }}
-        owner: stakater
-        linting: on
-        commit_username: stakater-user
-        commit_email: stakater@gmail.com
-
-    # Commit back changes
-    - name: Commit files
-      run: |
-        git config --local user.email "stakater@gmail.com"
-        git config --local user.name "stakater-user"
-        git status
-        git add .
-        git commit -m "[skip-ci] Update artifacts" -a
-
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.PUBLISH_TOKEN }}
-
-    # Push Latest Tag
-    - name: Push Latest Tag
-      uses: anothrNick/github-tag-action@1.61.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
-        WITH_V: true
-        DEFAULT_BUMP: patch
-
-    - name: Notify Slack
-      uses: 8398a7/action-slack@v3
-      if: always() # Pick up events even if the job fails or is canceled.
-      with:
-        status: ${{ job.status }}
-        fields: repo,author,action,eventName,ref,workflow
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.STAKATER_DELIVERY_SLACK_WEBHOOK }}
