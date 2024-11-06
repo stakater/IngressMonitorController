@@ -562,6 +562,8 @@ github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An
 github.com/spf13/viper v1.7.0/go.mod h1:8WkrPz2fc9jxqZNCJI/76HCieCp4Q8HaLFoCha5qpdg=
 github.com/stakater/operator-utils v0.1.13 h1:BWOehMy15gv+2qMe6GSEcX4k41C9DyDTbeQq51V63NU=
 github.com/stakater/operator-utils v0.1.13/go.mod h1:NM2WTCf9xlEQEZVcncTVaVJ3WrvarQbMe8gxZd3Ybpo=
+github.com/stakater/operator-utils v0.1.14 h1:CaK5Xrbwg5/8wSnMCXaN64vdk0aKIsAb6jF8d9VyD88=
+github.com/stakater/operator-utils v0.1.14/go.mod h1:NM2WTCf9xlEQEZVcncTVaVJ3WrvarQbMe8gxZd3Ybpo=
 github.com/stoewer/go-strcase v1.2.0/go.mod h1:IBiWB2sKIp3wVVQ3Y035++gc+knqhUQag1KpM8ahLw8=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
