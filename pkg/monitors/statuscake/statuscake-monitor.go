@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
@@ -23,6 +24,8 @@ import (
 )
 
 var log = logf.Log.WithName("statuscake-monitor")
+var cachedMonitors []models.Monitor
+
 
 // StatusCakeMonitorService is the service structure for StatusCake
 type StatusCakeMonitorService struct {
@@ -328,6 +331,9 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 
 // GetAll function will fetch all monitors
 func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
+	if len(cachedMonitors) > 0 {
+		return cachedMonitors
+	}
 	var StatusCakeMonitorData []StatusCakeMonitorData
 	page := 1
 	for {
@@ -342,7 +348,8 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 		}
 		page += 1
 	}
-	return StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData)
+	cachedMonitors = StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData)
+	return cachedMonitors
 }
 
 func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMonitor {
@@ -391,6 +398,7 @@ func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMoni
 
 // Add will create a new Monitor
 func (service *StatusCakeMonitorService) Add(m models.Monitor) {
+	cachedMonitors = []models.Monitor{}
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
@@ -421,10 +429,13 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		log.Error(nil, "Insert Request failed for name: "+m.Name+" with status code "+strconv.Itoa(resp.StatusCode))
 		log.Error(nil, string(bodyBytes))
 	}
+	// Take 1 second pause to prevent being rate limited
+	time.Sleep(1 * time.Second)
 }
 
 // Update will update an existing Monitor
 func (service *StatusCakeMonitorService) Update(m models.Monitor) {
+	cachedMonitors = []models.Monitor{}
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
@@ -455,10 +466,13 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		log.Error(nil, "Update Request failed for name: "+m.Name+" with status code "+strconv.Itoa(resp.StatusCode))
 		log.Error(nil, string(bodyBytes))
 	}
+	// Take 1 second pause to prevent being rate limited
+	time.Sleep(1 * time.Second)
 }
 
 // Remove will delete an existing Monitor
 func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
+	cachedMonitors = []models.Monitor{}
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
@@ -489,4 +503,6 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 			log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
 		}
 	}
+	// Take 1 second pause to prevent being rate limited
+	time.Sleep(1 * time.Second)
 }
