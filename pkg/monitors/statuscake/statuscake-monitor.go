@@ -202,6 +202,12 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	if providerConfig != nil {
 		f.Add("find_string", providerConfig.FindString)
 	}
+	if providerConfig != nil && len(providerConfig.RawPostData) > 0 {
+		f.Add("post_raw", providerConfig.RawPostData)
+	}
+  	if providerConfig != nil && len(providerConfig.UserAgent) > 0 {
+    		f.Add("user_agent", providerConfig.UserAgent)
+  	}
 	return f
 }
 

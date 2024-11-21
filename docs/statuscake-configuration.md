@@ -26,6 +26,8 @@ Currently additional Statuscake configurations can be added through these fields
 | FindString              | String to look for within the response           |
 | BasicAuthUser          | Required for [basic-authenticationchecks](#basic-auth-checks)  |
 | Regions                 | Regions to execute the check from                |
+| RawPostData             | Add data to change the request to a POST         |
+| UserAgent               | Add a user agent string to the request           |
 
 
 ### Basic Auth checks
