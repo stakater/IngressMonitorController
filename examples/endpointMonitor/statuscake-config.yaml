@@ -7,6 +7,7 @@ spec:
   statusCakeConfig:
     port: 123
     basicAuthUser: my-service-username
+    basicAuthSecret: my-basicauth-secret
     checkRate: 300
     realBrowser: true
     testTags: 'abc,def'
