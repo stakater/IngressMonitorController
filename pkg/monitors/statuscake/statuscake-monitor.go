@@ -11,7 +11,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
+	"golang.org/x/time/rate"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	statuscake "github.com/StatusCakeDev/statuscake-go"
@@ -23,6 +25,7 @@ import (
 )
 
 var log = logf.Log.WithName("statuscake-monitor")
+var rateLimiter = rate.NewLimiter(5, 1) // Allow 5 requests per second
 
 // StatusCakeMonitorService is the service structure for StatusCake
 type StatusCakeMonitorService struct {
@@ -297,7 +300,7 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 
-	resp, err := service.client.Do(req)
+	resp, err := service.doRequest(req)
 	if err != nil {
 		log.Error(err, "Unable to retrieve monitor")
 		return nil, err
@@ -324,6 +327,36 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 	log.Info(fmt.Sprintf("Request failed with response: %s for id: %s", bodyString, id))
 
 	return nil, errors.New("GetByID Request failed")
+}
+
+// doRequest function to handle requests to StatusCake and handle ratelimits.
+func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Response, error) {
+	// Wait for the rate limiter to allow a request
+	err := rateLimiter.Wait(req.Context())
+	if err != nil {
+		log.Error(err, "Rate limiter wait failed")
+		return nil, err
+	}
+
+	resp, err := service.doRequest(req)
+	if err != nil {
+		log.Error(err, "HTTP request failed")
+		return nil, err
+	}
+
+	// Handle rate-limiting responses (HTTP 429)
+	if resp.StatusCode == http.StatusTooManyRequests {
+		retryAfter := resp.Header.Get("Retry-After")
+		if retryAfter != "" {
+			seconds, err := strconv.Atoi(retryAfter)
+			if err == nil {
+				time.Sleep(time.Duration(seconds) * time.Second)
+				return service.doRequest(req) // Retry after the specified delay
+			}
+		}
+	}
+
+	return resp, nil
 }
 
 // GetAll function will fetch all monitors
@@ -364,7 +397,7 @@ func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMoni
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 
-	resp, err := service.client.Do(req)
+	resp, err := service.doRequest(req)
 	if err != nil {
 		log.Error(err, "Unable to retrieve monitor")
 		return nil
@@ -405,7 +438,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		return
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
-	resp, err := service.client.Do(req)
+	resp, err := service.doRequest(req)
 	if err != nil {
 		log.Error(err, "Unable to make HTTP call")
 		return
@@ -439,7 +472,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		return
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
-	resp, err := service.client.Do(req)
+	resp, err := service.doRequest(req)
 	if err != nil {
 		log.Error(err, "Unable to make HTTP call")
 		return
@@ -473,7 +506,7 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 		return
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
-	resp, err := service.client.Do(req)
+	resp, err := service.doRequest(req)
 	if err != nil {
 		log.Error(err, "Unable to make HTTP call")
 		return
