@@ -34,7 +34,7 @@ jobs:
         go-version: ${{ env.GOLANG_VERSION }}
 
     - name: Lint
-      uses: golangci/golangci-lint-action@v3
+      uses: golangci/golangci-lint-action@v6
       with:
         version: v1.54
         only-new-issues: false
