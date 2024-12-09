@@ -10,7 +10,7 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.0
 	github.com/StatusCakeDev/statuscake-go v1.3.0
 	github.com/antoineaugusti/updown v0.0.0-20190412074625-d590ab97f115
-	github.com/go-logr/logr v1.4.1
+	github.com/go-logr/logr v1.4.2
 	github.com/grafana/synthetic-monitoring-agent v0.19.4
 	github.com/grafana/synthetic-monitoring-api-go-client v0.8.0
 	github.com/karlderkaefer/pingdom-golang-client v1.0.4
