@@ -54,6 +54,14 @@ func TestRouteWrapper_getURL(t *testing.T) {
 			want: "http://testurl.stackator.com/hello",
 		},
 		{
+			name: "TestGetUrlWithParams",
+			fields: fields{
+				route:  createRouteObjectWithPath("testRoute", "test", routeTestUrl, "/health?standbyok=true&sealedcode=204&uninitcode=204"),
+				Client: fakekubeclient.NewClientBuilder().Build(),
+			},
+			want: "http://testurl.stackator.com/health?standbyok=true&sealedcode=204&uninitcode=204",
+		},
+		{
 			name: "TestGetUrlWithNoPath",
 			fields: fields{
 				route:  util.CreateRouteObject("testRoute", "test", routeTestUrl),
