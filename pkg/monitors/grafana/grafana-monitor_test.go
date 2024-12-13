@@ -60,7 +60,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	monitorConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
 	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
 
-	if monitor.Name != m.Name || monitor.URL != m.URL || monitorConfig.Frequency != providerConfig.Frequency || reflect.DeepEqual(monitorConfig.Probes, providerConfig.Probes) || monitorConfig.AlertSensitivity != providerConfig.AlertSensitivity {
+	if monitor.Name != m.Name || monitor.URL != m.URL || monitorConfig.Frequency != providerConfig.Frequency || !reflect.DeepEqual(monitorConfig.Probes, providerConfig.Probes) || monitorConfig.AlertSensitivity != providerConfig.AlertSensitivity {
 		t.Error("URL, name, frequency, probes and alertSensitivity should be the same", monitor, m)
 	}
 	service.Remove(*monitor)
