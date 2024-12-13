@@ -29,7 +29,7 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	service.Setup(*provider)
 
 	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: &endpointmonitorv1alpha1.GrafanaConfig{
-		Frequency:        20000,
+		Frequency:        1800000,
 		Probes:           []string{"Singapore"},
 		AlertSensitivity: "low",
 	}}
@@ -81,7 +81,9 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	}
 	service.Setup(*provider)
 
-	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: &endpointmonitorv1alpha1.GrafanaConfig{
+		Frequency: 1800000,
+	}}
 	preExistingMonitor, _ := service.GetByName(m.Name)
 
 	if preExistingMonitor != nil {
@@ -106,7 +108,9 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	if monitor.Name != m.Name || monitor.URL != m.URL {
 		t.Error("URL and name should be the same", monitor, m)
 	}
-	m2 := models.Monitor{Name: "stakater-test", URL: "https://stakater.com", ID: monitor.ID, Config: monitor.Config}
+	m2 := models.Monitor{Name: "stakater-test", URL: "https://stakater.com", ID: monitor.ID, Config: &endpointmonitorv1alpha1.GrafanaConfig{
+		Frequency: 1800000,
+	}}
 	service.Update(m2)
 
 	mRes2 := service.GetAll()
