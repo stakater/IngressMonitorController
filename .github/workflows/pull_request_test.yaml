@@ -1,0 +1,61 @@
+name: Run Tests on PR Label
+
+on:
+  pull_request:
+    branches:
+      - 'master'
+    paths-ignore:
+      - '*.md'
+      - 'docs/'
+      - 'examples/'
+      - 'hack/'
+      - 'config/'
+    types: [ labeled ]
+
+env:
+  KIND_VERSION: "0.23.0"
+  GOLANG_VERSION: 1.21
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    if:  ${{ github.event.label.name == 'ok-to-test' }}
+    steps:
+
+    - name: Remove the test label
+      uses: actions-ecosystem/action-remove-labels@v1
+      with:
+        labels: ok-to-test
+
+    - name: Check out code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{github.event.pull_request.head.sha}}
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GOLANG_VERSION }}
+
+    - name: Install kind
+      uses: engineerd/setup-kind@v0.5.0
+      with:
+        version:  ${{ env.KIND_VERSION }}
+
+    - name: Check cluster info
+      run: |
+        kubectl version --client
+        kind version
+        kind version | grep -q ${KIND_VERSION}
+
+    - name: Set up Cluster
+      run: |
+        kubectl cluster-info
+        make install
+        mkdir -p .local
+        echo "${{ secrets.IMC_GITHUB_PIPELINE_CONFIG_ENCODED }}" | base64 --decode > .local/test-config.yaml
+
+    - name: Test
+      run: make test
