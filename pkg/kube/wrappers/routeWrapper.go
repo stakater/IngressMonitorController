@@ -116,17 +116,17 @@ func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	}
 
 	if len(healthEndpoint) != 0 {
-		u.EscapedPath = healthEndpoint
+		u.EscapedPath() = healthEndpoint
 	} else {
 		// Append subpath
-		u.EscapedPath = path.Join(u.EscapedPath, rw.getRouteSubPath())
+		u.EscapedPath() = path.Join(u.EscapedPath(), rw.getRouteSubPath())
 
 		// Find pod by backtracking route -> service -> pod
 		healthEndpoint, exists := rw.tryGetHealthEndpointFromRoute()
 
 		// Health endpoint from pod successful
 		if exists {
-			u.EscapedPath = path.Join(u.EscapedPath, healthEndpoint)
+			u.EscapedPath() = path.Join(u.EscapedPath(), healthEndpoint)
 		}
 	}
 	return u.String()
