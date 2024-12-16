@@ -49,7 +49,7 @@ func (rw *RouteWrapper) getHost() string {
 }
 
 func (rw *RouteWrapper) getRouteSubPath() string {
-	return rw.Route.Spec.EscapedPath()
+	return rw.Route.Spec.Path
 }
 
 func (rw *RouteWrapper) hasService() (string, bool) {
@@ -106,9 +106,12 @@ func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	} else {
 		URL = rw.getHost() // Fallback for normal Host
 	}
+	log.Info(fmt.Sprintf("URL: %s", URL))
 
 	// Convert url to url object
 	u, err := url.Parse(URL)
+	log.Info(fmt.Sprintf("u.Path: %s", u.Path))
+	log.Info(fmt.Sprintf("rw.getRouteSubPath(): %s", rw.getRouteSubPath()))
 
 	if err != nil {
 		log.Info(fmt.Sprintf("URL parsing error in getURL() :%v", err))
