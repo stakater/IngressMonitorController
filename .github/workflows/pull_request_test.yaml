@@ -13,7 +13,7 @@ on:
     types: [ labeled ]
 
 env:
-  KIND_VERSION: "0.23.0"
+  KIND_VERSION: "v0.25.0"
   GOLANG_VERSION: 1.21
 
 jobs:
