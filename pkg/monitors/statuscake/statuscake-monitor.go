@@ -338,7 +338,7 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 		return nil, err
 	}
 
-	resp, err := service.doRequest(req)
+	resp, err := service.client.Do(req)
 	if err != nil {
 		log.Error(err, "HTTP request failed")
 		return nil, err
