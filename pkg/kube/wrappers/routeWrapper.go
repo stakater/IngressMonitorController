@@ -130,6 +130,6 @@ func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 			u.Path = path.Join(u.EscapedPath(), healthEndpoint)
 		}
 	}
-	log.Info(fmt.Sprintf("u.String(): %s", u.String())
+	log.Info(fmt.Sprintf("u.String(): %s", u.String()))
 	return u.String()
 }
