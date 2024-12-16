@@ -21,7 +21,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Test
-    if:  ${{ github.event.label.name == 'ok-to-test' }}
+    if: ${{ github.event.label.name == 'ok-to-test' }}
     steps:
 
     - name: Remove the test label
@@ -42,7 +42,7 @@ jobs:
     - name: Install kind
       uses: engineerd/setup-kind@v0.5.0
       with:
-        version:  ${{ env.KIND_VERSION }}
+        version: ${{ env.KIND_VERSION }}
 
     - name: Check cluster info
       run: |
