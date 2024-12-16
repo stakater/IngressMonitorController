@@ -106,11 +106,9 @@ func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 	} else {
 		URL = rw.getHost() // Fallback for normal Host
 	}
-	log.Info(fmt.Sprintf("URL: %s", URL))
 
 	// Convert url to url object
 	u, err := url.Parse(URL)
-	log.Info(fmt.Sprintf("u.Path: %s", u.Path))
 	log.Info(fmt.Sprintf("rw.getRouteSubPath(): %s", rw.getRouteSubPath()))
 
 	if err != nil {
@@ -132,5 +130,6 @@ func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 			u.Path = path.Join(u.EscapedPath(), healthEndpoint)
 		}
 	}
+	log.Info(fmt.Sprintf("u.String(): %s", u.String())
 	return u.String()
 }
