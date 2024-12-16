@@ -109,7 +109,6 @@ func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 
 	// Convert url to url object
 	u, err := url.Parse(URL)
-	log.Info(fmt.Sprintf("rw.getRouteSubPath(): %s", rw.getRouteSubPath()))
 
 	if err != nil {
 		log.Info(fmt.Sprintf("URL parsing error in getURL() :%v", err))
@@ -120,14 +119,20 @@ func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 		u.Path = healthEndpoint
 	} else {
 		// Append subpath
+		log.Info(fmt.Sprintf("u.EscapedPath(): %s", u.EscapedPath()))
+		log.Info(fmt.Sprintf("rw.getRouteSubPath(): %s", rw.getRouteSubPath()))
 		u.Path = path.Join(u.EscapedPath(), rw.getRouteSubPath())
+		log.Info(fmt.Sprintf("u.Path: %s", u.Path))
 
 		// Find pod by backtracking route -> service -> pod
 		healthEndpoint, exists := rw.tryGetHealthEndpointFromRoute()
 
 		// Health endpoint from pod successful
 		if exists {
+			log.Info(fmt.Sprintf("u.EscapedPath(): %s", u.EscapedPath()))
+			log.Info(fmt.Sprintf("healthEndpoint: %s", healthEndpoint))
 			u.Path = path.Join(u.EscapedPath(), healthEndpoint)
+			log.Info(fmt.Sprintf("u.Path: %s", u.Path))
 		}
 	}
 	log.Info(fmt.Sprintf("u.String(): %s", u.String()))
