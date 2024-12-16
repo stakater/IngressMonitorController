@@ -49,7 +49,7 @@ func (rw *RouteWrapper) getHost() string {
 }
 
 func (rw *RouteWrapper) getRouteSubPath() string {
-	return rw.Route.Spec.Path
+	return rw.Route.Spec.EscapedPath()
 }
 
 func (rw *RouteWrapper) hasService() (string, bool) {
