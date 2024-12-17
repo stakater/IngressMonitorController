@@ -129,5 +129,10 @@ func (rw *RouteWrapper) GetURL(forceHttps bool, healthEndpoint string) string {
 			u.Path = path.Join(u.Path, healthEndpoint)
 		}
 	}
-	return u.String()
+	path, err := url.PathUnescape(u.String())
+	if err != nil {
+		log.Info(fmt.Sprintf("Error in unescaping path :%v", err))
+		return ""
+	}
+	return path
 }
