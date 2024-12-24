@@ -1,6 +1,5 @@
 vendor
 .idea
-\.vscode/
 out
 /IngressMonitorController
 /build/_output/bin/
