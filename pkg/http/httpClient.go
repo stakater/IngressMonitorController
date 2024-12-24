@@ -17,6 +17,7 @@ type HttpClient struct {
 type HttpResponse struct {
 	StatusCode int
 	Bytes      []byte
+	Header     http.Header
 }
 
 func CreateHttpClient(url string) *HttpClient {
@@ -53,7 +54,10 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 		log.Error(nil, "got empty response")
 	}
 
-	httpResponse := HttpResponse{StatusCode: response.StatusCode}
+	httpResponse := HttpResponse{
+		StatusCode: response.StatusCode,
+		Header:     response.Header,
+	}
 
 	defer response.Body.Close()
 	responseBytes, _ := io.ReadAll(response.Body)

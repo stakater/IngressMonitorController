@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
@@ -67,6 +68,17 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		}
 
 		return nil, nil
+	} else if response.StatusCode == Http.StatusTooManyRequests {
+		log.Info("Too many requests, Monitor waiting for timeout: " + name)
+		retryAfter := response.Header.Get("Retry-After")
+		if retryAfter != "" {
+			seconds, err := strconv.Atoi(retryAfter)
+			if err == nil {
+				time.Sleep(time.Duration(seconds) * time.Second)
+				return monitor.GetByName(name) // Retry after the specified delay
+
+			}
+		}
 	}
 
 	errorString := "GetByName Request failed for name: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
@@ -152,6 +164,16 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 		} else {
 			log.Info("Monitor couldn't be added: " + m.Name + ". Error: " + f.Error.Message)
 		}
+	} else if response.StatusCode == Http.StatusTooManyRequests {
+		log.Info("Too many requests, Monitor waiting for timeout: " + m.Name)
+		retryAfter := response.Header.Get("Retry-After")
+		if retryAfter != "" {
+			seconds, err := strconv.Atoi(retryAfter)
+			if err == nil {
+				time.Sleep(time.Duration(seconds) * time.Second)
+				monitor.Add(m) // Retry after the specified delay
+			}
+		}
 	} else {
 		log.Info("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
@@ -177,6 +199,16 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 			monitor.handleStatusPagesConfig(m, strconv.Itoa(f.Monitor.ID))
 		} else {
 			log.Info("Monitor couldn't be updated: " + m.Name + ". Error: " + f.Error.Message)
+		}
+	} else if response.StatusCode == Http.StatusTooManyRequests {
+		log.Info("Too many requests, Monitor waiting for timeout: " + m.Name)
+		retryAfter := response.Header.Get("Retry-After")
+		if retryAfter != "" {
+			seconds, err := strconv.Atoi(retryAfter)
+			if err == nil {
+				time.Sleep(time.Duration(seconds) * time.Second)
+				monitor.Update(m) // Retry after the specified delay
+			}
 		}
 	} else {
 		log.Info("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
