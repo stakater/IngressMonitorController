@@ -75,6 +75,10 @@ type EndpointMonitorSpec struct {
 	// Configuration for Grafana Cloud Monitor Provider
 	// +optional
 	GrafanaConfig *GrafanaConfig `json:"grafanaConfig,omitempty"`
+
+	// Configuration for Alibaba Cloud Monitor Provider
+	// +optional
+	AliCloudConfig *AliCloudConfig `json:"aliCloudConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -412,6 +416,25 @@ type GrafanaConfig struct {
 	// +kubebuilder:validation:Enum=none;low;medium;high
 	// +kubebuilder:default=none
 	AlertSensitivity string `json:"alertSensitivity,omitempty"`
+}
+
+type AliCloudConfig struct {
+	// The type of the site monitoring task.
+	//
+	// Valid values: HTTP, PING, TCP, UDP, DNS, SMTP, POP3, and FTP.
+	//
+	// >  You must create at least one site monitoring task. You must specify all of the `Address`, `TaskName`, and `TaskType` parameters in each request.
+	//
+	// example:
+	//
+	// HTTP
+	TaskType string `json:"TaskType,omitempty"`
+	// The extended options of the protocol that is used by the site monitoring task. The options vary based on the protocol.
+	//
+	// example:
+	//
+	// {"time_out":5000}
+	OptionsJson string `json:"optionsJson,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from

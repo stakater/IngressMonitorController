@@ -59,9 +59,6 @@ type EndpointMonitorReconciler struct {
 func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("endpointmonitor", req.NamespacedName)
 
-	// Fetch the EndpointMonitor instance
-	instance := &endpointmonitorv1alpha1.EndpointMonitor{}
-
 	var monitorName string
 	format, err := util.GetNameTemplateFormat(config.GetControllerConfig().MonitorNameTemplate)
 	if err != nil {
@@ -71,6 +68,8 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		monitorName = fmt.Sprintf(format, req.Name, req.Namespace)
 	}
 
+	// Fetch the EndpointMonitor instance
+	instance := &endpointmonitorv1alpha1.EndpointMonitor{}
 	err = r.Get(context.TODO(), req.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -141,6 +140,9 @@ func (r *EndpointMonitorReconciler) GetMonitorOfType(spec endpointmonitorv1alpha
 	}
 	if spec.GrafanaConfig != nil {
 		return r.GetMonitorServiceOfType(monitors.TypeGrafana)
+	}
+	if spec.AliCloudConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeAliCloud)
 	}
 	// If none of the above, return the first monitor service
 	return r.MonitorServices[0]
