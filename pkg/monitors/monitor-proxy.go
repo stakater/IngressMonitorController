@@ -28,6 +28,7 @@ const (
 	TypeAppInsights        = "AppInsights"
 	TypeGCloud             = "gcloud"
 	TypeGrafana            = "Grafana"
+	TypeAliCloud           = "AliCloud"
 )
 
 type MonitorServiceProxy struct {
@@ -87,6 +88,8 @@ func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.Endpoi
 		config = spec.GCloudConfig
 	case TypeGrafana:
 		config = spec.GrafanaConfig
+	case TypeAliCloud:
+		config = spec.AliCloudConfig
 	default:
 		return config
 	}

@@ -35,6 +35,22 @@ spec:
           spec:
             description: EndpointMonitorSpec defines the desired state of EndpointMonitor
             properties:
+              aliCloudConfig:
+                description: Configuration for Alibaba Cloud Monitor Provider
+                properties:
+                  TaskType:
+                    description: "The type of the site monitoring task. \n Valid values:
+                      HTTP, PING, TCP, UDP, DNS, SMTP, POP3, and FTP. \n >  You must
+                      create at least one site monitoring task. You must specify all
+                      of the `Address`, `TaskName`, and `TaskType` parameters in each
+                      request. \n example: \n HTTP"
+                    type: string
+                  optionsJson:
+                    description: "The extended options of the protocol that is used
+                      by the site monitoring task. The options vary based on the protocol.
+                      \n example: \n {\"time_out\":5000}"
+                    type: string
+                type: object
               appInsightsConfig:
                 description: Configuration for AppInsights Monitor Provider
                 properties:

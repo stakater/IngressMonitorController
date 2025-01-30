@@ -27,6 +27,7 @@ Currently we support the following monitors:
 - [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/monitor-web-app-availability) ([Additional Config](docs/appinsights-configuration.md))
 - [gcloud](https://cloud.google.com/monitoring/uptime-checks) ([Additional Config](docs/gcloud-configuration.md))
 - [Grafana](https://grafana.com/grafana/plugins/grafana-synthetic-monitoring-app/) ([Additional Config](docs/grafana-configuration.md))
+- [AliCloud](https://help.aliyun.com/zh/cms/user-guide/site-monitoring/?spm=5176.2020520111.console-base_help.dexternal.4d7866103lMFSV&scm=20140722.S_help%40%40%E6%96%87%E6%A1%A3%40%40416684.S_BB2%40bl%2BRQW%40ag0%2BBB1%40ag0%2Bhot%2Bos0.ID_416684-RL_%E7%AB%99%E7%82%B9%E7%9B%91%E6%8E%A7-LOC_console~UND~help-OR_ser-V_4-P0_0) ([Additional Config](docs/alicloud-configuration.md))
 
 ## Usage
 
