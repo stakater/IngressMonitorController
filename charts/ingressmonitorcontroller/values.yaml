@@ -41,6 +41,9 @@ namespaceOverride: ""
 # Leave empty for full access or specify a comma separated list of namespaces to watch
 watchNamespaces: ""
 
+# Number of concurrent reconciles
+maxConcurrentReconciles: 1
+
 # Name of secret containing
 configSecretName: "imc-config"
 
