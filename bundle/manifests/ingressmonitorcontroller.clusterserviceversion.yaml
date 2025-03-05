@@ -18,7 +18,7 @@ metadata:
     capabilities: Basic Install
     operators.operatorframework.io/builder: operator-sdk-v1.18.0+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
-  name: ingressmonitorcontroller.v2.2.0
+  name: ingressmonitorcontroller.v2.2.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -151,7 +151,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: stakater/ingressmonitorcontroller:v2.2.0
+                image: stakater/ingressmonitorcontroller:v2.2.1
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -251,4 +251,4 @@ spec:
   provider:
     name: stakater
     url: https://stakater.com
-  version: 2.2.0
+  version: 2.2.1
