@@ -26,7 +26,7 @@ import (
 )
 
 var log = logf.Log.WithName("statuscake-monitor")
-var rateLimiter = rate.NewLimiter(5, 1) // Allow 5 requests per second
+var rateLimiter = rate.NewLimiter(2, 1) // Allow 2 requests per second
 
 // StatusCakeMonitorService is the service structure for StatusCake
 type StatusCakeMonitorService struct {
@@ -37,6 +37,7 @@ type StatusCakeMonitorService struct {
 	client       *http.Client
 	cacheLock    sync.Mutex
 	monitorCache map[string]*models.Monitor
+	cacheTime    time.Time
 }
 
 // Equal compares two monitors to determine if they have the same configuration
@@ -363,6 +364,26 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 	service.cgroup = p.AlertContacts
 	service.client = &http.Client{}
 	service.monitorCache = make(map[string]*models.Monitor)
+	service.cacheTime = time.Now()
+
+	// Start a goroutine to clear the cache periodically
+	go service.startCacheCleaner()
+}
+
+// Add this new method
+func (service *StatusCakeMonitorService) startCacheCleaner() {
+	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
+
+	for {
+		<-ticker.C
+		// Clear all cache entries
+		service.cacheLock.Lock()
+		service.monitorCache = make(map[string]*models.Monitor)
+		service.cacheTime = time.Now()
+		log.Info("Cache reset due to hourly expiration")
+		service.cacheLock.Unlock()
+	}
 }
 
 // GetByName function will Get a monitor by it's name
@@ -485,7 +506,13 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 			seconds, parseErr := strconv.Atoi(reset)
 			// If parse succeeds, wait for the reset window
 			if parseErr == nil && seconds > 0 {
-				log.Info("Remaining requests are zero, sleeping for reset window", "seconds", seconds)
+				log.Info("Rate limit reached",
+					"method", req.Method,
+					"url", req.URL.String(),
+					"remaining", remaining,
+					"reset", reset,
+					"limit", resp.Header.Get("x-ratelimit-limit"),
+					"seconds", seconds)
 				time.Sleep(time.Duration(seconds) * time.Second)
 				return service.doRequest(req) // Retry after reset
 			}
@@ -588,6 +615,16 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		return
 	}
 	if resp.StatusCode == http.StatusCreated {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		// parse the response data to extract the new monitor ID
+		var createResp statuscake.UptimeTestResponse
+		json.Unmarshal(bodyBytes, &createResp)
+
+		// Optionally store it in the cache
+		service.cacheLock.Lock()
+		service.monitorCache[m.ID] = &m
+		service.cacheLock.Unlock()
+
 		log.Info("Monitor Added: " + m.Name)
 	} else {
 		bodyBytes, err := io.ReadAll(resp.Body)
@@ -662,10 +699,9 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 	}
 	if resp.StatusCode != http.StatusNoContent {
 		log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
-
 	} else {
 		_, err = service.GetByID(m.ID)
-		if strings.Contains(err.Error(), "Request failed") {
+		if err != nil && strings.Contains(err.Error(), "Request failed") {
 			log.Info("Monitor Deleted: " + m.ID + m.Name)
 		} else {
 			log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))

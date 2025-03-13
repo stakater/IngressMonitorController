@@ -88,10 +88,13 @@ help: ## Display this help.
 ##@ Development
 
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+    $(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook \
+        paths="$$(go list ./... | grep -v 'pkg/monitors/statuscake')" \
+        output:crd:artifacts:config=config/crd/bases
 
-generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
+generate: controller-gen ## Generate code containing DeepCopy, etc.
+    $(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" \
+        paths="$$(go list ./... | grep -v 'pkg/monitors/statuscake')"
 
 fmt: ## Run go fmt against code.
 	go fmt ./...
