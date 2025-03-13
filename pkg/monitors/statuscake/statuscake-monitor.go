@@ -36,18 +36,106 @@ type StatusCakeMonitorService struct {
 	client   *http.Client
 }
 
+// Equal compares two monitors to determine if they have the same configuration
+// Returns true if monitors are equal, false if they need to be updated
 func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
-	// Since there is a discrepency between the fields in the endpointmonitor CR and the statuscake API
-	// use the tags to define a last updated by tags. This ensures we are not ratelimited by statuscake.
-	oldConf := oldMonitor.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
-	newConf := newMonitor.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
-	if oldConf.TestTags != newConf.TestTags {
-		msg := "Found a difference between the old TestTags and new TestTags. Updating the UptimeCheck..."
-		log.Info(msg, "Old Tags", oldConf.TestTags, "New Tags", newConf.TestTags)
+	// If old monitor has no config, we need to update
+	if oldMonitor.Config == nil {
 		return false
-	} else {
-		return true
 	}
+
+	// Type-assert to get the actual config structs
+	oldConfig, ok1 := oldMonitor.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
+	newConfig, ok2 := newMonitor.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
+
+	if !ok1 || !ok2 {
+		// If type assertion fails, consider them different
+		return false
+	}
+
+	// Track differences to log them all before returning
+	hasDifferences := false
+
+	// Compare boolean fields - always compare these regardless of zero value
+	if oldConfig.Paused != newConfig.Paused {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Paused",
+			"old", oldConfig.Paused, "new", newConfig.Paused)
+		hasDifferences = true
+	}
+
+	if oldConfig.FollowRedirect != newConfig.FollowRedirect {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "FollowRedirect",
+			"old", oldConfig.FollowRedirect, "new", newConfig.FollowRedirect)
+		hasDifferences = true
+	}
+
+	if oldConfig.EnableSSLAlert != newConfig.EnableSSLAlert {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "EnableSSLAlert",
+			"old", oldConfig.EnableSSLAlert, "new", newConfig.EnableSSLAlert)
+		hasDifferences = true
+	}
+
+	// For non-boolean fields, only compare if the new value is non-zero
+	// CheckRate
+	if newConfig.CheckRate != 0 && oldConfig.CheckRate != newConfig.CheckRate {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "CheckRate",
+			"old", oldConfig.CheckRate, "new", newConfig.CheckRate)
+		hasDifferences = true
+	}
+
+	// TestType
+	if newConfig.TestType != "" && oldConfig.TestType != newConfig.TestType {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TestType",
+			"old", oldConfig.TestType, "new", newConfig.TestType)
+		hasDifferences = true
+	}
+
+	// ContactGroup
+	if newConfig.ContactGroup != "" && oldConfig.ContactGroup != newConfig.ContactGroup {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "ContactGroup",
+			"old", oldConfig.ContactGroup, "new", newConfig.ContactGroup)
+		hasDifferences = true
+	}
+
+	// TestTags
+	if newConfig.TestTags != "" && oldConfig.TestTags != newConfig.TestTags {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TestTags",
+			"old", oldConfig.TestTags, "new", newConfig.TestTags)
+		hasDifferences = true
+	}
+
+	// Port
+	if newConfig.Port != 0 && oldConfig.Port != newConfig.Port {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Port",
+			"old", oldConfig.Port, "new", newConfig.Port)
+		hasDifferences = true
+	}
+
+	// TriggerRate
+	if newConfig.TriggerRate != 0 && oldConfig.TriggerRate != newConfig.TriggerRate {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TriggerRate",
+			"old", oldConfig.TriggerRate, "new", newConfig.TriggerRate)
+		hasDifferences = true
+	}
+
+	// Confirmation
+	if newConfig.Confirmation != 0 && oldConfig.Confirmation != newConfig.Confirmation {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Confirmation",
+			"old", oldConfig.Confirmation, "new", newConfig.Confirmation)
+		hasDifferences = true
+	}
+
+	// FindString
+	if newConfig.FindString != "" && oldConfig.FindString != newConfig.FindString {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "FindString",
+			"old", oldConfig.FindString, "new", newConfig.FindString)
+		hasDifferences = true
+	}
+
+	// Add other fields you care about here...
+
+	// Only return after checking all fields
+	return !hasDifferences
 }
 
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
@@ -206,12 +294,18 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	if providerConfig != nil {
 		if providerConfig.Paused {
 			f.Add("paused", "1")
+		} else {
+			f.Add("paused", "0")
 		}
 		if providerConfig.FollowRedirect {
 			f.Add("follow_redirects", "1")
+		} else {
+			f.Add("follow_redirects", "0")
 		}
 		if providerConfig.EnableSSLAlert {
 			f.Add("enable_ssl_alert", "1")
+		} else {
+			f.Add("enable_ssl_alert", "0")
 		}
 	}
 
@@ -361,12 +455,20 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 
 // GetAll function will fetch all monitors
 func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
-	var StatusCakeMonitorData []StatusCakeMonitorData
+	var monitors []models.Monitor
 	page := 1
 	for {
 		res := service.fetchMonitors(page)
 		if res != nil {
-			StatusCakeMonitorData = append(StatusCakeMonitorData, res.StatusCakeData...)
+			for _, data := range res.StatusCakeData {
+				monitor, err := service.GetByID(data.TestID)
+				if err == nil {
+					monitors = append(monitors, *monitor)
+				} else {
+					// Fallback to the summary data
+					monitors = append(monitors, *StatusCakeMonitorMonitorToBaseMonitorMapper(data))
+				}
+			}
 			if page >= res.StatusCakeMetadata.PageCount {
 				break
 			}
@@ -375,7 +477,7 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 		}
 		page += 1
 	}
-	return StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData)
+	return monitors
 }
 
 func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMonitor {
