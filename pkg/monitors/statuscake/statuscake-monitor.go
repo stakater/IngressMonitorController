@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -29,11 +30,13 @@ var rateLimiter = rate.NewLimiter(5, 1) // Allow 5 requests per second
 
 // StatusCakeMonitorService is the service structure for StatusCake
 type StatusCakeMonitorService struct {
-	apiKey   string
-	url      string
-	username string
-	cgroup   string
-	client   *http.Client
+	apiKey       string
+	url          string
+	username     string
+	cgroup       string
+	client       *http.Client
+	cacheLock    sync.Mutex
+	monitorCache map[string]*models.Monitor
 }
 
 // Equal compares two monitors to determine if they have the same configuration
@@ -131,8 +134,6 @@ func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMon
 			"old", oldConfig.FindString, "new", newConfig.FindString)
 		hasDifferences = true
 	}
-
-	// Add other fields you care about here...
 
 	// Only return after checking all fields
 	return !hasDifferences
@@ -361,6 +362,7 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 	service.username = p.Username
 	service.cgroup = p.AlertContacts
 	service.client = &http.Client{}
+	service.monitorCache = make(map[string]*models.Monitor)
 }
 
 // GetByName function will Get a monitor by it's name
@@ -380,6 +382,15 @@ func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor
 
 // GetByID function will Get a monitor by it's ID
 func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, error) {
+	// Check the cache first
+	service.cacheLock.Lock()
+	if cached, found := service.monitorCache[id]; found {
+		service.cacheLock.Unlock()
+		return cached, nil
+	}
+	service.cacheLock.Unlock()
+
+	// Cache miss; fetch from StatusCake
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
@@ -416,18 +427,34 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 			log.Error(err, "Unable to unmarshal response")
 			return nil, err
 		}
-		return StatusCakeApiResponseDataToBaseMonitorMapper(StatusCakeMonitorData), nil
+		monitor := StatusCakeApiResponseDataToBaseMonitorMapper(StatusCakeMonitorData)
+
+		// Store in cache
+		service.cacheLock.Lock()
+		service.monitorCache[id] = monitor
+		service.cacheLock.Unlock()
+
+		return monitor, nil
 	}
-	log.Info(fmt.Sprintf("Request failed with response: %s for id: %s", bodyString, id))
+
+	// More detailed logging
+	log.Info(
+		"GetByID request failed",
+		"monitorID", id,
+		"statusCode", resp.StatusCode,
+		"statusText", http.StatusText(resp.StatusCode),
+		"responseBody", bodyString,
+		"contentType", resp.Header.Get("Content-Type"),
+		"requestID", resp.Header.Get("X-Request-ID"),
+	)
 
 	return nil, errors.New("GetByID Request failed")
 }
 
 // doRequest function to handle requests to StatusCake and handle ratelimits.
 func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Response, error) {
-	// Wait for the rate limiter to allow a request
-	err := rateLimiter.Wait(req.Context())
-	if err != nil {
+	// Wait for the rate limiter before making a request
+	if err := rateLimiter.Wait(req.Context()); err != nil {
 		log.Error(err, "Rate limiter wait failed")
 		return nil, err
 	}
@@ -438,14 +465,29 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 		return nil, err
 	}
 
-	// Handle rate-limiting responses (HTTP 429)
+	// Check for 429 or remaining=0
 	if resp.StatusCode == http.StatusTooManyRequests {
-		retryAfter := resp.Header.Get("Retry-After")
-		if retryAfter != "" {
-			seconds, err := strconv.Atoi(retryAfter)
-			if err == nil {
+		reset := resp.Header.Get("x-ratelimit-reset")
+		if reset != "" {
+			seconds, parseErr := strconv.Atoi(reset)
+			if parseErr == nil && seconds > 0 {
+				log.Info("Hit 429 rate limit, sleeping for reset window", "seconds", seconds)
 				time.Sleep(time.Duration(seconds) * time.Second)
-				return service.doRequest(req) // Retry after the specified delay
+				return service.doRequest(req) // Retry after reset
+			}
+		}
+	}
+
+	remaining := resp.Header.Get("x-ratelimit-remaining")
+	if remaining == "0" {
+		reset := resp.Header.Get("x-ratelimit-reset")
+		if reset != "" {
+			seconds, parseErr := strconv.Atoi(reset)
+			// If parse succeeds, wait for the reset window
+			if parseErr == nil && seconds > 0 {
+				log.Info("Remaining requests are zero, sleeping for reset window", "seconds", seconds)
+				time.Sleep(time.Duration(seconds) * time.Second)
+				return service.doRequest(req) // Retry after reset
 			}
 		}
 	}
@@ -580,6 +622,11 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		return
 	}
 	if resp.StatusCode == http.StatusNoContent {
+		// Remove stale monitor entry from cache so future calls re-fetch
+		service.cacheLock.Lock()
+		delete(service.monitorCache, m.ID)
+		service.cacheLock.Unlock()
+
 		log.Info("Monitor Updated: " + m.ID + m.Name)
 	} else {
 		bodyBytes, err := io.ReadAll(resp.Body)
