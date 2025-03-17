@@ -16,7 +16,6 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/time/rate"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	statuscake "github.com/StatusCakeDev/statuscake-go"
@@ -507,16 +506,8 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 	defer cancel()
 	req = req.WithContext(ctx)
 
-	// Wait for rate limiter token with a much lower rate to account for multiple controllers
-	// Reduce to 0.5 req/s (1 request every 2 seconds) to accommodate multiple instances
-	instanceAwareRateLimiter := rate.NewLimiter(0.5, 1)
-	if err := instanceAwareRateLimiter.Wait(ctx); err != nil {
-		log.Error(err, "Rate limiter wait failed")
-		return nil, err
-	}
-
 	// Add jitter to prevent controllers from syncing up
-	jitter := time.Duration(rand.Intn(2000)) * time.Millisecond
+	jitter := time.Duration(rand.Intn(1000)) * time.Millisecond
 	time.Sleep(jitter)
 
 	// Set content-type header for POST and PUT requests if not already set
@@ -537,7 +528,43 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 		return nil, err
 	}
 
-	// Check for any problematic responses
+	// Handle 429 Too Many Requests with a proper retry based on headers
+	if resp.StatusCode == http.StatusTooManyRequests {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		resetTime := 5 * time.Second
+		// Parse x-ratelimit-reset header
+		if reset := resp.Header.Get("x-ratelimit-reset"); reset != "" {
+			if seconds, err := strconv.Atoi(reset); err == nil && seconds > 0 {
+				resetTime = time.Duration(seconds+1) * time.Second
+			}
+		}
+
+		log.Info("Rate limit exceeded, waiting to retry",
+			"method", req.Method,
+			"url", req.URL.String(),
+			"resetSeconds", resetTime.Seconds(),
+			"instanceID", instanceID,
+			"body", string(bodyBytes), // Use bodyBytes so it isn't "declared and not used"
+		)
+
+		// Sleep for the reset duration + jitter
+		time.Sleep(resetTime + jitter)
+
+		newReq, err := http.NewRequest(req.Method, req.URL.String(), nil)
+		if err != nil {
+			return nil, err
+		}
+		for name, values := range req.Header {
+			for _, value := range values {
+				newReq.Header.Add(name, value)
+			}
+		}
+		return service.doRequest(newReq)
+	}
+
+	// Check for any other problematic responses
 	if resp.StatusCode != http.StatusOK &&
 		resp.StatusCode != http.StatusCreated &&
 		resp.StatusCode != http.StatusNoContent {
@@ -548,16 +575,7 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 
 		sleepTime := backoffTime
 
-		// Get rate limit info
-		reset := resp.Header.Get("x-ratelimit-reset")
-		if reset != "" {
-			seconds, parseErr := strconv.Atoi(reset)
-			if parseErr == nil && seconds > 0 {
-				sleepTime = time.Duration(seconds+2) * time.Second // Add 2s buffer
-			}
-		}
-
-		log.Info("API limitation encountered, backing off",
+		log.Info("API error encountered, backing off",
 			"status", resp.StatusCode,
 			"method", req.Method,
 			"url", req.URL.String(),
@@ -585,6 +603,22 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 		return service.doRequest(newReq) // Retry after backoff
 	}
 
+	// Check remaining rate limit and slow down if needed
+	if remaining := resp.Header.Get("x-ratelimit-remaining"); remaining != "" {
+		if rem, err := strconv.Atoi(remaining); err == nil && rem <= 1 {
+			if reset := resp.Header.Get("x-ratelimit-reset"); reset != "" {
+				if seconds, err := strconv.Atoi(reset); err == nil && seconds > 0 {
+					log.V(1).Info("Rate limit nearly exhausted, slowing down",
+						"method", req.Method,
+						"remaining", remaining,
+						"resetSeconds", seconds)
+
+					time.Sleep(500 * time.Millisecond)
+				}
+			}
+		}
+	}
+
 	// Even with "successful" responses, check if body is empty and retry if so
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -606,7 +640,7 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 			"instanceID", instanceID)
 
 		// Wait before retry
-		time.Sleep(5*time.Second + jitter)
+		time.Sleep(3*time.Second + jitter)
 
 		// Create new request for retry
 		newReq, err := http.NewRequest(req.Method, req.URL.String(), nil)
