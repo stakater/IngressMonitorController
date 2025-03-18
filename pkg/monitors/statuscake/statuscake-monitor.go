@@ -633,7 +633,7 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 
 	// Empty response with 200 status might indicate rate limiting
 	if len(bodyBytes) == 0 && (resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated) {
-		log.Info("Empty body received with success status code - possible rate limiting",
+		log.V(1).Info("Empty body received with success status code - possible rate limiting",
 			"method", req.Method,
 			"url", req.URL.String(),
 			"status", resp.StatusCode,
@@ -645,7 +645,7 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 		// Create new request for retry
 		newReq, err := http.NewRequest(req.Method, req.URL.String(), nil)
 		if err != nil {
-			return &newResp, nil // Return what we have if we can't retry
+			return &newResp, nil // Return the empty response if new request can't be created
 		}
 
 		// Copy headers
