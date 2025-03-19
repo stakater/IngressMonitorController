@@ -712,7 +712,7 @@ func (service *StatusCakeMonitorService) fetchAllMonitors() []models.Monitor {
 		page++
 
 		// Add a short delay to avoid hammering the API
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(1 * time.Second)
 	}
 	return monitors
 }
