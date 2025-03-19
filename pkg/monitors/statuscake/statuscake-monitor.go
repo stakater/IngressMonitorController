@@ -695,23 +695,24 @@ func (service *StatusCakeMonitorService) fetchAllMonitors() []models.Monitor {
 	page := 1
 	for {
 		res := service.fetchMonitors(page)
-		if res != nil {
-			for _, data := range res.StatusCakeData {
-				monitor, err := service.GetByID(data.TestID)
-				if err == nil {
-					monitors = append(monitors, *monitor)
-				} else {
-					// Fallback to the summary data
-					monitors = append(monitors, *StatusCakeMonitorMonitorToBaseMonitorMapper(data))
-				}
-			}
-			if page >= res.StatusCakeMetadata.PageCount {
-				break
-			}
-		} else {
-			return nil
+		if res == nil {
+			break
 		}
-		page += 1
+		for _, data := range res.StatusCakeData {
+			monitor, err := service.GetByID(data.TestID)
+			if err == nil {
+				monitors = append(monitors, *monitor)
+			} else {
+				monitors = append(monitors, *StatusCakeMonitorMonitorToBaseMonitorMapper(data))
+			}
+		}
+		if page >= res.StatusCakeMetadata.PageCount {
+			break
+		}
+		page++
+
+		// Add a short delay to avoid hammering the API
+		time.Sleep(500 * time.Millisecond)
 	}
 	return monitors
 }
