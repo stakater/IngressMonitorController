@@ -368,7 +368,10 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 	service.client = &http.Client{}
 	service.monitorCache = make(map[string]*models.Monitor)
 	service.cacheTime = time.Now()
-	service.cacheTTL = 30 * time.Minute // Cache TTL set to 30 minutes
+
+	// TO DO This actually should be a parameter in the statuscake provider config
+
+	service.cacheTTL = 24 * time.Hour // Cache TTL set to 24 hours
 
 	// Start a goroutine to clear the cache periodically
 	go service.startCacheCleaner()
