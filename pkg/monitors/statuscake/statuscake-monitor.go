@@ -63,7 +63,9 @@ func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMon
 	// Track differences to log them all before returning
 	hasDifferences := false
 
-	// Compare boolean fields - always compare these regardless of zero value
+	// Compare all fields, regardless of zero values
+
+	// Boolean fields
 	if oldConfig.Paused != newConfig.Paused {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Paused",
 			"old", oldConfig.Paused, "new", newConfig.Paused)
@@ -82,60 +84,78 @@ func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMon
 		hasDifferences = true
 	}
 
-	// For non-boolean fields, only compare if the new value is non-zero
-	// CheckRate
-	if newConfig.CheckRate != 0 && oldConfig.CheckRate != newConfig.CheckRate {
+	// Integer fields - compare directly regardless of zero value
+	if oldConfig.CheckRate != newConfig.CheckRate {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "CheckRate",
 			"old", oldConfig.CheckRate, "new", newConfig.CheckRate)
 		hasDifferences = true
 	}
 
-	// TestType
-	if newConfig.TestType != "" && oldConfig.TestType != newConfig.TestType {
+	// String fields - compare directly regardless of empty value
+	if oldConfig.TestType != newConfig.TestType {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TestType",
 			"old", oldConfig.TestType, "new", newConfig.TestType)
 		hasDifferences = true
 	}
 
-	// ContactGroup
-	if newConfig.ContactGroup != "" && oldConfig.ContactGroup != newConfig.ContactGroup {
+	if oldConfig.ContactGroup != newConfig.ContactGroup {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "ContactGroup",
 			"old", oldConfig.ContactGroup, "new", newConfig.ContactGroup)
 		hasDifferences = true
 	}
 
-	// TestTags
-	if newConfig.TestTags != "" && oldConfig.TestTags != newConfig.TestTags {
+	if oldConfig.TestTags != newConfig.TestTags {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TestTags",
 			"old", oldConfig.TestTags, "new", newConfig.TestTags)
 		hasDifferences = true
 	}
 
-	// Port
-	if newConfig.Port != 0 && oldConfig.Port != newConfig.Port {
+	if oldConfig.Port != newConfig.Port {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Port",
 			"old", oldConfig.Port, "new", newConfig.Port)
 		hasDifferences = true
 	}
 
-	// TriggerRate
-	if newConfig.TriggerRate != 0 && oldConfig.TriggerRate != newConfig.TriggerRate {
+	if oldConfig.TriggerRate != newConfig.TriggerRate {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TriggerRate",
 			"old", oldConfig.TriggerRate, "new", newConfig.TriggerRate)
 		hasDifferences = true
 	}
 
-	// Confirmation
-	if newConfig.Confirmation != 0 && oldConfig.Confirmation != newConfig.Confirmation {
+	if oldConfig.Confirmation != newConfig.Confirmation {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Confirmation",
 			"old", oldConfig.Confirmation, "new", newConfig.Confirmation)
 		hasDifferences = true
 	}
 
-	// FindString
-	if newConfig.FindString != "" && oldConfig.FindString != newConfig.FindString {
+	if oldConfig.FindString != newConfig.FindString {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "FindString",
 			"old", oldConfig.FindString, "new", newConfig.FindString)
+		hasDifferences = true
+	}
+
+	// Add missing fields that might need comparison
+	if oldConfig.StatusCodes != newConfig.StatusCodes {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "StatusCodes",
+			"old", oldConfig.StatusCodes, "new", newConfig.StatusCodes)
+		hasDifferences = true
+	}
+
+	if oldConfig.Regions != newConfig.Regions {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Regions",
+			"old", oldConfig.Regions, "new", newConfig.Regions)
+		hasDifferences = true
+	}
+
+	if oldConfig.UserAgent != newConfig.UserAgent {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "UserAgent",
+			"old", oldConfig.UserAgent, "new", newConfig.UserAgent)
+		hasDifferences = true
+	}
+
+	if oldConfig.RawPostData != newConfig.RawPostData {
+		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "RawPostData",
+			"old", oldConfig.RawPostData, "new", newConfig.RawPostData)
 		hasDifferences = true
 	}
 
