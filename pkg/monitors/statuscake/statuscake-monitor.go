@@ -48,6 +48,7 @@ type StatusCakeMonitorService struct {
 func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
 	// If old monitor has no config, we need to update
 	if oldMonitor.Config == nil {
+		log.Info("Old monitor has no config, considering different", "name", newMonitor.Name)
 		return false
 	}
 
@@ -57,103 +58,123 @@ func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMon
 
 	if !ok1 || !ok2 {
 		// If type assertion fails, consider them different
+		log.Info("Type assertion failed for configs",
+			"name", newMonitor.Name,
+			"ok1", ok1,
+			"ok2", ok2)
 		return false
+	}
+
+	// Log the full configuration objects only at high verbosity level
+	if log.V(4).Enabled() {
+		oldConfigJSON, _ := json.Marshal(oldConfig)
+		newConfigJSON, _ := json.Marshal(newConfig)
+		log.V(4).Info("Monitor configurations",
+			"name", newMonitor.Name,
+			"oldConfig", string(oldConfigJSON),
+			"newConfig", string(newConfigJSON))
 	}
 
 	// Track differences to log them all before returning
 	hasDifferences := false
+	differences := []string{}
 
+	// Check each field and record differences
 	if oldConfig.Paused != newConfig.Paused {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Paused",
-			"old", oldConfig.Paused, "new", newConfig.Paused)
+		differences = append(differences, fmt.Sprintf("Paused: %v -> %v", oldConfig.Paused, newConfig.Paused))
 		hasDifferences = true
 	}
 
 	if oldConfig.FollowRedirect != newConfig.FollowRedirect {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "FollowRedirect",
-			"old", oldConfig.FollowRedirect, "new", newConfig.FollowRedirect)
+		differences = append(differences, fmt.Sprintf("FollowRedirect: %v -> %v", oldConfig.FollowRedirect, newConfig.FollowRedirect))
 		hasDifferences = true
 	}
 
 	if oldConfig.EnableSSLAlert != newConfig.EnableSSLAlert {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "EnableSSLAlert",
-			"old", oldConfig.EnableSSLAlert, "new", newConfig.EnableSSLAlert)
+		differences = append(differences, fmt.Sprintf("EnableSSLAlert: %v -> %v", oldConfig.EnableSSLAlert, newConfig.EnableSSLAlert))
 		hasDifferences = true
 	}
 
 	if oldConfig.CheckRate != newConfig.CheckRate {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "CheckRate",
-			"old", oldConfig.CheckRate, "new", newConfig.CheckRate)
+		differences = append(differences, fmt.Sprintf("CheckRate: %v -> %v", oldConfig.CheckRate, newConfig.CheckRate))
 		hasDifferences = true
 	}
 
 	if oldConfig.TestType != newConfig.TestType {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TestType",
-			"old", oldConfig.TestType, "new", newConfig.TestType)
+		differences = append(differences, fmt.Sprintf("TestType: %v -> %v", oldConfig.TestType, newConfig.TestType))
 		hasDifferences = true
 	}
 
 	if oldConfig.ContactGroup != newConfig.ContactGroup {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "ContactGroup",
-			"old", oldConfig.ContactGroup, "new", newConfig.ContactGroup)
+		differences = append(differences, fmt.Sprintf("ContactGroup: %v -> %v", oldConfig.ContactGroup, newConfig.ContactGroup))
 		hasDifferences = true
 	}
 
 	if oldConfig.TestTags != newConfig.TestTags {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TestTags",
-			"old", oldConfig.TestTags, "new", newConfig.TestTags)
+		differences = append(differences, fmt.Sprintf("TestTags: %v -> %v", oldConfig.TestTags, newConfig.TestTags))
 		hasDifferences = true
 	}
 
 	if oldConfig.Port != newConfig.Port {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Port",
-			"old", oldConfig.Port, "new", newConfig.Port)
+		differences = append(differences, fmt.Sprintf("Port: %v -> %v", oldConfig.Port, newConfig.Port))
 		hasDifferences = true
 	}
 
 	if oldConfig.TriggerRate != newConfig.TriggerRate {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TriggerRate",
-			"old", oldConfig.TriggerRate, "new", newConfig.TriggerRate)
+		differences = append(differences, fmt.Sprintf("TriggerRate: %v -> %v", oldConfig.TriggerRate, newConfig.TriggerRate))
 		hasDifferences = true
 	}
 
 	if oldConfig.Confirmation != newConfig.Confirmation {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Confirmation",
-			"old", oldConfig.Confirmation, "new", newConfig.Confirmation)
+		differences = append(differences, fmt.Sprintf("Confirmation: %v -> %v", oldConfig.Confirmation, newConfig.Confirmation))
 		hasDifferences = true
 	}
 
 	if oldConfig.FindString != newConfig.FindString {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "FindString",
-			"old", oldConfig.FindString, "new", newConfig.FindString)
+		differences = append(differences, fmt.Sprintf("FindString: %v -> %v", oldConfig.FindString, newConfig.FindString))
 		hasDifferences = true
 	}
 
 	if oldConfig.StatusCodes != newConfig.StatusCodes {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "StatusCodes",
-			"old", oldConfig.StatusCodes, "new", newConfig.StatusCodes)
+		differences = append(differences, fmt.Sprintf("StatusCodes: %v -> %v", oldConfig.StatusCodes, newConfig.StatusCodes))
 		hasDifferences = true
 	}
 
 	if oldConfig.Regions != newConfig.Regions {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Regions",
-			"old", oldConfig.Regions, "new", newConfig.Regions)
+		differences = append(differences, fmt.Sprintf("Regions: %v -> %v", oldConfig.Regions, newConfig.Regions))
 		hasDifferences = true
 	}
 
 	if oldConfig.UserAgent != newConfig.UserAgent {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "UserAgent",
-			"old", oldConfig.UserAgent, "new", newConfig.UserAgent)
+		differences = append(differences, fmt.Sprintf("UserAgent: %v -> %v", oldConfig.UserAgent, newConfig.UserAgent))
 		hasDifferences = true
 	}
 
 	if oldConfig.RawPostData != newConfig.RawPostData {
-		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "RawPostData",
-			"old", oldConfig.RawPostData, "new", newConfig.RawPostData)
+		differences = append(differences, fmt.Sprintf("RawPostData: %v -> %v", oldConfig.RawPostData, newConfig.RawPostData))
 		hasDifferences = true
 	}
 
-	// Only return after checking all fields
+	// Add missing fields that might be relevant to your comparison
+	if oldConfig.BasicAuthUser != newConfig.BasicAuthUser {
+		differences = append(differences, fmt.Sprintf("BasicAuthUser: %v -> %v", oldConfig.BasicAuthUser, newConfig.BasicAuthUser))
+		hasDifferences = true
+	}
+
+	if oldConfig.BasicAuthSecret != newConfig.BasicAuthSecret {
+		differences = append(differences, fmt.Sprintf("BasicAuthSecret: %v -> %v", oldConfig.BasicAuthSecret, newConfig.BasicAuthSecret))
+		hasDifferences = true
+	}
+
+	// Log differences at a reasonable log level
+	if hasDifferences && len(differences) > 0 {
+		log.Info("Monitor needs update",
+			"name", newMonitor.Name,
+			"differences", strings.Join(differences, "; "))
+	} else {
+		log.V(2).Info("Monitor is up to date", "name", newMonitor.Name)
+	}
+
 	return !hasDifferences
 }
 
@@ -381,8 +402,10 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 	service.cgroup = p.AlertContacts
 	service.client = &http.Client{}
 	service.monitorCache = make(map[string]*models.Monitor)
-	service.cacheTime = time.Now()
-	service.cacheTTL = config.ReconciliationRequeueTime
+	service.cacheTime = time.Time{} // Start with an empty time to force first load
+
+	// Use a much longer TTL - 24 hours - to avoid unnecessary API calls
+	service.cacheTTL = 24 * time.Hour
 
 	// Start a goroutine to clear the cache periodically
 	go service.startCacheCleaner()
@@ -407,31 +430,16 @@ func (service *StatusCakeMonitorService) startCacheCleaner() {
 
 // GetByName function will Get a monitor by it's name
 func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor, error) {
-	// Always fetch fresh data for GetByName to ensure we have current state
-	// This is especially important after deletion operations
-	monitors := service.fetchAllMonitors()
+	// Use GetAll which will use the cache when valid or refresh it when needed
+	monitors := service.GetAll()
 
-	// Due to API eventual consistency, check multiple times with delays
-	// if we're looking for a monitor that might have been deleted
-	found := false
-	var targetMonitor *models.Monitor
-
-	for _, monitor := range monitors {
-		if monitor.Name == name {
-			found = true
-			targetMonitor = &monitor
-			break
+	// Look for the monitor by name
+	for i := range monitors {
+		if monitors[i].Name == name {
+			// Return a copy to avoid pointer issues
+			monitor := monitors[i]
+			return &monitor, nil
 		}
-	}
-
-	// Update cache with fresh data
-	service.cacheLock.Lock()
-	service.allMonitors = monitors
-	service.cacheTime = time.Now()
-	service.cacheLock.Unlock()
-
-	if found {
-		return targetMonitor, nil
 	}
 
 	errorString := "GetByName Request failed for name: " + name
@@ -544,7 +552,6 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 
 	// Handle 429 Too Many Requests with a proper retry based on headers
 	if resp.StatusCode == http.StatusTooManyRequests {
-		bodyBytes, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
 
 		resetTime := 5 * time.Second
@@ -555,13 +562,11 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 			}
 		}
 
-		log.Info("Rate limit exceeded, waiting to retry",
+		// Only log rate limits at higher verbosity level
+		log.V(1).Info("Rate limit exceeded, waiting to retry",
 			"method", req.Method,
-			"url", req.URL.String(),
-			"resetSeconds", resetTime.Seconds(),
-			"instanceID", instanceID,
-			"body", string(bodyBytes), // Use bodyBytes so it isn't "declared and not used"
-		)
+			"path", req.URL.Path,
+			"resetSeconds", resetTime.Seconds())
 
 		// Sleep for the reset duration + jitter
 		time.Sleep(resetTime + jitter)
@@ -675,57 +680,38 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 	return &newResp, nil
 }
 
-// GetAll function will fetch all monitors
+// GetAll function will fetch all monitors with intelligent cache rebuild
 func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
-	// Check if we have a cached version
 	service.cacheLock.Lock()
 
-	// If the cache is still valid and we have data, return it
+	// If cache is valid and we have data, return it
 	if !service.cacheTime.IsZero() && time.Since(service.cacheTime) < service.cacheTTL && len(service.allMonitors) > 0 {
 		monitors := service.allMonitors
 		service.cacheLock.Unlock()
 		log.V(1).Info("Returning cached monitors list", "count", len(monitors))
 		return monitors
 	}
-	service.cacheLock.Unlock()
 
-	// Otherwise fetch fresh data
-	monitors := service.fetchAllMonitors()
+	// If allMonitors was cleared but monitorCache has data, rebuild from monitorCache
+	if len(service.monitorCache) > 0 &&
+		len(service.allMonitors) == 0 {
 
-	// Update the cache
-	service.cacheLock.Lock()
-	service.allMonitors = monitors
-	service.cacheLock.Unlock()
-
-	return monitors
-}
-
-// Add a new method to fetch all monitors from the API
-func (service *StatusCakeMonitorService) fetchAllMonitors() []models.Monitor {
-	var monitors []models.Monitor
-	page := 1
-	for {
-		res := service.fetchMonitors(page)
-		if res == nil {
-			break
+		log.V(1).Info("Rebuilding monitor list from cache", "cacheSize", len(service.monitorCache))
+		monitors := make([]models.Monitor, 0, len(service.monitorCache))
+		for _, m := range service.monitorCache {
+			monitors = append(monitors, *m)
 		}
-		for _, data := range res.StatusCakeData {
-			monitor, err := service.GetByID(data.TestID)
-			if err == nil {
-				monitors = append(monitors, *monitor)
-			} else {
-				monitors = append(monitors, *StatusCakeMonitorMonitorToBaseMonitorMapper(data))
-			}
-		}
-		if page >= res.StatusCakeMetadata.PageCount {
-			break
-		}
-		page++
 
-		// Add a short delay to avoid hammering the API
-		time.Sleep(1 * time.Second)
+		service.allMonitors = monitors
+		service.cacheTime = time.Now()
+		service.cacheLock.Unlock()
+
+		return monitors
 	}
-	return monitors
+	service.cacheLock.Unlock()
+
+	// Both caches invalid or empty, trigger batch load
+	return service.fetchAllMonitors()
 }
 
 // fetchMonitors with improved error handling
@@ -786,6 +772,145 @@ func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMoni
 	return &StatusCakeMonitor
 }
 
+// Replace batchLoadAllMonitors with fetchAllMonitors (keeping the efficient implementation)
+func (service *StatusCakeMonitorService) fetchAllMonitors() []models.Monitor {
+	log.Info("Starting complete load of all monitors with full details")
+	startTime := time.Now()
+
+	// Step 1: Fetch basic monitor info to get all IDs
+	var monitorIDs []string
+	var basicMonitors = make(map[string]models.Monitor)
+	page := 1
+
+	for {
+		res := service.fetchMonitors(page)
+		if res == nil {
+			break
+		}
+
+		for _, data := range res.StatusCakeData {
+			monitorIDs = append(monitorIDs, data.TestID)
+			basicMonitor := *StatusCakeMonitorMonitorToBaseMonitorMapper(data)
+			basicMonitors[data.TestID] = basicMonitor
+		}
+
+		if page >= res.StatusCakeMetadata.PageCount {
+			break
+		}
+		page++
+		time.Sleep(300 * time.Millisecond) // Reduced delay between pagination
+	}
+
+	log.Info("Found monitors to fetch", "count", len(monitorIDs))
+
+	// Step 2: Prepare for efficient detailed data loading
+	var completeMonitors []models.Monitor
+	var mutex sync.Mutex
+
+	// Create a semaphore to limit concurrent API requests
+	semaphore := make(chan struct{}, 5) // Max 5 concurrent requests
+	var wg sync.WaitGroup
+
+	// Step 3: Fetch complete data for all monitors concurrently but controlled
+
+	for _, id := range monitorIDs {
+		wg.Add(1)
+
+		go func(monitorID string) {
+			defer wg.Done()
+
+			// Acquire semaphore slot
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
+
+			// Fetch detailed monitor data
+			u, err := url.Parse(service.url)
+			if err != nil {
+				log.Error(err, "Unable to parse URL", "monitorID", monitorID)
+				return
+			}
+
+			u.Path = fmt.Sprintf("/v1/uptime/%s", monitorID)
+			u.Scheme = "https"
+
+			req, err := http.NewRequest("GET", u.String(), nil)
+			if err != nil {
+				log.Error(err, "Unable to create request", "monitorID", monitorID)
+				return
+			}
+			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+
+			// Use doRequest instead of direct client.Do to properly handle rate limits
+			resp, err := service.doRequest(req)
+			if err != nil {
+				log.Error(err, "HTTP request failed", "monitorID", monitorID)
+				return
+			}
+			defer resp.Body.Close()
+
+			bodyBytes, err := io.ReadAll(resp.Body)
+			if err != nil || len(bodyBytes) == 0 {
+				return
+			}
+
+			var data statuscake.UptimeTestResponse
+			if err := json.Unmarshal(bodyBytes, &data); err != nil {
+				log.Error(err, "Failed to unmarshal response", "monitorID", monitorID)
+				return
+			}
+
+			detailedMonitor := StatusCakeApiResponseDataToBaseMonitorMapper(data)
+
+			// THIS IS THE KEY PART THAT'S MISSING:
+			// Add the detailed monitor to our results collection
+			mutex.Lock()
+			completeMonitors = append(completeMonitors, *detailedMonitor)
+			service.monitorCache[monitorID] = detailedMonitor
+			mutex.Unlock()
+		}(id)
+
+		// Larger delay between starting goroutines when multiple instances share API key
+		time.Sleep(100 * time.Millisecond) // Increased from 50ms
+	}
+
+	// Wait for all fetches to complete
+	wg.Wait()
+	close(semaphore)
+
+	// Step 4: Fill in any missing monitors with basic data as fallback
+	for id, basicMonitor := range basicMonitors {
+		found := false
+		for _, completeMonitor := range completeMonitors {
+			if completeMonitor.ID == id {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			log.Info("Using basic data as fallback for monitor", "id", id, "name", basicMonitor.Name)
+			completeMonitors = append(completeMonitors, basicMonitor)
+
+			// Also cache it
+			mutex.Lock()
+			service.monitorCache[id] = &basicMonitor
+			mutex.Unlock()
+		}
+	}
+
+	// Update cache with complete data
+	service.cacheLock.Lock()
+	service.allMonitors = completeMonitors
+	service.cacheTime = time.Now()
+	service.cacheLock.Unlock()
+
+	log.Info("Completed loading all monitors with full details",
+		"count", len(completeMonitors),
+		"totalTime", time.Since(startTime).String())
+
+	return completeMonitors
+}
+
 // Add will create a new Monitor
 func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 	// First check if a monitor with this name already exists
@@ -840,7 +965,10 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		// Add to cache
 		service.cacheLock.Lock()
 		service.monitorCache[m.ID] = &m
-		service.allMonitors = nil // Invalidate GetAll cache
+		// Don't clear allMonitors, just append the new one
+		if service.allMonitors != nil {
+			service.allMonitors = append(service.allMonitors, m)
+		}
 		service.cacheLock.Unlock()
 
 		log.Info("Monitor Added: " + m.Name)
@@ -876,9 +1004,19 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		return
 	}
 	if resp.StatusCode == http.StatusNoContent {
-		// Remove stale monitor entry from cache so future calls re-fetch
+		// Update cache with new data instead of just invalidating
 		service.cacheLock.Lock()
-		delete(service.monitorCache, m.ID)
+		service.monitorCache[m.ID] = &m
+
+		// Update the monitor in allMonitors instead of clearing it
+		if service.allMonitors != nil {
+			for i, existing := range service.allMonitors {
+				if existing.ID == m.ID {
+					service.allMonitors[i] = m
+					break
+				}
+			}
+		}
 		service.cacheLock.Unlock()
 
 		log.Info("Monitor Updated: " + m.ID + m.Name)
@@ -891,11 +1029,6 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		log.Error(nil, "Update Request failed for name: "+m.Name+" with status code "+strconv.Itoa(resp.StatusCode))
 		log.Error(nil, string(bodyBytes))
 	}
-
-	// Invalidate the GetAll cache
-	service.cacheLock.Lock()
-	service.allMonitors = nil
-	service.cacheLock.Unlock()
 }
 
 // Remove will delete an existing Monitor
@@ -903,7 +1036,16 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 	// Immediately clear cache entries on deletion request
 	service.cacheLock.Lock()
 	delete(service.monitorCache, m.ID)
-	service.allMonitors = nil // Force refresh of GetAll cache
+	// Remove from allMonitors too instead of clearing it
+	if len(service.allMonitors) > 0 {
+		for i, mon := range service.allMonitors {
+			if mon.ID == m.ID {
+				// Remove this element
+				service.allMonitors = append(service.allMonitors[:i], service.allMonitors[i+1:]...)
+				break
+			}
+		}
+	}
 	service.cacheLock.Unlock()
 
 	u, err := url.Parse(service.url)
