@@ -63,9 +63,6 @@ func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMon
 	// Track differences to log them all before returning
 	hasDifferences := false
 
-	// Compare all fields, regardless of zero values
-
-	// Boolean fields
 	if oldConfig.Paused != newConfig.Paused {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "Paused",
 			"old", oldConfig.Paused, "new", newConfig.Paused)
@@ -84,14 +81,12 @@ func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMon
 		hasDifferences = true
 	}
 
-	// Integer fields - compare directly regardless of zero value
 	if oldConfig.CheckRate != newConfig.CheckRate {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "CheckRate",
 			"old", oldConfig.CheckRate, "new", newConfig.CheckRate)
 		hasDifferences = true
 	}
 
-	// String fields - compare directly regardless of empty value
 	if oldConfig.TestType != newConfig.TestType {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "TestType",
 			"old", oldConfig.TestType, "new", newConfig.TestType)
@@ -134,7 +129,6 @@ func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMon
 		hasDifferences = true
 	}
 
-	// Add missing fields that might need comparison
 	if oldConfig.StatusCodes != newConfig.StatusCodes {
 		log.Info("Difference detected", "monitor", oldMonitor.Name, "field", "StatusCodes",
 			"old", oldConfig.StatusCodes, "new", newConfig.StatusCodes)
