@@ -31,16 +31,17 @@ var backoffTime = 10 * time.Second // Default backoff time for errors
 
 // StatusCakeMonitorService is the service structure for StatusCake
 type StatusCakeMonitorService struct {
-	apiKey       string
-	url          string
-	username     string
-	cgroup       string
-	client       *http.Client
-	cacheLock    sync.Mutex
-	monitorCache map[string]*models.Monitor
-	allMonitors  []models.Monitor // Cache for GetAll results
-	cacheTime    time.Time
-	cacheTTL     time.Duration // Time-to-live for cache entries
+	apiKey          string
+	url             string
+	username        string
+	cgroup          string
+	client          *http.Client
+	cacheLock       sync.Mutex
+	monitorCache    map[string]*models.Monitor
+	allMonitors     []models.Monitor // Cache for GetAll results
+	cacheTime       time.Time
+	cacheTTL        time.Duration // Time-to-live for cache entries
+	stopCleanerChan chan struct{}
 }
 
 // Equal compares two monitors to determine if they have the same configuration
@@ -407,8 +408,15 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 	// Use a much longer TTL - 24 hours - to avoid unnecessary API calls
 	service.cacheTTL = 24 * time.Hour
 
+	service.stopCleanerChan = make(chan struct{})
+
 	// Start a goroutine to clear the cache periodically
 	go service.startCacheCleaner()
+}
+
+// Graceful shutdown
+func (service *StatusCakeMonitorService) StopCacheCleaner() {
+	close(service.stopCleanerChan)
 }
 
 // Update startCacheCleaner method
@@ -417,33 +425,49 @@ func (service *StatusCakeMonitorService) startCacheCleaner() {
 	defer ticker.Stop()
 
 	for {
-		<-ticker.C
-		// Clear all cache entries
-		service.cacheLock.Lock()
-		service.monitorCache = make(map[string]*models.Monitor)
-		service.allMonitors = nil // Clear the GetAll cache as well
-		service.cacheTime = time.Now()
-		log.V(1).Info("Cache reset due to time expiration", "cacheTTL", service.cacheTTL)
-		service.cacheLock.Unlock()
+		select {
+		case <-ticker.C:
+			// Clear all cache entries
+			service.cacheLock.Lock()
+			service.monitorCache = make(map[string]*models.Monitor)
+			service.allMonitors = nil // Clear the GetAll cache as well
+			service.cacheTime = time.Now()
+			log.V(1).Info("Cache reset due to time expiration", "cacheTTL", service.cacheTTL)
+			service.cacheLock.Unlock()
+		case <-service.stopCleanerChan:
+			log.V(1).Info("Cache cleaner stopped")
+			return
+		}
 	}
 }
 
 // GetByName function will Get a monitor by it's name
 func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor, error) {
-	// Use GetAll which will use the cache when valid or refresh it when needed
-	monitors := service.GetAll()
+	// First try the direct cache lookup by name
+	service.cacheLock.Lock()
+	if cached, found := service.monitorCache[name]; found {
+		service.cacheLock.Unlock()
+		return cached, nil
+	}
+	service.cacheLock.Unlock()
 
-	// Look for the monitor by name
+	// Then fall back to scanning through all monitors
+	monitors := service.GetAll()
 	for i := range monitors {
 		if monitors[i].Name == name {
-			// Return a copy to avoid pointer issues
+			// Important - store this result in the cache by name for future lookups
 			monitor := monitors[i]
+
+			// Store by name for future queries
+			service.cacheLock.Lock()
+			service.monitorCache[name] = &monitor
+			service.cacheLock.Unlock()
+
 			return &monitor, nil
 		}
 	}
 
-	errorString := "GetByName Request failed for name: " + name
-	return nil, errors.New(errorString)
+	return nil, fmt.Errorf("monitor not found: %s", name)
 }
 
 // GetByID function with improved error handling
@@ -953,25 +977,51 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 	// For StatusCake API, 201 Created is the success code for monitor creation
 	if resp.StatusCode == http.StatusCreated {
 		// Try to parse the response, but don't fail if we can't
-		var createResp statuscake.UptimeTestResponse
 		if len(bodyBytes) > 0 {
+			// Define a custom struct to match the actual response format
+			var createResp struct {
+				Data struct {
+					NewID string `json:"new_id"`
+				} `json:"data"`
+			}
+
 			err = json.Unmarshal(bodyBytes, &createResp)
-			if err == nil && createResp.Data.ID != "" {
+			if err == nil && createResp.Data.NewID != "" {
 				// Update the monitor ID from the response
-				m.ID = createResp.Data.ID
+				m.ID = createResp.Data.NewID
+				log.Info("Monitor ID captured from API response", "id", m.ID, "name", m.Name)
+			} else {
+				// Try with generic map as a fallback
+				var result map[string]interface{}
+				err = json.Unmarshal(bodyBytes, &result)
+				if err == nil {
+					if data, ok := result["data"].(map[string]interface{}); ok {
+						if newID, ok := data["new_id"].(string); ok {
+							m.ID = newID
+							log.Info("Monitor ID captured using fallback", "id", m.ID)
+						}
+					}
+				}
+
+				if m.ID == "" {
+					log.Error(err, "Failed to capture monitor ID", "name", m.Name, "body", string(bodyBytes))
+				}
 			}
 		}
 
 		// Add to cache
 		service.cacheLock.Lock()
-		service.monitorCache[m.ID] = &m
+		if m.ID != "" {
+			service.monitorCache[m.ID] = &m
+		}
+		service.monitorCache[m.Name] = &m // Index by name too
 		// Don't clear allMonitors, just append the new one
 		if service.allMonitors != nil {
 			service.allMonitors = append(service.allMonitors, m)
 		}
 		service.cacheLock.Unlock()
 
-		log.Info("Monitor Added: " + m.Name)
+		log.Info("Monitor Added: " + m.Name + " with ID: " + m.ID)
 	} else {
 		// Log the full error details for debugging
 		log.Error(nil, "Insert Request failed",
@@ -1004,22 +1054,31 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		return
 	}
 	if resp.StatusCode == http.StatusNoContent {
-		// Update cache with new data instead of just invalidating
+		// Update cache with new data
 		service.cacheLock.Lock()
-		service.monitorCache[m.ID] = &m
 
-		// Update the monitor in allMonitors instead of clearing it
-		if service.allMonitors != nil {
-			for i, existing := range service.allMonitors {
-				if existing.ID == m.ID {
-					service.allMonitors[i] = m
-					break
-				}
+		// Remove any old cache key for the old name if changed
+		// so we don't leave stale entries lying around
+		for k, v := range service.monitorCache {
+			if v.ID == m.ID && k != m.ID && k != m.Name {
+				delete(service.monitorCache, k)
+			}
+		}
+
+		// Refresh the entries
+		service.monitorCache[m.ID] = &m
+		service.monitorCache[m.Name] = &m
+
+		// Update allMonitors in place
+		for i, mon := range service.allMonitors {
+			if mon.ID == m.ID {
+				service.allMonitors[i] = m
+				break
 			}
 		}
 		service.cacheLock.Unlock()
 
-		log.Info("Monitor Updated: " + m.ID + m.Name)
+		log.Info("Monitor Updated: " + m.ID + " " + m.Name)
 	} else {
 		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -1033,62 +1092,72 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 
 // Remove will delete an existing Monitor
 func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
-	// Immediately clear cache entries on deletion request
-	service.cacheLock.Lock()
-	delete(service.monitorCache, m.ID)
-	// Remove from allMonitors too instead of clearing it
-	if len(service.allMonitors) > 0 {
-		for i, mon := range service.allMonitors {
-			if mon.ID == m.ID {
-				// Remove this element
-				service.allMonitors = append(service.allMonitors[:i], service.allMonitors[i+1:]...)
-				break
-			}
+	// 1) Determine monitor ID if not set
+	if m.ID == "" {
+		found, err := service.GetByName(m.Name)
+		if err != nil || found == nil {
+			log.Error(err, "Unable to find monitor ID for removal", "name", m.Name)
+			return // Exit early if we can't find the ID
 		}
+		m.ID = found.ID
 	}
-	service.cacheLock.Unlock()
 
-	u, err := url.Parse(service.url)
-	if err != nil {
-		log.Error(err, "Unable to Parse monitor URL")
+	// Ensure we have an ID before trying to delete
+	if m.ID == "" {
+		log.Error(nil, "Cannot remove monitor without ID", "name", m.Name)
 		return
 	}
+
+	// 2) Make DELETE call to StatusCake with proper ID
+	u, err := url.Parse(service.url)
+	if err != nil {
+		log.Error(err, "Failed to parse StatusCake URL")
+		return
+	}
+
+	// Make sure ID is in the path
 	u.Path = fmt.Sprintf("/v1/uptime/%s", m.ID)
 	u.Scheme = "https"
 
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
-		log.Error(err, "Unable to create http request")
+		log.Error(err, "Failed to create DELETE request")
 		return
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+
 	resp, err := service.doRequest(req)
 	if err != nil {
-		log.Error(err, "Unable to make HTTP call")
+		log.Error(err, "HTTP call failed", "name", m.Name, "id", m.ID)
 		return
 	}
+	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusNoContent {
-		// Add longer delay to handle eventual consistency in StatusCake API
-		time.Sleep(5 * time.Second)
-
-		// Explicitly invalidate cache again after the delay
-		service.cacheLock.Lock()
-		delete(service.monitorCache, m.ID)
-		service.allMonitors = nil
-		service.cacheTime = time.Time{} // Reset cache time to force refresh
-		service.cacheLock.Unlock()
-
-		// Log deletion with ID first for better log parsing
-		log.Info("Monitor Deleted: " + m.ID + m.Name)
-	} else {
-		log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
+	if resp.StatusCode != http.StatusNoContent {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		log.Error(nil,
+			"Failed to remove monitor remotely",
+			"statusCode", resp.StatusCode,
+			"name", m.Name,
+			"id", m.ID,
+			"body", string(bodyBytes),
+		)
 	}
 
-	// Always reset caches regardless of deletion success to ensure tests pass
+	// 3) Remove from cache regardless of API response
 	service.cacheLock.Lock()
+	defer service.cacheLock.Unlock()
+
 	delete(service.monitorCache, m.ID)
-	service.allMonitors = nil
-	service.cacheTime = time.Time{} // Reset cache time to force refresh
-	service.cacheLock.Unlock()
+	delete(service.monitorCache, m.Name)
+
+	// Remove from allMonitors list too
+	for i := 0; i < len(service.allMonitors); i++ {
+		if service.allMonitors[i].ID == m.ID || service.allMonitors[i].Name == m.Name {
+			service.allMonitors = append(service.allMonitors[:i], service.allMonitors[i+1:]...)
+			i-- // Adjust index after removal
+		}
+	}
+
+	log.V(1).Info("Monitor removed from cache", "name", m.Name, "id", m.ID)
 }
