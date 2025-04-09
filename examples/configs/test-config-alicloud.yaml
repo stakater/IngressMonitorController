@@ -1,0 +1,5 @@
+providers:
+  - name: AliCloud
+    apiKey: <ACCESS KEY>
+    apiToken: <SECRET KEY>
+    apiURL: "metrics.cn-qingdao.aliyuncs.com"

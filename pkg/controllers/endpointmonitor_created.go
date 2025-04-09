@@ -9,7 +9,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func (r *EndpointMonitorReconciler) handleCreate(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitorName string, monitorService *monitors.MonitorServiceProxy) error {
+func (r *EndpointMonitorReconciler) handleCreate(
+	request reconcile.Request,
+	instance *endpointmonitorv1alpha1.EndpointMonitor,
+	monitorName string,
+	monitorService *monitors.MonitorServiceProxy,
+) error {
 	log := r.Log.WithValues("Namespace", instance.ObjectMeta.Namespace)
 
 	log.Info("Creating Monitor: "+monitorName, "MonitorType", monitorService.GetType())
