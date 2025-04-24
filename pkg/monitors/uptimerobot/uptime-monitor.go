@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
@@ -67,6 +68,17 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		}
 
 		return nil, nil
+	} else if response.StatusCode == Http.StatusTooManyRequests {
+		log.Info("Too many requests, Monitor waiting for timeout: " + name)
+		retryAfter := response.Header.Get("Retry-After")
+		if retryAfter != "" {
+			seconds, err := strconv.Atoi(retryAfter)
+			if err == nil {
+				time.Sleep(time.Duration(seconds) * time.Second)
+				return monitor.GetByName(name) // Retry after the specified delay
+
+			}
+		}
 	}
 
 	errorString := "GetByName Request failed for name: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
@@ -152,6 +164,16 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 		} else {
 			log.Info("Monitor couldn't be added: " + m.Name + ". Error: " + f.Error.Message)
 		}
+	} else if response.StatusCode == Http.StatusTooManyRequests {
+		log.Info("Too many requests, Monitor waiting for timeout: " + m.Name)
+		retryAfter := response.Header.Get("Retry-After")
+		if retryAfter != "" {
+			seconds, err := strconv.Atoi(retryAfter)
+			if err == nil {
+				time.Sleep(time.Duration(seconds) * time.Second)
+				monitor.Add(m) // Retry after the specified delay
+			}
+		}
 	} else {
 		log.Info("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
@@ -178,6 +200,16 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 		} else {
 			log.Info("Monitor couldn't be updated: " + m.Name + ". Error: " + f.Error.Message)
 		}
+	} else if response.StatusCode == Http.StatusTooManyRequests {
+		log.Info("Too many requests, Monitor waiting for timeout: " + m.Name)
+		retryAfter := response.Header.Get("Retry-After")
+		if retryAfter != "" {
+			seconds, err := strconv.Atoi(retryAfter)
+			if err == nil {
+				time.Sleep(time.Duration(seconds) * time.Second)
+				monitor.Update(m) // Retry after the specified delay
+			}
+		}
 	} else {
 		log.Info("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
@@ -196,7 +228,27 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 	// Retrieve provider configuration
 	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
 
-	// Type (Required)
+	if providerConfig != nil && len(providerConfig.AlertContacts) != 0 {
+		body += "&alert_contacts=" + providerConfig.AlertContacts
+	} else {
+		body += "&alert_contacts=" + monitor.alertContacts
+	}
+
+	if providerConfig != nil && providerConfig.Interval > 0 {
+		body += "&interval=" + strconv.Itoa(providerConfig.Interval)
+	} else {
+		// Uptime robot adds a default interval of 5 minutes, if it is not specified
+		body += "&interval=" + strconv.Itoa(DefaultInterval)
+	}
+
+	if providerConfig != nil && len(providerConfig.MaintenanceWindows) != 0 {
+		body += "&mwindows=" + providerConfig.MaintenanceWindows
+	}
+
+	if providerConfig != nil && len(providerConfig.CustomHTTPStatuses) != 0 {
+		body += "&custom_http_statuses=" + providerConfig.CustomHTTPStatuses
+	}
+
 	if providerConfig != nil && len(providerConfig.MonitorType) != 0 {
 		if strings.Contains(strings.ToLower(providerConfig.MonitorType), "http") {
 			body += "&type=1"
