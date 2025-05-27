@@ -15,7 +15,7 @@ require (
 	github.com/grafana/synthetic-monitoring-api-go-client v0.8.0
 	github.com/karlderkaefer/pingdom-golang-client v1.0.4
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
+	github.com/openshift/api f5e205b58365
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/russellcardullo/go-pingdom v1.3.0
 	github.com/stakater/operator-utils v0.1.13
