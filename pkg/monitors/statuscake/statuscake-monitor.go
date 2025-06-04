@@ -47,6 +47,15 @@ type StatusCakeMonitorService struct {
 // Equal compares two monitors to determine if they have the same configuration
 // Returns true if monitors are equal, false if they need to be updated
 func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+	// Compare base monitor fields first
+	if oldMonitor.URL != newMonitor.URL {
+		log.Info("Monitor URL has changed",
+			"name", newMonitor.Name,
+			"oldURL", oldMonitor.URL,
+			"newURL", newMonitor.URL)
+		return false
+	}
+
 	// If old monitor has no config, we need to update
 	if oldMonitor.Config == nil {
 		log.Info("Old monitor has no config, considering different", "name", newMonitor.Name)
