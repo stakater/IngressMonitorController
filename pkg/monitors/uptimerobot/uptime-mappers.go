@@ -28,6 +28,8 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 		providerConfig.AlertContacts = strings.Join(alertContacts, "-")
 	}
 
+	providerConfig.HTTPMethod = uptimeMonitor.HTTPMethod
+
 	m.Config = &providerConfig
 
 	return &m

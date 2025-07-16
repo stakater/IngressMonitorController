@@ -48,11 +48,12 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 
 	client := http.CreateHttpClient(monitor.url + action)
 
-	body := "api_key=" + monitor.apiKey + "&format=json&logs=1&alert_contacts=1&search=" + name
+	body := "api_key=" + monitor.apiKey + "&format=json&logs=1&alert_contacts=1&http_request_details=true&search=" + name
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == Http.StatusOK {
+	switch response.StatusCode {
+	case Http.StatusOK:
 		var f UptimeMonitorGetMonitorsResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
@@ -68,7 +69,7 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		}
 
 		return nil, nil
-	} else if response.StatusCode == Http.StatusTooManyRequests {
+	case Http.StatusTooManyRequests:
 		log.Info("Too many requests, Monitor waiting for timeout: " + name)
 		retryAfter := response.Header.Get("Retry-After")
 		if retryAfter != "" {
@@ -151,7 +152,8 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == Http.StatusOK {
+	switch response.StatusCode {
+	case Http.StatusOK:
 		var f UptimeMonitorNewMonitorResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
@@ -164,7 +166,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 		} else {
 			log.Info("Monitor couldn't be added: " + m.Name + ". Error: " + f.Error.Message)
 		}
-	} else if response.StatusCode == Http.StatusTooManyRequests {
+	case Http.StatusTooManyRequests:
 		log.Info("Too many requests, Monitor waiting for timeout: " + m.Name)
 		retryAfter := response.Header.Get("Retry-After")
 		if retryAfter != "" {
@@ -174,7 +176,7 @@ func (monitor *UpTimeMonitorService) Add(m models.Monitor) {
 				monitor.Add(m) // Retry after the specified delay
 			}
 		}
-	} else {
+	default:
 		log.Info("AddMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
@@ -188,7 +190,8 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 
 	response := client.PostUrlEncodedFormBody(body)
 
-	if response.StatusCode == Http.StatusOK {
+	switch response.StatusCode {
+	case Http.StatusOK:
 		var f UptimeMonitorStatusMonitorResponse
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
@@ -200,7 +203,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 		} else {
 			log.Info("Monitor couldn't be updated: " + m.Name + ". Error: " + f.Error.Message)
 		}
-	} else if response.StatusCode == Http.StatusTooManyRequests {
+	case Http.StatusTooManyRequests:
 		log.Info("Too many requests, Monitor waiting for timeout: " + m.Name)
 		retryAfter := response.Header.Get("Retry-After")
 		if retryAfter != "" {
@@ -210,7 +213,7 @@ func (monitor *UpTimeMonitorService) Update(m models.Monitor) {
 				monitor.Update(m) // Retry after the specified delay
 			}
 		}
-	} else {
+	default:
 		log.Info("UpdateMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
 	}
 }
@@ -255,7 +258,7 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 		} else if strings.Contains(strings.ToLower(providerConfig.MonitorType), "keyword") {
 			body += "&type=2"
 
-			if providerConfig != nil && len(providerConfig.KeywordExists) != 0 {
+			if len(providerConfig.KeywordExists) != 0 {
 				if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "yes") {
 					body += "&keyword_type=1"
 				} else if strings.Contains(strings.ToLower(providerConfig.KeywordExists), "no") {
@@ -266,7 +269,7 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 			}
 
 			// Keyword Value (Required for keyword monitoring)
-			if providerConfig != nil && len(providerConfig.KeywordValue) != 0 {
+			if len(providerConfig.KeywordValue) != 0 {
 				body += "&keyword_value=" + url.QueryEscape(providerConfig.KeywordValue)
 			} else {
 				log.Error(nil, "Monitor is of type Keyword but the `keyword-value` is missing")
@@ -284,13 +287,6 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 	// Port (Optional for certain types)
 	if providerConfig != nil && providerConfig.Port > 0 {
 		body += "&port=" + strconv.Itoa(providerConfig.Port)
-	}
-
-	// Interval (Optional, in seconds)
-	if providerConfig != nil && providerConfig.Interval > 0 {
-		body += "&interval=" + strconv.Itoa(providerConfig.Interval)
-	} else {
-		body += "&interval=" + strconv.Itoa(DefaultInterval)
 	}
 
 	// Timeout (Optional, in seconds)
@@ -318,20 +314,13 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 	}
 
 	// HTTP Method (Optional)
-	if providerConfig != nil && len(providerConfig.HTTPMethod) != 0 {
-		body += "&http_method=" + url.QueryEscape(providerConfig.HTTPMethod)
+	if providerConfig != nil && providerConfig.HTTPMethod != 0 {
+		body += "&http_method=" + strconv.Itoa(providerConfig.HTTPMethod)
 	}
 
 	// Post Content Type (Optional)
 	if providerConfig != nil && len(providerConfig.PostContentType) != 0 {
 		body += "&post_content_type=" + url.QueryEscape(providerConfig.PostContentType)
-	}
-
-	// Alert Contacts (Optional)
-	if providerConfig != nil && len(providerConfig.AlertContacts) != 0 {
-		body += "&alert_contacts=" + url.QueryEscape(providerConfig.AlertContacts)
-	} else {
-		body += "&alert_contacts=" + url.QueryEscape(monitor.alertContacts)
 	}
 
 	// Maintenance Windows (Optional)

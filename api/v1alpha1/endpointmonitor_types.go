@@ -138,8 +138,8 @@ type UptimeRobotConfig struct {
 	// POST body value to be submitted with the request
 	PostValue string `json:"postValue,omitempty"`
 
-	// HTTP method used for the check: e.g., "GET", "POST"
-	HTTPMethod string `json:"httpMethod,omitempty"`
+	// HTTP method used for the check: 1 = HEAD, 2 = GET, 3 = POST, 4 = PUT, 5 = PATCH, 6 = DELETE, 7 = OPTIONS
+	HTTPMethod int `json:"httpMethod,omitempty"`
 
 	// Content-Type of the HTTP POST request (e.g. "application/json")
 	PostContentType string `json:"postContentType,omitempty"`
