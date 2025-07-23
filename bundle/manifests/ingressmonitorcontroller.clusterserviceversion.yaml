@@ -16,9 +16,10 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.18.0+git
-    operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
-  name: ingressmonitorcontroller.v2.2.3
+    createdAt: "2025-07-23T09:13:13Z"
+    operators.operatorframework.io/builder: operator-sdk-v1.39.2
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
+  name: ingressmonitorcontroller.v0.0.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -43,12 +44,6 @@ spec:
           - ""
           resources:
           - pods
-          verbs:
-          - get
-          - list
-        - apiGroups:
-          - ""
-          resources:
           - services
           verbs:
           - get
@@ -77,13 +72,6 @@ spec:
           - update
         - apiGroups:
           - extensions
-          resources:
-          - ingresses
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
           - networking.k8s.io
           resources:
           - ingresses
@@ -129,29 +117,12 @@ spec:
             spec:
               containers:
               - args:
-                - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8080/
-                - --logtostderr=true
-                - --v=0
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
-                name: kube-rbac-proxy
-                ports:
-                - containerPort: 8443
-                  name: https
-                resources:
-                  limits:
-                    cpu: 10m
-                    memory: 128Mi
-                  requests:
-                    cpu: 5m
-                    memory: 64Mi
-              - args:
-                - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:8080
+                - --metrics-bind-address=:8443
                 - --leader-elect
+                - --health-probe-bind-address=:8081
                 command:
                 - /manager
-                image: stakater/ingressmonitorcontroller:v2.2.3
+                image: stakater/ingressmonitorcontroller:v2.2.4
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -167,11 +138,11 @@ spec:
                   periodSeconds: 10
                 resources:
                   limits:
-                    cpu: 50m
-                    memory: 500Mi
+                    cpu: 100m
+                    memory: 30Mi
                   requests:
-                    cpu: 5m
-                    memory: 64Mi
+                    cpu: 100m
+                    memory: 20Mi
                 securityContext:
                   allowPrivilegeEscalation: false
               securityContext:
@@ -180,37 +151,6 @@ spec:
               terminationGracePeriodSeconds: 10
       permissions:
       - rules:
-        - apiGroups:
-          - ""
-          resources:
-          - configmaps
-          verbs:
-          - get
-          - list
-          - watch
-          - create
-          - update
-          - patch
-          - delete
-        - apiGroups:
-          - coordination.k8s.io
-          resources:
-          - leases
-          verbs:
-          - get
-          - list
-          - watch
-          - create
-          - update
-          - patch
-          - delete
-        - apiGroups:
-          - ""
-          resources:
-          - events
-          verbs:
-          - create
-          - patch
         - apiGroups:
           - ""
           resources:
@@ -251,4 +191,4 @@ spec:
   provider:
     name: stakater
     url: https://stakater.com
-  version: 2.2.3
+  version: 0.0.1

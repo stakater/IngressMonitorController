@@ -11,11 +11,9 @@ image:
   tag: v2.2.3
   pullPolicy: IfNotPresent
 imagePullSecrets: []
-
-kube-rbac-proxy:
   image:
     repository: gcr.io/kubebuilder/kube-rbac-proxy
-    tag: v0.8.0
+    tag: v0.13.1
     pullPolicy: IfNotPresent
   resources:
     {}
