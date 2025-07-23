@@ -130,7 +130,6 @@ require (
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
-// replace github.com/stakater/IngressMonitorController/v2 => ./
 replace github.com/stakater/IngressMonitorController => ./
 
 // replace k8s.io/client-go => k8s.io/client-go v0.18.2

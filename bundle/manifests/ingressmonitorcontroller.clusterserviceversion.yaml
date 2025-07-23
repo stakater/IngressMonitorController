@@ -16,7 +16,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-07-23T09:13:13Z"
+    createdAt: "2025-07-23T13:57:32Z"
     operators.operatorframework.io/builder: operator-sdk-v1.39.2
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
   name: ingressmonitorcontroller.v0.0.1
@@ -71,7 +71,6 @@ spec:
           - patch
           - update
         - apiGroups:
-          - extensions
           - networking.k8s.io
           resources:
           - ingresses
