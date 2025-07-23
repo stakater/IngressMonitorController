@@ -150,6 +150,8 @@ func main() {
 		// configure cluster-scoped with MultiNamespacedCacheBuilder
 		//options.Namespace = ""
 		namespaces = strings.Split(watchNamespace, ",")
+	} else {
+		namespaces = []string{watchNamespace}
 	}
 
 	options.NewCache = func(config *rest.Config, opts cache.Options) (cache.Cache, error) {
