@@ -8,7 +8,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/stakater/ingressmonitorcontroller
-  tag: test-image
+  tag: v2.2.4
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 

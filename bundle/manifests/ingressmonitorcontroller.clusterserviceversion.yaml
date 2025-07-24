@@ -16,10 +16,10 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-07-23T13:57:32Z"
+    createdAt: "2025-07-24T13:38:04Z"
     operators.operatorframework.io/builder: operator-sdk-v1.39.2
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
-  name: ingressmonitorcontroller.v0.0.1
+  name: ingressmonitorcontroller.v2.2.4
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -190,4 +190,4 @@ spec:
   provider:
     name: stakater
     url: https://stakater.com
-  version: 0.0.1
+  version: 2.2.4
