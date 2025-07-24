@@ -104,7 +104,7 @@ ENVTEST_K8S_VERSION = 1.31.0
 .PHONY: test
 test: generate fmt vet manifests envtest
 	$(ENVTEST) use -p path 1.28.x!
-	go test -v ./... -coverprofile cover.out
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./... -coverprofile cover.out,
 
 
 ##@ Build
