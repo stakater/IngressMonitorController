@@ -4,7 +4,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "ingress-monitor-controller.fullname" . }}-manager-role
+  name: {{ include "ingress-monitor-controller.fullname" $ }}-manager-role
   namespace: {{ . | trim }}
 rules:
 - apiGroups:
@@ -46,14 +46,6 @@ rules:
   - patch
   - update
 - apiGroups:
-  - extensions
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
   - networking.k8s.io
   resources:
   - ingresses
@@ -69,6 +61,7 @@ rules:
   - get
   - list
   - watch
+---
 {{- end }}
 {{- end }}
 
