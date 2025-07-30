@@ -4,13 +4,19 @@ package appinsights
 import (
 	"context"
 	"encoding/xml"
+	"errors"
 	"fmt"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/monitor/armmonitor"
 	"net/http"
 	"os"
 
-	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
-	insightsAlert "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-03-01/insights"
-	"github.com/Azure/go-autorest/autorest/azure/auth"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/applicationinsights/armapplicationinsights"
+
 	"github.com/kelseyhightower/envconfig"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
@@ -35,13 +41,13 @@ type Configuration struct {
 
 // AppinsightsMonitorService struct contains parameters required by appinsights go client
 type AppinsightsMonitorService struct {
-	insightsClient   insights.WebTestsClient
-	alertrulesClient insightsAlert.AlertRulesClient
+	insightsClient   *armapplicationinsights.WebTestsClient
+	alertrulesClient *armmonitor.AlertRulesClient
 	name             string
 	location         string
 	resourceGroup    string
 	geoLocation      []interface{}
-	emailAction      []string
+	emailAction      []*string
 	webhookAction    string
 	emailToOwners    bool
 	subscriptionID   string
@@ -123,23 +129,22 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 	aiService.webhookAction = provider.AppInsightsConfig.WebhookAction.ServiceURI
 	aiService.subscriptionID = azConfig.Subscription_ID
 
-	// Generate clientConfig based on Azure Credentials (Service Principle)
-	clientConfig := auth.NewClientCredentialsConfig(azConfig.Client_ID, azConfig.Client_Secret, azConfig.Tenant_ID)
-
-	// initialize appinsights client
-	err = aiService.insightsClient.AddToUserAgent("appInsightsMonitor")
-	if err != nil {
-		log.Error(err, "Error adding UserAgent in AppInsights Client")
-		os.Exit(1)
-	}
-
-	aiService.insightsClient = insights.NewWebTestsClient(azConfig.Subscription_ID)
+	creds, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
 		log.Error(err, "Error initializing AppInsights Client")
 		os.Exit(1)
 	}
 
-	aiService.insightsClient.Authorizer, err = clientConfig.Authorizer()
+	clientOptions := &arm.ClientOptions{
+		ClientOptions: policy.ClientOptions{
+			Telemetry: policy.TelemetryOptions{
+				ApplicationID: "appInsightsMonitor",
+			},
+		},
+	}
+
+	aiService.insightsClient, err = armapplicationinsights.NewWebTestsClient(azConfig.Subscription_ID, creds, clientOptions)
+
 	if err != nil {
 		log.Error(err, "Error initializing AppInsights Client")
 		os.Exit(1)
@@ -149,8 +154,7 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 
 	// initialize monitoring alertrule client only if Email Action or Webhook Action is specified.
 	if aiService.isAlertEnabled() {
-		aiService.alertrulesClient = insightsAlert.NewAlertRulesClient(azConfig.Subscription_ID)
-		aiService.alertrulesClient.Authorizer, err = clientConfig.Authorizer()
+		aiService.alertrulesClient, err = armmonitor.NewAlertRulesClient(aiService.subscriptionID, creds, clientOptions)
 		if err != nil {
 			log.Error(err, "Error initializing AppInsights Alertrules Client")
 			os.Exit(1)
@@ -169,23 +173,22 @@ func (aiService *AppinsightsMonitorService) GetAll() []models.Monitor {
 
 	var monitors []models.Monitor
 
-	webtests, err := aiService.insightsClient.ListByComponent(aiService.ctx, aiService.name, aiService.resourceGroup)
-	if err != nil {
-		if webtests.Response().StatusCode == http.StatusNotFound {
+	pager := aiService.insightsClient.NewListByComponentPager(aiService.name, aiService.resourceGroup, nil)
+	for pager.More() {
+		page, err := pager.NextPage(aiService.ctx)
+		if err != nil {
 			return monitors
 		}
-		return monitors
-	}
-	for _, webtest := range webtests.Values() {
 
-		newMonitor := models.Monitor{
-			Name: *webtest.Name,
-			URL:  getURL(*webtest.Configuration.WebTest),
-			ID:   *webtest.ID,
+		for _, wt := range page.Value {
+			m := models.Monitor{
+				Name: *wt.Name,
+				ID:   *wt.ID,
+				URL:  getURL(*wt.Properties.Configuration.WebTest),
+			}
+			monitors = append(monitors, m)
 		}
-		monitors = append(monitors, newMonitor)
 	}
-
 	return monitors
 
 }
@@ -195,16 +198,18 @@ func (aiService *AppinsightsMonitorService) GetAll() []models.Monitor {
 func (aiService *AppinsightsMonitorService) GetByName(monitorName string) (*models.Monitor, error) {
 
 	log.Info("AppInsights Monitor's GetByName method has been called")
-	webtest, err := aiService.insightsClient.Get(aiService.ctx, aiService.resourceGroup, monitorName)
+	webtest, err := aiService.insightsClient.Get(aiService.ctx, aiService.resourceGroup, monitorName, nil)
 	if err != nil {
-		if webtest.Response.StatusCode == http.StatusNotFound {
-			return nil, fmt.Errorf("Application Insights WebTest %s was not found in Resource Group %s", monitorName, aiService.resourceGroup)
+		if re, ok := err.(*azcore.ResponseError); ok {
+			if re.StatusCode == http.StatusNotFound {
+				return nil, fmt.Errorf("Application Insights WebTest %s was not found in Resource Group %s", monitorName, aiService.resourceGroup)
+			}
 		}
 		return nil, fmt.Errorf("Error retrieving Application Insights WebTests %s (Resource Group %s): %v", monitorName, aiService.resourceGroup, err)
 	}
 	return &models.Monitor{
 		Name: *webtest.Name,
-		URL:  getURL(*webtest.Configuration.WebTest),
+		URL:  getURL(*webtest.Properties.Configuration.WebTest),
 		ID:   *webtest.ID,
 	}, nil
 
@@ -216,7 +221,7 @@ func (aiService *AppinsightsMonitorService) Add(monitor models.Monitor) {
 	log.Info("AppInsights Monitor's Add method has been called")
 	log.Info(fmt.Sprintf("Adding Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name))
 	webtest := aiService.createWebTest(monitor)
-	_, err := aiService.insightsClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, monitor.Name, webtest)
+	_, err := aiService.insightsClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, monitor.Name, webtest, nil)
 	if err != nil {
 		log.Error(err, fmt.Sprintf("Error adding Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err))
 	} else {
@@ -225,7 +230,7 @@ func (aiService *AppinsightsMonitorService) Add(monitor models.Monitor) {
 			log.Info(fmt.Sprintf("Adding alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name))
 			alertName := fmt.Sprintf("%s-alert", monitor.Name)
 			webtestAlert := aiService.createAlertRuleResource(monitor)
-			_, err := aiService.alertrulesClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, alertName, webtestAlert)
+			_, err := aiService.alertrulesClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, alertName, webtestAlert, nil)
 			if err != nil {
 				log.Error(err, fmt.Sprintf("Error adding alert rule for WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err))
 			}
@@ -242,7 +247,7 @@ func (aiService *AppinsightsMonitorService) Update(monitor models.Monitor) {
 	log.Info(fmt.Sprintf("Updating Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name))
 
 	webtest := aiService.createWebTest(monitor)
-	_, err := aiService.insightsClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, monitor.Name, webtest)
+	_, err := aiService.insightsClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, monitor.Name, webtest, nil)
 	if err != nil {
 		log.Error(err, fmt.Sprintf("Error updating Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err))
 	} else {
@@ -251,7 +256,7 @@ func (aiService *AppinsightsMonitorService) Update(monitor models.Monitor) {
 			log.Info(fmt.Sprintf("Updating alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name))
 			alertName := fmt.Sprintf("%s-alert", monitor.Name)
 			webtestAlert := aiService.createAlertRuleResource(monitor)
-			_, err := aiService.alertrulesClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, alertName, webtestAlert)
+			_, err := aiService.alertrulesClient.CreateOrUpdate(aiService.ctx, aiService.resourceGroup, alertName, webtestAlert, nil)
 			if err != nil {
 				log.Error(err, fmt.Sprintf("Error updating alert rule for WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err))
 			}
@@ -265,10 +270,13 @@ func (aiService *AppinsightsMonitorService) Remove(monitor models.Monitor) {
 
 	log.Info("AppInsights Monitor's Remove method has been called")
 	log.Info(fmt.Sprintf("Deleting Application Insights WebTest '%s' from '%s'", monitor.Name, aiService.name))
-	r, err := aiService.insightsClient.Delete(aiService.ctx, aiService.resourceGroup, monitor.Name)
+	_, err := aiService.insightsClient.Delete(aiService.ctx, aiService.resourceGroup, monitor.Name, nil)
 	if err != nil {
-		if r.Response.StatusCode == http.StatusNotFound {
-			log.Error(err, fmt.Sprintf("Application Insights WebTest %s was not found in Resource Group %s", monitor.Name, aiService.resourceGroup))
+		var re *azcore.ResponseError
+		if errors.As(err, &re) {
+			if re.StatusCode == http.StatusNotFound {
+				log.Error(err, fmt.Sprintf("Application Insights WebTest %s was not found in Resource Group %s", monitor.Name, aiService.resourceGroup))
+			}
 		}
 		log.Error(err, fmt.Sprintf("Error deleting Application Insights WebTests %s (Resource Group %s): %v", monitor.Name, aiService.resourceGroup, err))
 	} else {
@@ -276,10 +284,13 @@ func (aiService *AppinsightsMonitorService) Remove(monitor models.Monitor) {
 		if aiService.isAlertEnabled() {
 			log.Info(fmt.Sprintf("Deleting alert rule for WebTest '%s' from '%s'", monitor.Name, aiService.name))
 			alertName := fmt.Sprintf("%s-alert", monitor.Name)
-			r, err := aiService.alertrulesClient.Delete(aiService.ctx, aiService.resourceGroup, alertName)
+			_, err := aiService.alertrulesClient.Delete(aiService.ctx, aiService.resourceGroup, alertName, nil)
 			if err != nil {
-				if r.Response.StatusCode == http.StatusNotFound {
-					log.Error(err, fmt.Sprintf("WebTest Alert rule %s was not found in Resource Group %s", alertName, aiService.resourceGroup))
+				var re *azcore.ResponseError
+				if errors.As(err, &re) {
+					if re.StatusCode == http.StatusNotFound {
+						log.Error(err, fmt.Sprintf("WebTest Alert rule %s was not found in Resource Group %s", alertName, aiService.resourceGroup))
+					}
 				}
 				log.Error(err, fmt.Sprintf("Error deleting alert rule for WebTests %s (Resource Group %s): %v", alertName, aiService.resourceGroup, err))
 			}
@@ -289,7 +300,7 @@ func (aiService *AppinsightsMonitorService) Remove(monitor models.Monitor) {
 }
 
 // createWebTest forms xml configuration for Appinsights WebTest
-func (aiService *AppinsightsMonitorService) createWebTest(monitor models.Monitor) insights.WebTest {
+func (aiService *AppinsightsMonitorService) createWebTest(monitor models.Monitor) armapplicationinsights.WebTest {
 
 	isEnabled := true
 	webtest := NewWebTest()
@@ -304,19 +315,20 @@ func (aiService *AppinsightsMonitorService) createWebTest(monitor models.Monitor
 		log.Error(err, "Error encoding XML WebTest Configuration")
 	}
 	webtestConfig := string(xmlByte)
-	return insights.WebTest{
+	pingKind := armapplicationinsights.WebTestKindPing
+	return armapplicationinsights.WebTest{
 		Name:     &monitor.Name,
 		Location: &aiService.location,
-		Kind:     insights.Ping, // forcing type of webtest to 'ping',this could be as replace with provider configuration
-		WebTestProperties: &insights.WebTestProperties{
+		Kind:     &pingKind, // forcing type of webtest to 'ping',this could be as replace with provider configuration
+		Properties: &armapplicationinsights.WebTestProperties{
 			SyntheticMonitorID: &monitor.Name,
 			WebTestName:        &monitor.Name,
-			WebTestKind:        insights.Ping,
+			WebTestKind:        &pingKind,
 			RetryEnabled:       &configs.isRetryEnabled,
 			Enabled:            &isEnabled,
 			Frequency:          &configs.frequency,
 			Locations:          getGeoLocation(aiService.geoLocation),
-			Configuration: &insights.WebTestPropertiesConfiguration{
+			Configuration: &armapplicationinsights.WebTestPropertiesConfiguration{
 				WebTest: &webtestConfig,
 			},
 		},
@@ -326,7 +338,7 @@ func (aiService *AppinsightsMonitorService) createWebTest(monitor models.Monitor
 }
 
 // createWebTestAlert forms xml configuration for Appinsights WebTest
-func (aiService *AppinsightsMonitorService) createAlertRuleResource(monitor models.Monitor) insightsAlert.AlertRuleResource {
+func (aiService *AppinsightsMonitorService) createAlertRuleResource(monitor models.Monitor) armmonitor.AlertRuleResource {
 
 	isEnabled := aiService.isAlertEnabled()
 	failedLocationCount := int32(1)
@@ -335,43 +347,44 @@ func (aiService *AppinsightsMonitorService) createAlertRuleResource(monitor mode
 	description := fmt.Sprintf("%s alert is created using Ingress Monitor Controller", alertName)
 	resourceUri := fmt.Sprintf("/subscriptions/%s/resourceGroups/%s/providers/microsoft.insights/webtests/%s", aiService.subscriptionID, aiService.resourceGroup, monitor.Name)
 
-	actions := make([]insightsAlert.BasicRuleAction, 0, 2)
+	actions := make([]armmonitor.RuleActionClassification, 0, 2)
 
 	if len(aiService.emailAction) > 0 {
-		actions = append(actions, insightsAlert.RuleEmailAction{
+		actions = append(actions, &armmonitor.RuleEmailAction{
 			SendToServiceOwners: &aiService.emailToOwners,
-			CustomEmails:        &(aiService.emailAction),
+			CustomEmails:        aiService.emailAction,
 		})
 	}
 
 	if aiService.webhookAction != "" {
-		actions = append(actions, insightsAlert.RuleWebhookAction{
+		actions = append(actions, &armmonitor.RuleWebhookAction{
 			ServiceURI: &aiService.webhookAction,
 		})
 	}
 
-	alertRule := insightsAlert.AlertRule{
+	alertRule := armmonitor.AlertRule{
 		Name:        &alertName,
 		IsEnabled:   &isEnabled,
 		Description: &description,
-		Condition: &insightsAlert.LocationThresholdRuleCondition{
-			DataSource: insightsAlert.RuleMetricDataSource{
+		Condition: &armmonitor.LocationThresholdRuleCondition{
+			DataSource: &armmonitor.RuleMetricDataSource{
 				ResourceURI: &resourceUri,
-				OdataType:   insightsAlert.OdataTypeMicrosoftAzureManagementInsightsModelsRuleMetricDataSource,
+				ODataType:   to.Ptr("Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource"),
 				MetricName:  &alertName,
 			},
 			FailedLocationCount: &failedLocationCount,
 			WindowSize:          &period,
-			OdataType:           insightsAlert.OdataTypeMicrosoftAzureManagementInsightsModelsLocationThresholdRuleCondition,
+			ODataType:           to.Ptr("Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition"),
 		},
-		Actions: &actions,
+		Actions: actions,
 	}
 
-	return insightsAlert.AlertRuleResource{
-		Name:      &monitor.Name,
-		Location:  &aiService.location,
-		AlertRule: &alertRule,
-		ID:        &resourceUri,
-		Tags:      aiService.getTags("alert", monitor.Name),
+	return armmonitor.AlertRuleResource{
+		Location:   &aiService.location,
+		Properties: &alertRule,
+		Tags:       aiService.getTags("alert", monitor.Name),
+		ID:         &resourceUri,
+		Name:       &monitor.Name,
 	}
+
 }

@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	util "github.com/stakater/operator-utils/util"
-	yaml "gopkg.in/yaml.v2"
+	"github.com/stakater/operator-utils/util"
+	"gopkg.in/yaml.v2"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/stakater/IngressMonitorController/v2/pkg/secret"
@@ -92,8 +92,8 @@ type Grafana struct {
 }
 
 type EmailAction struct {
-	SendToServiceOwners bool     `yaml:"send_to_service_owners"`
-	CustomEmails        []string `yaml:"custom_emails"`
+	SendToServiceOwners bool      `yaml:"send_to_service_owners"`
+	CustomEmails        []*string `yaml:"custom_emails"`
 }
 
 type WebhookAction struct {

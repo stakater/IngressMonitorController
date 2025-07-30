@@ -3,8 +3,8 @@ package appinsights
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/applicationinsights/armapplicationinsights"
 
-	"github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 )
@@ -49,15 +49,15 @@ func getURL(rawXmlData string) string {
 }
 
 // getGeolocation converts slice of locations into slice of location struct
-func getGeoLocation(locations []interface{}) *[]insights.WebTestGeolocation {
-	var geoLocations []insights.WebTestGeolocation
+func getGeoLocation(locations []interface{}) []*armapplicationinsights.WebTestGeolocation {
+	var geoLocations []*armapplicationinsights.WebTestGeolocation
 	for _, v := range locations {
 		l := v.(string)
-		geoLocations = append(geoLocations, insights.WebTestGeolocation{
+		geoLocations = append(geoLocations, &armapplicationinsights.WebTestGeolocation{
 			Location: &l,
 		})
 	}
-	return &geoLocations
+	return geoLocations
 }
 
 // getConfiguration fetch values from config and return object of Configuration
