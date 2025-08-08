@@ -22,6 +22,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
+        {{- toYaml .Values.podLabels | nindent 8}}
         {{- include "ingress-monitor-controller.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
@@ -69,7 +70,7 @@ spec:
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         securityContext:
-          {{- toYaml .Values.securityContext | nindent 10 }}  
+          {{- toYaml .Values.securityContext | nindent 10 }}
       terminationGracePeriodSeconds: 10
       {{- with .Values.nodeSelector }}
       nodeSelector:
