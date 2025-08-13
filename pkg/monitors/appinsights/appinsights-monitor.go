@@ -57,9 +57,6 @@ type AppinsightsMonitorService struct {
 // AzureConfig holds service principle credentials required of auth
 type AzureConfig struct {
 	Subscription_ID string
-	Client_ID       string
-	Client_Secret   string
-	Tenant_ID       string
 }
 
 type WebTest struct {
