@@ -74,13 +74,14 @@ type Provider struct {
 }
 
 type AppInsights struct {
-	Name          string        `yaml:"name"`
-	Location      string        `yaml:"location"`
-	ResourceGroup string        `yaml:"resourceGroup"`
-	Frequency     int32         `yaml:"frequency"`
-	GeoLocation   []interface{} `yaml:"geoLocation"`
-	EmailAction   EmailAction   `yaml:"emailAction"`
-	WebhookAction WebhookAction `yaml:"webhookAction"`
+	Name           string        `yaml:"name"`
+	SubscriptionId string        `yaml:"subscriptionId"`
+	Location       string        `yaml:"location"`
+	ResourceGroup  string        `yaml:"resourceGroup"`
+	Frequency      int32         `yaml:"frequency"`
+	GeoLocation    []interface{} `yaml:"geoLocation"`
+	EmailAction    EmailAction   `yaml:"emailAction"`
+	WebhookAction  WebhookAction `yaml:"webhookAction"`
 }
 
 type Gcloud struct {

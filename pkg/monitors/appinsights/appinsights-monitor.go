@@ -17,7 +17,6 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/applicationinsights/armapplicationinsights"
 
-	"github.com/kelseyhightower/envconfig"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
 	"github.com/stakater/IngressMonitorController/v2/pkg/models"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -52,11 +51,6 @@ type AppinsightsMonitorService struct {
 	emailToOwners    bool
 	subscriptionID   string
 	ctx              context.Context
-}
-
-// AzureConfig holds service principle credentials required of auth
-type AzureConfig struct {
-	Subscription_ID string
 }
 
 type WebTest struct {
@@ -109,13 +103,6 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 
 	log.Info("AppInsights Monitor's Setup has been called. Initializing AppInsights Client..")
 
-	var azConfig AzureConfig
-	err := envconfig.Process("AZURE", &azConfig)
-	if err != nil {
-		log.Error(err, "Error fetching environment variable")
-		os.Exit(1)
-	}
-
 	aiService.ctx = context.Background()
 	aiService.name = provider.AppInsightsConfig.Name
 	aiService.location = provider.AppInsightsConfig.Location
@@ -124,7 +111,17 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 	aiService.emailAction = provider.AppInsightsConfig.EmailAction.CustomEmails
 	aiService.emailToOwners = provider.AppInsightsConfig.EmailAction.SendToServiceOwners
 	aiService.webhookAction = provider.AppInsightsConfig.WebhookAction.ServiceURI
-	aiService.subscriptionID = azConfig.Subscription_ID
+	aiService.subscriptionID = provider.AppInsightsConfig.SubscriptionId
+
+	// For backward compatibility when subscriptionID was supplied via environment variable
+	if aiService.subscriptionID == "" {
+		if sid := os.Getenv("AZURE_SUBSCRIPTION_ID"); sid != "" {
+			aiService.subscriptionID = sid
+		} else {
+			log.Error(nil, "Error fetching environment variable")
+			os.Exit(1)
+		}
+	}
 
 	creds, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
@@ -140,7 +137,7 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 		},
 	}
 
-	aiService.insightsClient, err = armapplicationinsights.NewWebTestsClient(azConfig.Subscription_ID, creds, clientOptions)
+	aiService.insightsClient, err = armapplicationinsights.NewWebTestsClient(aiService.subscriptionID, creds, clientOptions)
 
 	if err != nil {
 		log.Error(err, "Error initializing AppInsights Client")

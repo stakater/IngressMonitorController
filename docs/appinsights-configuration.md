@@ -28,8 +28,9 @@ Refer to the [DefaultAzureCredential documentation](https://learn.microsoft.com/
 ## Appinsights Configuration:
 
 | Key                      | Description                                                                                                    |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------- |
+|--------------------------|----------------------------------------------------------------------------------------------------------------|
 | name                     | Name of the Appinsights Instance                                                                               |
+| subscriptionId           | The Azure Subscription ID                                                                                      |
 | resourceGroup            | Resource group of Appinsights                                                                                  |
 | location                 | The location of the resource group.                                                                            |
 | geoLocation              | Location ID for the webtest to run from. For example: `["us-tx-sn1-azr", "us-il-ch1-azr"]`                     |
@@ -51,8 +52,9 @@ Refer to the [DefaultAzureCredential documentation](https://learn.microsoft.com/
 providers:
   - name: AppInsights
     appInsightsConfig:
-      name: demo-appinsights
-      resourceGroup: demoRG
+      name: "demo-appinsighs"
+      subscriptionId: "12345678-1234-1234-1234-123456789012"
+      resourceGroup: "demoRG"
       location: "westeurope"
       geoLocation:
         [
@@ -65,7 +67,7 @@ providers:
         send_to_service_owners: false
         custom_emails: ["mail@cizer.dev"]
       webhookAction:
-        service_uri: http://myalert-webhook.io
+        service_uri: "http://myalert-webhook.io"
 enableMonitorDeletion: true
 ```
 
