@@ -22,7 +22,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- toYaml .Values.podLabels | nindent 8}}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8}}
+        {{- end }}
         {{- include "ingress-monitor-controller.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
