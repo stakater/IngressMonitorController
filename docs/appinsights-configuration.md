@@ -7,6 +7,24 @@ You can configure Application Insights as a Ingress Monitor by using below confi
 | name              | Name of the provider (e.g. AppInsights)                                                       |
 | appInsightsConfig | `appInsightsConfig` is the configuration specific to Appinsights Instance as mentioned below: |
 
+## Authentication
+
+The AppInsights monitor uses [azure-sdk-for-go](https://github.com/Azure/azure-sdk-for-go) to authenticate and communicate to the Azure API.
+
+> The [DefaultAzureCredential](https://learn.microsoft.com/en-us/azure/developer/go/sdk/authentication/credential-chains#defaultazurecredential-overview) is an opinionated, preconfigured chain of credentials.
+> It's designed to support many environments, along with the most common authentication flows and developer tools. In graphical form, the underlying chain looks like this:
+
+It will automatically configure authentication in the following order, stopping when it finds a hit:
+
+* Environment Variables
+* Workload Identity
+* Managed Identity
+* Azure CLI
+* Azure Developer CLI
+
+Refer to the [DefaultAzureCredential documentation](https://learn.microsoft.com/en-us/azure/developer/go/sdk/authentication/credential-chains#defaultazurecredential-overview) for more details.
+
+
 ## Appinsights Configuration:
 
 | Key                      | Description                                                                                                    |
