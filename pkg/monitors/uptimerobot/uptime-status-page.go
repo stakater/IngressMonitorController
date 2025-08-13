@@ -163,7 +163,7 @@ func (statusPageService *UpTimeStatusPageService) RemoveMonitorFromStatusPage(st
 
 	body := "api_key=" + statusPageService.apiKey + "&format=json&id=" + statusPage.ID
 
-	if existingStatusPage.Monitors != nil && len(existingStatusPage.Monitors) > 0 {
+	if len(existingStatusPage.Monitors) > 0 {
 		monitors := strings.Join(existingStatusPage.Monitors, "-")
 		body += "&monitors=" + monitors
 	} else {

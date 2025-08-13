@@ -52,7 +52,7 @@ IMG ?= stakater/ingressmonitorcontroller:v2.2.4
 # GOLANGCI_LINT env
 GOLANGCI_LINT = _output/tools/golangci-lint
 GOLANGCI_LINT_CACHE = $(PWD)/_output/golangci-lint-cache
-GOLANGCI_LINT_VERSION = v1.39.0
+GOLANGCI_LINT_VERSION = v1.64.0
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -216,7 +216,7 @@ rm -f $(1) || true ;\
 GOBIN=$(LOCALBIN) go install $${package} ;\
 mv $(1) $(1)-$(3) ;\
 } ;\
-ln -sf $(1)-$(3) $(1) 
+ln -sf $(1)-$(3) $(1)
 endef
 
 .PHONY: bundle

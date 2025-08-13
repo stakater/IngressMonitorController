@@ -1,8 +1,6 @@
 module github.com/stakater/IngressMonitorController/v2
 
-go 1.23.0
-
-toolchain go1.23.2
+go 1.24.0
 
 require (
 	cloud.google.com/go/monitoring v1.16.3
@@ -17,7 +15,6 @@ require (
 	github.com/grafana/synthetic-monitoring-agent v0.19.4
 	github.com/grafana/synthetic-monitoring-api-go-client v0.8.0
 	github.com/karlderkaefer/pingdom-golang-client v1.0.4
-	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/russellcardullo/go-pingdom v1.3.0
