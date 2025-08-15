@@ -27,7 +27,7 @@ func NewIngressWrapper(ingress *v1.Ingress, client client.Client) *IngressWrappe
 }
 
 func (iw *IngressWrapper) supportsTLS() bool {
-	if iw.Ingress.Spec.TLS != nil && len(iw.Ingress.Spec.TLS) > 0 && iw.Ingress.Spec.TLS[0].Hosts != nil && len(iw.Ingress.Spec.TLS[0].Hosts) > 0 && len(iw.Ingress.Spec.TLS[0].Hosts[0]) > 0 {
+	if len(iw.Ingress.Spec.TLS) > 0 && len(iw.Ingress.Spec.TLS[0].Hosts) > 0 && len(iw.Ingress.Spec.TLS[0].Hosts[0]) > 0 {
 		return true
 	}
 	return false
@@ -50,16 +50,13 @@ func (iw *IngressWrapper) getHost() string {
 }
 
 func (iw *IngressWrapper) rulesExist() bool {
-	if iw.Ingress.Spec.Rules != nil && len(iw.Ingress.Spec.Rules) > 0 {
-		return true
-	}
-	return false
+	return len(iw.Ingress.Spec.Rules) > 0
 }
 
 func (iw *IngressWrapper) getIngressSubPath() string {
 	rule := iw.Ingress.Spec.Rules[0]
 	if rule.HTTP != nil {
-		if rule.HTTP.Paths != nil && len(rule.HTTP.Paths) > 0 {
+		if len(rule.HTTP.Paths) > 0 {
 			path := rule.HTTP.Paths[0].Path
 
 			// Remove * from path if exists

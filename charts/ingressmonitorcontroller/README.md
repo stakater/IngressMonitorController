@@ -23,7 +23,7 @@ helm install stakater/ingressmonitorcontroller
 ## Chart Values
 
 | Key                          | Default                               | Description                                                                                    |
-| ---------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+|------------------------------|---------------------------------------|------------------------------------------------------------------------------------------------|
 | global.labels                | ``                                    | Labels to be added to all components                                                           |
 | replicaCount                 | `1`                                   | Replicas for operator                                                                          |
 | image.name                   | `"stakater/ingressmonitorcontroller"` | Image repository                                                                               |
@@ -44,6 +44,7 @@ helm install stakater/ingressmonitorcontroller
 | serviceAccount.annotations   | `{}`                                  | Additional annotations on ServiceAccount                                                       |
 | serviceMonitor.enabled       | `false`                               | Create ServiceMonitor for metrics                                                              |
 | podAnnotations               | `""`                                  | Additional annotations on deployment                                                           |
+| podLabels                    | `{}`                                   | Additional labels for the Pod template                                                         |
 | resources                    | `{}`                                  | Requests/Limits for operator                                                                   |
 | securityContext              | `{}`                                  | Override for SecurityContext                                                                   |
 | podSecurityContext           | `{}`                                  | Override for deployment.Spec.securityContext                                                   |

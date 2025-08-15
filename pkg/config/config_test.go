@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -113,7 +114,7 @@ func TestConfigWithAppinsights(t *testing.T) {
 		ResourceGroup: "demoRG",
 		EmailAction: EmailAction{
 			SendToServiceOwners: false,
-			CustomEmails:        []string{"mail@cizer.dev"},
+			CustomEmails:        []*string{to.Ptr("mail@cizer.dev")},
 		},
 		WebhookAction: WebhookAction{
 			ServiceURI: "https://webhook.io",

@@ -7,11 +7,30 @@ You can configure Application Insights as a Ingress Monitor by using below confi
 | name              | Name of the provider (e.g. AppInsights)                                                       |
 | appInsightsConfig | `appInsightsConfig` is the configuration specific to Appinsights Instance as mentioned below: |
 
+## Authentication
+
+The AppInsights monitor uses [azure-sdk-for-go](https://github.com/Azure/azure-sdk-for-go) to authenticate and communicate to the Azure API.
+
+> The [DefaultAzureCredential](https://learn.microsoft.com/en-us/azure/developer/go/sdk/authentication/credential-chains#defaultazurecredential-overview) is an opinionated, preconfigured chain of credentials.
+> It's designed to support many environments, along with the most common authentication flows and developer tools. In graphical form, the underlying chain looks like this:
+
+It will automatically configure authentication in the following order, stopping when it finds a hit:
+
+* Environment Variables
+* Workload Identity
+* Managed Identity
+* Azure CLI
+* Azure Developer CLI
+
+Refer to the [DefaultAzureCredential documentation](https://learn.microsoft.com/en-us/azure/developer/go/sdk/authentication/credential-chains#defaultazurecredential-overview) for more details.
+
+
 ## Appinsights Configuration:
 
 | Key                      | Description                                                                                                    |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------- |
+|--------------------------|----------------------------------------------------------------------------------------------------------------|
 | name                     | Name of the Appinsights Instance                                                                               |
+| subscriptionId           | The Azure Subscription ID                                                                                      |
 | resourceGroup            | Resource group of Appinsights                                                                                  |
 | location                 | The location of the resource group.                                                                            |
 | geoLocation              | Location ID for the webtest to run from. For example: `["us-tx-sn1-azr", "us-il-ch1-azr"]`                     |
@@ -33,8 +52,9 @@ You can configure Application Insights as a Ingress Monitor by using below confi
 providers:
   - name: AppInsights
     appInsightsConfig:
-      name: demo-appinsights
-      resourceGroup: demoRG
+      name: "demo-appinsighs"
+      subscriptionId: "12345678-1234-1234-1234-123456789012"
+      resourceGroup: "demoRG"
       location: "westeurope"
       geoLocation:
         [
@@ -47,7 +67,7 @@ providers:
         send_to_service_owners: false
         custom_emails: ["mail@cizer.dev"]
       webhookAction:
-        service_uri: http://myalert-webhook.io
+        service_uri: "http://myalert-webhook.io"
 enableMonitorDeletion: true
 ```
 
