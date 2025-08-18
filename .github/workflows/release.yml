@@ -5,9 +5,6 @@ on:
     tags:
       - "v*"
 
-env:
-  GOLANG_VERSION: 1.21
-
 jobs:
   build:
     name: GoReleaser build
@@ -22,7 +19,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GOLANG_VERSION }}
+          go-version-file: go.mod
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@master

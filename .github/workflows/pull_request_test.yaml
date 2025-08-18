@@ -14,7 +14,6 @@ on:
 
 env:
   KIND_VERSION: "v0.25.0"
-  GOLANG_VERSION: 1.24
 
 jobs:
 
@@ -37,7 +36,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: ${{ env.GOLANG_VERSION }}
+        go-version-file: go.mod
 
     - name: Install kind
       uses: engineerd/setup-kind@v0.5.0
