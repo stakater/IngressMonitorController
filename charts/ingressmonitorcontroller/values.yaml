@@ -60,6 +60,8 @@ resources:
 
 deploymentAnnotations: {}
 
+podLabels: {}
+
 podAnnotations: {}
 
 podSecurityContext:

@@ -12,7 +12,6 @@ on:
       - 'config/'
 env:
   DOCKER_FILE_PATH: Dockerfile
-  GOLANG_VERSION: 1.21
   HELM_VERSION: v3.8.2
   REGISTRY: ghcr.io
 
@@ -30,12 +29,12 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: ${{ env.GOLANG_VERSION }}
+        go-version-file: go.mod
 
     - name: Lint
       uses: golangci/golangci-lint-action@v6
       with:
-        version: v1.54
+        version: v1.64
         only-new-issues: false
         args: --timeout 10m
 
