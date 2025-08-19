@@ -1,4 +1,6 @@
 # .goreleaser.yml
+version: 2
+
 before:
   hooks:
     - go mod download
@@ -15,10 +17,11 @@ builds:
   - amd64
   - arm
   - arm64
+  main: ./cmd
 archives:
 - name_template: "{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 changelog:
