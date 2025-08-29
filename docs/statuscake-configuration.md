@@ -12,23 +12,24 @@ The following properties need to be configured for Statuscake, in addition to th
 
 Currently additional Statuscake configurations can be added through these fields:
 
-|                        Fields                        |                    Description                   |
-|:--------------------------------------------------------:|:------------------------------------------------:|
-| CheckRate               | Set Check Rate for the monitor (default: 300)    |
-| TestType                | Set Test type - HTTP, TCP, PING (default: HTTP)  |
-| Paused                  | Pause the service                                |
-| PingURL                 | Webhook for alerts                               |
-| FollowRedirect          | Enable ingress redirects                         |
-| Port                    | TCP Port                                         |
-| TriggerRate             | Minutes to wait before sending an alert          |
-| ContactGroup            | Contact Group to be alerted.                     |
-| TestTags                | Comma separated list of tags                     |
-| FindString              | String to look for within the response           |
-| BasicAuthUser           | Required for [basic-authenticationchecks](#basic-auth-checks)  |
-| BasicAuthSecret         | Allows for an alternate method of adding basic-auth to checks |
-| Regions                 | Regions to execute the check from                |
-| RawPostData             | Add data to change the request to a POST         |
-| UserAgent               | Add a user agent string to the request           |
+| Fields          | Description                                                   |
+|:---------------:|:-------------------------------------------------------------:|
+| CheckRate       | Set Check Rate for the monitor (default: 300)                 |
+| TestType        | Set Test type - HTTP, TCP, PING (default: HTTP)               |
+| Paused          | Pause the service                                             |
+| PingURL         | Webhook for alerts                                            |
+| FollowRedirect  | Enable ingress redirects                                      |
+| Port            | TCP Port                                                      |
+| TriggerRate     | Minutes to wait before sending an alert                       |
+| ContactGroup    | Contact Group to be alerted.                                  |
+| TestTags        | Comma separated list of tags                                  |
+| FindString      | String to look for within the response                        |
+| BasicAuthUser   | Required for [basic-authenticationchecks](#basic-auth-checks) |
+| BasicAuthSecret | Allows for an alternate method of adding basic-auth to checks |
+| Regions         | Regions to execute the check from                             |
+| RawPostData     | Add data to change the request to a POST                      |
+| UserAgent       | Add a user agent string to the request                        |
+| Timeout         | Timeout for the check                                         |
 
 
 ### Basic Auth checks

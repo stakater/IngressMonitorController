@@ -240,6 +240,9 @@ func buildUpsertForm(m models.Monitor, cgroup string) url.Values {
 	if providerConfig != nil && len(providerConfig.UserAgent) > 0 {
 		f.Add("user_agent", providerConfig.UserAgent)
 	}
+	if providerConfig != nil && len(providerConfig.Timeout) > 0 {
+		f.Add("timeout", providerConfig.Timeout)
+	}
 	return f
 }
 

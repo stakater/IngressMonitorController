@@ -311,6 +311,11 @@ spec:
                   testType:
                     description: Set Test type - HTTP, TCP, PING
                     type: string
+                  timeout:
+                    description: Timeout is used to set a user agent string.
+                    maximum: 75
+                    minimum: 0
+                    type: integer
                   triggerRate:
                     description: Minutes to wait before sending an alert
                     type: integer

@@ -236,6 +236,12 @@ type StatusCakeConfig struct {
 	// UserAgent is used to set a user agent string.
 	// +optional
 	UserAgent string `json:"userAgent,omitempty"`
+
+	// Timeout is used to set a user agent string.
+	// +kubebuilder:validation:Maximum=75
+	// +kubebuilder:validation:Minimum=0
+	// +optional
+	Timeout int `json:"timeout,omitempty"`
 }
 
 // PingdomConfig defines the configuration for Pingdom Monitor Provider
