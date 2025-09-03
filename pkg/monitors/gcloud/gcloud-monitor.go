@@ -9,10 +9,10 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
-	monitoringpb "cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
+	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
-	monitoredres "google.golang.org/genproto/googleapis/api/monitoredres"
+	"google.golang.org/genproto/googleapis/api/monitoredres"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/config"
@@ -98,11 +98,12 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 	portString := url.Port()
 	var port int
 	if portString == "" {
-		if url.Scheme == "http" {
+		switch url.Scheme {
+		case "http":
 			port = 80
-		} else if url.Scheme == "https" {
+		case "https":
 			port = 443
-		} else {
+		default:
 			log.Info("Error Adding Monitor: unknown protocol " + url.Scheme)
 			return
 		}
