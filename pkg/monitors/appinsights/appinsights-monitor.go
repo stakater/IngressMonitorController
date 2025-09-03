@@ -6,14 +6,15 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/monitor/armmonitor"
-	"net/http"
-	"os"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/applicationinsights/armapplicationinsights"
 
@@ -194,7 +195,8 @@ func (aiService *AppinsightsMonitorService) GetByName(monitorName string) (*mode
 	log.Info("AppInsights Monitor's GetByName method has been called")
 	webtest, err := aiService.insightsClient.Get(aiService.ctx, aiService.resourceGroup, monitorName, nil)
 	if err != nil {
-		if re, ok := err.(*azcore.ResponseError); ok {
+		var re *azcore.ResponseError
+		if errors.As(err, &re) {
 			if re.StatusCode == http.StatusNotFound {
 				return nil, fmt.Errorf("Application Insights WebTest %s was not found in Resource Group %s", monitorName, aiService.resourceGroup)
 			}
