@@ -29,7 +29,7 @@ Currently additional Statuscake configurations can be added through these fields
 | Regions         | Regions to execute the check from                               |
 | RawPostData     | Add data to change the request to a POST                        |
 | UserAgent       | Add a user agent string to the request                          |
-| Timeout         | Timeout for the check in seconds (minimum of 1 and maximum of 75|
+| Timeout         | Timeout for the check in seconds (minimum of 5 and maximum of 75|
 
 
 ### Basic Auth checks

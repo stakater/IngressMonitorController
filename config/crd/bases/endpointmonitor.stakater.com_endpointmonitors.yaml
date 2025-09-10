@@ -314,7 +314,7 @@ spec:
                   timeout:
                     description: Timeout is used to set a user agent string.
                     maximum: 75
-                    minimum: 1
+                    minimum: 5
                     type: integer
                   triggerRate:
                     description: Minutes to wait before sending an alert

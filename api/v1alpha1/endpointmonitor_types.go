@@ -239,7 +239,7 @@ type StatusCakeConfig struct {
 
 	// Timeout is used to set a user agent string.
 	// +kubebuilder:validation:Maximum=75
-	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Minimum=5
 	// +optional
 	Timeout int `json:"timeout,omitempty"`
 }
