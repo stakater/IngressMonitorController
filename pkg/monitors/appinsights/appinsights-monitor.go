@@ -118,7 +118,7 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 		if sid := os.Getenv("AZURE_SUBSCRIPTION_ID"); sid != "" {
 			aiService.subscriptionID = sid
 		} else {
-			log.Error(nil, "Error fetching environment variable")
+			log.Error(nil, "Azure SubscriptionId is required")
 			os.Exit(1)
 		}
 	}
