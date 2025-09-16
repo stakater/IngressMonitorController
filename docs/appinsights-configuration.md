@@ -33,7 +33,7 @@ Refer to the [DefaultAzureCredential documentation](https://learn.microsoft.com/
 | subscriptionId           | The Azure Subscription ID                                                                                      |
 | resourceGroup            | Resource group of Appinsights                                                                                  |
 | location                 | The location of the resource group.                                                                            |
-| geoLocation              | Location ID for the webtest to run from. For example: `["us-tx-sn1-azr", "us-il-ch1-azr"]`                     |
+| geoLocation              | Location ID for the webtest to run from. For example: `["us-tx-sn1-azr", "us-il-ch1-azr"]`  See [Azure documentation](https://learn.microsoft.com/en-us/previous-versions/azure/azure-monitor/app/monitor-web-app-availability#location-population-tags)) for details on Location population tags. |
 | emailAction (Optional)   | Email Action is optional, This will enable monitoring alerts for ping test failure.                            |
 | webhookAction (Optional) | Webhook Action is also optional, You can use webhooks to route an Azure alert notification for custom actions. |
 
