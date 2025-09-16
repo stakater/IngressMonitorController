@@ -2,6 +2,7 @@ providers:
   - name: AppInsights
     appInsightsConfig:
       name: demo-appinsights
+      subscriptionId: "00000000-0000-0000-0000-000000000000"
       resourceGroup: demoRG
       location: "westeurope"
       geoLocation: ["us-tx-sn1-azr","emea-nl-ams-azr","us-fl-mia-edge","latam-br-gru-edge"]
@@ -9,5 +10,5 @@ providers:
         send_to_service_owners: false
         custom_emails: ["mail@cizer.dev"]
       webhookAction:
-        service_uri: https://webhook.io            
+        service_uri: https://webhook.io
 enableMonitorDeletion: true
