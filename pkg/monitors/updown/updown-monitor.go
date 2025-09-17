@@ -29,7 +29,7 @@ type UpdownMonitorService struct {
 	client *updown.Client
 }
 
-func (monitor *UpdownMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
+func (updownService *UpdownMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
 	// TODO: Retrieve oldMonitor config and compare it here
 	return false
 }
@@ -59,26 +59,25 @@ func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
 	updownChecks, httpResponse, err := updownService.client.Check.List()
 	log.Info("Monitors (updown checks) object list has been pulled")
 
-	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
-		log.Info("Populating monitors list using the updownChecks object given in updownChecks list")
-
-		// populating a monitors slice using the updownChecks objects given in updownChecks slice
-		for _, updownCheck := range updownChecks {
-			newMonitor := models.Monitor{
-				URL:  updownCheck.URL,
-				Name: updownCheck.Alias,
-				ID:   updownCheck.Token,
-			}
-			monitors = append(monitors, newMonitor)
-		}
-		return monitors
-
-	} else {
+	if err != nil || httpResponse.StatusCode != http.StatusOK {
 		log.Info("Unable to get updown provider checks(monitor) list")
-		return nil
 
+		return nil
 	}
 
+	log.Info("Populating monitors list using the updownChecks object given in updownChecks list")
+
+	// populating a monitors slice using the updownChecks objects given in updownChecks slice
+	for _, updownCheck := range updownChecks {
+		newMonitor := models.Monitor{
+			URL:  updownCheck.URL,
+			Name: updownCheck.Alias,
+			ID:   updownCheck.Token,
+		}
+		monitors = append(monitors, newMonitor)
+	}
+
+	return monitors
 }
 
 // GetByName function will return a monitor(updown check) object based on the name provided
@@ -101,26 +100,25 @@ func (updownService *UpdownMonitorService) GetByName(monitorName string) (*model
 }
 
 // Add function method will add a monitor (updown check)
-func (service *UpdownMonitorService) Add(updownMonitor models.Monitor) {
+func (updownService *UpdownMonitorService) Add(updownMonitor models.Monitor) {
 
 	log.Info("Updown monitor's Add method has been called")
 
-	updownCheckItemObj := service.createHttpCheck(updownMonitor)
+	updownCheckItemObj := updownService.createHttpCheck(updownMonitor)
 
-	_, httpResponse, err := service.client.Check.Add(updownCheckItemObj)
+	_, httpResponse, err := updownService.client.Check.Add(updownCheckItemObj)
 	log.Info("Monitor addition request has been completed")
 
-	if (httpResponse.StatusCode == http.StatusCreated) && (err == nil) {
-		log.Info(fmt.Sprintf("Monitor %s has been added.", updownMonitor.Name))
-
-	} else if (httpResponse.StatusCode == http.StatusBadRequest) && (err != nil) {
-		log.Info(fmt.Sprintf("Monitor %s is not created because of invalid parameters or it exists.", updownMonitor.Name))
-
-	} else {
+	if err != nil {
+		if httpResponse != nil && httpResponse.StatusCode == http.StatusBadRequest {
+			log.Info(fmt.Sprintf("Monitor %s is not created because of invalid parameters or it exists.", updownMonitor.Name))
+			return
+		}
 		log.Info(fmt.Sprintf("Unable to create monitor %s ", updownMonitor.Name))
-
+		return
 	}
 
+	log.Info(fmt.Sprintf("Monitor %s has been added.", updownMonitor.Name))
 }
 
 // createHttpCheck method it will populate updown CheckItem object using updownMonitor's attributes
@@ -152,7 +150,7 @@ func (updownService *UpdownMonitorService) createHttpCheck(updownMonitor models.
 }
 
 // addConfigToHttpCheck method will populate Updown's CheckItem object attributes using provider config
-func (service *UpdownMonitorService) addConfigToHttpCheck(updownCheckItemObj *updown.CheckItem, config interface{}) {
+func (updownService *UpdownMonitorService) addConfigToHttpCheck(updownCheckItemObj *updown.CheckItem, config interface{}) {
 	// Read provider config, try to map them to updown check configs
 	// set some default values if we can't find them
 
@@ -182,22 +180,25 @@ func (service *UpdownMonitorService) addConfigToHttpCheck(updownCheckItemObj *up
 }
 
 // Update method will update a monitor (updown check)
-func (service *UpdownMonitorService) Update(updownMonitor models.Monitor) {
+func (updownService *UpdownMonitorService) Update(updownMonitor models.Monitor) {
 
 	log.Info("Updown's Update method has been called")
 
-	httpCheckItemObj := service.createHttpCheck(updownMonitor)
-	_, httpResponse, err := service.client.Check.Update(updownMonitor.ID, httpCheckItemObj)
+	httpCheckItemObj := updownService.createHttpCheck(updownMonitor)
+	_, httpResponse, err := updownService.client.Check.Update(updownMonitor.ID, httpCheckItemObj)
 	log.Info("Updown's check Update request has been completed")
 
-	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
-		log.Info(fmt.Sprintf("Monitor %s has been updated with following parameters", updownMonitor.Name))
-
-	} else {
+	if err != nil {
 		log.Info(fmt.Sprintf("Monitor %s is not updated because of %s", updownMonitor.Name, err.Error()))
-
+		return
 	}
 
+	if httpResponse.StatusCode != http.StatusOK {
+		log.Info(fmt.Sprintf("Unable to update monitor %s, status code is %s", updownMonitor.Name, httpResponse.Status))
+		return
+	}
+
+	log.Info(fmt.Sprintf("Monitor %s has been updated with following parameters", updownMonitor.Name))
 }
 
 // Remove method will remove a monitor (updown check)
@@ -208,14 +209,15 @@ func (updownService *UpdownMonitorService) Remove(updownMonitor models.Monitor) 
 	_, httpResponse, err := updownService.client.Check.Remove(updownMonitor.ID)
 	log.Info("Updown's check Remove request has been completed")
 
-	if (httpResponse.StatusCode == http.StatusOK) && (err == nil) {
-		log.Info(fmt.Sprintf("Monitor %v has been deleted.", updownMonitor.Name))
-
-	} else if (httpResponse.StatusCode == http.StatusNotFound) && (err != nil) {
-		log.Info(fmt.Sprintf("Monitor %v is not found.", updownMonitor.Name))
-
-	} else {
-		log.Info("Unable to delete %v monitor: " + updownMonitor.Name)
+	if err != nil {
+		log.Info(fmt.Sprintf("Unable to delete %v monitor: %s", updownMonitor.Name, err.Error()))
+		return
 	}
 
+	if httpResponse.StatusCode == http.StatusNotFound {
+		log.Info(fmt.Sprintf("Monitor %v is not found.", updownMonitor.Name))
+		return
+	}
+
+	log.Info(fmt.Sprintf("Monitor %v has been deleted.", updownMonitor.Name))
 }

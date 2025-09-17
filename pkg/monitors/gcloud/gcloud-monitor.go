@@ -99,11 +99,12 @@ func (service *MonitorService) Add(monitor models.Monitor) {
 	portString := url.Port()
 	var port int
 	if portString == "" {
-		if url.Scheme == "http" {
+		switch url.Scheme {
+		case "http":
 			port = 80
-		} else if url.Scheme == "https" {
+		case "https":
 			port = 443
-		} else {
+		default:
 			log.Info("Error Adding Monitor: unknown protocol " + url.Scheme)
 			return
 		}
