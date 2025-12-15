@@ -12,7 +12,7 @@ require (
 	github.com/antoineaugusti/updown v0.0.0-20190412074625-d590ab97f115
 	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.6.0
-	github.com/grafana/synthetic-monitoring-agent v0.19.4
+	github.com/grafana/synthetic-monitoring-agent v0.49.0
 	github.com/grafana/synthetic-monitoring-api-go-client v0.8.0
 	github.com/karlderkaefer/pingdom-golang-client v1.0.4
 	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
