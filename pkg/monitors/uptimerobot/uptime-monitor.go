@@ -249,6 +249,18 @@ func (monitor *UpTimeMonitorService) processProviderConfig(m models.Monitor, cre
 		body += "&custom_http_statuses=" + providerConfig.CustomHTTPStatuses
 	}
 
+	if providerConfig != nil && len(providerConfig.CustomHTTPHeaders) != 0 {
+		headers := map[string]string{}
+		for _, header := range providerConfig.CustomHTTPHeaders {
+			headers[header.Name] = header.Value
+		}
+		out, err := json.Marshal(headers)
+		if err != nil {
+			log.Error(err, "Unable to marshal headers to JSON")
+		}
+		body += "&custom_http_headers=" + url.PathEscape(string(out))
+	}
+
 	if providerConfig != nil && len(providerConfig.MonitorType) != 0 {
 		if strings.Contains(strings.ToLower(providerConfig.MonitorType), "http") {
 			body += "&type=1"

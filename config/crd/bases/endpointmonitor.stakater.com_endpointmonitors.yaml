@@ -365,6 +365,21 @@ spec:
                     description: The uptimerobot alertContacts to be associated with
                       this monitor
                     type: string
+                  customHTTPHeaders:
+                    description: Defines custom http headers to sent to monitored
+                      url
+                    items:
+                      description: Represents a http header
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                      - name
+                      - value
+                      type: object
+                    type: array
                   customHTTPStatuses:
                     description: |-
                       Defines which http status codes are treated as up or down

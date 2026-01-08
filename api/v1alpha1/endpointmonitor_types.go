@@ -113,6 +113,16 @@ type UptimeRobotConfig struct {
 	// Defines which http status codes are treated as up or down
 	// For ex: 200:0_401:1_503:1 (to accept 200 as down and 401 and 503 as up)
 	CustomHTTPStatuses string `json:"customHTTPStatuses,omitempty"`
+
+	// Defines custom http headers to sent to monitored url
+	// +optional
+	CustomHTTPHeaders []HttpHeader `json:"customHTTPHeaders,omitempty"`
+}
+
+// Represents a http header
+type HttpHeader struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 // UptimeConfig defines the configuration for Uptime Monitor Provider
@@ -317,7 +327,6 @@ type PingdomConfig struct {
 
 // PingdomTransactionConfig defines the configuration for Pingdom Transaction Monitor Provider
 type PingdomTransactionConfig struct {
-
 	// Check status: active or inactive
 	// +optional
 	Paused bool `json:"paused,omitempty"`
