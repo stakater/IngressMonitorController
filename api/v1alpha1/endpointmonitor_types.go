@@ -113,6 +113,45 @@ type UptimeRobotConfig struct {
 	// Defines which http status codes are treated as up or down
 	// For ex: 200:0_401:1_503:1 (to accept 200 as down and 401 and 503 as up)
 	CustomHTTPStatuses string `json:"customHTTPStatuses,omitempty"`
+
+	// Optional sub-type for HTTP monitors (e.g. "HTTPS", "ping", etc.)
+	SubType string `json:"subType,omitempty"`
+
+	// Optional TCP/UDP port to use when applicable (e.g. 443 for HTTPS)
+	Port int `json:"port,omitempty"`
+
+	// Timeout in seconds before considering the monitored site unresponsive
+	Timeout int `json:"timeout,omitempty"`
+
+	// Username for basic HTTP authentication if required by the target URL
+	HTTPAuthUsername string `json:"httpAuthUsername,omitempty"`
+
+	// Password for basic HTTP authentication
+	HTTPAuthPassword string `json:"httpAuthPassword,omitempty"`
+
+	// Authentication type: 1 = Basic Auth, 2 = Digest Auth
+	HTTPAuthType int `json:"httpAuthType,omitempty"`
+
+	// Type of HTTP POST request: e.g., "application/x-www-form-urlencoded"
+	PostType string `json:"postType,omitempty"`
+
+	// POST body value to be submitted with the request
+	PostValue string `json:"postValue,omitempty"`
+
+	// HTTP method used for the check: e.g., "GET", "POST"
+	HTTPMethod string `json:"httpMethod,omitempty"`
+
+	// Content-Type of the HTTP POST request (e.g. "application/json")
+	PostContentType string `json:"postContentType,omitempty"`
+
+	// Set of custom HTTP headers in JSON format (e.g. {"Authorization": "Bearer TOKEN"})
+	CustomHTTPHeaders string `json:"customHttpHeaders,omitempty"`
+
+	// If set to 1, SSL errors will be ignored for HTTPS monitors
+	IgnoreSSLErrors int `json:"ignoreSSLErrors,omitempty"`
+
+	// If set to 1, disables expiration notifications for domains
+	DisableDomainExpireNotifications int `json:"disableDomainExpireNotifications,omitempty"`
 }
 
 // UptimeConfig defines the configuration for Uptime Monitor Provider
