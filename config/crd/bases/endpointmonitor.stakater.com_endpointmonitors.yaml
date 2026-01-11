@@ -370,6 +370,33 @@ spec:
                       Defines which http status codes are treated as up or down
                       For ex: 200:0_401:1_503:1 (to accept 200 as down and 401 and 503 as up)
                     type: string
+                  customHttpHeaders:
+                    description: 'Set of custom HTTP headers in JSON format (e.g.
+                      {"Authorization": "Bearer TOKEN"})'
+                    type: string
+                  disableDomainExpireNotifications:
+                    description: If set to 1, disables expiration notifications for
+                      domains
+                    type: integer
+                  httpAuthPassword:
+                    description: Password for basic HTTP authentication
+                    type: string
+                  httpAuthType:
+                    description: 'Authentication type: 1 = Basic Auth, 2 = Digest
+                      Auth'
+                    type: integer
+                  httpAuthUsername:
+                    description: Username for basic HTTP authentication if required
+                      by the target URL
+                    type: string
+                  httpMethod:
+                    description: 'HTTP method used for the check: 1 = HEAD, 2 = GET,
+                      3 = POST, 4 = PUT, 5 = PATCH, 6 = DELETE, 7 = OPTIONS'
+                    type: integer
+                  ignoreSSLErrors:
+                    description: If set to 1, SSL errors will be ignored for HTTPS
+                      monitors
+                    type: integer
                   interval:
                     description: The uptimerobot check interval in seconds
                     minimum: 60
@@ -395,10 +422,31 @@ spec:
                     - http
                     - keyword
                     type: string
+                  port:
+                    description: Optional TCP/UDP port to use when applicable (e.g.
+                      443 for HTTPS)
+                    type: integer
+                  postContentType:
+                    description: Content-Type of the HTTP POST request (e.g. "application/json")
+                    type: string
+                  postType:
+                    description: 'Type of HTTP POST request: e.g., "application/x-www-form-urlencoded"'
+                    type: string
+                  postValue:
+                    description: POST body value to be submitted with the request
+                    type: string
                   statusPages:
                     description: The uptimerobot public status page ID to add this
                       monitor to
                     type: string
+                  subType:
+                    description: Optional sub-type for HTTP monitors (e.g. "HTTPS",
+                      "ping", etc.)
+                    type: string
+                  timeout:
+                    description: Timeout in seconds before considering the monitored
+                      site unresponsive
+                    type: integer
                 type: object
               url:
                 description: URL to monitor

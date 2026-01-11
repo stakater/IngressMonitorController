@@ -368,6 +368,35 @@ func TestAddMonitorWithMonitorType(t *testing.T) {
 	service.Remove(*mRes)
 }
 
+func TestAddMonitorWithMonitorHTTPMethod(t *testing.T) {
+	config := config.GetControllerConfigTest()
+
+	service := UpTimeMonitorService{}
+	provider := util.GetProviderWithName(config, "UptimeRobot")
+	if provider == nil {
+		return
+	}
+	service.Setup(*provider)
+
+	configKeyword := &endpointmonitorv1alpha1.UptimeRobotConfig{
+		MonitorType: "http",
+		HTTPMethod:  2, // GET
+	}
+
+	m := models.Monitor{Name: "google-test", URL: "https://google.com", Config: configKeyword}
+	service.Add(m)
+
+	time.Sleep(time.Second * 30)
+	mRes, err := service.GetByName("google-test")
+
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name {
+		t.Error("The name is incorrect, expected: " + m.Name + ", but was: " + mRes.Name)
+	}
+}
+
 func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	config := config.GetControllerConfigTest()
 
