@@ -12,16 +12,22 @@ type StatusCakeMonitor struct {
 }
 
 type StatusCakeMonitorData struct {
-	TestID       string   `json:"id"`
-	Paused       bool     `json:"paused"`
-	WebsiteName  string   `json:"name"`
-	WebsiteURL   string   `json:"website_url"`
-	TestType     string   `json:"test_type"`
-	CheckRate    int      `json:"check_rate"`
-	ContactGroup []string `json:"contact_groups"`
-	Status       string   `json:"status"`
-	Tags         []string `json:"tags"`
-	Uptime       float64  `json:"uptime"`
+	TestID         string   `json:"id"`
+	Paused         bool     `json:"paused"`
+	WebsiteName    string   `json:"name"`
+	WebsiteURL     string   `json:"website_url"`
+	TestType       string   `json:"test_type"`
+	CheckRate      int      `json:"check_rate"`
+	ContactGroup   []string `json:"contact_groups"`
+	Confirmation   int32    `json:"confirmation"`
+	Status         string   `json:"status"`
+	Tags           []string `json:"tags"`
+	Uptime         float64  `json:"uptime"`
+	FollowRedirect bool     `json:"follow_redirects"`
+	EnableSSLAlert bool     `json:"enable_ssl_alert"`
+	Port           int      `json:"port,omitempty"`
+	TriggerRate    int      `json:"trigger_rate,omitempty"`
+	FindString     string   `json:"find_string,omitempty"`
 }
 type StatusCakeMonitorMetadata struct {
 	Page       int `json:"page"`
