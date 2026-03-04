@@ -114,6 +114,7 @@ func TestBuildUpsertForm(t *testing.T) {
 		Confirmation:   2,
 		EnableSSLAlert: true,
 		FindString:     "",
+        Timeout:        30,
 
 		// changed to string array type on statuscake api
 		// TODO: release new apiVersion to cater new type in apiVersion struct
@@ -143,4 +144,5 @@ func TestBuildUpsertForm(t *testing.T) {
 	assert.Equal(t, "test,testrun,uptime", convertUrlValuesToString(vals, "tags[]"))
 	assert.Equal(t, "TCP", vals.Get("test_type"))
 	assert.Equal(t, "1", vals.Get("trigger_rate"))
+	assert.Equal(t, "30", vals.Get("timeout"))
 }

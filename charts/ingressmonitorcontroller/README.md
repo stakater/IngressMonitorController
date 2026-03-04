@@ -23,16 +23,12 @@ helm install stakater/ingressmonitorcontroller
 ## Chart Values
 
 | Key                          | Default                               | Description                                                                                    |
-| ---------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+|------------------------------|---------------------------------------|------------------------------------------------------------------------------------------------|
 | global.labels                | ``                                    | Labels to be added to all components                                                           |
 | replicaCount                 | `1`                                   | Replicas for operator                                                                          |
 | image.name                   | `"stakater/ingressmonitorcontroller"` | Image repository                                                                               |
 | image.tag                    | `LATEST_CHART_VERSION`                | Tag of the Image                                                                               |
 | image.pullPolicy             | `Always`                              | Pull policy for the image                                                                      |
-| kube-rbac-proxy.image.repository             | `gcr.io/kubebuilder/kube-rbac-proxy`                              | Image repository for kube-rbac-proxy                                                                      |
-| kube-rbac-proxy.image.tag            | `v0.8.0`                              | Tag of the kube-rbac-proxy image                                                                      |
-| kube-rbac-proxy.image.pullPolicy             | `IfNotPresent`                              | Pull policy for the image                                                                      |
-| kube-rbac-proxy.securityContext             | `{}`                              |securityContext for the kube-rbac-proxy Container                                                                      |
 | imagePullSecrets             | ``                                    | List of secrets used to pull images                                                            |
 | nameOverride                 | `""`                                  | Partial override for ingress-monitor-controller.fullname template (will keep the release name) |
 | fullnameOverride             | `""`                                  | Full override for ingress-monitor-controller.fullname template                                 |
@@ -48,6 +44,7 @@ helm install stakater/ingressmonitorcontroller
 | serviceAccount.annotations   | `{}`                                  | Additional annotations on ServiceAccount                                                       |
 | serviceMonitor.enabled       | `false`                               | Create ServiceMonitor for metrics                                                              |
 | podAnnotations               | `""`                                  | Additional annotations on deployment                                                           |
+| podLabels                    | `{}`                                   | Additional labels for the Pod template                                                         |
 | resources                    | `{}`                                  | Requests/Limits for operator                                                                   |
 | securityContext              | `{}`                                  | Override for SecurityContext                                                                   |
 | podSecurityContext           | `{}`                                  | Override for deployment.Spec.securityContext                                                   |

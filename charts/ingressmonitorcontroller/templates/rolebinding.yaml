@@ -1,19 +1,20 @@
 {{- if .Values.rbac.create -}}
 {{- if ne .Values.watchNamespaces "" }}
-{{- range .Values.watchNamespaces | split "," }}---
+{{- range .Values.watchNamespaces | split "," }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "ingress-monitor-controller.fullname" . }}-manager-rolebinding
+  name: {{ include "ingress-monitor-controller.fullname" $ }}-manager-rolebinding
   namespace: {{ . | trim }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ include "ingress-monitor-controller.fullname" . }}-manager-role
+  name: {{ include "ingress-monitor-controller.fullname" $ }}-manager-role
 subjects:
 - kind: ServiceAccount
-  name: {{ include "ingress-monitor-controller.serviceAccountName" . }}
-  namespace: {{ . | trim }}
+  name: {{ include "ingress-monitor-controller.serviceAccountName" $ }}
+  namespace: {{ include "ingress-monitor-controller.namespace" $ }}
+---
 {{- end }}
 {{- end }}
 

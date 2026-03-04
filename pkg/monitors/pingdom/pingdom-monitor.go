@@ -126,14 +126,16 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 		log.Info(fmt.Sprintf("Error parsing url '%s' of monitor %s", service.url, monitor.Name))
 	}
 
-	if url.Scheme == "https" {
-		httpCheck.Encryption = true
-	} else {
+	if url != nil {
 		httpCheck.Encryption = false
+		if url.Scheme == "https" {
+			httpCheck.Encryption = true
+		}
+
+		httpCheck.Hostname = url.Host
+		httpCheck.Url = url.Path
 	}
 
-	httpCheck.Hostname = url.Host
-	httpCheck.Url = url.Path
 	httpCheck.Name = monitor.Name
 	// Set the default values if they are present in provider config
 	// all of them can be overridden via EndpointMonitor specific options
