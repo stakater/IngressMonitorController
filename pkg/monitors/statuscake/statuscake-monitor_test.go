@@ -114,7 +114,7 @@ func TestBuildUpsertForm(t *testing.T) {
 		Confirmation:   2,
 		EnableSSLAlert: true,
 		FindString:     "",
-        Timeout:        30,
+		Timeout:        30,
 
 		// changed to string array type on statuscake api
 		// TODO: release new apiVersion to cater new type in apiVersion struct
