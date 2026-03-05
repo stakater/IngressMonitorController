@@ -151,6 +151,15 @@ helm install stakater/ingressmonitorcontroller
 | CONFIG_SECRET_NAME | imc-config                              | Name of secret that holds the configuration                                                            |
 | REQUEUE_TIME       | 300 seconds                             | Integer value to specify number of seconds after which the resource should be reconciled again         |
 
+## Creating a New Release
+
+To create a new release, create and push a version tag:
+
+```sh
+git tag v<VERSION>
+git push origin v<VERSION>
+```
+
 ## Help
 
 ### Documentation
