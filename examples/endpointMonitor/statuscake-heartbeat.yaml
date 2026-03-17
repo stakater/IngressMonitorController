@@ -1,0 +1,11 @@
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: my-service-heartbeat
+spec:
+  providers: StatusCake
+  statusCakeConfig:
+    testType: Heartbeat
+    checkRate: 300
+    testTags: "abc,def"
+    contactGroup: "123456,654321"

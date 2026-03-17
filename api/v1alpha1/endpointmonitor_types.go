@@ -158,6 +158,14 @@ type UpdownConfig struct {
 }
 
 // StatusCakeConfig defines the configuration for StatusCake Monitor Provider
+//
+// Heartbeat Validation
+// See https://developers.statuscake.com/api/#tag/heartbeat/operation/create-heartbeat-test
+// +kubebuilder:validation:XValidation:rule="self.testType != 'Heartbeat' || (self.checkRate >= 30 && self.checkRate <= 172800)",message="checkRate must be between 30 and 172800 seconds for Heartbeat monitors"
+//
+// Uptime Validation
+// See https://developers.statuscake.com/api/#tag/uptime/operation/create-uptime-test
+// +kubebuilder:validation:XValidation:rule="self.testType == 'Heartbeat' || self.checkRate in [0, 30, 60, 300, 900, 1800, 3600, 86400]",message="checkRate for uptime monitors must be one of: 0, 30, 60, 300, 900, 1800, 3600, 86400"
 type StatusCakeConfig struct {
 	// Basic Auth User
 	// +optional
@@ -167,11 +175,13 @@ type StatusCakeConfig struct {
 	// +optional
 	BasicAuthSecret string `json:"basicAuthSecret,omitempty"`
 
-	// Set Check Rate for the monitor
+	// Set Check Rate for the monitor.
+	// +kubebuilder:default=300
 	// +optional
 	CheckRate int `json:"checkRate,omitempty"`
 
-	// Set Test type - HTTP, TCP, PING
+	// Set Test type - HTTP, TCP, PING, or Heartbeat
+	// +kubebuilder:validation:Enum=HTTP;TCP;PING;Heartbeat
 	// +optional
 	TestType string `json:"testType,omitempty"`
 
