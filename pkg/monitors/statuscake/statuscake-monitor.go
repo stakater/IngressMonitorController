@@ -41,13 +41,71 @@ func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMon
 	// use the tags to define a last updated by tags. This ensures we are not ratelimited by statuscake.
 	oldConf := oldMonitor.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
 	newConf := newMonitor.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
+
+	if isHeartbeat(newMonitor) {
+		if oldConf.TestTags != newConf.TestTags || oldConf.CheckRate != newConf.CheckRate ||
+			oldConf.Paused != newConf.Paused || oldConf.ContactGroup != newConf.ContactGroup {
+			log.Info("Heartbeat monitor configuration changed, updating...",
+				"name", newMonitor.Name)
+			return false
+		}
+		return true
+	}
+
 	if oldConf.TestTags != newConf.TestTags {
 		msg := "Found a difference between the old TestTags and new TestTags. Updating the UptimeCheck..."
 		log.Info(msg, "Old Tags", oldConf.TestTags, "New Tags", newConf.TestTags)
 		return false
-	} else {
-		return true
 	}
+	return true
+}
+
+// isHeartbeat returns true when the monitor config specifies TestType "Heartbeat"
+func isHeartbeat(m models.Monitor) bool {
+	if cfg, ok := m.Config.(*endpointmonitorv1alpha1.StatusCakeConfig); ok {
+		return strings.EqualFold(cfg.TestType, "Heartbeat")
+	}
+	return false
+}
+
+// buildHeartbeatForm builds the form values for the heartbeat create/update API
+func buildHeartbeatForm(m models.Monitor, cgroup string) url.Values {
+	f := url.Values{}
+	f.Add("name", m.Name)
+
+	providerConfig, _ := m.Config.(*endpointmonitorv1alpha1.StatusCakeConfig)
+
+	period := 300
+	if providerConfig != nil && providerConfig.CheckRate > 0 {
+		if providerConfig.CheckRate >= 30 && providerConfig.CheckRate <= 172800 {
+			period = providerConfig.CheckRate
+		} else {
+			log.Error(nil, fmt.Sprintf("checkRate %d is out of the valid range for heartbeat monitors (30–172800 seconds), using default 300", providerConfig.CheckRate))
+		}
+	}
+	f.Add("period", strconv.Itoa(period))
+
+	if providerConfig != nil && len(providerConfig.ContactGroup) > 0 {
+		for _, cg := range convertStringToArray(providerConfig.ContactGroup) {
+			f.Add("contact_groups[]", cg)
+		}
+	} else if cgroup != "" {
+		for _, cg := range convertStringToArray(cgroup) {
+			f.Add("contact_groups[]", cg)
+		}
+	}
+
+	if providerConfig != nil && len(providerConfig.TestTags) > 0 {
+		for _, tag := range convertStringToArray(providerConfig.TestTags) {
+			f.Add("tags[]", tag)
+		}
+	}
+
+	if providerConfig != nil && providerConfig.Paused {
+		f.Add("paused", "1")
+	}
+
+	return f
 }
 
 // buildUpsertForm function is used to create the form needed to Add or update a monitor
@@ -308,6 +366,7 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 		log.Error(err, "Unable to retrieve monitor")
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	BodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -330,6 +389,58 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 	log.Info(fmt.Sprintf("Request failed with response: %s for id: %s", bodyString, id))
 
 	return nil, errors.New("GetByID Request failed")
+}
+
+// GetHeartbeatByID fetches a single heartbeat monitor by its ID
+func (service *StatusCakeMonitorService) GetHeartbeatByID(id string) (*models.Monitor, error) {
+	u, err := url.Parse(service.url)
+	if err != nil {
+		log.Error(err, "Unable to Parse monitor URL")
+		return nil, err
+	}
+	u.Path = fmt.Sprintf("/v1/heartbeat/%s", id)
+	u.Scheme = "https"
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		log.Error(err, "Unable to retrieve heartbeat monitor")
+		return nil, err
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+
+	resp, err := service.doRequest(req)
+	if err != nil {
+		log.Error(err, "Unable to retrieve heartbeat monitor")
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err, "Unable to read response body")
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		var data statuscake.HeartbeatTestResponse
+		err = json.Unmarshal(bodyBytes, &data)
+		if err != nil {
+			log.Error(err, "Unable to unmarshal heartbeat response")
+			return nil, err
+		}
+		overview := statuscake.HeartbeatTestOverview{
+			ID:            data.Data.ID,
+			Name:          data.Data.Name,
+			WebsiteURL:    data.Data.WebsiteURL,
+			Period:        data.Data.Period,
+			ContactGroups: data.Data.ContactGroups,
+			Paused:        data.Data.Paused,
+			Status:        data.Data.Status,
+			Tags:          data.Data.Tags,
+		}
+		return StatusCakeHeartbeatToBaseMonitorMapper(overview), nil
+	}
+	log.Info(fmt.Sprintf("GetHeartbeatByID request failed with response: %s for id: %s", string(bodyBytes), id))
+	return nil, errors.New("GetHeartbeatByID Request failed")
 }
 
 // doRequest function to handle requests to StatusCake and handle ratelimits.
@@ -364,21 +475,86 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 
 // GetAll function will fetch all monitors
 func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
-	var StatusCakeMonitorData []StatusCakeMonitorData
+	var allMonitors []models.Monitor
+
+	var uptimeData []StatusCakeMonitorData
 	page := 1
 	for {
 		res := service.fetchMonitors(page)
 		if res != nil {
-			StatusCakeMonitorData = append(StatusCakeMonitorData, res.StatusCakeData...)
+			uptimeData = append(uptimeData, res.StatusCakeData...)
 			if page >= res.StatusCakeMetadata.PageCount {
 				break
 			}
 		} else {
-			return nil
+			break
 		}
-		page += 1
+		page++
 	}
-	return StatusCakeMonitorMonitorsToBaseMonitorsMapper(StatusCakeMonitorData)
+	allMonitors = append(allMonitors, StatusCakeMonitorMonitorsToBaseMonitorsMapper(uptimeData)...)
+
+	var heartbeatData []statuscake.HeartbeatTestOverview
+	page = 1
+	for {
+		res := service.fetchHeartbeatMonitors(page)
+		if res != nil {
+			heartbeatData = append(heartbeatData, res.Data...)
+			if page >= res.Metadata.PageCount {
+				break
+			}
+		} else {
+			break
+		}
+		page++
+	}
+	allMonitors = append(allMonitors, StatusCakeHeartbeatsToBaseMonitorsMapper(heartbeatData)...)
+
+	return allMonitors
+}
+
+func (service *StatusCakeMonitorService) fetchHeartbeatMonitors(page int) *StatusCakeHeartbeatMonitor {
+	u, err := url.Parse(service.url)
+	if err != nil {
+		log.Error(err, "Unable to Parse monitor URL")
+		return nil
+	}
+	u.Path = "/v1/heartbeat/"
+	query := u.Query()
+	query.Add("limit", "100")
+	query.Add("page", strconv.Itoa(page))
+	u.RawQuery = query.Encode()
+	u.Scheme = "https"
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		log.Error(err, "Unable to retrieve heartbeat monitors")
+		return nil
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+
+	resp, err := service.doRequest(req)
+	if err != nil {
+		log.Error(err, "Unable to retrieve heartbeat monitors")
+		return nil
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err, "Unable to read response body")
+		return nil
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		log.Error(nil, "Heartbeat list request failed with status "+strconv.Itoa(resp.StatusCode)+": "+string(bodyBytes))
+		return nil
+	}
+	var result StatusCakeHeartbeatMonitor
+	err = json.Unmarshal(bodyBytes, &result)
+	if err != nil {
+		log.Error(err, "Failed to unmarshal heartbeat response")
+		return nil
+	}
+	return &result
 }
 
 func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMonitor {
@@ -405,6 +581,7 @@ func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMoni
 		log.Error(err, "Unable to retrieve monitor")
 		return nil
 	}
+	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -427,6 +604,11 @@ func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMoni
 
 // Add will create a new Monitor
 func (service *StatusCakeMonitorService) Add(m models.Monitor) {
+	if isHeartbeat(m) {
+		service.addHeartbeat(m)
+		return
+	}
+
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
@@ -446,6 +628,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		log.Error(err, "Unable to make HTTP call")
 		return
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusCreated {
 		log.Info("Monitor Added: " + m.Name)
 	} else {
@@ -459,8 +642,47 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 	}
 }
 
+func (service *StatusCakeMonitorService) addHeartbeat(m models.Monitor) {
+	u, err := url.Parse(service.url)
+	if err != nil {
+		log.Error(err, "Unable to Parse monitor URL")
+		return
+	}
+	u.Path = "/v1/heartbeat"
+	u.Scheme = "https"
+	data := buildHeartbeatForm(m, service.cgroup)
+	req, err := http.NewRequest("POST", u.String(), bytes.NewBufferString(data.Encode()))
+	if err != nil {
+		log.Error(err, "Unable to create http request")
+		return
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+	resp, err := service.doRequest(req)
+	if err != nil {
+		log.Error(err, "Unable to make HTTP call")
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusCreated {
+		log.Info("Heartbeat Monitor Added: " + m.Name)
+	} else {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Error(err, "Unable to read response")
+			return
+		}
+		log.Error(nil, "Heartbeat Insert Request failed for name: "+m.Name+" with status code "+strconv.Itoa(resp.StatusCode))
+		log.Error(nil, string(bodyBytes))
+	}
+}
+
 // Update will update an existing Monitor
 func (service *StatusCakeMonitorService) Update(m models.Monitor) {
+	if isHeartbeat(m) {
+		service.updateHeartbeat(m)
+		return
+	}
+
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
@@ -480,6 +702,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		log.Error(err, "Unable to make HTTP call")
 		return
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusNoContent {
 		log.Info("Monitor Updated: " + m.ID + m.Name)
 	} else {
@@ -493,8 +716,47 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 	}
 }
 
+func (service *StatusCakeMonitorService) updateHeartbeat(m models.Monitor) {
+	u, err := url.Parse(service.url)
+	if err != nil {
+		log.Error(err, "Unable to Parse monitor URL")
+		return
+	}
+	u.Path = fmt.Sprintf("/v1/heartbeat/%s", m.ID)
+	u.Scheme = "https"
+	data := buildHeartbeatForm(m, service.cgroup)
+	req, err := http.NewRequest("PUT", u.String(), bytes.NewBufferString(data.Encode()))
+	if err != nil {
+		log.Error(err, "Unable to create http request")
+		return
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+	resp, err := service.doRequest(req)
+	if err != nil {
+		log.Error(err, "Unable to make HTTP call")
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNoContent {
+		log.Info("Heartbeat Monitor Updated: " + m.ID + m.Name)
+	} else {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Error(err, "Unable to read response")
+			return
+		}
+		log.Error(nil, "Heartbeat Update Request failed for name: "+m.Name+" with status code "+strconv.Itoa(resp.StatusCode))
+		log.Error(nil, string(bodyBytes))
+	}
+}
+
 // Remove will delete an existing Monitor
 func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
+	if isHeartbeat(m) {
+		service.removeHeartbeat(m)
+		return
+	}
+
 	u, err := url.Parse(service.url)
 	if err != nil {
 		log.Error(err, "Unable to Parse monitor URL")
@@ -514,6 +776,7 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 		log.Error(err, "Unable to make HTTP call")
 		return
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
 		log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
 
@@ -524,5 +787,33 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 		} else {
 			log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
 		}
+	}
+}
+
+func (service *StatusCakeMonitorService) removeHeartbeat(m models.Monitor) {
+	u, err := url.Parse(service.url)
+	if err != nil {
+		log.Error(err, "Unable to Parse monitor URL")
+		return
+	}
+	u.Path = fmt.Sprintf("/v1/heartbeat/%s", m.ID)
+	u.Scheme = "https"
+
+	req, err := http.NewRequest("DELETE", u.String(), nil)
+	if err != nil {
+		log.Error(err, "Unable to create http request")
+		return
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+	resp, err := service.doRequest(req)
+	if err != nil {
+		log.Error(err, "Unable to make HTTP call")
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNoContent {
+		log.Info("Heartbeat Monitor Deleted: " + m.ID + m.Name)
+	} else {
+		log.Error(nil, fmt.Sprintf("Heartbeat Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
 	}
 }

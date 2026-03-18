@@ -262,7 +262,9 @@ spec:
                     description: Basic Auth User
                     type: string
                   checkRate:
-                    description: Set Check Rate for the monitor
+                    description: |-
+                      Set Check Rate for the monitor.
+                      For heartbeat monitors the valid range is 30–172800 seconds.
                     type: integer
                   confirmation:
                     description: Confirmation value ranges from (0,10)
@@ -309,7 +311,12 @@ spec:
                     description: Comma separated list of tags
                     type: string
                   testType:
-                    description: Set Test type - HTTP, TCP, PING
+                    description: Set Test type - HTTP, TCP, PING, or Heartbeat
+                    enum:
+                    - HTTP
+                    - TCP
+                    - PING
+                    - Heartbeat
                     type: string
                   timeout:
                     description: Timeout is used to set a user agent string.

@@ -4,6 +4,12 @@ import (
 	statuscake "github.com/StatusCakeDev/statuscake-go"
 )
 
+// StatusCakeHeartbeatMonitor is the response structure for the heartbeat list API
+type StatusCakeHeartbeatMonitor struct {
+	Data     []statuscake.HeartbeatTestOverview `json:"data"`
+	Metadata StatusCakeMonitorMetadata          `json:"metadata"`
+}
+
 // StatusCakeMonitor response Structure for GetAll and GetByName API's for Statuscake
 
 type StatusCakeMonitor struct {

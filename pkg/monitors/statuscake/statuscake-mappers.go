@@ -42,3 +42,30 @@ func StatusCakeMonitorMonitorsToBaseMonitorsMapper(statuscakeData []StatusCakeMo
 	}
 	return monitors
 }
+
+// StatusCakeHeartbeatToBaseMonitorMapper maps a StatusCake HeartbeatTestOverview to a Monitor.
+// m.URL is the StatusCake-generated push endpoint that clients ping to register a heartbeat.
+func StatusCakeHeartbeatToBaseMonitorMapper(hb statuscake.HeartbeatTestOverview) *models.Monitor {
+	var m models.Monitor
+	m.Name = hb.Name
+	m.URL = hb.WebsiteURL
+	m.ID = hb.ID
+
+	var providerConfig endpointmonitorv1alpha1.StatusCakeConfig
+	providerConfig.TestType = "Heartbeat"
+	providerConfig.TestTags = strings.Join(hb.Tags, ",")
+	providerConfig.CheckRate = int(hb.Period)
+	providerConfig.Paused = hb.Paused
+	providerConfig.ContactGroup = strings.Join(hb.ContactGroups, ",")
+	m.Config = &providerConfig
+	return &m
+}
+
+// StatusCakeHeartbeatsToBaseMonitorsMapper maps a slice of HeartbeatTestOverview to Monitors
+func StatusCakeHeartbeatsToBaseMonitorsMapper(hbs []statuscake.HeartbeatTestOverview) []models.Monitor {
+	var monitors []models.Monitor
+	for _, hb := range hbs {
+		monitors = append(monitors, *StatusCakeHeartbeatToBaseMonitorMapper(hb))
+	}
+	return monitors
+}

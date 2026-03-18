@@ -99,6 +99,176 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	}
 }
 
+func TestAddHeartbeatMonitorWithCorrectValues(t *testing.T) {
+	config := config.GetControllerConfigTest()
+
+	service := StatusCakeMonitorService{}
+	provider := util.GetProviderWithName(config, "StatusCake")
+	if provider == nil {
+		return
+	}
+	service.Setup(*provider)
+
+	m := models.Monitor{
+		Name: "heartbeat-imc-test",
+		Config: &endpointmonitorv1alpha1.StatusCakeConfig{
+			TestType:  "Heartbeat",
+			CheckRate: 300,
+			TestTags:  "imc-test",
+		},
+	}
+	service.Add(m)
+
+	mRes, err := service.GetByName(m.Name)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	} else if mRes == nil {
+		t.Errorf("Found empty response for Monitor. Name: %s", m.Name)
+	}
+	if mRes.Name != m.Name {
+		t.Error("Name should be the same")
+	}
+
+	service.Remove(*mRes)
+
+	time.Sleep(5 * time.Second)
+
+	monitor, err := service.GetByName(mRes.Name)
+	if monitor != nil {
+		t.Error("Monitor should've been deleted ", monitor, err)
+	}
+}
+
+func TestUpdateHeartbeatMonitorWithCorrectValues(t *testing.T) {
+	config := config.GetControllerConfigTest()
+
+	service := StatusCakeMonitorService{}
+	provider := util.GetProviderWithName(config, "StatusCake")
+	if provider == nil {
+		return
+	}
+	service.Setup(*provider)
+
+	m := models.Monitor{
+		Name: "heartbeat-imc-test",
+		Config: &endpointmonitorv1alpha1.StatusCakeConfig{
+			TestType:  "Heartbeat",
+			CheckRate: 300,
+			TestTags:  "imc-test",
+		},
+	}
+	service.Add(m)
+
+	mRes, err := service.GetByName(m.Name)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != m.Name {
+		t.Error("Name should be the same")
+	}
+
+	updatedName := m.Name + "-updated"
+	t.Cleanup(func() {
+		for _, name := range []string{m.Name, updatedName} {
+			if existing, _ := service.GetByName(name); existing != nil {
+				service.Remove(*existing)
+			}
+		}
+	})
+
+	mRes.Name = updatedName
+	service.Update(*mRes)
+
+	mRes, err = service.GetHeartbeatByID(mRes.ID)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
+	if mRes.Name != updatedName {
+		t.Error("Name should be updated")
+	}
+
+	time.Sleep(5 * time.Second)
+	service.Remove(*mRes)
+
+	monitor, err := service.GetByName(mRes.Name)
+	if monitor != nil {
+		t.Error("Monitor should've been deleted ", monitor, err)
+	}
+}
+
+func TestBuildHeartbeatForm(t *testing.T) {
+	tests := []struct {
+		name           string
+		monitor        models.Monitor
+		cgroup         string
+		expectedPeriod string
+		expectedCgroup string
+		expectedName   string
+		expectedTags   string
+		expectedPaused string
+		absentFields   []string
+	}{
+		{
+			name: "full config",
+			monitor: models.Monitor{
+				Name: "heartbeat-test",
+				Config: &endpointmonitorv1alpha1.StatusCakeConfig{
+					TestType:     "Heartbeat",
+					CheckRate:    60,
+					ContactGroup: "123456,654321",
+					TestTags:     "prod,heartbeat",
+					Paused:       true,
+				},
+			},
+			expectedPeriod: "60",
+			expectedCgroup: "123456,654321",
+			expectedName:   "heartbeat-test",
+			expectedTags:   "prod,heartbeat",
+			expectedPaused: "1",
+			absentFields:   []string{"website_url", "test_type", "status_codes_csv"},
+		},
+		{
+			name:           "defaults when CheckRate unset",
+			monitor:        models.Monitor{Name: "heartbeat-defaults", Config: &endpointmonitorv1alpha1.StatusCakeConfig{TestType: "Heartbeat"}},
+			cgroup:         "fallback-group",
+			expectedPeriod: "300",
+			expectedCgroup: "fallback-group",
+		},
+		{
+			name:           "out of range: below minimum (29)",
+			monitor:        models.Monitor{Name: "heartbeat-bad-rate", Config: &endpointmonitorv1alpha1.StatusCakeConfig{TestType: "Heartbeat", CheckRate: 29}},
+			expectedPeriod: "300",
+		},
+		{
+			name:           "out of range: above maximum (172801)",
+			monitor:        models.Monitor{Name: "heartbeat-bad-rate", Config: &endpointmonitorv1alpha1.StatusCakeConfig{TestType: "Heartbeat", CheckRate: 172801}},
+			expectedPeriod: "300",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			vals := buildHeartbeatForm(tt.monitor, tt.cgroup)
+			assert.Equal(t, tt.expectedPeriod, vals.Get("period"))
+			if tt.expectedCgroup != "" {
+				assert.Equal(t, tt.expectedCgroup, convertUrlValuesToString(vals, "contact_groups[]"))
+			}
+			if tt.expectedName != "" {
+				assert.Equal(t, tt.expectedName, vals.Get("name"))
+			}
+			if tt.expectedTags != "" {
+				assert.Equal(t, tt.expectedTags, convertUrlValuesToString(vals, "tags[]"))
+			}
+			if tt.expectedPaused != "" {
+				assert.Equal(t, tt.expectedPaused, vals.Get("paused"))
+			}
+			for _, field := range tt.absentFields {
+				assert.Equal(t, "", vals.Get(field))
+			}
+		})
+	}
+}
+
 func TestBuildUpsertForm(t *testing.T) {
 	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
 
