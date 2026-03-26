@@ -48,55 +48,37 @@ func (updownService *UpdownMonitorService) Setup(confProvider config.Provider) {
 	log.Info("Updown monitor has been initialized")
 }
 
-// GetAll function will return all monitors (updown checks) object in an array
-func (updownService *UpdownMonitorService) GetAll() []models.Monitor {
-
-	log.Info("Updown monitor's GetAll method has been called")
-
-	var monitors []models.Monitor
-
-	// getting all monitors(checks) list
+func (updownService *UpdownMonitorService) GetAll() ([]models.Monitor, error) {
 	updownChecks, httpResponse, err := updownService.client.Check.List()
-	log.Info("Monitors (updown checks) object list has been pulled")
-
-	if err != nil || httpResponse.StatusCode != http.StatusOK {
-		log.Info("Unable to get updown provider checks(monitor) list")
-
-		return nil
+	if err != nil {
+		return nil, err
 	}
-
-	log.Info("Populating monitors list using the updownChecks object given in updownChecks list")
-
-	// populating a monitors slice using the updownChecks objects given in updownChecks slice
+	if httpResponse.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("updown API returned status %d", httpResponse.StatusCode)
+	}
+	var monitors []models.Monitor
 	for _, updownCheck := range updownChecks {
-		newMonitor := models.Monitor{
+		monitors = append(monitors, models.Monitor{
 			URL:  updownCheck.URL,
 			Name: updownCheck.Alias,
 			ID:   updownCheck.Token,
-		}
-		monitors = append(monitors, newMonitor)
+		})
 	}
-
-	return monitors
+	return monitors, nil
 }
 
 // GetByName function will return a monitor(updown check) object based on the name provided
 func (updownService *UpdownMonitorService) GetByName(monitorName string) (*models.Monitor, error) {
-
-	log.Info("Updown monitor's GetByName method has been called")
-
-	updownMonitors := updownService.GetAll()
-	log.Info("Monitors (updown checks) object list has been pulled")
-
-	log.Info("Searching the monitor from monitors object list using its name")
-	for _, updownMonitor := range updownMonitors {
-		if updownMonitor.Name == monitorName {
-			// Test the code below
-			return &updownMonitor, nil
+	monitors, err := updownService.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, monitor := range monitors {
+		if monitor.Name == monitorName {
+			return &monitor, nil
 		}
 	}
-
-	return nil, fmt.Errorf("unable to locate %v monitor", monitorName)
+	return nil, nil
 }
 
 // Add function method will add a monitor (updown check)

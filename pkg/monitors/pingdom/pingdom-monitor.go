@@ -52,37 +52,33 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	}
 }
 
-func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, error) {
-	var match *models.Monitor
+func (service *PingdomMonitorService) GetAll() ([]models.Monitor, error) {
+	var monitors []models.Monitor
+	checks, err := service.client.Checks.List()
+	if err != nil {
+		return nil, err
+	}
+	for _, mon := range checks {
+		monitors = append(monitors, models.Monitor{
+			URL:  mon.Hostname,
+			ID:   fmt.Sprintf("%v", mon.ID),
+			Name: mon.Name,
+		})
+	}
+	return monitors, nil
+}
 
-	monitors := service.GetAll()
+func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, error) {
+	monitors, err := service.GetAll()
+	if err != nil {
+		return nil, err
+	}
 	for _, mon := range monitors {
 		if mon.Name == name {
 			return &mon, nil
 		}
 	}
-
-	return match, fmt.Errorf("Unable to locate monitor with name '%v'", name)
-}
-
-func (service *PingdomMonitorService) GetAll() []models.Monitor {
-	var monitors []models.Monitor
-
-	checks, err := service.client.Checks.List()
-	if err != nil {
-		log.Info("Error received while listing checks", "error", err)
-		return nil
-	}
-	for _, mon := range checks {
-		newMon := models.Monitor{
-			URL:  mon.Hostname,
-			ID:   fmt.Sprintf("%v", mon.ID),
-			Name: mon.Name,
-		}
-		monitors = append(monitors, newMon)
-	}
-
-	return monitors
+	return nil, nil
 }
 
 func (service *PingdomMonitorService) Add(m models.Monitor) {

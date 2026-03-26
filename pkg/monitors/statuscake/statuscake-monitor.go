@@ -332,7 +332,7 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 
 // GetByName function will Get a monitor by it's name
 func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor, error) {
-	monitors, err := service.getAllWithError()
+	monitors, err := service.GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -472,8 +472,8 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 	return resp, nil
 }
 
-// getAllWithError fetches all monitors and returns an error if any API call fails.
-func (service *StatusCakeMonitorService) getAllWithError() ([]models.Monitor, error) {
+// getAll fetches all monitors and returns an error if any API call fails.
+func (service *StatusCakeMonitorService) GetAll() ([]models.Monitor, error) {
 	var allMonitors []models.Monitor
 
 	var uptimeData []StatusCakeMonitorData
@@ -509,12 +509,6 @@ func (service *StatusCakeMonitorService) getAllWithError() ([]models.Monitor, er
 	allMonitors = append(allMonitors, StatusCakeHeartbeatsToBaseMonitorsMapper(heartbeatData)...)
 
 	return allMonitors, nil
-}
-
-// GetAll function will fetch all monitors
-func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
-	monitors, _ := service.getAllWithError()
-	return monitors
 }
 
 func (service *StatusCakeMonitorService) fetchHeartbeatMonitors(page int) *StatusCakeHeartbeatMonitor {

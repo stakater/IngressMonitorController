@@ -32,7 +32,7 @@ func TestGetAllMonitors(t *testing.T) {
 		return
 	}
 	service.Setup(*provider)
-	monitors := service.GetAll()
+	monitors, _ := service.GetAll()
 
 	if len(monitors) == 0 {
 		t.Log("No Monitors Exist")

@@ -65,28 +65,27 @@ func (service *MonitorService) GetByName(name string) (monitor *models.Monitor, 
 		}
 	}
 
-	return nil, fmt.Errorf("Unable to locate monitor with name %v", name)
+	return nil, nil
 }
 
-func (service *MonitorService) GetAll() (monitors []models.Monitor) {
+func (service *MonitorService) GetAll() ([]models.Monitor, error) {
 	uptimeCheckConfigsIterator := service.client.ListUptimeCheckConfigs(service.ctx, &monitoringpb.ListUptimeCheckConfigsRequest{
 		Parent: "projects/" + service.projectID,
 	})
 
-	monitors = []models.Monitor{}
+	var monitors []models.Monitor
 	for {
 		uptimeCheckConfig, err := uptimeCheckConfigsIterator.Next()
 		if errors.Is(err, iterator.Done) {
 			break
 		}
 		if err != nil {
-			log.Info("Error received while listing checks: " + err.Error())
-			return nil
+			return nil, fmt.Errorf("error received while listing checks: %w", err)
 		}
 		monitors = append(monitors, transformToMonitor(uptimeCheckConfig))
 	}
 
-	return monitors
+	return monitors, nil
 }
 
 func (service *MonitorService) Add(monitor models.Monitor) {

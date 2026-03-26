@@ -162,7 +162,7 @@ func (aiService *AppinsightsMonitorService) Setup(provider config.Provider) {
 
 // GetAll function will return all monitors (appinsights webtest) object in an array
 // GetAll for AppInsights returns all webtest for specific component in a resource group.
-func (aiService *AppinsightsMonitorService) GetAll() []models.Monitor {
+func (aiService *AppinsightsMonitorService) GetAll() ([]models.Monitor, error) {
 
 	log.Info("AppInsight monitor's GetAll method has been called")
 
@@ -172,7 +172,7 @@ func (aiService *AppinsightsMonitorService) GetAll() []models.Monitor {
 	for pager.More() {
 		page, err := pager.NextPage(aiService.ctx)
 		if err != nil {
-			return monitors
+			return nil, err
 		}
 
 		for _, wt := range page.Value {
@@ -184,7 +184,7 @@ func (aiService *AppinsightsMonitorService) GetAll() []models.Monitor {
 			monitors = append(monitors, m)
 		}
 	}
-	return monitors
+	return monitors, nil
 
 }
 
@@ -198,7 +198,7 @@ func (aiService *AppinsightsMonitorService) GetByName(monitorName string) (*mode
 		var re *azcore.ResponseError
 		if errors.As(err, &re) {
 			if re.StatusCode == http.StatusNotFound {
-				return nil, fmt.Errorf("Application Insights WebTest %s was not found in Resource Group %s", monitorName, aiService.resourceGroup)
+				return nil, nil
 			}
 		}
 		return nil, fmt.Errorf("Error retrieving Application Insights WebTests %s (Resource Group %s): %v", monitorName, aiService.resourceGroup, err)

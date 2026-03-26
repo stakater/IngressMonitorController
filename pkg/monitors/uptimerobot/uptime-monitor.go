@@ -115,7 +115,7 @@ func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor
 	return nil, errors.New(errorString)
 }
 
-func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
+func (monitor *UpTimeMonitorService) GetAll() ([]models.Monitor, error) {
 
 	action := "getMonitors"
 
@@ -131,14 +131,16 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
 			log.Error(err, "Unable to unmarshal list monitors response")
+			return nil, err
 		}
 
-		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
+		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors), nil
 
 	}
 
-	log.Info("GetAllMonitors Request for UptimeRobot failed. Status Code: " + strconv.Itoa(response.StatusCode))
-	return nil
+	errorString := "GetAllMonitors Request for UptimeRobot failed. Status Code: " + strconv.Itoa(response.StatusCode)
+	log.Info(errorString)
+	return nil, errors.New(errorString)
 
 }
 
