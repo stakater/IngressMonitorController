@@ -457,16 +457,25 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 		return nil, err
 	}
 
-	// Handle rate-limiting responses (HTTP 429)
+	// Handle rate-limiting responses (HTTP 429).
+	// See https://developers.statuscake.com/guides/api/ratelimiting/
 	if resp.StatusCode == http.StatusTooManyRequests {
-		retryAfter := resp.Header.Get("Retry-After")
-		if retryAfter != "" {
-			seconds, err := strconv.Atoi(retryAfter)
-			if err == nil {
-				time.Sleep(time.Duration(seconds) * time.Second)
-				return service.doRequest(req) // Retry after the specified delay
+		resp.Body.Close()
+		delay := 10 * time.Second // fallback if no header is present
+		if v := resp.Header.Get("Retry-After"); v != "" {
+			if seconds, err := strconv.Atoi(v); err == nil {
+				delay = time.Duration(seconds) * time.Second
+			}
+		} else if v := resp.Header.Get("x-ratelimit-reset"); v != "" {
+			if epoch, err := strconv.ParseInt(v, 10, 64); err == nil {
+				if d := time.Until(time.Unix(epoch, 0)); d > 0 {
+					delay = d
+				}
 			}
 		}
+		log.Info("StatusCake rate limit hit, retrying after delay", "delay_seconds", int(delay.Seconds()))
+		time.Sleep(delay)
+		return service.doRequest(req)
 	}
 
 	return resp, nil
@@ -538,9 +547,6 @@ func (service *StatusCakeMonitorService) fetchHeartbeatMonitors(page int) (*Stat
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		if resp.StatusCode == http.StatusTooManyRequests {
-			return nil, fmt.Errorf("StatusCake rate limit exceeded (429) while listing heartbeat monitors")
-		}
 		return nil, fmt.Errorf("heartbeat list request returned HTTP %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 	var result StatusCakeHeartbeatMonitor
@@ -580,9 +586,6 @@ func (service *StatusCakeMonitorService) fetchMonitors(page int) (*StatusCakeMon
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		if resp.StatusCode == http.StatusTooManyRequests {
-			return nil, fmt.Errorf("StatusCake rate limit exceeded (429) while listing uptime monitors")
-		}
 		return nil, fmt.Errorf("uptime list request returned HTTP %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 	var StatusCakeMonitor StatusCakeMonitor
