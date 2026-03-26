@@ -142,24 +142,17 @@ func main() {
 		Metrics: metricsServerOptions,
 	}
 
-	namespaces := []string{}
 	// Add support for MultiNamespace set in WATCH_NAMESPACE (e.g ns1,ns2)
 	// More Info: https://godoc.org/github.com/kubernetes-sigs/controller-runtime/pkg/cache#MultiNamespacedCacheBuilder
-	if strings.Contains(watchNamespace, ",") {
-		setupLog.Info("Manager will be watching namespace(s) %q", watchNamespace)
-		// configure cluster-scoped with MultiNamespacedCacheBuilder
-		//options.Namespace = ""
-		namespaces = strings.Split(watchNamespace, ",")
-	} else {
-		namespaces = []string{watchNamespace}
-	}
-
-	options.NewCache = func(config *rest.Config, opts cache.Options) (cache.Cache, error) {
-		opts.DefaultNamespaces = map[string]cache.Config{}
-		for _, ns := range namespaces {
-			opts.DefaultNamespaces[ns] = cache.Config{}
+	// Only restrict the cache when a non-empty WATCH_NAMESPACE is set. When empty, leave DefaultNamespaces nil
+	// so the manager uses a global (all-namespace) cache. Setting DefaultNamespaces = {"": {}} would trigger
+	// multiNamespaceCache whose List() does not fall back to the global informer for specific namespaces.
+	if defaultNamespaces := buildDefaultNamespaces(watchNamespace); defaultNamespaces != nil {
+		setupLog.Info("Manager will be watching namespace(s)", "namespaces", watchNamespace)
+		options.NewCache = func(config *rest.Config, opts cache.Options) (cache.Cache, error) {
+			opts.DefaultNamespaces = defaultNamespaces
+			return cache.New(config, opts)
 		}
-		return cache.New(config, opts)
 	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), options)
@@ -197,6 +190,19 @@ func main() {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+}
+
+// buildDefaultNamespaces returns the cache.Config map for the given comma-separated
+// watchNamespace value, or nil when watchNamespace is empty (cluster-scoped cache).
+func buildDefaultNamespaces(watchNamespace string) map[string]cache.Config {
+	if watchNamespace == "" {
+		return nil
+	}
+	result := map[string]cache.Config{}
+	for _, ns := range strings.Split(watchNamespace, ",") {
+		result[strings.TrimSpace(ns)] = cache.Config{}
+	}
+	return result
 }
 
 func getWatchNamespace() (string, error) {
