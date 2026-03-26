@@ -479,14 +479,13 @@ func (service *StatusCakeMonitorService) GetAll() ([]models.Monitor, error) {
 	var uptimeData []StatusCakeMonitorData
 	page := 1
 	for {
-		res := service.fetchMonitors(page)
-		if res != nil {
-			uptimeData = append(uptimeData, res.StatusCakeData...)
-			if page >= res.StatusCakeMetadata.PageCount {
-				break
-			}
-		} else {
-			return nil, errors.New("failed to fetch uptime monitors from StatusCake")
+		res, err := service.fetchMonitors(page)
+		if err != nil {
+			return nil, err
+		}
+		uptimeData = append(uptimeData, res.StatusCakeData...)
+		if page >= res.StatusCakeMetadata.PageCount {
+			break
 		}
 		page++
 	}
@@ -495,14 +494,13 @@ func (service *StatusCakeMonitorService) GetAll() ([]models.Monitor, error) {
 	var heartbeatData []statuscake.HeartbeatTestOverview
 	page = 1
 	for {
-		res := service.fetchHeartbeatMonitors(page)
-		if res != nil {
-			heartbeatData = append(heartbeatData, res.Data...)
-			if page >= res.Metadata.PageCount {
-				break
-			}
-		} else {
-			return nil, errors.New("failed to fetch heartbeat monitors from StatusCake")
+		res, err := service.fetchHeartbeatMonitors(page)
+		if err != nil {
+			return nil, err
+		}
+		heartbeatData = append(heartbeatData, res.Data...)
+		if page >= res.Metadata.PageCount {
+			break
 		}
 		page++
 	}
@@ -511,11 +509,10 @@ func (service *StatusCakeMonitorService) GetAll() ([]models.Monitor, error) {
 	return allMonitors, nil
 }
 
-func (service *StatusCakeMonitorService) fetchHeartbeatMonitors(page int) *StatusCakeHeartbeatMonitor {
+func (service *StatusCakeMonitorService) fetchHeartbeatMonitors(page int) (*StatusCakeHeartbeatMonitor, error) {
 	u, err := url.Parse(service.url)
 	if err != nil {
-		log.Error(err, "Unable to Parse monitor URL")
-		return nil
+		return nil, fmt.Errorf("unable to parse StatusCake URL: %w", err)
 	}
 	u.Path = "/v1/heartbeat/"
 	query := u.Query()
@@ -525,42 +522,39 @@ func (service *StatusCakeMonitorService) fetchHeartbeatMonitors(page int) *Statu
 	u.Scheme = "https"
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		log.Error(err, "Unable to retrieve heartbeat monitors")
-		return nil
+		return nil, fmt.Errorf("unable to build heartbeat list request: %w", err)
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 
 	resp, err := service.doRequest(req)
 	if err != nil {
-		log.Error(err, "Unable to retrieve heartbeat monitors")
-		return nil
+		return nil, fmt.Errorf("heartbeat list request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Error(err, "Unable to read response body")
-		return nil
+		return nil, fmt.Errorf("unable to read heartbeat list response: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Error(nil, "Heartbeat list request failed with status "+strconv.Itoa(resp.StatusCode)+": "+string(bodyBytes))
-		return nil
+		if resp.StatusCode == http.StatusTooManyRequests {
+			return nil, fmt.Errorf("StatusCake rate limit exceeded (429) while listing heartbeat monitors")
+		}
+		return nil, fmt.Errorf("heartbeat list request returned HTTP %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 	var result StatusCakeHeartbeatMonitor
 	err = json.Unmarshal(bodyBytes, &result)
 	if err != nil {
-		log.Error(err, "Failed to unmarshal heartbeat response")
-		return nil
+		return nil, fmt.Errorf("unable to unmarshal heartbeat list response: %w", err)
 	}
-	return &result
+	return &result, nil
 }
 
-func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMonitor {
+func (service *StatusCakeMonitorService) fetchMonitors(page int) (*StatusCakeMonitor, error) {
 	u, err := url.Parse(service.url)
 	if err != nil {
-		log.Error(err, "Unable to Parse monitor URL")
-		return nil
+		return nil, fmt.Errorf("unable to parse StatusCake URL: %w", err)
 	}
 	u.Path = "/v1/uptime/"
 	query := u.Query()
@@ -570,35 +564,34 @@ func (service *StatusCakeMonitorService) fetchMonitors(page int) *StatusCakeMoni
 	u.Scheme = "https"
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		log.Error(err, "Unable to retrieve monitor")
-		return nil
+		return nil, fmt.Errorf("unable to build uptime list request: %w", err)
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 
 	resp, err := service.doRequest(req)
 	if err != nil {
-		log.Error(err, "Unable to retrieve monitor")
-		return nil
+		return nil, fmt.Errorf("uptime list request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Error(err, "Unable to read response body")
-		return nil
+		return nil, fmt.Errorf("unable to read uptime list response: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil
+		if resp.StatusCode == http.StatusTooManyRequests {
+			return nil, fmt.Errorf("StatusCake rate limit exceeded (429) while listing uptime monitors")
+		}
+		return nil, fmt.Errorf("uptime list request returned HTTP %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 	var StatusCakeMonitor StatusCakeMonitor
 	err = json.Unmarshal(bodyBytes, &StatusCakeMonitor)
 	if err != nil {
-		log.Error(err, "Failed to unmarshal response")
-		return nil
+		return nil, fmt.Errorf("unable to unmarshal uptime list response: %w", err)
 	}
 
-	return &StatusCakeMonitor
+	return &StatusCakeMonitor, nil
 }
 
 // Add will create a new Monitor
