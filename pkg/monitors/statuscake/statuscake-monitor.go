@@ -332,17 +332,16 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 
 // GetByName function will Get a monitor by it's name
 func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor, error) {
-	monitors := service.GetAll()
-	if len(monitors) != 0 {
-		for _, monitor := range monitors {
-			if monitor.Name == name {
-				return &monitor, nil
-			}
+	monitors, err := service.getAllWithError()
+	if err != nil {
+		return nil, err
+	}
+	for _, monitor := range monitors {
+		if monitor.Name == name {
+			return &monitor, nil
 		}
 	}
-	errorString := "GetByName Request failed for name: " + name
-	return nil, errors.New(errorString)
-
+	return nil, nil
 }
 
 // GetByID function will Get a monitor by it's ID
@@ -473,8 +472,8 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 	return resp, nil
 }
 
-// GetAll function will fetch all monitors
-func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
+// getAllWithError fetches all monitors and returns an error if any API call fails.
+func (service *StatusCakeMonitorService) getAllWithError() ([]models.Monitor, error) {
 	var allMonitors []models.Monitor
 
 	var uptimeData []StatusCakeMonitorData
@@ -487,7 +486,7 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 				break
 			}
 		} else {
-			break
+			return nil, errors.New("failed to fetch uptime monitors from StatusCake")
 		}
 		page++
 	}
@@ -503,13 +502,19 @@ func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
 				break
 			}
 		} else {
-			break
+			return nil, errors.New("failed to fetch heartbeat monitors from StatusCake")
 		}
 		page++
 	}
 	allMonitors = append(allMonitors, StatusCakeHeartbeatsToBaseMonitorsMapper(heartbeatData)...)
 
-	return allMonitors
+	return allMonitors, nil
+}
+
+// GetAll function will fetch all monitors
+func (service *StatusCakeMonitorService) GetAll() []models.Monitor {
+	monitors, _ := service.getAllWithError()
+	return monitors
 }
 
 func (service *StatusCakeMonitorService) fetchHeartbeatMonitors(page int) *StatusCakeHeartbeatMonitor {
