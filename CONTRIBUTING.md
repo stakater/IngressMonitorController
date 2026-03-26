@@ -96,7 +96,7 @@ And then handle it accordingly in your monitor's implementation.
 
 #### Examples
 
-In [endpointmonitor_types.go](./pkg/apis/endpointmonitor/v1alpha1/endpointmonitor_types.go)
+In [endpointmonitor_types.go](./api/v1alpha1/endpointmonitor_types.go)
 
 ```yaml
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
