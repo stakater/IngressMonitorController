@@ -21,9 +21,15 @@ func (r *EndpointMonitorReconciler) handleDelete(request reconcile.Request, inst
 	}
 
 	// in case of multiple providers we need to iterate over all of them
-	monitorServices := findMonitorServicesThatContainsMonitor(r.MonitorServices, monitorName)
+	monitorServices, err := findMonitorServicesThatContainsMonitor(r.MonitorServices, monitorName)
+	if err != nil {
+		log.Error(err, "Failed to find monitor services containing monitor: "+monitorName)
+		return reconcile.Result{}, err
+	}
 	for _, monitorService := range monitorServices {
-		r.removeMonitorIfExists(monitorService, monitorName)
+		if err := r.removeMonitorIfExists(monitorService, monitorName); err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 	if len(monitorServices) < 1 {
 		log.Info("Cannot find monitor service that contains monitor: " + monitorName)
@@ -32,10 +38,14 @@ func (r *EndpointMonitorReconciler) handleDelete(request reconcile.Request, inst
 	return reconcile.Result{}, nil
 }
 
-func (r *EndpointMonitorReconciler) removeMonitorIfExists(monitorService *monitors.MonitorServiceProxy, monitorName string) {
+func (r *EndpointMonitorReconciler) removeMonitorIfExists(monitorService *monitors.MonitorServiceProxy, monitorName string) error {
 	log := r.Log.WithValues("monitor", monitorName)
 
-	monitor, _ := monitorService.GetByName(monitorName)
+	monitor, err := monitorService.GetByName(monitorName)
+	if err != nil {
+		log.Error(err, "Failed to get monitor by name: "+monitorName+" for provider: "+monitorService.GetType())
+		return err
+	}
 	// Monitor Exists
 	if monitor != nil {
 		// Monitor Exists, remove the monitor
@@ -44,4 +54,5 @@ func (r *EndpointMonitorReconciler) removeMonitorIfExists(monitorService *monito
 	} else {
 		log.Info("Cannot find monitor with name: " + monitorName + " for provider: " + monitorService.GetType())
 	}
+	return nil
 }
