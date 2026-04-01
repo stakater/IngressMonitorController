@@ -442,8 +442,14 @@ func (service *StatusCakeMonitorService) GetHeartbeatByID(id string) (*models.Mo
 	return nil, errors.New("GetHeartbeatByID Request failed")
 }
 
+const maxRateLimitRetries = 3
+
 // doRequest function to handle requests to StatusCake and handle ratelimits.
 func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Response, error) {
+	return service.doRequestWithRetries(req, 0)
+}
+
+func (service *StatusCakeMonitorService) doRequestWithRetries(req *http.Request, attempt int) (*http.Response, error) {
 	// Wait for the rate limiter to allow a request
 	err := rateLimiter.Wait(req.Context())
 	if err != nil {
@@ -461,6 +467,9 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 	// See https://developers.statuscake.com/guides/api/ratelimiting/
 	if resp.StatusCode == http.StatusTooManyRequests {
 		resp.Body.Close()
+		if attempt >= maxRateLimitRetries {
+			return nil, fmt.Errorf("StatusCake rate limit exceeded after %d retries", maxRateLimitRetries)
+		}
 		delay := 10 * time.Second // fallback if no header is present
 		if v := resp.Header.Get("Retry-After"); v != "" {
 			if seconds, err := strconv.Atoi(v); err == nil {
@@ -473,9 +482,9 @@ func (service *StatusCakeMonitorService) doRequest(req *http.Request) (*http.Res
 				}
 			}
 		}
-		log.Info("StatusCake rate limit hit, retrying after delay", "delay_seconds", int(delay.Seconds()))
+		log.Info("StatusCake rate limit hit, retrying after delay", "delay_seconds", int(delay.Seconds()), "attempt", attempt+1, "max_retries", maxRateLimitRetries)
 		time.Sleep(delay)
-		return service.doRequest(req)
+		return service.doRequestWithRetries(req, attempt+1)
 	}
 
 	return resp, nil
