@@ -200,7 +200,14 @@ func buildDefaultNamespaces(watchNamespace string) map[string]cache.Config {
 	}
 	result := map[string]cache.Config{}
 	for _, ns := range strings.Split(watchNamespace, ",") {
-		result[strings.TrimSpace(ns)] = cache.Config{}
+		ns = strings.TrimSpace(ns)
+		if ns == "" {
+			continue
+		}
+		result[ns] = cache.Config{}
+	}
+	if len(result) == 0 {
+		return nil
 	}
 	return result
 }
