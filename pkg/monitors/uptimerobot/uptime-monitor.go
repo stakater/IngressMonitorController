@@ -81,10 +81,8 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		}
 	}
 
-	errorString := "GetByName Request failed for name: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
-
-	log.Info(errorString)
-	return nil, errors.New(errorString)
+	log.Info("GetByName: monitor not found", "name", name, "statusCode", response.StatusCode)
+	return nil, nil
 }
 
 func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor, error) {
