@@ -262,9 +262,8 @@ spec:
                     description: Basic Auth User
                     type: string
                   checkRate:
-                    description: |-
-                      Set Check Rate for the monitor.
-                      For heartbeat monitors the valid range is 30–172800 seconds.
+                    default: 300
+                    description: Set Check Rate for the monitor.
                     type: integer
                   confirmation:
                     description: Confirmation value ranges from (0,10)
@@ -330,6 +329,15 @@ spec:
                     description: UserAgent is used to set a user agent string.
                     type: string
                 type: object
+                x-kubernetes-validations:
+                - message: checkRate must be between 30 and 172800 seconds for Heartbeat
+                    monitors
+                  rule: self.testType != 'Heartbeat' || (self.checkRate >= 30 && self.checkRate
+                    <= 172800)
+                - message: 'checkRate for uptime monitors must be one of: 0, 30, 60,
+                    300, 900, 1800, 3600, 86400'
+                  rule: self.testType == 'Heartbeat' || self.checkRate in [0, 30,
+                    60, 300, 900, 1800, 3600, 86400]
               updownConfig:
                 description: Configuration for Updown Monitor Provider
                 properties:
