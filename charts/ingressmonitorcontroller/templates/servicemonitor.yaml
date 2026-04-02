@@ -21,7 +21,13 @@ spec:
       scheme: https
       bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       tlsConfig:
-        insecureSkipVerify: true
+        insecureSkipVerify: {{ not .Values.certManager.enabled }}
+        {{- if and .Values.certManager.enabled .Values.certManager.injectCA }}
+        ca:
+          secret:
+            name: {{ include "ingress-monitor-controller.fullname" . }}-metrics-tls
+            key: ca.crt
+        {{- end }}
   namespaceSelector:
     matchNames:
     - '{{ include "ingress-monitor-controller.namespace" . }}'

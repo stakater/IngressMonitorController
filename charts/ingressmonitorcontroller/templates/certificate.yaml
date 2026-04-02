@@ -1,0 +1,28 @@
+{{- if .Values.certManager.enabled -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "ingress-monitor-controller.fullname" . }}-metrics-cert
+  namespace: {{ include "ingress-monitor-controller.namespace" . }}
+  labels:
+    {{- include "ingress-monitor-controller.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "ingress-monitor-controller.fullname" . }}-metrics-tls
+  {{- with .Values.certManager.duration }}
+  duration: {{ . }}
+  {{- end }}
+  {{- with .Values.certManager.renewBefore }}
+  renewBefore: {{ . }}
+  {{- end }}
+  dnsNames:
+  - {{ include "ingress-monitor-controller.fullname" . }}-metrics-service.{{ include "ingress-monitor-controller.namespace" . }}.svc
+  - {{ include "ingress-monitor-controller.fullname" . }}-metrics-service.{{ include "ingress-monitor-controller.namespace" . }}.svc.cluster.local
+  issuerRef:
+    name: {{ required "certManager.issuerRef.name is required when certManager.enabled is true" .Values.certManager.issuerRef.name }}
+    {{- with .Values.certManager.issuerRef.kind }}
+    kind: {{ . }}
+    {{- end }}
+    {{- with .Values.certManager.issuerRef.group }}
+    group: {{ . }}
+    {{- end }}
+{{- end }}
