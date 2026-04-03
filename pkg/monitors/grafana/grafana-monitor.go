@@ -65,43 +65,6 @@ func (service *GrafanaMonitorService) Setup(provider config.Provider) {
 	}
 }
 
-func (service *GrafanaMonitorService) GetAll() (monitors []models.Monitor) {
-	// Using the synthetic monitoring library to list all checks
-	checks, err := service.smClient.ListChecks(service.ctx)
-	if err != nil {
-		log.Error(err, "Error getting monitors")
-		return nil
-	}
-	availableProbes, err := service.smClient.ListProbes(service.ctx)
-	if err != nil {
-		log.Error(err, "Error getting probes")
-		return nil
-	}
-
-	var probes []string
-	for _, check := range checks {
-		for _, probeId := range check.Probes {
-			for _, availableProbe := range availableProbes {
-				if probeId == availableProbe.Id {
-					probes = append(probes, availableProbe.Name)
-				}
-			}
-		}
-		monitors = append(monitors, models.Monitor{
-			Name: check.Job,
-			URL:  check.Target,
-			ID:   fmt.Sprintf("%v", check.Id),
-			Config: &endpointmonitorv1alpha1.GrafanaConfig{
-				TenantId:         check.TenantId,
-				Frequency:        check.Frequency,
-				Probes:           probes,
-				AlertSensitivity: check.AlertSensitivity,
-			},
-		})
-	}
-	return monitors
-}
-
 func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monitor, tenantID int64) (*synthetic_monitoring.Check, error) {
 
 	availableProbes, err := service.smClient.ListProbes(service.ctx)
@@ -210,15 +173,52 @@ func (service *GrafanaMonitorService) Update(monitor models.Monitor) {
 	log.Info(fmt.Sprintf("Successfully updated monitor %v %v", monitor.ID, createdCheck.Id))
 }
 
+func (service *GrafanaMonitorService) GetAll() ([]models.Monitor, error) {
+	checks, err := service.smClient.ListChecks(service.ctx)
+	if err != nil {
+		return nil, err
+	}
+	availableProbes, err := service.smClient.ListProbes(service.ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var monitors []models.Monitor
+	for _, check := range checks {
+		var probes []string
+		for _, probeId := range check.Probes {
+			for _, availableProbe := range availableProbes {
+				if probeId == availableProbe.Id {
+					probes = append(probes, availableProbe.Name)
+				}
+			}
+		}
+		monitors = append(monitors, models.Monitor{
+			Name: check.Job,
+			URL:  check.Target,
+			ID:   fmt.Sprintf("%v", check.Id),
+			Config: &endpointmonitorv1alpha1.GrafanaConfig{
+				TenantId:         check.TenantId,
+				Frequency:        check.Frequency,
+				Probes:           probes,
+				AlertSensitivity: check.AlertSensitivity,
+			},
+		})
+	}
+	return monitors, nil
+}
+
 func (service *GrafanaMonitorService) GetByName(name string) (*models.Monitor, error) {
-	monitors := service.GetAll()
+	monitors, err := service.GetAll()
+	if err != nil {
+		return nil, err
+	}
 	for _, m := range monitors {
 		if m.Name == name {
 			return &m, nil
 		}
 	}
-
-	return nil, fmt.Errorf("Unable to locate monitor with name %v", name)
+	return nil, nil
 }
 
 func (service *GrafanaMonitorService) Remove(monitor models.Monitor) {

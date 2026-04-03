@@ -2,7 +2,6 @@ package uptime
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"reflect"
 	"sort"
@@ -49,23 +48,7 @@ func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
 	monitor.alertContacts = p.AlertContacts
 }
 
-func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, error) {
-
-	monitors := monitor.GetAll()
-
-	for _, monitor := range monitors {
-		if monitor.Name == name {
-			return &monitor, nil
-		}
-	}
-
-	errorString := name + " not found"
-	log.Info(errorString)
-	return nil, errors.New(errorString)
-}
-
-func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
-
+func (monitor *UpTimeMonitorService) GetAll() ([]models.Monitor, error) {
 	var monitors []UptimeMonitorMonitor
 	headers := make(map[string]string)
 	headers["Authorization"] = "Token " + monitor.apiKey
@@ -76,30 +59,40 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 
 	cached, found := cache.Get("uptime-checks")
 	if found {
-		return UptimeMonitorMonitorsToBaseMonitorsMapper(cached.([]UptimeMonitorMonitor))
+		return UptimeMonitorMonitorsToBaseMonitorsMapper(cached.([]UptimeMonitorMonitor)), nil
 	}
 
-	// Loop over paginated response until Next is null
 	for next != nil {
 		var f UptimeMonitorGetMonitorsResponse
 		checksUrl := fmt.Sprintf("%schecks/?page=%d", monitor.url, pageNo)
 		client := http.CreateHttpClient(checksUrl)
 		response := client.GetUrl(headers, []byte(""))
 		if response.StatusCode != Http.StatusOK {
-			log.Info("GetAllMonitors Request for Uptime failed. Status Code: " + strconv.Itoa(response.StatusCode))
-			return nil
+			return nil, fmt.Errorf("uptime API returned status %d", response.StatusCode)
 		}
-
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
-			log.Info(fmt.Sprintf("Could not Unmarshal Json Response with error: %v", err))
+			return nil, fmt.Errorf("could not unmarshal uptime response: %v", err)
 		}
 		monitors = append(monitors, f.Monitors...)
 		pageNo++
 		next = f.Next
 	}
 	cache.Set("uptime-checks", monitors, gocache.DefaultExpiration)
-	return UptimeMonitorMonitorsToBaseMonitorsMapper(monitors)
+	return UptimeMonitorMonitorsToBaseMonitorsMapper(monitors), nil
+}
+
+func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, error) {
+	monitors, err := monitor.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, m := range monitors {
+		if m.Name == name {
+			return &m, nil
+		}
+	}
+	return nil, nil
 }
 
 func (monitor *UpTimeMonitorService) Add(m models.Monitor) {

@@ -97,7 +97,7 @@ func (mp *MonitorServiceProxy) Setup(p config.Provider) {
 	mp.monitor.Setup(p)
 }
 
-func (mp *MonitorServiceProxy) GetAll() []models.Monitor {
+func (mp *MonitorServiceProxy) GetAll() ([]models.Monitor, error) {
 	return mp.monitor.GetAll()
 }
 

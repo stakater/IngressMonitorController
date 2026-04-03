@@ -27,6 +27,8 @@ type UpTimeMonitorService struct {
 // Default Interval for status checking
 const DefaultInterval = 300
 
+const maxRateLimitRetries = 3
+
 func (monitor *UpTimeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
 	if !(reflect.DeepEqual(monitor.processProviderConfig(oldMonitor, false), monitor.processProviderConfig(newMonitor, false))) {
 		log.Info(fmt.Sprintf("There are some new changes in %s monitor", newMonitor.Name))
@@ -44,6 +46,10 @@ func (monitor *UpTimeMonitorService) Setup(p config.Provider) {
 }
 
 func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, error) {
+	return monitor.getByNameWithRetries(name, 0)
+}
+
+func (monitor *UpTimeMonitorService) getByNameWithRetries(name string, attempt int) (*models.Monitor, error) {
 	action := "getMonitors"
 
 	client := http.CreateHttpClient(monitor.url + action)
@@ -60,31 +66,32 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		}
 
 		if f.Monitors != nil {
-			for _, monitor := range f.Monitors {
-				if monitor.FriendlyName == name {
-					return UptimeMonitorMonitorToBaseMonitorMapper(monitor), nil
+			for _, m := range f.Monitors {
+				if m.FriendlyName == name {
+					return UptimeMonitorMonitorToBaseMonitorMapper(m), nil
 				}
 			}
 		}
 
 		return nil, nil
 	} else if response.StatusCode == Http.StatusTooManyRequests {
-		log.Info("Too many requests, Monitor waiting for timeout: " + name)
+		if attempt >= maxRateLimitRetries {
+			return nil, fmt.Errorf("UptimeRobot rate limit exceeded after %d retries for monitor: %s", maxRateLimitRetries, name)
+		}
+		delay := 10 * time.Second
 		retryAfter := response.Header.Get("Retry-After")
 		if retryAfter != "" {
 			seconds, err := strconv.Atoi(retryAfter)
 			if err == nil {
-				time.Sleep(time.Duration(seconds) * time.Second)
-				return monitor.GetByName(name) // Retry after the specified delay
-
+				delay = time.Duration(seconds) * time.Second
 			}
 		}
+		log.Info("UptimeRobot rate limit hit, retrying after delay", "delay_seconds", int(delay.Seconds()), "attempt", attempt+1, "max_retries", maxRateLimitRetries)
+		time.Sleep(delay)
+		return monitor.getByNameWithRetries(name, attempt+1)
 	}
 
-	errorString := "GetByName Request failed for name: " + name + ". Status Code: " + strconv.Itoa(response.StatusCode)
-
-	log.Info(errorString)
-	return nil, errors.New(errorString)
+	return nil, fmt.Errorf("GetByName failed for monitor %s with status code %d", name, response.StatusCode)
 }
 
 func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor, error) {
@@ -115,7 +122,7 @@ func (monitor *UpTimeMonitorService) GetAllByName(name string) ([]models.Monitor
 	return nil, errors.New(errorString)
 }
 
-func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
+func (monitor *UpTimeMonitorService) GetAll() ([]models.Monitor, error) {
 
 	action := "getMonitors"
 
@@ -131,14 +138,16 @@ func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {
 		err := json.Unmarshal(response.Bytes, &f)
 		if err != nil {
 			log.Error(err, "Unable to unmarshal list monitors response")
+			return nil, err
 		}
 
-		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors)
+		return UptimeMonitorMonitorsToBaseMonitorsMapper(f.Monitors), nil
 
 	}
 
-	log.Info("GetAllMonitors Request for UptimeRobot failed. Status Code: " + strconv.Itoa(response.StatusCode))
-	return nil
+	errorString := "GetAllMonitors Request for UptimeRobot failed. Status Code: " + strconv.Itoa(response.StatusCode)
+	log.Info(errorString)
+	return nil, errors.New(errorString)
 
 }
 

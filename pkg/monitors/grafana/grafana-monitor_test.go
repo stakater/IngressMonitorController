@@ -40,10 +40,11 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		service.Remove(*preExistingMonitor)
 	}
 
-	previousResources := len(service.GetAll())
+	allMonitors, _ := service.GetAll()
+	previousResources := len(allMonitors)
 	service.Add(m)
 
-	mRes := service.GetAll()
+	mRes, _ := service.GetAll()
 
 	if len(mRes) == previousResources {
 		t.Errorf("Found empty response for Monitor. Name: %s and URL: %s", m.Name, m.URL)
@@ -90,10 +91,11 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 		service.Remove(*preExistingMonitor)
 	}
 
-	previousResources := len(service.GetAll())
+	allMonitors2, _ := service.GetAll()
+	previousResources := len(allMonitors2)
 	service.Add(m)
 
-	mRes := service.GetAll()
+	mRes, _ := service.GetAll()
 
 	if len(mRes) == previousResources {
 		t.Errorf("Found empty response for Monitor. Name: %s and URL: %s", m.Name, m.URL)
@@ -113,7 +115,7 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	}}
 	service.Update(m2)
 
-	mRes2 := service.GetAll()
+	mRes2, _ := service.GetAll()
 
 	if len(mRes2) == previousResources {
 		t.Errorf("Found empty response for Monitor. Name: %s and URL: %s", m2.Name, m2.URL)

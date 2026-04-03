@@ -67,39 +67,36 @@ func (service *PingdomTransactionMonitorService) Setup(p config.Provider) {
 	service.namespace = kube.GetCurrentKubernetesNamespace()
 }
 
-func (service *PingdomTransactionMonitorService) GetByName(name string) (*models.Monitor, error) {
-	var match *models.Monitor
+func (service *PingdomTransactionMonitorService) GetAll() ([]models.Monitor, error) {
+	var monitors []models.Monitor
+	checks, _, err := service.client.TMSChecksAPI.GetAllChecks(service.context).Type_("script").Execute()
+	if err != nil {
+		return nil, err
+	}
+	if checks == nil {
+		return monitors, nil
+	}
+	for _, mon := range checks.GetChecks() {
+		monitors = append(monitors, models.Monitor{
+			URL:  service.GetUrlFromSteps(*mon.Id),
+			ID:   fmt.Sprintf("%v", *mon.Id),
+			Name: *mon.Name,
+		})
+	}
+	return monitors, nil
+}
 
-	monitors := service.GetAll()
+func (service *PingdomTransactionMonitorService) GetByName(name string) (*models.Monitor, error) {
+	monitors, err := service.GetAll()
+	if err != nil {
+		return nil, err
+	}
 	for _, mon := range monitors {
 		if mon.Name == name {
 			return &mon, nil
 		}
 	}
-
-	return match, fmt.Errorf("unable to locate monitor with name %v", name)
-}
-
-func (service *PingdomTransactionMonitorService) GetAll() []models.Monitor {
-	var monitors []models.Monitor
-	checks, _, err := service.client.TMSChecksAPI.GetAllChecks(service.context).Type_("script").Execute()
-	if err != nil {
-		log.Error(err, "Error getting all transaction checks")
-		return monitors
-	}
-
-	if checks == nil {
-		return monitors
-	}
-	for _, mon := range checks.GetChecks() {
-		newMon := models.Monitor{
-			URL:  service.GetUrlFromSteps(*mon.Id),
-			ID:   fmt.Sprintf("%v", *mon.Id),
-			Name: *mon.Name,
-		}
-		monitors = append(monitors, newMon)
-	}
-	return monitors
+	return nil, nil
 }
 
 func (service *PingdomTransactionMonitorService) GetUrlFromSteps(id int64) string {
