@@ -21,11 +21,14 @@ spec:
       bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       tlsConfig:
         insecureSkipVerify: {{ not .Values.certManager.enabled }}
-        {{- if and .Values.certManager.enabled .Values.certManager.injectCA }}
+        {{- if .Values.certManager.enabled }}
+        serverName: {{ include "ingress-monitor-controller.fullname" . }}-metrics-service.{{ include "ingress-monitor-controller.namespace" . }}.svc
+        {{- if .Values.certManager.injectCA }}
         ca:
           secret:
             name: {{ include "ingress-monitor-controller.fullname" . }}-metrics-tls
             key: ca.crt
+        {{- end }}
         {{- end }}
   namespaceSelector:
     matchNames:
