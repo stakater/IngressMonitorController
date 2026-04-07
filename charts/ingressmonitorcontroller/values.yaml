@@ -37,9 +37,12 @@ serviceMonitor:
 
 certManager:
   enabled: false
+  # Create a self-signed Issuer in the namespace. Set to false to use an existing issuer via issuerRef.
+  selfSigned: true
   # Set to false for ACME issuers as they do not populate ca.crt in the TLS secret.
   injectCA: true
   issuerRef:
+    # Only required when selfSigned is false
     name: ""
     kind: ClusterIssuer
     group: cert-manager.io

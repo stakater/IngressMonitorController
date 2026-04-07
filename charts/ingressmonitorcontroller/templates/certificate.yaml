@@ -18,11 +18,17 @@ spec:
   - {{ include "ingress-monitor-controller.fullname" . }}-metrics-service.{{ include "ingress-monitor-controller.namespace" . }}.svc
   - {{ include "ingress-monitor-controller.fullname" . }}-metrics-service.{{ include "ingress-monitor-controller.namespace" . }}.svc.cluster.local
   issuerRef:
-    name: {{ required "certManager.issuerRef.name is required when certManager.enabled is true" .Values.certManager.issuerRef.name }}
+    {{- if .Values.certManager.selfSigned }}
+    name: {{ include "ingress-monitor-controller.fullname" . }}-selfsigned-issuer
+    kind: Issuer
+    group: cert-manager.io
+    {{- else }}
+    name: {{ required "certManager.issuerRef.name is required when certManager.selfSigned is false" .Values.certManager.issuerRef.name }}
     {{- with .Values.certManager.issuerRef.kind }}
     kind: {{ . }}
     {{- end }}
     {{- with .Values.certManager.issuerRef.group }}
     group: {{ . }}
+    {{- end }}
     {{- end }}
 {{- end }}

@@ -1,0 +1,11 @@
+{{- if and .Values.certManager.enabled .Values.certManager.selfSigned -}}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "ingress-monitor-controller.fullname" . }}-selfsigned-issuer
+  namespace: {{ include "ingress-monitor-controller.namespace" . }}
+  labels:
+    {{- include "ingress-monitor-controller.labels" . | nindent 4 }}
+spec:
+  selfSigned: {}
+{{- end }}
