@@ -6,13 +6,12 @@ metadata:
   name: {{ .Values.name | default .Release.Name }}
   namespace: {{ include "ingress-monitor-controller.namespace" . }}
   labels:
-    app: '{{ .Chart.Name }}'
-    app.kubernetes.io/name: '{{ .Chart.Name }}'
+    app.kubernetes.io/name: '{{ include "ingress-monitor-controller.name" . }}'
     app.kubernetes.io/instance: '{{ .Values.name | default .Release.Name }}'
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: '{{ .Chart.Name }}'
+      app.kubernetes.io/name: '{{ include "ingress-monitor-controller.name" . }}'
       app.kubernetes.io/instance: '{{ .Values.name | default .Release.Name }}'
   endpoints:
     - path: /metrics
