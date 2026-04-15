@@ -34,6 +34,8 @@ configSecretName: "imc-config"
 # Monitoring Configuration
 serviceMonitor:
   enabled: false
+  prometheusServiceAccountName: ""
+  prometheusServiceAccountNamespace: ""
 
 certManager:
   enabled: false
