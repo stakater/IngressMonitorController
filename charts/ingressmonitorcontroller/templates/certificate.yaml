@@ -1,4 +1,7 @@
 {{- if .Values.certManager.enabled -}}
+{{- if not (.Capabilities.APIVersions.Has "cert-manager.io/v1") -}}
+{{- fail "certManager.enabled=true requires cert-manager CRDs to be installed in the cluster" -}}
+{{- end -}}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
