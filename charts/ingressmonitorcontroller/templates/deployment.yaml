@@ -10,6 +10,7 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+{{- $metricsCertDir := "/tmp/k8s-metrics-server/serving-certs" }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -37,7 +38,10 @@ spec:
       containers:
       - args:
         - --health-probe-bind-address=:8081
-        - --metrics-bind-address=127.0.0.1:8080
+        - --metrics-bind-address=:8443
+        {{- if .Values.certManager.enabled }}
+        - --metrics-cert-dir={{ $metricsCertDir }}
+        {{- end }}
         - --leader-elect
         - --max-concurrent-reconciles={{ .Values.maxConcurrentReconciles }}
         command:
@@ -69,10 +73,26 @@ spec:
             port: 8081
           initialDelaySeconds: 5
           periodSeconds: 10
+        ports:
+        - containerPort: 8443
+          name: https
+          protocol: TCP
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         securityContext:
           {{- toYaml .Values.securityContext | nindent 10 }}
+        {{- if .Values.certManager.enabled }}
+        volumeMounts:
+        - name: metrics-tls
+          mountPath: {{ $metricsCertDir }}
+          readOnly: true
+        {{- end }}
+      {{- if .Values.certManager.enabled }}
+      volumes:
+      - name: metrics-tls
+        secret:
+          secretName: {{ include "ingress-monitor-controller.fullname" . }}-metrics-tls
+      {{- end }}
       terminationGracePeriodSeconds: 10
       {{- with .Values.nodeSelector }}
       nodeSelector:

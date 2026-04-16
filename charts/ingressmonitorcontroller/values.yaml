@@ -34,6 +34,22 @@ configSecretName: "imc-config"
 # Monitoring Configuration
 serviceMonitor:
   enabled: false
+  prometheusServiceAccountName: ""
+  prometheusServiceAccountNamespace: ""
+
+certManager:
+  enabled: false
+  # Create a self-signed Issuer in the namespace. Set to false to use an existing issuer via issuerRef.
+  selfSigned: true
+  # Set to false for ACME issuers as they do not populate ca.crt in the TLS secret.
+  injectCA: true
+  issuerRef:
+    # Only required when selfSigned is false
+    name: ""
+    kind: ClusterIssuer
+    group: cert-manager.io
+  duration: "2160h"
+  renewBefore: "360h"
 
 rbac:
   create: true
@@ -49,8 +65,7 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-resources:
-  {}
+resources: {}
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -64,12 +79,10 @@ podLabels: {}
 
 podAnnotations: {}
 
-podSecurityContext:
-  {}
+podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext:
-  {}
+securityContext: {}
   # capabilities:
   #   drop:
   #   - ALL
