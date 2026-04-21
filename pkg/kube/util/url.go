@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"errors"
+	"strings"
 
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/stakater/IngressMonitorController/v2/pkg/kube"
@@ -18,6 +19,10 @@ import (
 var log = logf.Log.WithName("config")
 
 func GetMonitorURL(client client.Client, ingressMonitor *endpointmonitorv1alpha1.EndpointMonitor) (string, error) {
+	if ingressMonitor.Spec.StatusCakeConfig != nil && strings.EqualFold(ingressMonitor.Spec.StatusCakeConfig.TestType, "Heartbeat") {
+		return "", nil
+	}
+
 	if len(ingressMonitor.Spec.URL) == 0 {
 		return discoverURLFromRefs(client, ingressMonitor)
 	}
