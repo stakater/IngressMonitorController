@@ -16,10 +16,10 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2026-04-16T13:58:49Z"
+    createdAt: "2026-04-22T08:13:28Z"
     operators.operatorframework.io/builder: operator-sdk-v1.39.2
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
-  name: ingressmonitorcontroller.v2.2.11
+  name: ingressmonitorcontroller.v2.2.12
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -121,7 +121,7 @@ spec:
                 - --health-probe-bind-address=:8081
                 command:
                 - /manager
-                image: stakater/ingressmonitorcontroller:v2.2.11
+                image: stakater/ingressmonitorcontroller:v2.2.12
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -190,4 +190,4 @@ spec:
   provider:
     name: stakater
     url: https://stakater.com
-  version: 2.2.11
+  version: 2.2.12
