@@ -6,6 +6,21 @@ v3.0 ships **both** `ClusterMonitorProvider` (cluster-scoped) and `MonitorProvid
 
 **E2E test coverage scope:** the project has API credentials/test accounts for **UptimeRobot** and **StatusCake** only. Those two providers are validated end-to-end against a real upstream API on a kind cluster. The other seven providers (Pingdom, PingdomTransaction, Uptime, Updown, AppInsights, GCloud, Grafana) are **mock-tested only** — their `Setup` migration and reconciler wiring are covered by unit tests with mocked clients, but no live upstream call is exercised. This limitation must be stated explicitly in the v3 release notes and `docs/migration-v2-to-v3.md`.
 
+## Table of contents
+
+- [Phase 0 — Module bump](#phase-0--module-bump)
+- [Phase 1 — Add CRD types (both kinds)](#phase-1--add-crd-types-both-kinds)
+- [Phase 2 — Provider registry and resolved config](#phase-2--provider-registry-and-resolved-config)
+- [Phase 3 — Migrate MonitorService.Setup and rewrite the boot path](#phase-3--migrate-monitorservicesetup-and-rewrite-the-boot-path)
+- [Phase 4 — Provider reconcilers (both kinds)](#phase-4--provider-reconcilers-both-kinds)
+- [Phase 5 — Rewrite EndpointMonitor reconciler](#phase-5--rewrite-endpointmonitor-reconciler)
+- [Phase 6 — Zero-config boot verification](#phase-6--zero-config-boot-verification)
+- [Phase 7 — Helm chart, RBAC, and manifests](#phase-7--helm-chart-rbac-and-manifests)
+- [Phase 8 — Concept docs and examples](#phase-8--concept-docs-and-examples)
+- [Phase 9 — Release](#phase-9--release)
+- [Open questions to confirm before starting](#open-questions-to-confirm-before-starting)
+- [Phase complexity estimates](#phase-complexity-estimates)
+
 ## Phase 0 — Module bump
 
 - Bump module path: `github.com/stakater/IngressMonitorController/v2` → `/v3` in `go.mod`.

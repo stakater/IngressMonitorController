@@ -5,6 +5,32 @@
 > **Scope:** Replaces the boot-time `imc-config` Secret with a declarative,
 > multi-tenant, CRD-driven model.
 
+## Table of contents
+
+- [1. Problem](#1-problem)
+- [2. Goals](#2-goals)
+- [3. Non-Goals](#3-non-goals)
+- [4. Design](#4-design)
+  - [4.1 Two CRD kinds](#41-two-crd-kinds)
+  - [4.2 Provider registry](#42-provider-registry)
+  - [4.3 Updated EndpointMonitor](#43-updated-endpointmonitor)
+  - [4.4 Resolved decisions](#44-resolved-decisions)
+  - [4.5 Tenancy model](#45-tenancy-model)
+  - [4.6 RBAC and trust boundaries](#46-rbac-and-trust-boundaries)
+  - [4.7 Reconciliation flow](#47-reconciliation-flow)
+  - [4.8 Failure semantics](#48-failure-semantics)
+- [5. CRD shapes](#5-crd-shapes)
+  - [5.1 ClusterMonitorProvider (cluster-scoped)](#51-clustermonitorprovider-cluster-scoped)
+  - [5.2 MonitorProvider (namespaced)](#52-monitorprovider-namespaced)
+  - [5.3 Updated EndpointMonitor](#53-updated-endpointmonitor)
+- [6. Internal architecture](#6-internal-architecture)
+  - [6.1 Replaced/removed components](#61-replacedremoved-components)
+  - [6.2 Unchanged components](#62-unchanged-components)
+  - [6.3 Shared spec via Go embedding](#63-shared-spec-via-go-embedding)
+- [7. Migration (v2 → v3)](#7-migration-v2--v3)
+- [8. Open concerns to revisit during implementation](#8-open-concerns-to-revisit-during-implementation)
+- [9. Out of scope (deferrable to later minor versions)](#9-out-of-scope-deferrable-to-later-minor-versions)
+
 ## 1. Problem
 
 Today, IngressMonitorController loads provider credentials and global behavior from a single Secret (`imc-config`) at startup. This couples three concerns that should be independent:
