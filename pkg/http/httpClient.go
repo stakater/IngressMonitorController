@@ -41,6 +41,10 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 		log.Error(err, "Failed to craft HTTP Request. METHOD: "+requestType+
 			" URL: "+client.url+
 			" PAYLOAD: "+string(body))
+		return HttpResponse{
+			StatusCode: http.StatusInternalServerError,
+			Header:     make(http.Header),
+		}
 	}
 
 	if headers != nil {
@@ -50,8 +54,16 @@ func (client *HttpClient) RequestWithHeaders(requestType string, body []byte, he
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		log.Error(err, "")
+		return HttpResponse{
+			StatusCode: http.StatusInternalServerError,
+			Header:     make(http.Header),
+		}
 	} else if response == nil {
 		log.Error(nil, "got empty response")
+		return HttpResponse{
+			StatusCode: http.StatusInternalServerError,
+			Header:     make(http.Header),
+		}
 	}
 
 	httpResponse := HttpResponse{
