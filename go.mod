@@ -9,7 +9,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/applicationinsights/armapplicationinsights v1.2.0
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/monitor/armmonitor v0.11.0
 	github.com/StatusCakeDev/statuscake-go v1.3.0
-	github.com/antoineaugusti/updown v0.0.0-20190412074625-d590ab97f115
+	github.com/antoineaugusti/updown v0.0.0-20210913134431-a6c3dda66a02
 	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.6.0
 	github.com/grafana/synthetic-monitoring-agent v0.19.4
