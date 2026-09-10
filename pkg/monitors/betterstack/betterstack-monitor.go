@@ -9,6 +9,7 @@ package betterstack
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -88,10 +89,6 @@ type monitorAttributes struct {
 type monitorData struct {
 	ID         string            `json:"id"`
 	Attributes monitorAttributes `json:"attributes"`
-}
-
-type monitorResponse struct {
-	Data monitorData `json:"data"`
 }
 
 type monitorListResponse struct {
@@ -277,35 +274,54 @@ func (s *BetterStackMonitorService) Equal(oldMonitor models.Monitor, newMonitor 
 		return false
 	}
 
-	oldConfig := getConfig(oldMonitor)
-	newConfig := getConfig(newMonitor)
+	// Compare what the CR would SEND against what Better Stack reports, rather
+	// than the CR's literal spec against it.
+	//
+	// buildAttributes fills in defaults the CR leaves unset (check_frequency
+	// 180, monitor_type "status") and forces follow_redirects off for a 3xx
+	// monitor. Those values are really on the live monitor, so a spec-to-spec
+	// comparison reads them as drift that no update can ever resolve, and every
+	// reconcile PATCHes a monitor nobody touched.
+	//
+	// create is false on BOTH sides: this must compare exactly the payload
+	// Update would send. buildAttributes(create: true) injects defaults
+	// (check_frequency 180, monitor_type "status", the provider-wide policy)
+	// that Update then omits -- so a monitor whose live value differs from a
+	// default, say an adopted one whose interval was set in the UI, would be
+	// reported as drift that the resulting PATCH does not carry and therefore
+	// cannot resolve. That is a permanent update loop, the same failure this
+	// commit exists to remove.
+	//
+	// The invariant is: if Equal reports drift, the Update payload must fix
+	// it. Comparing what Update sends is what makes that true by construction,
+	// and it means the controller does not police fields it will not send.
+	desired := s.buildAttributes(newMonitor, false)
+	live := s.buildAttributes(oldMonitor, false)
 
-	// Both unconfigured: URL and name already matched, so nothing differs.
-	if oldConfig == nil && newConfig == nil {
-		return true
-	}
-	if oldConfig == nil || newConfig == nil {
-		return false
-	}
+	// Only fields the CR actually sets are compared. A field it leaves unset is
+	// not ours to police — Better Stack may report a value set in their UI, and
+	// treating that as drift would fight whoever set it on every reconcile.
+	// A nil in `desired` is exactly "the CR did not ask for this".
+	return equalWhereSet(desired, live)
+}
 
-	return oldConfig.CheckFrequency == newConfig.CheckFrequency &&
-		oldConfig.MonitorType == newConfig.MonitorType &&
-		oldConfig.ExpectedStatusCodes == newConfig.ExpectedStatusCodes &&
-		oldConfig.RequiredKeyword == newConfig.RequiredKeyword &&
-		oldConfig.Paused == newConfig.Paused &&
-		oldConfig.Email == newConfig.Email &&
-		oldConfig.SMS == newConfig.SMS &&
-		oldConfig.Call == newConfig.Call &&
-		oldConfig.Push == newConfig.Push &&
-		oldConfig.PolicyID == newConfig.PolicyID &&
-		oldConfig.Regions == newConfig.Regions &&
-		oldConfig.VerifySSL == newConfig.VerifySSL &&
-		oldConfig.FollowRedirects == newConfig.FollowRedirects &&
-		oldConfig.RememberCookies == newConfig.RememberCookies &&
-		oldConfig.RequestTimeout == newConfig.RequestTimeout &&
-		oldConfig.ConfirmationPeriod == newConfig.ConfirmationPeriod &&
-		oldConfig.RecoveryPeriod == newConfig.RecoveryPeriod &&
-		oldConfig.TeamWait == newConfig.TeamWait
+// equalWhereSet reports whether every attribute set in desired matches live.
+// Attributes nil in desired are ignored: unset means unmanaged, not "clear it".
+func equalWhereSet(desired, live monitorAttributes) bool {
+	d := reflect.ValueOf(desired)
+	l := reflect.ValueOf(live)
+
+	for i := 0; i < d.NumField(); i++ {
+		want := d.Field(i)
+		if want.IsNil() {
+			continue
+		}
+		got := l.Field(i)
+		if got.IsNil() || !reflect.DeepEqual(want.Elem().Interface(), got.Elem().Interface()) {
+			return false
+		}
+	}
+	return true
 }
 
 // buildAttributes maps a Monitor plus its BetterStackConfig onto the API's
@@ -367,7 +383,8 @@ func (s *BetterStackMonitorService) buildAttributes(m models.Monitor, create boo
 		} else {
 			log.Error(nil, fmt.Sprintf(
 				"betterstack: ignoring recoveryPeriod %d; valid values are %v",
-				providerConfig.RecoveryPeriod, validRecoveryPeriods))
+				providerConfig.RecoveryPeriod, validRecoveryPeriods,
+			))
 		}
 	}
 	if providerConfig.TeamWait > 0 {
@@ -413,7 +430,79 @@ func toBaseMonitor(data monitorData) models.Monitor {
 	if data.Attributes.PronounceableName != nil {
 		monitor.Name = *data.Attributes.PronounceableName
 	}
+	monitor.Config = toConfig(data.Attributes)
 	return monitor
+}
+
+// toConfig turns a monitor as Better Stack reports it back into the CRD shape,
+// so Equal compares live state against the spec rather than against nothing.
+//
+// Without it, a monitor read from the API carries no Config at all, Equal takes
+// its "one side is nil" branch on every pass, and any EndpointMonitor that sets
+// betterStackConfig is updated once per reconcile forever — a PATCH every loop
+// against a rate-limited API, for a monitor nobody touched. Monitors with no
+// betterStackConfig hid the bug: both sides were nil, which compares equal.
+//
+// An attribute the API omits stays at its zero value, which is what the
+// comparison treats as "not set by us" — the same convention buildAttributes
+// uses on the way out, so a field the CR does not name does not count as drift.
+func toConfig(a monitorAttributes) *endpointmonitorv1alpha1.BetterStackConfig {
+	config := &endpointmonitorv1alpha1.BetterStackConfig{}
+
+	if a.MonitorType != nil {
+		config.MonitorType = *a.MonitorType
+	}
+	if a.CheckFrequency != nil {
+		config.CheckFrequency = *a.CheckFrequency
+	}
+	if a.ExpectedStatusCodes != nil {
+		codes := make([]string, 0, len(*a.ExpectedStatusCodes))
+		for _, code := range *a.ExpectedStatusCodes {
+			codes = append(codes, strconv.Itoa(code))
+		}
+		config.ExpectedStatusCodes = strings.Join(codes, ",")
+	}
+	if a.RequiredKeyword != nil {
+		config.RequiredKeyword = *a.RequiredKeyword
+	}
+	if a.PolicyID != nil {
+		config.PolicyID = *a.PolicyID
+	}
+	if a.Regions != nil {
+		config.Regions = strings.Join(*a.Regions, ",")
+	}
+	if a.RequestTimeout != nil {
+		config.RequestTimeout = *a.RequestTimeout
+	}
+	if a.ConfirmationPeriod != nil {
+		config.ConfirmationPeriod = *a.ConfirmationPeriod
+	}
+	if a.RecoveryPeriod != nil {
+		config.RecoveryPeriod = *a.RecoveryPeriod
+	}
+	if a.TeamWait != nil {
+		config.TeamWait = *a.TeamWait
+	}
+
+	config.VerifySSL = formatBool(a.VerifySSL)
+	config.FollowRedirects = formatBool(a.FollowRedirects)
+	config.RememberCookies = formatBool(a.RememberCookies)
+	config.Paused = formatBool(a.Paused)
+	config.Email = formatBool(a.Email)
+	config.SMS = formatBool(a.SMS)
+	config.Call = formatBool(a.Call)
+	config.Push = formatBool(a.Push)
+
+	return config
+}
+
+// formatBool is parseBool's inverse: it keeps the tri-state, so an attribute
+// the API did not return reads back as "" (unset) rather than "false".
+func formatBool(v *bool) string {
+	if v == nil {
+		return ""
+	}
+	return strconv.FormatBool(*v)
 }
 
 func getConfig(m models.Monitor) *endpointmonitorv1alpha1.BetterStackConfig {
