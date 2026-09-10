@@ -17,6 +17,25 @@ providers:
 `apiKey` is accepted as an alias so a config written for another provider still
 works, and `apiURL` defaults to `https://uptime.betterstack.com`.
 
+`alertContacts` sets the **default escalation policy** for every monitor this
+controller creates:
+
+```yaml
+providers:
+  - name: BetterStack
+    apiToken: <token>
+    alertContacts: "12345"   # escalation policy id
+```
+
+Better Stack has no notion of a contact list attached to a monitor — who gets
+notified is decided by the escalation policy — so the provider-neutral
+`alertContacts` setting maps onto `policy_id`. A CR naming its own `policyID`
+overrides it.
+
+Without either, Better Stack applies its own default: email to the account
+owner. Monitors alert out of the box; a policy is how you route them somewhere
+else.
+
 ## Configuration
 
 Per-monitor settings go under `betterStackConfig` on an `EndpointMonitor`:

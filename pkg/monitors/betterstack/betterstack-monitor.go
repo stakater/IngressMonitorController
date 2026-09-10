@@ -52,6 +52,10 @@ var log = logf.Log.WithName("betterstack")
 type BetterStackMonitorService struct {
 	apiToken string
 	url      string
+	// policyID is the account-wide default escalation policy, applied to any
+	// monitor whose CR does not name one. Same shape as the alertContacts
+	// default the UptimeRobot and Pingdom providers read from the same config.
+	policyID string
 }
 
 // monitorAttributes mirrors the subset of Better Stack's monitor object this
@@ -110,6 +114,12 @@ func (s *BetterStackMonitorService) Setup(p config.Provider) {
 	if s.url == "" {
 		s.url = DefaultApiURL
 	}
+
+	// The generic alertContacts field carries the default escalation policy id
+	// here. Better Stack has no notion of a contact list on a monitor — who is
+	// notified is decided by the policy attached to it — so the provider-neutral
+	// "who gets alerted by default" setting maps onto policy_id.
+	s.policyID = p.AlertContacts
 
 	if s.apiToken == "" {
 		log.Error(nil, "Better Stack provider configured without an API token; every request will be rejected")
@@ -322,6 +332,9 @@ func (s *BetterStackMonitorService) buildAttributes(m models.Monitor, create boo
 	}
 
 	if providerConfig == nil {
+		if create && s.policyID != "" {
+			attributes.PolicyID = strPtr(s.policyID)
+		}
 		return attributes
 	}
 
@@ -334,6 +347,8 @@ func (s *BetterStackMonitorService) buildAttributes(m models.Monitor, create boo
 	}
 	if providerConfig.PolicyID != "" {
 		attributes.PolicyID = strPtr(providerConfig.PolicyID)
+	} else if create && s.policyID != "" {
+		attributes.PolicyID = strPtr(s.policyID)
 	}
 	if regions := splitAndTrim(providerConfig.Regions); len(regions) > 0 {
 		attributes.Regions = &regions

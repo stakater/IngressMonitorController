@@ -195,3 +195,48 @@ func TestParseStatusCodesIgnoresJunk(t *testing.T) {
 		t.Errorf("unexpected codes: %v", codes)
 	}
 }
+
+// The account-wide escalation policy from the provider config must apply to a
+// monitor whose CR does not name one — the same "global default, per-CR
+// override" shape the UptimeRobot and Pingdom providers use for alertContacts.
+func TestGlobalPolicyAppliesWhenCRHasNone(t *testing.T) {
+	var gotBody map[string]interface{}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&gotBody)
+		w.WriteHeader(201)
+		_, _ = w.Write([]byte(`{"data":{"id":"1","attributes":{}}}`))
+	}))
+	defer server.Close()
+
+	service := &BetterStackMonitorService{}
+	service.Setup(config.Provider{
+		Name: "BetterStack", ApiToken: "t", ApiURL: server.URL, AlertContacts: "12345",
+	})
+	service.Add(models.NewMonitor("web", "", "https://web.example/", nil))
+
+	if gotBody["policy_id"] != "12345" {
+		t.Errorf("expected the global policy, got %v", gotBody["policy_id"])
+	}
+}
+
+// A policy named on the CR wins over the global default.
+func TestCRPolicyOverridesGlobal(t *testing.T) {
+	var gotBody map[string]interface{}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&gotBody)
+		w.WriteHeader(201)
+		_, _ = w.Write([]byte(`{"data":{"id":"1","attributes":{}}}`))
+	}))
+	defer server.Close()
+
+	service := &BetterStackMonitorService{}
+	service.Setup(config.Provider{
+		Name: "BetterStack", ApiToken: "t", ApiURL: server.URL, AlertContacts: "12345",
+	})
+	service.Add(models.NewMonitor("web", "", "https://web.example/",
+		&endpointmonitorv1alpha1.BetterStackConfig{PolicyID: "99999"}))
+
+	if gotBody["policy_id"] != "99999" {
+		t.Errorf("expected the CR policy to win, got %v", gotBody["policy_id"])
+	}
+}
