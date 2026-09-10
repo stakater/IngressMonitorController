@@ -36,6 +36,14 @@ Without either, Better Stack applies its own default: email to the account
 owner. Monitors alert out of the box; a policy is how you route them somewhere
 else.
 
+**Escalation policies are a paid feature.** On a free account, creating one
+returns `403 Cannot create escalation policy. Please upgrade your account`, so
+`alertContacts` and `policyID` have nothing to point at. The per-monitor
+`email`, `sms`, `call` and `push` booleans work on every plan and are the way to
+vary alerting there. Slack, when connected, is configured account-wide in Better
+Stack rather than per monitor — it applies to everything this controller
+creates.
+
 ## Configuration
 
 Per-monitor settings go under `betterStackConfig` on an `EndpointMonitor`:
