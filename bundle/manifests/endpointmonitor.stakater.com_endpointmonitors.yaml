@@ -54,6 +54,113 @@ spec:
                     description: Returned status code that is counted as a success
                     type: integer
                 type: object
+              betterStackConfig:
+                description: Configuration for Better Stack Monitor Provider
+                properties:
+                  call:
+                    description: '"true" or "false". Place phone call alerts.'
+                    enum:
+                    - true
+                    - false
+                    type: string
+                  checkFrequency:
+                    description: |-
+                      How often to check the endpoint, in seconds. Better Stack's own default
+                      (180) applies when unset.
+                    type: integer
+                  confirmationPeriod:
+                    description: Seconds a failure must persist before the monitor
+                      is marked down.
+                    type: integer
+                  email:
+                    description: '"true" or "false". Send email alerts.'
+                    enum:
+                    - true
+                    - false
+                    type: string
+                  expectedStatusCodes:
+                    description: |-
+                      Comma separated list of status codes treated as up, e.g. "200,201,302".
+                      Only meaningful when monitorType is expected_status_code.
+                    type: string
+                  followRedirects:
+                    description: |-
+                      "true" or "false". Whether to follow redirects. Set this to "false" when
+                      the redirect itself is what is being monitored.
+
+                      Better Stack rejects a monitor that follows redirects while expecting a
+                      3xx status code, so this is forced to "false" when expectedStatusCodes
+                      contains a 3xx and it is left unset.
+                    enum:
+                    - true
+                    - false
+                    type: string
+                  monitorType:
+                    description: |-
+                      The Better Stack monitor type, e.g. status, expected_status_code,
+                      keyword, keyword_absence, ping, tcp, udp, smtp, pop, imap, dns.
+                      Defaults to "status".
+                    type: string
+                  paused:
+                    description: '"true" or "false". A paused monitor is not checked.'
+                    enum:
+                    - true
+                    - false
+                    type: string
+                  policyID:
+                    description: |-
+                      Id of the escalation policy to attach this monitor to. Without one,
+                      Better Stack applies the team's default.
+                    type: string
+                  push:
+                    description: '"true" or "false". Send mobile push alerts.'
+                    enum:
+                    - true
+                    - false
+                    type: string
+                  recoveryPeriod:
+                    description: Seconds the endpoint must stay healthy before the
+                      monitor recovers.
+                    type: integer
+                  regions:
+                    description: Comma separated list of regions to check from, e.g.
+                      "eu,us".
+                    type: string
+                  rememberCookies:
+                    description: |-
+                      "true" or "false". Whether to keep cookies across a redirect. Forced to
+                      "false" alongside followRedirects when expectedStatusCodes contains a
+                      3xx, which Better Stack likewise rejects.
+                    enum:
+                    - true
+                    - false
+                    type: string
+                  requestTimeout:
+                    description: Seconds to wait for a response before the check counts
+                      as failed.
+                    type: integer
+                  requiredKeyword:
+                    description: |-
+                      Keyword that must be present (or absent) in the response body. Only
+                      meaningful when monitorType is keyword or keyword_absence.
+                    type: string
+                  sms:
+                    description: '"true" or "false". Send SMS alerts.'
+                    enum:
+                    - true
+                    - false
+                    type: string
+                  teamWait:
+                    description: Seconds to wait before escalating to the rest of
+                      the team.
+                    type: integer
+                  verifySSL:
+                    description: '"true" or "false". Whether to verify the TLS certificate.'
+                    enum:
+                    - true
+                    - false
+                    type: string
+                type: object
               forceHttps:
                 description: Force monitor endpoint to use HTTPS
                 type: boolean

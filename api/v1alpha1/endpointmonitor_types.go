@@ -75,6 +75,110 @@ type EndpointMonitorSpec struct {
 	// Configuration for Grafana Cloud Monitor Provider
 	// +optional
 	GrafanaConfig *GrafanaConfig `json:"grafanaConfig,omitempty"`
+
+	// Configuration for Better Stack Monitor Provider
+	// +optional
+	BetterStackConfig *BetterStackConfig `json:"betterStackConfig,omitempty"`
+}
+
+// BetterStackConfig defines the configuration for the Better Stack Monitor Provider
+//
+// Booleans are strings rather than *bool so that leaving one unset is distinct
+// from setting it to false: an omitted field is not sent, which leaves Better
+// Stack's own default — or a change made in their UI — untouched.
+type BetterStackConfig struct {
+	// How often to check the endpoint, in seconds. Better Stack's own default
+	// (180) applies when unset.
+	// +optional
+	CheckFrequency int `json:"checkFrequency,omitempty"`
+
+	// The Better Stack monitor type, e.g. status, expected_status_code,
+	// keyword, keyword_absence, ping, tcp, udp, smtp, pop, imap, dns.
+	// Defaults to "status".
+	// +optional
+	MonitorType string `json:"monitorType,omitempty"`
+
+	// Comma separated list of status codes treated as up, e.g. "200,201,302".
+	// Only meaningful when monitorType is expected_status_code.
+	// +optional
+	ExpectedStatusCodes string `json:"expectedStatusCodes,omitempty"`
+
+	// Keyword that must be present (or absent) in the response body. Only
+	// meaningful when monitorType is keyword or keyword_absence.
+	// +optional
+	RequiredKeyword string `json:"requiredKeyword,omitempty"`
+
+	// Id of the escalation policy to attach this monitor to. Without one,
+	// Better Stack applies the team's default.
+	// +optional
+	PolicyID string `json:"policyID,omitempty"`
+
+	// Comma separated list of regions to check from, e.g. "eu,us".
+	// +optional
+	Regions string `json:"regions,omitempty"`
+
+	// Seconds to wait for a response before the check counts as failed.
+	// +optional
+	RequestTimeout int `json:"requestTimeout,omitempty"`
+
+	// Seconds a failure must persist before the monitor is marked down.
+	// +optional
+	ConfirmationPeriod int `json:"confirmationPeriod,omitempty"`
+
+	// Seconds the endpoint must stay healthy before the monitor recovers.
+	// +optional
+	RecoveryPeriod int `json:"recoveryPeriod,omitempty"`
+
+	// Seconds to wait before escalating to the rest of the team.
+	// +optional
+	TeamWait int `json:"teamWait,omitempty"`
+
+	// "true" or "false". Whether to verify the TLS certificate.
+	// +kubebuilder:validation:Enum=true;false
+	// +optional
+	VerifySSL string `json:"verifySSL,omitempty"`
+
+	// "true" or "false". Whether to follow redirects. Set this to "false" when
+	// the redirect itself is what is being monitored.
+	//
+	// Better Stack rejects a monitor that follows redirects while expecting a
+	// 3xx status code, so this is forced to "false" when expectedStatusCodes
+	// contains a 3xx and it is left unset.
+	// +kubebuilder:validation:Enum=true;false
+	// +optional
+	FollowRedirects string `json:"followRedirects,omitempty"`
+
+	// "true" or "false". Whether to keep cookies across a redirect. Forced to
+	// "false" alongside followRedirects when expectedStatusCodes contains a
+	// 3xx, which Better Stack likewise rejects.
+	// +kubebuilder:validation:Enum=true;false
+	// +optional
+	RememberCookies string `json:"rememberCookies,omitempty"`
+
+	// "true" or "false". A paused monitor is not checked.
+	// +kubebuilder:validation:Enum=true;false
+	// +optional
+	Paused string `json:"paused,omitempty"`
+
+	// "true" or "false". Send email alerts.
+	// +kubebuilder:validation:Enum=true;false
+	// +optional
+	Email string `json:"email,omitempty"`
+
+	// "true" or "false". Send SMS alerts.
+	// +kubebuilder:validation:Enum=true;false
+	// +optional
+	SMS string `json:"sms,omitempty"`
+
+	// "true" or "false". Place phone call alerts.
+	// +kubebuilder:validation:Enum=true;false
+	// +optional
+	Call string `json:"call,omitempty"`
+
+	// "true" or "false". Send mobile push alerts.
+	// +kubebuilder:validation:Enum=true;false
+	// +optional
+	Push string `json:"push,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
