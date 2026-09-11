@@ -179,6 +179,10 @@ providers:
     apiKey: <your-api-key>
     apiURL: https://api.uptimerobot.com/v2/
     alertContacts: <your-alert-contacts>
+  - name: UptimeKuma
+    apiURL: http://uptime-kuma.uptime-kuma.svc:3001
+    username: <your-uptime-kuma-username>
+    password: <your-uptime-kuma-password>
   - name: StatusCake
     apiKey: <your-api-key>
     apiURL: https://app.statuscake.com/API/
