@@ -177,7 +177,7 @@ When running monitor test cases, make sure to provide a config similar to the fo
 providers:
   - name: UptimeRobot
     apiKey: <your-api-key>
-    apiURL: https://api.uptimerobot.com/v2/
+    apiURL: https://api.uptimerobot.com/v3/
     alertContacts: <your-alert-contacts>
   - name: StatusCake
     apiKey: <your-api-key>

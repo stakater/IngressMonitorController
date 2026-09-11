@@ -19,14 +19,14 @@ func UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitor UptimeMonitorMonitor)
 	var providerConfig endpointmonitorv1alpha1.UptimeRobotConfig
 	providerConfig.Interval = uptimeMonitor.Interval
 
-	alertContacts := make([]string, 0)
-	if uptimeMonitor.AlertContacts != nil {
-		for _, alertContact := range uptimeMonitor.AlertContacts {
-			contact := alertContact.ID + "_" + strconv.Itoa(alertContact.Threshold) + "_" + strconv.Itoa(alertContact.Recurrence)
-			alertContacts = append(alertContacts, contact)
-		}
-		providerConfig.AlertContacts = strings.Join(alertContacts, "-")
+	// Rebuild the v2-style "id_threshold_recurrence-..." string so Equal()
+	// keeps comparing monitors created from CRDs of the same format
+	alertContacts := make([]string, 0, len(uptimeMonitor.AssignedAlertContacts))
+	for _, alertContact := range uptimeMonitor.AssignedAlertContacts {
+		contact := strconv.Itoa(alertContact.AlertContactId) + "_" + strconv.Itoa(alertContact.Threshold) + "_" + strconv.Itoa(alertContact.Recurrence)
+		alertContacts = append(alertContacts, contact)
 	}
+	providerConfig.AlertContacts = strings.Join(alertContacts, "-")
 
 	m.Config = &providerConfig
 
@@ -47,7 +47,7 @@ func UptimeStatusPageToBaseStatusPageMapper(uptimePublicStatusPage UptimePublicS
 	var s UpTimeStatusPage
 
 	s.Name = uptimePublicStatusPage.FriendlyName
-	s.Monitors = util.SliceItoa(uptimePublicStatusPage.Monitors)
+	s.Monitors = util.SliceItoa(uptimePublicStatusPage.MonitorIds)
 	s.ID = strconv.Itoa(uptimePublicStatusPage.ID)
 
 	return &s
