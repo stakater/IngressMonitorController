@@ -385,11 +385,8 @@ func TestAddMonitorWithIncorrectValues(t *testing.T) {
 	time.Sleep(time.Second * 30)
 	mRes, err := service.GetByName("google-test")
 
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
-
-	if mRes != nil {
+	// API v3 rejects the dummy key with a 4xx error or returns no monitor
+	if err == nil && mRes != nil {
 		t.Error("Monitor should not be added")
 	}
 }

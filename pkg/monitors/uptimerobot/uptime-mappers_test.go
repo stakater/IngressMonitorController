@@ -31,6 +31,27 @@ func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 	}
 }
 
+func TestUptimeMonitorMonitorToBaseMonitorMapperAlertContacts(t *testing.T) {
+	uptimeMonitorObject := UptimeMonitorMonitor{
+		FriendlyName: "Test Monitor",
+		ID:           124,
+		URL:          "https://stakater.com",
+		Interval:     900,
+		AssignedAlertContacts: []UptimeMonitorAlertContact{
+			{AlertContactId: 111, Threshold: 0, Recurrence: 0},
+			{AlertContactId: 222, Threshold: 5, Recurrence: 30},
+		},
+	}
+
+	monitorObject := UptimeMonitorMonitorToBaseMonitorMapper(uptimeMonitorObject)
+
+	providerConfig, _ := monitorObject.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
+
+	if providerConfig.AlertContacts != "111_0_0-222_5_30" {
+		t.Error("Mapper did not map alert contacts correctly, expected: 111_0_0-222_5_30, but was: " + providerConfig.AlertContacts)
+	}
+}
+
 func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 	uptimeMonitorObject1 := UptimeMonitorMonitor{FriendlyName: "Test Monitor 1", ID: 124, URL: "https://stakater.com", Interval: 900}
 	uptimeMonitorObject2 := UptimeMonitorMonitor{FriendlyName: "Test Monitor 2", ID: 125, URL: "https://stackator.com", Interval: 600}
@@ -59,7 +80,7 @@ func TestUptimeMonitorMonitorsToBaseMonitorsMapper(t *testing.T) {
 }
 
 func TestUptimeStatusPageToBaseStatusPageMapper(t *testing.T) {
-	uptimePublicStatusPageObject := UptimePublicStatusPage{FriendlyName: "Test Status Page", ID: 124, Monitors: []int{1234, 5678}}
+	uptimePublicStatusPageObject := UptimePublicStatusPage{FriendlyName: "Test Status Page", ID: 124, MonitorIds: []int{1234, 5678}}
 
 	uptimeStatusPageObject := UptimeStatusPageToBaseStatusPageMapper(uptimePublicStatusPageObject)
 

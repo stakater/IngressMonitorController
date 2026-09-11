@@ -18,7 +18,7 @@ const (
 	configFilePath                   = "../../examples/configs/test-config-uptimerobot.yaml"
 	correctTestConfigName            = "UptimeRobot"
 	correctTestAPIKey                = "657a68d9ashdyasjdklkskuasd"
-	correctTestAPIURL                = "https://api.uptimerobot.com/v2/"
+	correctTestAPIURL                = "https://api.uptimerobot.com/v3/"
 	correctTestAlertContacts         = "0544483_0_0-2628365_0_0-2633263_0_0"
 	correctTestEnableMonitorDeletion = true
 
