@@ -373,6 +373,36 @@ spec:
                     description: Add one or more tags for the check separated by `,`
                     type: string
                 type: object
+              uptimeKumaConfig:
+                description: Configuration for Uptime Kuma Monitor Provider
+                properties:
+                  interval:
+                    description: The uptime kuma check interval in seconds (Uptime
+                      Kuma minimum is 20)
+                    minimum: 20
+                    type: integer
+                  keywordExists:
+                    description: Alert if value exist (yes) or doesn't exist (no)
+                      (Only if monitor-type is keyword)
+                    enum:
+                    - "yes"
+                    - "no"
+                    type: string
+                  keywordValue:
+                    description: keyword to check on URL (Only if monitor-type is
+                      keyword)
+                    type: string
+                  monitorType:
+                    description: The uptime kuma monitor type (http or keyword)
+                    enum:
+                    - http
+                    - keyword
+                    type: string
+                  notifications:
+                    description: Comma-separated uptime kuma notification IDs to attach
+                      to this monitor
+                    type: string
+                type: object
               uptimeRobotConfig:
                 description: Configuration for UptimeRobot Monitor Provider
                 properties:
