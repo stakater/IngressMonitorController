@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -27,6 +28,20 @@ import (
 var log = logf.Log.WithName("statuscake-monitor")
 var rateLimiter = rate.NewLimiter(5, 1) // Allow 5 requests per second
 
+var errMonitorNotFound = errors.New("statuscake monitor not found")
+
+type monitorKind string
+
+const (
+	monitorKindUptime    monitorKind = "uptime"
+	monitorKindHeartbeat monitorKind = "heartbeat"
+)
+
+type idEntry struct {
+	id   string
+	kind monitorKind
+}
+
 // StatusCakeMonitorService is the service structure for StatusCake
 type StatusCakeMonitorService struct {
 	apiKey   string
@@ -34,6 +49,8 @@ type StatusCakeMonitorService struct {
 	username string
 	cgroup   string
 	client   *http.Client
+	cacheMu  sync.Mutex
+	idCache  map[string]idEntry
 }
 
 func (monitor *StatusCakeMonitorService) Equal(oldMonitor models.Monitor, newMonitor models.Monitor) bool {
@@ -328,20 +345,118 @@ func (service *StatusCakeMonitorService) Setup(p config.Provider) {
 	service.username = p.Username
 	service.cgroup = p.AlertContacts
 	service.client = &http.Client{}
+	service.idCache = make(map[string]idEntry)
+}
+
+func (service *StatusCakeMonitorService) cacheGet(name string) (idEntry, bool) {
+	service.cacheMu.Lock()
+	defer service.cacheMu.Unlock()
+	if service.idCache == nil {
+		return idEntry{}, false
+	}
+	entry, ok := service.idCache[name]
+	return entry, ok
+}
+
+func (service *StatusCakeMonitorService) cachePut(name, id string, kind monitorKind) {
+	if name == "" || id == "" {
+		return
+	}
+	service.cacheMu.Lock()
+	defer service.cacheMu.Unlock()
+	if service.idCache == nil {
+		service.idCache = make(map[string]idEntry)
+	}
+	service.idCache[name] = idEntry{id: id, kind: kind}
+}
+
+func (service *StatusCakeMonitorService) cacheDelete(name string) {
+	service.cacheMu.Lock()
+	defer service.cacheMu.Unlock()
+	if service.idCache == nil {
+		return
+	}
+	delete(service.idCache, name)
+}
+
+func (service *StatusCakeMonitorService) getByIDEntry(entry idEntry) (*models.Monitor, error) {
+	if entry.kind == monitorKindHeartbeat {
+		return service.GetHeartbeatByID(entry.id)
+	}
+	return service.GetByID(entry.id)
 }
 
 // GetByName function will Get a monitor by it's name
 func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor, error) {
-	monitors, err := service.GetAll()
-	if err != nil {
-		return nil, err
-	}
-	for _, monitor := range monitors {
-		if monitor.Name == name {
-			return &monitor, nil
+	if entry, ok := service.cacheGet(name); ok {
+		monitor, err := service.getByIDEntry(entry)
+		if err == nil {
+			return monitor, nil
 		}
+		if !errors.Is(err, errMonitorNotFound) {
+			return nil, err
+		}
+		service.cacheDelete(name)
 	}
-	return nil, nil
+	return service.findByNameFromLists(name)
+}
+
+func (service *StatusCakeMonitorService) findByNameFromLists(name string) (*models.Monitor, error) {
+	monitor, err := service.findUptimeByName(name)
+	if err != nil || monitor != nil {
+		return monitor, err
+	}
+	return service.findHeartbeatByName(name)
+}
+
+func (service *StatusCakeMonitorService) findUptimeByName(name string) (*models.Monitor, error) {
+	page := 1
+	for {
+		res, err := service.fetchMonitors(page)
+		if err != nil {
+			return nil, err
+		}
+		mapped := StatusCakeMonitorMonitorsToBaseMonitorsMapper(res.StatusCakeData)
+		var found *models.Monitor
+		for i := range mapped {
+			service.cachePut(mapped[i].Name, mapped[i].ID, monitorKindUptime)
+			if mapped[i].Name == name {
+				found = &mapped[i]
+			}
+		}
+		if found != nil {
+			return found, nil
+		}
+		if page >= res.StatusCakeMetadata.PageCount {
+			return nil, nil
+		}
+		page++
+	}
+}
+
+func (service *StatusCakeMonitorService) findHeartbeatByName(name string) (*models.Monitor, error) {
+	page := 1
+	for {
+		res, err := service.fetchHeartbeatMonitors(page)
+		if err != nil {
+			return nil, err
+		}
+		mapped := StatusCakeHeartbeatsToBaseMonitorsMapper(res.Data)
+		var found *models.Monitor
+		for i := range mapped {
+			service.cachePut(mapped[i].Name, mapped[i].ID, monitorKindHeartbeat)
+			if mapped[i].Name == name {
+				found = &mapped[i]
+			}
+		}
+		if found != nil {
+			return found, nil
+		}
+		if page >= res.Metadata.PageCount {
+			return nil, nil
+		}
+		page++
+	}
 }
 
 // GetByID function will Get a monitor by it's ID
@@ -384,6 +499,9 @@ func (service *StatusCakeMonitorService) GetByID(id string) (*models.Monitor, er
 			return nil, err
 		}
 		return StatusCakeApiResponseDataToBaseMonitorMapper(StatusCakeMonitorData), nil
+	}
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, errMonitorNotFound
 	}
 	log.Info(fmt.Sprintf("Request failed with response: %s for id: %s", bodyString, id))
 
@@ -438,6 +556,9 @@ func (service *StatusCakeMonitorService) GetHeartbeatByID(id string) (*models.Mo
 		}
 		return StatusCakeHeartbeatToBaseMonitorMapper(overview), nil
 	}
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, errMonitorNotFound
+	}
 	log.Info(fmt.Sprintf("GetHeartbeatByID request failed with response: %s for id: %s", string(bodyBytes), id))
 	return nil, errors.New("GetHeartbeatByID Request failed")
 }
@@ -454,6 +575,11 @@ func (service *StatusCakeMonitorService) doRequestWithRetries(req *http.Request,
 	err := rateLimiter.Wait(req.Context())
 	if err != nil {
 		log.Error(err, "Rate limiter wait failed")
+		return nil, err
+	}
+
+	if err := rewindRequestBody(req); err != nil {
+		log.Error(err, "Unable to rewind request body for retry")
 		return nil, err
 	}
 
@@ -487,7 +613,55 @@ func (service *StatusCakeMonitorService) doRequestWithRetries(req *http.Request,
 		return service.doRequestWithRetries(req, attempt+1)
 	}
 
+	if isRetryableServerError(resp.StatusCode) {
+		resp.Body.Close()
+		if attempt >= maxRateLimitRetries {
+			return nil, fmt.Errorf("StatusCake request failed with HTTP %d after %d retries", resp.StatusCode, maxRateLimitRetries)
+		}
+		delay := time.Duration(1<<attempt) * time.Second
+		if v := resp.Header.Get("Retry-After"); v != "" {
+			if seconds, err := strconv.Atoi(v); err == nil {
+				delay = time.Duration(seconds) * time.Second
+			}
+		}
+		log.Info("StatusCake server error, retrying after delay", "status_code", resp.StatusCode, "delay_seconds", int(delay.Seconds()), "attempt", attempt+1, "max_retries", maxRateLimitRetries)
+		time.Sleep(delay)
+		return service.doRequestWithRetries(req, attempt+1)
+	}
+
 	return resp, nil
+}
+
+func rewindRequestBody(req *http.Request) error {
+	if req.Body == nil || req.Body == http.NoBody {
+		return nil
+	}
+	if req.GetBody == nil {
+		bodyBytes, err := io.ReadAll(req.Body)
+		_ = req.Body.Close()
+		if err != nil {
+			return err
+		}
+		req.GetBody = func() (io.ReadCloser, error) {
+			return io.NopCloser(bytes.NewReader(bodyBytes)), nil
+		}
+		req.ContentLength = int64(len(bodyBytes))
+	}
+	body, err := req.GetBody()
+	if err != nil {
+		return err
+	}
+	req.Body = body
+	return nil
+}
+
+func isRetryableServerError(statusCode int) bool {
+	switch statusCode {
+	case http.StatusInternalServerError, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		return true
+	default:
+		return false
+	}
 }
 
 // getAll fetches all monitors and returns an error if any API call fails.
@@ -502,6 +676,9 @@ func (service *StatusCakeMonitorService) GetAll() ([]models.Monitor, error) {
 			return nil, err
 		}
 		uptimeData = append(uptimeData, res.StatusCakeData...)
+		for _, monitor := range StatusCakeMonitorMonitorsToBaseMonitorsMapper(res.StatusCakeData) {
+			service.cachePut(monitor.Name, monitor.ID, monitorKindUptime)
+		}
 		if page >= res.StatusCakeMetadata.PageCount {
 			break
 		}
@@ -517,6 +694,9 @@ func (service *StatusCakeMonitorService) GetAll() ([]models.Monitor, error) {
 			return nil, err
 		}
 		heartbeatData = append(heartbeatData, res.Data...)
+		for _, monitor := range StatusCakeHeartbeatsToBaseMonitorsMapper(res.Data) {
+			service.cachePut(monitor.Name, monitor.ID, monitorKindHeartbeat)
+		}
 		if page >= res.Metadata.PageCount {
 			break
 		}
@@ -536,6 +716,7 @@ func (service *StatusCakeMonitorService) fetchHeartbeatMonitors(page int) (*Stat
 	query := u.Query()
 	query.Add("limit", "100")
 	query.Add("page", strconv.Itoa(page))
+	query.Add("nouptime", "true")
 	u.RawQuery = query.Encode()
 	u.Scheme = "https"
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -575,6 +756,7 @@ func (service *StatusCakeMonitorService) fetchMonitors(page int) (*StatusCakeMon
 	query := u.Query()
 	query.Add("limit", "100")
 	query.Add("page", strconv.Itoa(page))
+	query.Add("nouptime", "true")
 	u.RawQuery = query.Encode()
 	u.Scheme = "https"
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -626,6 +808,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		log.Error(err, "Unable to create http request")
 		return
 	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 	resp, err := service.doRequest(req)
 	if err != nil {
@@ -660,6 +843,7 @@ func (service *StatusCakeMonitorService) addHeartbeat(m models.Monitor) {
 		log.Error(err, "Unable to create http request")
 		return
 	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 	resp, err := service.doRequest(req)
 	if err != nil {
@@ -700,6 +884,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		log.Error(err, "Unable to create http request")
 		return
 	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 	resp, err := service.doRequest(req)
 	if err != nil {
@@ -734,6 +919,7 @@ func (service *StatusCakeMonitorService) updateHeartbeat(m models.Monitor) {
 		log.Error(err, "Unable to create http request")
 		return
 	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
 	resp, err := service.doRequest(req)
 	if err != nil {
@@ -785,8 +971,9 @@ func (service *StatusCakeMonitorService) Remove(m models.Monitor) {
 		log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
 
 	} else {
+		service.cacheDelete(m.Name)
 		_, err = service.GetByID(m.ID)
-		if strings.Contains(err.Error(), "Request failed") {
+		if errors.Is(err, errMonitorNotFound) {
 			log.Info("Monitor Deleted: " + m.ID + m.Name)
 		} else {
 			log.Error(nil, fmt.Sprintf("Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
@@ -816,6 +1003,7 @@ func (service *StatusCakeMonitorService) removeHeartbeat(m models.Monitor) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusNoContent {
+		service.cacheDelete(m.Name)
 		log.Info("Heartbeat Monitor Deleted: " + m.ID + m.Name)
 	} else {
 		log.Error(nil, fmt.Sprintf("Heartbeat Delete Request failed for Monitor: %s with id: %s", m.Name, m.ID))
