@@ -1,7 +1,12 @@
 package statuscake
 
 import (
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
+	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -315,4 +320,228 @@ func TestBuildUpsertForm(t *testing.T) {
 	assert.Equal(t, "TCP", vals.Get("test_type"))
 	assert.Equal(t, "1", vals.Get("trigger_rate"))
 	assert.Equal(t, "30", vals.Get("timeout"))
+}
+
+const (
+	testMonitorName = "google-test"
+	testMonitorID   = "12345"
+	testMonitorURL  = "https://google.com"
+)
+
+func uptimeListJSON() string {
+	return `{"data":[{"id":"` + testMonitorID + `","name":"` + testMonitorName + `","website_url":"` + testMonitorURL + `","tags":[]}],"metadata":{"page":1,"per_page":100,"page_count":1,"total_count":1}}`
+}
+
+func heartbeatEmptyListJSON() string {
+	return `{"data":[],"metadata":{"page":1,"per_page":100,"page_count":1,"total_count":0}}`
+}
+
+func uptimeByIDJSON() string {
+	return `{"data":{"id":"` + testMonitorID + `","name":"` + testMonitorName + `","website_url":"` + testMonitorURL + `","tags":[]}}`
+}
+
+func newTestService(t *testing.T, handler http.HandlerFunc) *StatusCakeMonitorService {
+	t.Helper()
+	server := httptest.NewTLSServer(handler)
+	t.Cleanup(server.Close)
+	service := &StatusCakeMonitorService{}
+	service.Setup(config.Provider{ApiKey: "test-key", ApiURL: server.URL})
+	service.client = server.Client()
+	return service
+}
+
+func writeBody(t *testing.T, w http.ResponseWriter, body string) {
+	t.Helper()
+	if _, err := w.Write([]byte(body)); err != nil {
+		t.Errorf("write response: %v", err)
+	}
+}
+
+func TestListRequestsIncludeNouptime(t *testing.T) {
+	var sawUptime, sawHeartbeat bool
+	service := newTestService(t, func(w http.ResponseWriter, r *http.Request) {
+		if got := r.URL.Query().Get("nouptime"); got != "true" {
+			t.Errorf("expected nouptime=true on %s, got %q", r.URL.String(), got)
+		}
+		switch {
+		case strings.HasPrefix(r.URL.Path, "/v1/uptime"):
+			sawUptime = true
+			writeBody(t, w, uptimeListJSON())
+		case strings.HasPrefix(r.URL.Path, "/v1/heartbeat"):
+			sawHeartbeat = true
+			writeBody(t, w, heartbeatEmptyListJSON())
+		default:
+			http.NotFound(w, r)
+		}
+	})
+
+	monitors, err := service.GetAll()
+	if err != nil {
+		t.Fatalf("GetAll: %v", err)
+	}
+	if !sawUptime || !sawHeartbeat {
+		t.Fatalf("expected both uptime and heartbeat list calls, uptime=%v heartbeat=%v", sawUptime, sawHeartbeat)
+	}
+	if len(monitors) != 1 || monitors[0].Name != testMonitorName {
+		t.Fatalf("unexpected monitors: %+v", monitors)
+	}
+}
+
+func TestGetByNameRetriesHTTP500(t *testing.T) {
+	var uptimeListCalls atomic.Int32
+	service := newTestService(t, func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/v1/heartbeat") {
+			writeBody(t, w, heartbeatEmptyListJSON())
+			return
+		}
+		if r.URL.Path == "/v1/uptime/" || r.URL.Path == "/v1/uptime" {
+			if uptimeListCalls.Add(1) == 1 {
+				w.Header().Set("Retry-After", "0")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			writeBody(t, w, uptimeListJSON())
+			return
+		}
+		http.NotFound(w, r)
+	})
+
+	monitor, err := service.GetByName(testMonitorName)
+	if err != nil {
+		t.Fatalf("GetByName: %v", err)
+	}
+	if monitor == nil || monitor.ID != testMonitorID {
+		t.Fatalf("unexpected monitor: %+v", monitor)
+	}
+	if uptimeListCalls.Load() < 2 {
+		t.Fatalf("expected retry after 500, got %d list calls", uptimeListCalls.Load())
+	}
+}
+
+func TestGetByNameUsesCachedIDOnSecondLookup(t *testing.T) {
+	var listCalls, getByIDCalls atomic.Int32
+	service := newTestService(t, func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/v1/uptime/"+testMonitorID:
+			getByIDCalls.Add(1)
+			writeBody(t, w, uptimeByIDJSON())
+		case r.URL.Path == "/v1/uptime/" || r.URL.Path == "/v1/uptime":
+			listCalls.Add(1)
+			writeBody(t, w, uptimeListJSON())
+		case strings.HasPrefix(r.URL.Path, "/v1/heartbeat"):
+			writeBody(t, w, heartbeatEmptyListJSON())
+		default:
+			http.NotFound(w, r)
+		}
+	})
+
+	first, err := service.GetByName(testMonitorName)
+	if err != nil {
+		t.Fatalf("first GetByName: %v", err)
+	}
+	if first == nil || first.ID != testMonitorID {
+		t.Fatalf("unexpected first monitor: %+v", first)
+	}
+
+	second, err := service.GetByName(testMonitorName)
+	if err != nil {
+		t.Fatalf("second GetByName: %v", err)
+	}
+	if second == nil || second.ID != testMonitorID {
+		t.Fatalf("unexpected second monitor: %+v", second)
+	}
+	if listCalls.Load() != 1 {
+		t.Fatalf("expected one list call, got %d", listCalls.Load())
+	}
+	if getByIDCalls.Load() != 1 {
+		t.Fatalf("expected one get-by-id call, got %d", getByIDCalls.Load())
+	}
+}
+
+func TestGetByNameFallsBackToListAfterCachedID404(t *testing.T) {
+	var listCalls, getByIDCalls atomic.Int32
+	service := newTestService(t, func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/v1/uptime/"+testMonitorID:
+			getByIDCalls.Add(1)
+			w.WriteHeader(http.StatusNotFound)
+		case r.URL.Path == "/v1/uptime/" || r.URL.Path == "/v1/uptime":
+			listCalls.Add(1)
+			writeBody(t, w, uptimeListJSON())
+		case strings.HasPrefix(r.URL.Path, "/v1/heartbeat"):
+			writeBody(t, w, heartbeatEmptyListJSON())
+		default:
+			http.NotFound(w, r)
+		}
+	})
+
+	first, err := service.GetByName(testMonitorName)
+	if err != nil {
+		t.Fatalf("first GetByName: %v", err)
+	}
+	if first == nil || first.ID != testMonitorID {
+		t.Fatalf("unexpected first monitor: %+v", first)
+	}
+
+	second, err := service.GetByName(testMonitorName)
+	if err != nil {
+		t.Fatalf("second GetByName: %v", err)
+	}
+	if second == nil || second.ID != testMonitorID {
+		t.Fatalf("unexpected second monitor: %+v", second)
+	}
+	if getByIDCalls.Load() != 1 {
+		t.Fatalf("expected one get-by-id call, got %d", getByIDCalls.Load())
+	}
+	if listCalls.Load() != 2 {
+		t.Fatalf("expected list to run again after 404, got %d list calls", listCalls.Load())
+	}
+}
+
+func TestAddRetries429PreservesFormBody(t *testing.T) {
+	var posts atomic.Int32
+	var retryBody string
+	service := newTestService(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost && (r.URL.Path == "/v1/uptime" || r.URL.Path == "/v1/uptime/") {
+			n := posts.Add(1)
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				t.Errorf("read body: %v", err)
+			}
+			if n == 1 {
+				w.Header().Set("Retry-After", "0")
+				w.WriteHeader(http.StatusTooManyRequests)
+				return
+			}
+			retryBody = string(body)
+			if ct := r.Header.Get("Content-Type"); ct != "application/x-www-form-urlencoded" {
+				t.Errorf("expected form content type, got %q", ct)
+			}
+			w.WriteHeader(http.StatusCreated)
+			return
+		}
+		http.NotFound(w, r)
+	})
+
+	service.Add(models.Monitor{
+		Name: "pytest-imc-uptime-test",
+		URL:  "https://zvoove.com",
+		Config: &endpointmonitorv1alpha1.StatusCakeConfig{
+			TestType:  "HTTP",
+			CheckRate: 300,
+		},
+	})
+
+	if posts.Load() != 2 {
+		t.Fatalf("expected POST then retry, got %d", posts.Load())
+	}
+	if !strings.Contains(retryBody, "name=pytest-imc-uptime-test") {
+		t.Fatalf("retry body missing name: %q", retryBody)
+	}
+	if !strings.Contains(retryBody, "website_url=https") {
+		t.Fatalf("retry body missing website_url: %q", retryBody)
+	}
+	if !strings.Contains(retryBody, "check_rate=300") {
+		t.Fatalf("retry body missing check_rate: %q", retryBody)
+	}
 }
