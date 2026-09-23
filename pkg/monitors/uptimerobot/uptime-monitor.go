@@ -308,7 +308,6 @@ func (monitor *UpTimeMonitorService) Remove(m models.Monitor) {
 			log.Info("Monitor Removed: " + m.Name)
 		} else {
 			log.Info("Monitor couldn't be removed: " + m.Name + ". Error: " + f.Error.Message)
-			log.Info(string(body))
 		}
 	} else {
 		log.Info("RemoveMonitor Request failed. Status Code: " + strconv.Itoa(response.StatusCode))

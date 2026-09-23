@@ -90,7 +90,6 @@ func (statusPageService *UpTimeStatusPageService) Remove(statusPage UpTimeStatus
 			log.Info("Status Page Removed: " + statusPage.Name)
 		} else {
 			log.Info("Status Page couldn't be removed: " + statusPage.Name)
-			log.Info(string(body))
 		}
 	} else {
 		log.Info("Remove Status Page Request failed. Status Code: " + strconv.Itoa(response.StatusCode))
