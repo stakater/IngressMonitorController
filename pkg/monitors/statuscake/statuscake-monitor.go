@@ -627,6 +627,7 @@ func (service *StatusCakeMonitorService) Add(m models.Monitor) {
 		return
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := service.doRequest(req)
 	if err != nil {
 		log.Error(err, "Unable to make HTTP call")
@@ -701,6 +702,7 @@ func (service *StatusCakeMonitorService) Update(m models.Monitor) {
 		return
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", service.apiKey))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := service.doRequest(req)
 	if err != nil {
 		log.Error(err, "Unable to make HTTP call")
