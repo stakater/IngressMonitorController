@@ -75,6 +75,10 @@ type EndpointMonitorSpec struct {
 	// Configuration for Grafana Cloud Monitor Provider
 	// +optional
 	GrafanaConfig *GrafanaConfig `json:"grafanaConfig,omitempty"`
+
+	// Configuration for Uptime Kuma Monitor Provider
+	// +optional
+	UptimeKumaConfig *UptimeKumaConfig `json:"uptimeKumaConfig,omitempty"`
 }
 
 // UptimeRobotConfig defines the configuration for UptimeRobot Monitor Provider
@@ -428,6 +432,32 @@ type GrafanaConfig struct {
 	// +kubebuilder:validation:Enum=none;low;medium;high
 	// +kubebuilder:default=none
 	AlertSensitivity string `json:"alertSensitivity,omitempty"`
+}
+
+// UptimeKumaConfig defines the configuration for UptimeKuma Monitor Provider
+type UptimeKumaConfig struct {
+	// The uptime kuma check interval in seconds (Uptime Kuma minimum is 20)
+	// +kubebuilder:validation:Minimum=20
+	// +optional
+	Interval int `json:"interval,omitempty"`
+
+	// The uptime kuma monitor type (http or keyword)
+	// +kubebuilder:validation:Enum=http;keyword
+	// +optional
+	MonitorType string `json:"monitorType,omitempty"`
+
+	// keyword to check on URL (Only if monitor-type is keyword)
+	// +optional
+	KeywordValue string `json:"keywordValue,omitempty"`
+
+	// Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)
+	// +kubebuilder:validation:Enum=yes;no
+	// +optional
+	KeywordExists string `json:"keywordExists,omitempty"`
+
+	// Comma-separated uptime kuma notification IDs to attach to this monitor
+	// +optional
+	Notifications string `json:"notifications,omitempty"`
 }
 
 // URLSource represents the set of resources to fetch the URL from
