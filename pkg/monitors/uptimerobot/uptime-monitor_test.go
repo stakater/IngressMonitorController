@@ -146,7 +146,7 @@ func TestAddMonitorWithInterval(t *testing.T) {
 	}
 	providerConfig, _ := mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
 
-	if 600 != providerConfig.Interval {
+	if providerConfig.Interval != 600 {
 		t.Error("The interval is incorrect, expected: 600, but was: " + strconv.Itoa(providerConfig.Interval))
 	}
 	service.Remove(*mRes)
@@ -183,7 +183,7 @@ func TestUpdateMonitorInterval(t *testing.T) {
 	}
 	providerConfig, _ := mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
 
-	if 600 != providerConfig.Interval {
+	if providerConfig.Interval != 600 {
 		t.Error("The interval is incorrect, expected: 600, but was: " + strconv.Itoa(providerConfig.Interval))
 	}
 
@@ -204,7 +204,7 @@ func TestUpdateMonitorInterval(t *testing.T) {
 
 	providerConfig, _ = mRes.Config.(*endpointmonitorv1alpha1.UptimeRobotConfig)
 
-	if 900 != providerConfig.Interval {
+	if providerConfig.Interval != 900 {
 		t.Error("The interval is incorrect, expected: 600, but was: " + strconv.Itoa(providerConfig.Interval))
 	}
 
