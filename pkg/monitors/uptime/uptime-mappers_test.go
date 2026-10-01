@@ -30,8 +30,8 @@ func TestUptimeMonitorMonitorToBaseMonitorMapper(t *testing.T) {
 	if monitorObject.ID != strconv.Itoa(uptimeMonitorObject.PK) ||
 		monitorObject.Name != uptimeMonitorObject.Name ||
 		monitorObject.URL != uptimeMonitorObject.MspAddress ||
-		5 != providerConfig.Interval ||
-		"HTTP" != providerConfig.CheckType {
+		providerConfig.Interval != 5 ||
+		providerConfig.CheckType != "HTTP" {
 		t.Error("Correct: \n",
 			uptimeMonitorObject.Name,
 			uptimeMonitorObject.PK,

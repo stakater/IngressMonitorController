@@ -450,7 +450,10 @@ type UptimeKumaConfig struct {
 	// +optional
 	KeywordValue string `json:"keywordValue,omitempty"`
 
-	// Alert if value exist (yes) or doesn't exist (no) (Only if monitor-type is keyword)
+	// The monitor stays up while the keyword is present in the response (yes) or
+	// while it is absent (no), so `no` with a keyword like "404" alerts as soon
+	// as the endpoint starts answering with a 404 page (Only if monitor-type is
+	// keyword)
 	// +kubebuilder:validation:Enum=yes;no
 	// +optional
 	KeywordExists string `json:"keywordExists,omitempty"`

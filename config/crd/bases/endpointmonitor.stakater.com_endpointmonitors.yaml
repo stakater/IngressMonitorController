@@ -382,8 +382,11 @@ spec:
                     minimum: 20
                     type: integer
                   keywordExists:
-                    description: Alert if value exist (yes) or doesn't exist (no)
-                      (Only if monitor-type is keyword)
+                    description: |-
+                      The monitor stays up while the keyword is present in the response (yes) or
+                      while it is absent (no), so `no` with a keyword like "404" alerts as soon
+                      as the endpoint starts answering with a 404 page (Only if monitor-type is
+                      keyword)
                     enum:
                     - "yes"
                     - "no"

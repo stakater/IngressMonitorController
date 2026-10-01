@@ -57,7 +57,7 @@ func (service *MonitorService) GetByName(name string) (monitor *models.Monitor, 
 			break
 		}
 		if err != nil {
-			return nil, fmt.Errorf("Error Locating Monitor: %s", err.Error())
+			return nil, fmt.Errorf("error locating monitor: %s", err.Error())
 		}
 		if uptimeCheckConfig.DisplayName == name {
 			localMonitor := transformToMonitor(uptimeCheckConfig)

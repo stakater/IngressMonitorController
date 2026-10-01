@@ -2,9 +2,11 @@ package uptimekuma
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/breml/go-uptime-kuma-client/monitor"
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/v2/api/v1alpha1"
@@ -120,7 +122,10 @@ func TestNormalizeConfigCanonicalNotifications(t *testing.T) {
 func TestBuildKumaMonitorHttp(t *testing.T) {
 	normalized := normalizeConfig(&endpointmonitorv1alpha1.UptimeKumaConfig{Interval: 90, Notifications: "2,1"})
 
-	mon := buildKumaMonitor(models.Monitor{Name: "test", URL: "https://example.com"}, normalized)
+	mon, err := buildKumaMonitor(models.Monitor{Name: "test", URL: "https://example.com"}, normalized)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	httpMonitor, ok := mon.(*monitor.HTTP)
 	if !ok {
 		t.Fatalf("expected a monitor.HTTP, got %T", mon)
@@ -130,6 +135,17 @@ func TestBuildKumaMonitorHttp(t *testing.T) {
 	}
 	if httpMonitor.Interval != 90 {
 		t.Errorf("expected interval 90, got %d", httpMonitor.Interval)
+	}
+	// Uptime Kuma rejects a monitor without a retry interval
+	if httpMonitor.RetryInterval != 90 {
+		t.Errorf("expected retry interval 90, got %d", httpMonitor.RetryInterval)
+	}
+	// Uptime Kuma's UI defaults: follow 10 redirects and time out at 80% of the interval
+	if httpMonitor.MaxRedirects != 10 {
+		t.Errorf("expected max redirects 10, got %d", httpMonitor.MaxRedirects)
+	}
+	if httpMonitor.Timeout != 72 {
+		t.Errorf("expected timeout 72, got %d", httpMonitor.Timeout)
 	}
 	if !httpMonitor.IsActive {
 		t.Error("expected created monitor to be active")
@@ -149,7 +165,10 @@ func TestBuildKumaMonitorKeyword(t *testing.T) {
 		KeywordExists: "no",
 	})
 
-	mon := buildKumaMonitor(models.Monitor{Name: "test", URL: "https://example.com"}, normalized)
+	mon, err := buildKumaMonitor(models.Monitor{Name: "test", URL: "https://example.com"}, normalized)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	keywordMonitor, ok := mon.(*monitor.HTTPKeyword)
 	if !ok {
 		t.Fatalf("expected a monitor.HTTPKeyword, got %T", mon)
@@ -162,6 +181,95 @@ func TestBuildKumaMonitorKeyword(t *testing.T) {
 	}
 	if keywordMonitor.URL != "https://example.com" || keywordMonitor.Name != "test" {
 		t.Errorf("monitor mapped incorrectly: %+v", keywordMonitor)
+	}
+	if keywordMonitor.RetryInterval != DefaultInterval {
+		t.Errorf("expected retry interval %d, got %d", DefaultInterval, keywordMonitor.RetryInterval)
+	}
+	if keywordMonitor.MaxRedirects != 10 {
+		t.Errorf("expected max redirects 10, got %d", keywordMonitor.MaxRedirects)
+	}
+	if keywordMonitor.Timeout != 48 {
+		t.Errorf("expected timeout 48, got %d", keywordMonitor.Timeout)
+	}
+}
+
+func TestBuildKumaMonitorKeywordWithoutValue(t *testing.T) {
+	normalized := normalizeConfig(&endpointmonitorv1alpha1.UptimeKumaConfig{MonitorType: "keyword"})
+
+	mon, err := buildKumaMonitor(models.Monitor{Name: "test", URL: "https://example.com"}, normalized)
+	if err == nil {
+		t.Fatal("expected an error for a keyword monitor without a keyword value")
+	}
+	if mon != nil {
+		t.Errorf("expected no monitor, got %+v", mon)
+	}
+}
+
+func TestRequestTimeoutFor(t *testing.T) {
+	cases := map[int]int64{20: 16, 60: 48, 120: 96, 300: 240}
+	for interval, expected := range cases {
+		if got := requestTimeoutFor(interval); got != expected {
+			t.Errorf("requestTimeoutFor(%d) = %d, expected %d", interval, got, expected)
+		}
+	}
+}
+
+func TestIsAuthError(t *testing.T) {
+	cases := []struct {
+		err      error
+		expected bool
+	}{
+		{nil, false},
+		{errors.New("connect to server: i/o timeout"), false},
+		{errors.New("login: Incorrect username or password"), true},
+		{errors.New("login: authIncorrectCreds"), true},
+	}
+	for _, c := range cases {
+		if got := isAuthError(c.err); got != c.expected {
+			t.Errorf("isAuthError(%v) = %v, expected %v", c.err, got, c.expected)
+		}
+	}
+}
+
+func TestRegisterFailureBacksOff(t *testing.T) {
+	service := UpTimeKumaMonitorService{url: "http://kuma:3001"}
+
+	// A dropped connection backs off exponentially, capped at maxReconnectBackoff
+	expected := initialReconnectBackoff
+	for i := 0; i < 10; i++ {
+		service.registerFailure(errors.New("connection reset"))
+		if service.backoff != expected {
+			t.Fatalf("attempt %d: backoff = %s, expected %s", i, service.backoff, expected)
+		}
+		if wait := time.Until(service.reconnectAt); wait <= 0 {
+			t.Fatalf("attempt %d: reconnectAt is not in the future", i)
+		}
+		expected *= 2
+		if expected > maxReconnectBackoff {
+			expected = maxReconnectBackoff
+		}
+	}
+
+	// Credentials do not fix themselves, so auth errors get the long backoff
+	service.registerFailure(errors.New("login: Incorrect username or password"))
+	if service.backoff != authErrorBackoff {
+		t.Errorf("auth error backoff = %s, expected %s", service.backoff, authErrorBackoff)
+	}
+	if wait := time.Until(service.reconnectAt); wait <= 0 {
+		t.Error("reconnectAt is not in the future after an auth error")
+	}
+}
+
+func TestEnsureClientHonoursBackoff(t *testing.T) {
+	service := UpTimeKumaMonitorService{url: "http://kuma:3001"}
+	service.reconnectAt = time.Now().Add(time.Minute)
+
+	client, err := service.ensureClient()
+	if err == nil {
+		t.Fatal("expected an error while the reconnect backoff is active")
+	}
+	if client != nil {
+		t.Error("expected no client while the reconnect backoff is active")
 	}
 }
 
