@@ -27,6 +27,7 @@ Currently we support the following monitors:
 - [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/monitor-web-app-availability) ([Additional Config](docs/appinsights-configuration.md))
 - [gcloud](https://cloud.google.com/monitoring/uptime-checks) ([Additional Config](docs/gcloud-configuration.md))
 - [Grafana](https://grafana.com/grafana/plugins/grafana-synthetic-monitoring-app/) ([Additional Config](docs/grafana-configuration.md))
+- [Better Stack](https://betterstack.com/uptime-monitoring) ([Additional Config](docs/betterstack-configuration.md))
 
 ## Usage
 
