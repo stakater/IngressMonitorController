@@ -148,6 +148,9 @@ func (r *EndpointMonitorReconciler) GetMonitorOfType(spec endpointmonitorv1alpha
 	if spec.GrafanaConfig != nil {
 		return r.GetMonitorServiceOfType(monitors.TypeGrafana)
 	}
+	if spec.UptimeKumaConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeUptimeKuma)
+	}
 	// If none of the above, return the first monitor service
 	return r.MonitorServices[0]
 }

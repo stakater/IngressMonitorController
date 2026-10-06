@@ -201,7 +201,7 @@ func (aiService *AppinsightsMonitorService) GetByName(monitorName string) (*mode
 				return nil, nil
 			}
 		}
-		return nil, fmt.Errorf("Error retrieving Application Insights WebTests %s (Resource Group %s): %v", monitorName, aiService.resourceGroup, err)
+		return nil, fmt.Errorf("error retrieving Application Insights WebTests %s (Resource Group %s): %v", monitorName, aiService.resourceGroup, err)
 	}
 	return &models.Monitor{
 		Name: *webtest.Name,
