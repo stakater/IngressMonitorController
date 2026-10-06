@@ -57,7 +57,7 @@ func newTestService(serverURL string, alertContacts string) UpTimeMonitorService
 func writeJSON(w http.ResponseWriter, statusCode int, body string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	io.WriteString(w, body)
+	_, _ = io.WriteString(w, body)
 }
 
 func TestV3AddMonitorHttpRequest(t *testing.T) {
