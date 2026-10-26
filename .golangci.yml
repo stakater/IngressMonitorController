@@ -1,0 +1,11 @@
+version: "2"
+# Keep golangci-lint v1 default behaviour
+linters:
+  settings:
+    staticcheck:
+      checks: ["all", "-ST*", "-QF*"]
+  exclusions:
+    presets:
+      - common-false-positives
+      - legacy
+      - std-error-handling
