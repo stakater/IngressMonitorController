@@ -121,9 +121,9 @@ func TestAddHeartbeatMonitorWithCorrectValues(t *testing.T) {
 
 	mRes, err := service.GetByName(m.Name)
 	if err != nil {
-		t.Error("Error: " + err.Error())
+		t.Fatal("Error: " + err.Error())
 	} else if mRes == nil {
-		t.Errorf("Found empty response for Monitor. Name: %s", m.Name)
+		t.Fatalf("Found empty response for Monitor. Name: %s", m.Name)
 	}
 	if mRes.Name != m.Name {
 		t.Error("Name should be the same")
