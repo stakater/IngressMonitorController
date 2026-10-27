@@ -1,0 +1,20 @@
+name: PR Approved
+
+# Unprivileged trigger for pull_request_test.yaml, which re-verifies the approval itself
+on:
+  pull_request_review:
+    types: [ submitted ]
+
+permissions: {}
+
+jobs:
+  approved:
+    runs-on: ubuntu-latest
+    if: >-
+      ${{ github.event.review.state == 'approved' &&
+          github.event.review.commit_id == github.event.pull_request.head.sha &&
+          github.event.pull_request.base.ref == 'master' }}
+    steps:
+    - run: echo "Approved $COMMIT"
+      env:
+        COMMIT: ${{ github.event.review.commit_id }}

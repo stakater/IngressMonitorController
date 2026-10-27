@@ -35,9 +35,9 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
-		t.Error("Error: " + err.Error())
+		t.Fatal("Error: " + err.Error())
 	} else if mRes == nil {
-		t.Errorf("Found empty response for Monitor. Name: %s and URL: %s", m.Name, m.URL)
+		t.Fatalf("Found empty response for Monitor. Name: %s and URL: %s", m.Name, m.URL)
 	}
 	if mRes.Name != m.Name || mRes.URL != m.URL {
 		t.Error("URL and name should be the same")
@@ -70,7 +70,9 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	mRes, err := service.GetByName(m.Name)
 
 	if err != nil {
-		t.Error("Error: " + err.Error())
+		t.Fatal("Error: " + err.Error())
+	} else if mRes == nil {
+		t.Fatalf("Found empty response for Monitor. Name: %s and URL: %s", m.Name, m.URL)
 	}
 	if mRes.Name != m.Name || mRes.URL != m.URL {
 		t.Error("URL and name should be the same")
@@ -83,7 +85,9 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	mRes, err = service.GetByID(mRes.ID)
 
 	if err != nil {
-		t.Error("Error: " + err.Error())
+		t.Fatal("Error: " + err.Error())
+	} else if mRes == nil {
+		t.Fatal("Found empty response for Monitor. Name: google-test-statuscake-updated")
 	}
 	if mRes.Name != "google-test-statuscake-updated" {
 		t.Error("Name and ID should be the same")
@@ -121,9 +125,9 @@ func TestAddHeartbeatMonitorWithCorrectValues(t *testing.T) {
 
 	mRes, err := service.GetByName(m.Name)
 	if err != nil {
-		t.Error("Error: " + err.Error())
+		t.Fatal("Error: " + err.Error())
 	} else if mRes == nil {
-		t.Errorf("Found empty response for Monitor. Name: %s", m.Name)
+		t.Fatalf("Found empty response for Monitor. Name: %s", m.Name)
 	}
 	if mRes.Name != m.Name {
 		t.Error("Name should be the same")
@@ -159,14 +163,6 @@ func TestUpdateHeartbeatMonitorWithCorrectValues(t *testing.T) {
 	}
 	service.Add(m)
 
-	mRes, err := service.GetByName(m.Name)
-	if err != nil {
-		t.Error("Error: " + err.Error())
-	}
-	if mRes.Name != m.Name {
-		t.Error("Name should be the same")
-	}
-
 	updatedName := m.Name + "-updated"
 	t.Cleanup(func() {
 		for _, name := range []string{m.Name, updatedName} {
@@ -176,12 +172,24 @@ func TestUpdateHeartbeatMonitorWithCorrectValues(t *testing.T) {
 		}
 	})
 
+	mRes, err := service.GetByName(m.Name)
+	if err != nil {
+		t.Fatal("Error: " + err.Error())
+	} else if mRes == nil {
+		t.Fatalf("Found empty response for Monitor. Name: %s", m.Name)
+	}
+	if mRes.Name != m.Name {
+		t.Error("Name should be the same")
+	}
+
 	mRes.Name = updatedName
 	service.Update(*mRes)
 
 	mRes, err = service.GetHeartbeatByID(mRes.ID)
 	if err != nil {
-		t.Error("Error: " + err.Error())
+		t.Fatal("Error: " + err.Error())
+	} else if mRes == nil {
+		t.Fatalf("Found empty response for Monitor. Name: %s", updatedName)
 	}
 	if mRes.Name != updatedName {
 		t.Error("Name should be updated")
