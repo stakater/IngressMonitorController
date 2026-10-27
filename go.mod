@@ -1,6 +1,6 @@
 module github.com/stakater/IngressMonitorController/v2
 
-go 1.24.0
+go 1.26.10
 
 require (
 	cloud.google.com/go/monitoring v1.16.3
