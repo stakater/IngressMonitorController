@@ -95,6 +95,10 @@ func (client *HttpClient) PutUrl(requestHeaders map[string]string, body []byte) 
 	return client.RequestWithHeaders("PUT", body, requestHeaders)
 }
 
+func (client *HttpClient) PatchUrl(requestHeaders map[string]string, body []byte) HttpResponse {
+	return client.RequestWithHeaders("PATCH", body, requestHeaders)
+}
+
 func (client *HttpClient) PostUrlEncodedFormBody(body string) HttpResponse {
 	requestHeaders := make(map[string]string)
 	requestHeaders["content-type"] = "application/x-www-form-urlencoded"

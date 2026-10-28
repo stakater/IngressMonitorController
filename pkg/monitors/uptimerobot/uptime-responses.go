@@ -1,94 +1,79 @@
 package uptimerobot
 
-type UptimeMonitorGetMonitorsResponse struct {
-	Stat       string                  `json:"stat"`
-	Pagination UptimeMonitorPagination `json:"pagination"`
-	Monitors   []UptimeMonitorMonitor  `json:"monitors"`
-}
+// UptimeRobot API v3 DTOs (camelCase JSON).
+// v3 has no stat/error envelope anymore: HTTP 2xx means success,
+// any other status code is an error.
 
 type UptimeMonitorPagination struct {
-	Offset int `json:"offset"`
-	Limit  int `json:"limit"`
-	Total  int `json:"total"`
+	NextLink *string                `json:"nextLink"`
+	Data     []UptimeMonitorMonitor `json:"data"`
 }
 
 type UptimeMonitorMonitor struct {
-	ID             int                          `json:"id"`
-	FriendlyName   string                       `json:"friendly_name"`
-	URL            string                       `json:"url"`
-	Type           int                          `json:"type"`
-	SubType        string                       `json:"sub_type"`
-	KeywordType    int                          `json:"keyword_type"`
-	KeywordValue   string                       `json:"keyword_value"`
-	HTTPUsername   string                       `json:"http_username"`
-	HTTPPassword   string                       `json:"http_password"`
-	Port           string                       `json:"port"`
-	Interval       int                          `json:"interval"`
-	Status         int                          `json:"status"`
-	CreateDatetime int                          `json:"create_datetime"`
-	Logs           []UptimeMonitorLogs          `json:"logs"`
-	AlertContacts  []UptimeMonitorAlertContacts `json:"alert_contacts"`
+	ID                       int                         `json:"id"`
+	FriendlyName             string                      `json:"friendlyName"`
+	URL                      string                      `json:"url"`
+	Type                     string                      `json:"type"`
+	Interval                 int                         `json:"interval"`
+	Timeout                  int                         `json:"timeout"`
+	Status                   string                      `json:"status"`
+	KeywordType              string                      `json:"keywordType"`
+	KeywordValue             string                      `json:"keywordValue"`
+	SuccessHttpResponseCodes []string                    `json:"successHttpResponseCodes"`
+	Psps                     []UptimePublicStatusPage    `json:"psps"`
+	Tags                     []UptimeMonitorTag          `json:"tags"`
+	AssignedAlertContacts    []UptimeMonitorAlertContact `json:"assignedAlertContacts"`
+	CreateDateTime           int64                       `json:"createDateTime"`
 }
 
-type UptimeMonitorAlertContacts struct {
-	ID         string `json:"id"`
-	Threshold  int    `json:"threshold"`
-	Recurrence int    `json:"recurrence"`
+type UptimeMonitorAlertContact struct {
+	AlertContactId int `json:"alertContactId"`
+	Threshold      int `json:"threshold"`
+	Recurrence     int `json:"recurrence"`
 }
 
-type UptimeMonitorLogs struct {
-	Type     int `json:"type"`
-	Datetime int `json:"datetime"`
-	Duration int `json:"duration"`
+type UptimeMonitorTag struct {
+	Name string `json:"name"`
 }
 
-type UptimeMonitorNewMonitorResponse struct {
-	Stat    string                     `json:"stat"`
-	Monitor UptimeMonitorMonitorStatus `json:"monitor"`
-	Error   UptimeMonitorError         `json:"error"`
+// UptimeMonitorMonitorRequest is the request body for POST /monitors and PATCH /monitors/{id}
+type UptimeMonitorMonitorRequest struct {
+	FriendlyName             string                      `json:"friendlyName"`
+	Type                     string                      `json:"type,omitempty"`
+	URL                      string                      `json:"url,omitempty"`
+	Interval                 int                         `json:"interval,omitempty"`
+	Timeout                  int                         `json:"timeout,omitempty"`
+	KeywordType              string                      `json:"keywordType,omitempty"`
+	KeywordValue             string                      `json:"keywordValue,omitempty"`
+	MaintenanceWindowsIds    []int                       `json:"maintenanceWindowsIds,omitempty"`
+	AssignedAlertContacts    []UptimeMonitorAlertContact `json:"assignedAlertContacts,omitempty"`
+	SuccessHttpResponseCodes []string                    `json:"successHttpResponseCodes,omitempty"`
 }
 
-type UptimeMonitorError struct {
-	Type    string `json:"type"`
-	Message string `json:"message"`
-}
-
-type UptimeMonitorMonitorStatus struct {
-	ID     int `json:"id"`
-	Status int `json:"status"`
-}
-
-type UptimeMonitorStatusMonitorResponse struct {
-	Stat    string             `json:"stat"`
-	Error   UptimeMonitorError `json:"error"`
-	Monitor struct {
-		ID int `json:"id"`
-	} `json:"monitor"`
-}
-
+// UptimePublicStatusPage is the v3 PspDto. It is also reused for the psps
+// references embedded in MonitorDto (only id/friendlyName matter there).
 type UptimePublicStatusPage struct {
 	ID           int    `json:"id"`
-	FriendlyName string `json:"friendly_name"`
-	Monitors     []int  `json:"monitors"`
-	CustomDomain string `json:"custom_domain"`
-	Password     string `json:"password"`
-	Sort         int    `json:"sort"`
-	Status       int    `json:"status"`
+	FriendlyName string `json:"friendlyName"`
+	MonitorIds   []int  `json:"monitorIds"`
+	Status       string `json:"status"`
 }
 
-type UptimeStatusPageResponse struct {
-	Stat                   string `json:"stat"`
-	UptimePublicStatusPage struct {
-		ID int `json:"id"`
-	} `json:"psp"`
+type UptimeStatusPagesPagination struct {
+	NextLink *string                  `json:"nextLink"`
+	Data     []UptimePublicStatusPage `json:"data"`
 }
 
-type UptimeStatusPagesResponse struct {
-	Stat       string `json:"stat"`
-	Pagination struct {
-		Offset int `json:"offset"`
-		Limit  int `json:"limit"`
-		Total  int `json:"total"`
-	} `json:"pagination"`
-	StatusPages []UptimePublicStatusPage `json:"psps"`
+// pspRequest is the request body for POST /psps
+type pspRequest struct {
+	FriendlyName string `json:"friendlyName"`
+	MonitorIds   []int  `json:"monitorIds"`
+	Status       string `json:"status"`
+}
+
+// pspPatchRequest is the request body for PATCH /psps/{id};
+// the full monitorIds array replaces the existing set
+type pspPatchRequest struct {
+	FriendlyName string `json:"friendlyName"`
+	MonitorIds   []int  `json:"monitorIds"`
 }
