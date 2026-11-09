@@ -220,9 +220,7 @@ func (service *PingdomTransactionMonitorService) addConfigToTransactionCheck(tra
 	if providerConfig.SendNotificationWhenDown > 0 {
 		transactionCheck.SendNotificationWhenDown = ptr.Int64(providerConfig.SendNotificationWhenDown)
 	}
-	if providerConfig.Paused {
-		transactionCheck.Active = ptr.Bool(!providerConfig.Paused)
-	}
+	transactionCheck.Active = ptr.Bool(!providerConfig.Paused)
 	if len(providerConfig.Tags) > 0 {
 		transactionCheck.Tags = providerConfig.Tags
 	}

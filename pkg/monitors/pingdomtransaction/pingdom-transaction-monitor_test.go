@@ -107,6 +107,36 @@ func TestGetSecretFromTemplate(t *testing.T) {
 	}
 }
 
+func TestAddConfigPausedActive(t *testing.T) {
+	tests := []struct {
+		name           string
+		paused         bool
+		expectedActive bool
+	}{
+		{name: "paused true -> inactive", paused: true, expectedActive: false},
+		{name: "paused false -> active", paused: false, expectedActive: true},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			service := PingdomTransactionMonitorService{}
+			transactionCheck := &pingdomNew.CheckWithoutID{}
+			monitor := models.Monitor{
+				Name: "test",
+				URL:  "https://google.com",
+				Config: &endpointmonitorv1alpha1.PingdomTransactionConfig{
+					Paused: tc.paused,
+				},
+			}
+
+			service.addConfigToTransactionCheck(transactionCheck, monitor)
+
+			assert.Assert(t, transactionCheck.Active != nil, "Active must always be set")
+			assert.Equal(t, *transactionCheck.Active, tc.expectedActive)
+		})
+	}
+}
+
 func TestReplaceSecrets(t *testing.T) {
 	// Create a fake clientset
 	clientset := fake.NewSimpleClientset()

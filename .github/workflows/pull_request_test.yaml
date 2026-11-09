@@ -1,7 +1,9 @@
-name: Run Tests on PR Label
+name: Run Tests on PR Label or Approval
 
+# Runs in base repo context so fork PRs get the test config secret.
+# Untrusted PR code only runs after a maintainer labels or approves that exact commit.
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - 'master'
     paths-ignore:
@@ -11,6 +13,15 @@ on:
       - 'hack/'
       - 'config/'
     types: [ labeled ]
+  # pull_request_review gets no secrets on fork PRs, so approvals arrive via the PR Approved workflow
+  workflow_run:
+    workflows: [ PR Approved ]
+    types: [ completed ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
 
 env:
   KIND_VERSION: "v0.25.0"
@@ -20,18 +31,40 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Test
-    if: ${{ github.event.label.name == 'ok-to-test' }}
+    if: >-
+      ${{ (github.event_name == 'pull_request_target' && github.event.label.name == 'ok-to-test') ||
+          (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
+    env:
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}
     steps:
 
     - name: Remove the test label
+      if: github.event_name == 'pull_request_target'
       uses: actions-ecosystem/action-remove-labels@v1
       with:
         labels: ok-to-test
 
+    # PR Approved runs the PR's own copy of that workflow, so its success can't be trusted
+    - name: Verify maintainer approval of this commit
+      if: github.event_name == 'workflow_run'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        pr=$(gh api "repos/${{ github.repository }}/commits/$HEAD_SHA/pulls" \
+          --jq '[.[] | select(.state == "open" and .base.ref == "master")][0].number')
+        approvals=$(gh api "repos/${{ github.repository }}/pulls/$pr/reviews" --paginate \
+          --jq "[.[] | select(.state == \"APPROVED\" and .commit_id == \"$HEAD_SHA\" and
+                 (.author_association | IN(\"OWNER\", \"MEMBER\", \"COLLABORATOR\")))] | length")
+        if [ "$approvals" = "0" ]; then
+          echo "::error::No maintainer approval on $HEAD_SHA for PR #$pr"
+          exit 1
+        fi
+
     - name: Check out code
       uses: actions/checkout@v4
       with:
-        ref: ${{github.event.pull_request.head.sha}}
+        ref: ${{ env.HEAD_SHA }}
+        persist-credentials: false
 
     - name: Set up Go
       uses: actions/setup-go@v5
@@ -58,3 +91,14 @@ jobs:
 
     - name: Test
       run: make test
+
+    # workflow_run results don't show on the PR, so report them as a commit status
+    - name: Report result on PR
+      if: always() && github.event_name == 'workflow_run'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh api "repos/${{ github.repository }}/statuses/$HEAD_SHA" \
+          -f state=${{ job.status == 'success' && 'success' || 'failure' }} \
+          -f context="Test (on approval)" \
+          -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
