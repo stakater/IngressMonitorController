@@ -88,6 +88,16 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))
 
 	monitorService := r.GetMonitorOfType(instance.Spec)
+	if monitorService == nil {
+		// The spec names a provider that is not configured on this controller —
+		// e.g. a CR still carrying uptimeRobotConfig after the deployment moved
+		// to another provider. GetMonitorServiceOfType has already logged which
+		// one. Requeuing cannot help: nothing about this controller's config
+		// will change on a retry, and dereferencing the nil proxy panics the
+		// whole reconcile loop.
+		log.Info("Skipping " + monitorName + ": its spec names a monitor provider that is not configured")
+		return reconcile.Result{}, nil
+	}
 	monitor, err := findMonitorByName(monitorService, monitorName)
 	if err != nil {
 		return reconcile.Result{}, err
@@ -147,6 +157,9 @@ func (r *EndpointMonitorReconciler) GetMonitorOfType(spec endpointmonitorv1alpha
 	}
 	if spec.GrafanaConfig != nil {
 		return r.GetMonitorServiceOfType(monitors.TypeGrafana)
+	}
+	if spec.BetterStackConfig != nil {
+		return r.GetMonitorServiceOfType(monitors.TypeBetterStack)
 	}
 	// If none of the above, return the first monitor service
 	return r.MonitorServices[0]
