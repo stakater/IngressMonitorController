@@ -37,7 +37,7 @@ func getID(monitor models.Monitor) (int64, error) {
 	if len(monitor.ID) > 0 {
 		idResult, err := strconv.ParseInt(monitor.ID, 10, 64)
 		if err != nil {
-			return 0, fmt.Errorf("Error converting ID %v %v", monitor.ID, err)
+			return 0, fmt.Errorf("error converting ID %v %v", monitor.ID, err)
 		}
 		checkId = idResult
 	}
@@ -69,12 +69,12 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 
 	availableProbes, err := service.smClient.ListProbes(service.ctx)
 	if err != nil {
-		return nil, fmt.Errorf("Error listing probes %v", err)
+		return nil, fmt.Errorf("error listing probes %v", err)
 	}
 
 	var probeToSet []synthetic_monitoring.Probe
 	var configProbeNames []string
-	var frequency int64 = service.frequency
+	frequency := service.frequency
 	var alertSensitivity string
 	providerConfig, _ := monitor.Config.(*endpointmonitorv1alpha1.GrafanaConfig)
 	if providerConfig != nil {
@@ -106,7 +106,7 @@ func (service *GrafanaMonitorService) CreateSyntheticCheck(monitor models.Monito
 
 	checkId, err := getID(monitor)
 	if err != nil {
-		return nil, fmt.Errorf("Error converting ID %v %v", monitor.ID, err)
+		return nil, fmt.Errorf("error converting ID %v %v", monitor.ID, err)
 	}
 	// Creating a new Check object
 	return &synthetic_monitoring.Check{

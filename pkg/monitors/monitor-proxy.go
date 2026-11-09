@@ -12,6 +12,7 @@ import (
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/statuscake"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/updown"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/uptime"
+	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/uptimekuma"
 	"github.com/stakater/IngressMonitorController/v2/pkg/monitors/uptimerobot"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
@@ -28,6 +29,7 @@ const (
 	TypeAppInsights        = "AppInsights"
 	TypeGCloud             = "gcloud"
 	TypeGrafana            = "Grafana"
+	TypeUptimeKuma         = "UptimeKuma"
 )
 
 type MonitorServiceProxy struct {
@@ -60,6 +62,8 @@ func (mp *MonitorServiceProxy) OfType(mType string) MonitorServiceProxy {
 		mp.monitor = &gcloud.MonitorService{}
 	case TypeGrafana:
 		mp.monitor = &grafana.GrafanaMonitorService{}
+	case TypeUptimeKuma:
+		mp.monitor = &uptimekuma.UpTimeKumaMonitorService{}
 	default:
 		panic("No such provider found: " + mType)
 	}
@@ -87,6 +91,8 @@ func (mp *MonitorServiceProxy) ExtractConfig(spec endpointmonitorv1alpha1.Endpoi
 		config = spec.GCloudConfig
 	case TypeGrafana:
 		config = spec.GrafanaConfig
+	case TypeUptimeKuma:
+		config = spec.UptimeKumaConfig
 	default:
 		return config
 	}

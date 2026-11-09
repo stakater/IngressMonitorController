@@ -146,6 +146,12 @@ func GetControllerConfigTest() Config {
 		configFilePath = "../../../.local/test-config.yaml"
 	}
 
+	if _, err := os.Stat(configFilePath); err != nil {
+		// Without a test config, provider lookups return nil and live-API tests skip themselves
+		log.Info("Test config file not found, live API tests will be skipped: " + configFilePath)
+		return Config{}
+	}
+
 	config := ReadConfig(configFilePath)
 
 	return config

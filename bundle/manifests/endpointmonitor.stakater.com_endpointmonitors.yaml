@@ -373,6 +373,39 @@ spec:
                     description: Add one or more tags for the check separated by `,`
                     type: string
                 type: object
+              uptimeKumaConfig:
+                description: Configuration for Uptime Kuma Monitor Provider
+                properties:
+                  interval:
+                    description: The uptime kuma check interval in seconds (Uptime
+                      Kuma minimum is 20)
+                    minimum: 20
+                    type: integer
+                  keywordExists:
+                    description: |-
+                      The monitor stays up while the keyword is present in the response (yes) or
+                      while it is absent (no), so `no` with a keyword like "404" alerts as soon
+                      as the endpoint starts answering with a 404 page (Only if monitor-type is
+                      keyword)
+                    enum:
+                    - "yes"
+                    - "no"
+                    type: string
+                  keywordValue:
+                    description: keyword to check on URL (Only if monitor-type is
+                      keyword)
+                    type: string
+                  monitorType:
+                    description: The uptime kuma monitor type (http or keyword)
+                    enum:
+                    - http
+                    - keyword
+                    type: string
+                  notifications:
+                    description: Comma-separated uptime kuma notification IDs to attach
+                      to this monitor
+                    type: string
+                type: object
               uptimeRobotConfig:
                 description: Configuration for UptimeRobot Monitor Provider
                 properties:
